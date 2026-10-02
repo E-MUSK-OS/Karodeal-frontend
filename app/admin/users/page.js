@@ -17,15 +17,15 @@ export default function AdminUsersPage() {
           const adminUser = JSON.parse(adminStr);
           token = adminUser.token;
         }
-        
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-        
+
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
+
         const res = await fetch(`${apiUrl}/auth`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
-        
+
         const data = await res.json();
         if (data.success) {
           setUsers(data.users);
@@ -38,7 +38,7 @@ export default function AdminUsersPage() {
         setIsLoading(false);
       }
     };
-    
+
     fetchUsers();
   }, []);
 

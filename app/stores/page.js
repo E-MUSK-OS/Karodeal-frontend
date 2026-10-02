@@ -2,7 +2,7 @@ import { getStores, getProducts } from '@/lib/fetchProducts';
 import StoreCard from '@/components/stores/StoreCard';
 
 export const metadata = {
-  title: 'Top Shopping Stores | Dealora',
+  title: 'Top Shopping Stores | KaroDeal',
 };
 
 export default async function StoresPage() {

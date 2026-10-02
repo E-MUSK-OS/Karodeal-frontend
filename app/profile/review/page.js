@@ -24,7 +24,7 @@ function ReviewPageContent() {
   }, [writeParam]);
 
   const defaultReviews = [
-    { id: 1, name: 'Alice Smith', rating: 5, comment: 'Amazing platform! I have saved so much money using Dealora. Highly recommended!', date: '2 days ago' },
+    { id: 1, name: 'Alice Smith', rating: 5, comment: 'Amazing platform! I have saved so much money using KaroDeal. Highly recommended!', date: '2 days ago' },
     { id: 2, name: 'John Doe', rating: 4, comment: 'Great cashback offers, but sometimes takes a little while to track. Overall very satisfied.', date: '1 week ago' },
   ];
 
@@ -36,7 +36,7 @@ function ReviewPageContent() {
     }
 
     // Load reviews
-    const savedReviews = localStorage.getItem('dealora_reviews');
+    const savedReviews = localStorage.getItem('karodeal_reviews');
     if (savedReviews) {
       setReviews(JSON.parse(savedReviews));
     } else {
@@ -60,7 +60,7 @@ function ReviewPageContent() {
 
     const updatedReviews = [newReview, ...reviews];
     setReviews(updatedReviews);
-    localStorage.setItem('dealora_reviews', JSON.stringify(updatedReviews));
+    localStorage.setItem('karodeal_reviews', JSON.stringify(updatedReviews));
 
     // Reset form
     setRating(0);
@@ -74,7 +74,7 @@ function ReviewPageContent() {
           Review Us
         </h3>
         <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
-          We&apos;d love to hear about your experience with Dealora. Share your thoughts and help us improve!
+          We&apos;d love to hear about your experience with KaroDeal. Share your thoughts and help us improve!
         </p>
       </div>
 
@@ -89,13 +89,13 @@ function ReviewPageContent() {
                   <h4 className="text-xl font-bold text-black mb-4">Reviews</h4>
                   <div className="text-[14px] text-neutral-600 space-y-4 leading-relaxed">
                     <p>
-                      Lakhs of Indians visit karodeal every day and make the most of our best offers to get the best deals plus some extra Cashback, right into their bank account. Dealora reviews from these users show how our deals and offers have held up over the years.
+                      Lakhs of Indians visit karodeal every day and make the most of our best offers to get the best deals plus some extra Cashback, right into their bank account. KaroDeal reviews from these users show how our deals and offers have held up over the years.
                     </p>
                     <p>
-                      These reviews are filled with appreciation from our users who are ecstatic about getting the best discount coupons and extra Cashback, only through Dealora.
+                      These reviews are filled with appreciation from our users who are ecstatic about getting the best discount coupons and extra Cashback, only through KaroDeal.
                     </p>
                     <p>
-                      Since its inception, Dealora has distributed crores in Cashback to its customers and has contributed significantly in GMV for online retailers to become the undisputed king of Cashback in India. We believe that Indians love to get more always!
+                      Since its inception, KaroDeal has distributed crores in Cashback to its customers and has contributed significantly in GMV for online retailers to become the undisputed king of Cashback in India. We believe that Indians love to get more always!
                     </p>
                   </div>
                 </div>

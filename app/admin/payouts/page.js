@@ -19,7 +19,7 @@ export default function AdminPayouts() {
       const user = userStr ? JSON.parse(userStr) : null;
       if (!user) return;
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/payouts/admin`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/payouts/admin`, {
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
       if (res.ok) {
@@ -41,7 +41,7 @@ export default function AdminPayouts() {
       const userStr = localStorage.getItem('adminUser');
       const user = JSON.parse(userStr);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/payouts/admin/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/payouts/admin/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ export default function AdminPayouts() {
     }
   };
 
-  const filteredPayouts = payouts.filter(p => 
+  const filteredPayouts = payouts.filter(p =>
     p.user?.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.id.toLowerCase().includes(searchQuery.toLowerCase())
@@ -126,10 +126,10 @@ export default function AdminPayouts() {
                       <p className="text-sm text-neutral-600 max-w-[200px] break-all">{payout.paymentDetails}</p>
                     </td>
                     <td className="py-4 px-4">
-                      {payout.status === 'PENDING' && <span className="inline-flex items-center gap-1 text-amber-600 bg-amber-50 px-2 py-1 rounded text-xs font-bold border border-amber-200"><Clock className="w-3 h-3"/> Pending</span>}
-                      {payout.status === 'APPROVED' && <span className="inline-flex items-center gap-1 text-green-600 bg-green-50 px-2 py-1 rounded text-xs font-bold border border-green-200"><CheckCircle2 className="w-3 h-3"/> Approved</span>}
-                      {payout.status === 'REJECTED' && <span className="inline-flex items-center gap-1 text-red-600 bg-red-50 px-2 py-1 rounded text-xs font-bold border border-red-200"><XCircle className="w-3 h-3"/> Rejected</span>}
-                      
+                      {payout.status === 'PENDING' && <span className="inline-flex items-center gap-1 text-amber-600 bg-amber-50 px-2 py-1 rounded text-xs font-bold border border-amber-200"><Clock className="w-3 h-3" /> Pending</span>}
+                      {payout.status === 'APPROVED' && <span className="inline-flex items-center gap-1 text-green-600 bg-green-50 px-2 py-1 rounded text-xs font-bold border border-green-200"><CheckCircle2 className="w-3 h-3" /> Approved</span>}
+                      {payout.status === 'REJECTED' && <span className="inline-flex items-center gap-1 text-red-600 bg-red-50 px-2 py-1 rounded text-xs font-bold border border-red-200"><XCircle className="w-3 h-3" /> Rejected</span>}
+
                       {payout.adminNote && (
                         <p className="text-[10px] text-neutral-500 mt-1">Note: {payout.adminNote}</p>
                       )}

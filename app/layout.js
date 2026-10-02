@@ -6,7 +6,7 @@ import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import NextTopLoader from 'nextjs-toploader';
 
 export const metadata = {
-  title: 'Dealora | Discover. Save. Shop Smart.',
+  title: 'KaroDeal | Discover. Save. Shop Smart.',
   description: 'Discover the latest discounts, offers and trending products from India\'s top shopping platforms like Amazon, Flipkart, Myntra, and more.',
 };
 

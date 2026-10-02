@@ -10,7 +10,7 @@ export async function generateMetadata({ params }) {
   if (!category) return { title: 'Category Not Found' };
 
   return {
-    title: `${category.name} Deals | Dealora`,
+    title: `${category.name} Deals | KaroDeal`,
   };
 }
 

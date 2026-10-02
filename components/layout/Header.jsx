@@ -30,27 +30,27 @@ export default function Header() {
         const userData = JSON.parse(userStr);
         setUser(userData);
         // Fetch real wallet balance
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/profile`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/profile`, {
           headers: { 'Authorization': `Bearer ${userData.token}` }
         })
-        .then(res => {
-          if (res.status === 401) {
-            localStorage.removeItem('user');
-            setUser(null);
-            router.push('/login');
-            throw new Error('Token expired');
-          }
-          return res.json();
-        })
-        .then(data => {
-          if (data.user) {
-            setUser(prev => ({ ...prev, earnings: data.user.availableBalance }));
-            // Also update localStorage so it persists
-            const updatedUser = { ...userData, earnings: data.user.availableBalance };
-            localStorage.setItem('user', JSON.stringify(updatedUser));
-          }
-        })
-        .catch(err => console.warn('Warning: Could not fetch wallet balance (backend may be down)'));
+          .then(res => {
+            if (res.status === 401) {
+              localStorage.removeItem('user');
+              setUser(null);
+              router.push('/login');
+              throw new Error('Token expired');
+            }
+            return res.json();
+          })
+          .then(data => {
+            if (data.user) {
+              setUser(prev => ({ ...prev, earnings: data.user.availableBalance }));
+              // Also update localStorage so it persists
+              const updatedUser = { ...userData, earnings: data.user.availableBalance };
+              localStorage.setItem('user', JSON.stringify(updatedUser));
+            }
+          })
+          .catch(err => console.warn('Warning: Could not fetch wallet balance (backend may be down)'));
       } else {
         setUser(null);
       }

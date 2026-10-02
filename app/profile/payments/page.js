@@ -22,7 +22,7 @@ export default function Payments() {
       }
 
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/profile`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/profile`, {
           headers: { 'Authorization': `Bearer ${JSON.parse(userStr).token}` }
         });
         if (res.ok) {
@@ -63,7 +63,7 @@ export default function Payments() {
     const user = JSON.parse(userStr);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/payouts`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/payouts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -141,18 +141,18 @@ export default function Payments() {
                 required
               />
             </div>
-            
-              <div>
-                <label className="text-xs font-bold text-neutral-700 block mb-1.5">UPI ID</label>
-                <input
-                  type="text"
-                  value={details}
-                  onChange={e => setDetails(e.target.value)}
-                  placeholder="e.g., yourname@okaxis"
-                  className="w-full bg-white border border-neutral-200 rounded-lg px-3 py-2.5 text-sm text-neutral-900 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
-                  required
-                />
-              </div>
+
+            <div>
+              <label className="text-xs font-bold text-neutral-700 block mb-1.5">UPI ID</label>
+              <input
+                type="text"
+                value={details}
+                onChange={e => setDetails(e.target.value)}
+                placeholder="e.g., yourname@okaxis"
+                className="w-full bg-white border border-neutral-200 rounded-lg px-3 py-2.5 text-sm text-neutral-900 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
+                required
+              />
+            </div>
           </div>
 
           <button

@@ -41,7 +41,7 @@ export default function AdminDashboardPage() {
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">Overview</span>
           <h3 className="text-2xl font-extrabold text-neutral-900 mt-0.5">Admin Dashboard</h3>
-          <p className="text-sm text-neutral-500">Welcome to the Tagdo Dealora Admin Portal.</p>
+          <p className="text-sm text-neutral-500">Welcome to the Tagdo KaroDeal Admin Portal.</p>
         </div>
 
         <div className="flex items-center gap-3">

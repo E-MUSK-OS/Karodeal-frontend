@@ -22,7 +22,7 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     const fetchLatestProfile = async (token, cachedAdmin) => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/profile`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/profile`, {
           method: 'GET',
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -57,7 +57,7 @@ export default function AdminSettingsPage() {
     setIsSavingProfile(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/profile`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ export default function AdminSettingsPage() {
     setIsSavingPassword(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/change-password`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/change-password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

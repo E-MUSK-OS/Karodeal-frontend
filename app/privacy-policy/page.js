@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Privacy Policy | Dealora',
+  title: 'Privacy Policy | KaroDeal',
 };
 
 export default function PrivacyPolicyPage() {

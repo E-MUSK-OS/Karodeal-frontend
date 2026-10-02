@@ -4,7 +4,7 @@ export default function HelpPage() {
   const faqs = [
     {
       question: "How does Cashback work?",
-      answer: "When you click through our links to shop at partner stores, we earn a commission. We pass the majority of this commission back to you as Cashback. It gets tracked in your Dealora account and can be withdrawn once confirmed."
+      answer: "When you click through our links to shop at partner stores, we earn a commission. We pass the majority of this commission back to you as Cashback. It gets tracked in your KaroDeal account and can be withdrawn once confirmed."
     },
     {
       question: "Why is my Cashback not tracked?",

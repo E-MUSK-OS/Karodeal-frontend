@@ -12,7 +12,7 @@ export default function EarningsPage() {
   useEffect(() => {
     const fetchLatestProfile = async (token, cachedUser) => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/profile`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/profile`, {
           method: 'GET',
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -70,7 +70,7 @@ export default function EarningsPage() {
         </div>
 
         <div className="text-center text-sm text-neutral-400 mt-4 border-t border-neutral-800 pt-4">
-          *Earnings will show here within 72 hours of your shopping via Dealora app
+          *Earnings will show here within 72 hours of your shopping via KaroDeal app
         </div>
       </div>
 

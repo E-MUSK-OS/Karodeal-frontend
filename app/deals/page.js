@@ -13,18 +13,18 @@ export default function DealsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-        
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
+
         // Fetch products and stores in parallel
         const [productsRes, storesRes] = await Promise.all([
           fetch(`${apiUrl}/products`),
           fetch(`${apiUrl}/meta/stores`)
         ]);
-        
+
         if (productsRes.ok) {
           setAllDeals(await productsRes.json());
         }
-        
+
         if (storesRes.ok) {
           const storesData = await storesRes.json();
           const dynamicFilters = storesData.map(store => ({

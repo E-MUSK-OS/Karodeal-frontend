@@ -18,7 +18,7 @@ export default function TransactionHistory() {
       }
 
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/transactions`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/transactions`, {
           headers: { 'Authorization': `Bearer ${JSON.parse(userStr).token}` }
         });
         if (res.ok) {
@@ -48,7 +48,7 @@ export default function TransactionHistory() {
   const getStatusConfig = (status) => {
     switch (status) {
       case 'CONFIRMED': return { icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200' };
-      case 'CANCELLED': 
+      case 'CANCELLED':
       case 'REJECTED': return { icon: XCircle, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' };
       case 'PENDING':
       default: return { icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' };
@@ -90,7 +90,7 @@ export default function TransactionHistory() {
                   const Status = getStatusConfig(txn.status);
                   const Icon = Status.icon;
                   const isEarning = txn.type === 'EARNING' || txn.type === 'BONUS';
-                  
+
                   return (
                     <tr key={txn.id} className="hover:bg-neutral-50/50 transition-colors">
                       <td className="py-4 px-6 text-sm text-neutral-600 font-medium whitespace-nowrap">

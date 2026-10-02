@@ -41,7 +41,7 @@ export default function ClaimCashback() {
 
     try {
       if (showLoading) setIsLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/claims`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/claims`, {
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
 
@@ -58,7 +58,7 @@ export default function ClaimCashback() {
 
   const fetchStores = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/meta/stores`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/meta/stores`);
       if (res.ok) {
         const data = await res.json();
         setAvailableStores(data || []);
@@ -70,7 +70,7 @@ export default function ClaimCashback() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/products`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/products`);
       if (res.ok) {
         const data = await res.json();
         setAvailableProducts(Array.isArray(data) ? data : data.products || []);
@@ -105,7 +105,7 @@ export default function ClaimCashback() {
     setIsSubmitting(true);
 
     try {
-      const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/claims`;
+      const url = `${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/claims`;
       const bodyData = new FormData();
       bodyData.append('storeName', storeName);
       if (productId) bodyData.append('productId', productId);
@@ -195,8 +195,8 @@ export default function ClaimCashback() {
                 <div className="flex items-center gap-3 mb-2">
                   <h2 className="text-2xl font-black text-neutral-900">{viewingClaim.storeName}</h2>
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide ${viewingClaim.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
-                      viewingClaim.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                        'bg-amber-100 text-amber-700'
+                    viewingClaim.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                      'bg-amber-100 text-amber-700'
                     }`}>
                     {viewingClaim.status}
                   </span>
@@ -293,20 +293,20 @@ export default function ClaimCashback() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-neutral-700 mb-2">1. Invoice / Receipt</span>
-                  <a href={`${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace('/api', '')}${viewingClaim.invoiceScreenshot}`} target="_blank" rel="noreferrer" className="block aspect-square w-full relative group bg-neutral-100 rounded-xl overflow-hidden border border-neutral-200">
-                    <img src={`${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace('/api', '')}${viewingClaim.invoiceScreenshot}`} className="object-cover w-full h-full" alt="Invoice" />
+                  <a href={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${viewingClaim.invoiceScreenshot}`} target="_blank" rel="noreferrer" className="block aspect-square w-full relative group bg-neutral-100 rounded-xl overflow-hidden border border-neutral-200">
+                    <img src={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${viewingClaim.invoiceScreenshot}`} className="object-cover w-full h-full" alt="Invoice" />
                   </a>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-neutral-700 mb-2">2. Product Review</span>
-                  <a href={`${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace('/api', '')}${viewingClaim.reviewScreenshot}`} target="_blank" rel="noreferrer" className="block aspect-square w-full relative group bg-neutral-100 rounded-xl overflow-hidden border border-neutral-200">
-                    <img src={`${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace('/api', '')}${viewingClaim.reviewScreenshot}`} className="object-cover w-full h-full" alt="Review" />
+                  <a href={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${viewingClaim.reviewScreenshot}`} target="_blank" rel="noreferrer" className="block aspect-square w-full relative group bg-neutral-100 rounded-xl overflow-hidden border border-neutral-200">
+                    <img src={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${viewingClaim.reviewScreenshot}`} className="object-cover w-full h-full" alt="Review" />
                   </a>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-neutral-700 mb-2">3. Non-Return Proof</span>
-                  <a href={`${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace('/api', '')}${viewingClaim.noReturnScreenshot}`} target="_blank" rel="noreferrer" className="block aspect-square w-full relative group bg-neutral-100 rounded-xl overflow-hidden border border-neutral-200">
-                    <img src={`${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace('/api', '')}${viewingClaim.noReturnScreenshot}`} className="object-cover w-full h-full" alt="No Return" />
+                  <a href={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${viewingClaim.noReturnScreenshot}`} target="_blank" rel="noreferrer" className="block aspect-square w-full relative group bg-neutral-100 rounded-xl overflow-hidden border border-neutral-200">
+                    <img src={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${viewingClaim.noReturnScreenshot}`} className="object-cover w-full h-full" alt="No Return" />
                   </a>
                 </div>
               </div>
@@ -380,8 +380,8 @@ export default function ClaimCashback() {
                         <td className="py-4 px-6">
                           <div className="flex items-center justify-between gap-3">
                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold tracking-wide ${claim.status === 'APPROVED' ? 'bg-green-100 text-green-700 border border-green-200' :
-                                claim.status === 'REJECTED' ? 'bg-red-100 text-red-700 border border-red-200' :
-                                  'bg-amber-100 text-amber-700 border border-amber-200'
+                              claim.status === 'REJECTED' ? 'bg-red-100 text-red-700 border border-red-200' :
+                                'bg-amber-100 text-amber-700 border border-amber-200'
                               }`}>
                               {getStatusIcon(claim.status)} {claim.status}
                             </span>

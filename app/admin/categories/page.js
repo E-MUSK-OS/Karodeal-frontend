@@ -20,7 +20,7 @@ export default function AdminCategoriesPage() {
     if (adminUserStr) {
       try {
         return JSON.parse(adminUserStr).token;
-      } catch (e) {}
+      } catch (e) { }
     }
     return localStorage.getItem('token');
   };
@@ -31,7 +31,7 @@ export default function AdminCategoriesPage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/meta/categories');
+      const res = await fetch('https://karodeal-backend.vercel.app/api/meta/categories');
       if (res.ok) {
         const data = await res.json();
         setCategories(data);
@@ -57,7 +57,7 @@ export default function AdminCategoriesPage() {
         formData.append('image', imageFile);
       }
 
-      const res = await fetch('http://localhost:5000/api/meta/categories', {
+      const res = await fetch('https://karodeal-backend.vercel.app/api/meta/categories', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -83,7 +83,7 @@ export default function AdminCategoriesPage() {
     if (!confirm('Are you sure you want to delete this category? This will also delete all associated products.')) return;
     try {
       const token = getToken();
-      const res = await fetch(`http://localhost:5000/api/meta/categories/${id}`, {
+      const res = await fetch(`https://karodeal-backend.vercel.app/api/meta/categories/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -124,14 +124,14 @@ export default function AdminCategoriesPage() {
         formData.append('image', editImageFile);
       }
 
-      const res = await fetch(`http://localhost:5000/api/meta/categories/${id}`, {
+      const res = await fetch(`https://karodeal-backend.vercel.app/api/meta/categories/${id}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
         },
         body: formData,
       });
-      
+
       if (res.ok) {
         const updated = await res.json();
         setCategories(categories.map(c => c.id === id ? { ...c, ...updated } : c));
@@ -215,10 +215,10 @@ export default function AdminCategoriesPage() {
                 <div key={cat.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 first:pt-0 last:pb-0">
                   <div className="flex items-center gap-4 flex-1">
                     {cat.image ? (
-                      <img 
-                        src={cat.image.startsWith('/') ? `http://localhost:5000${cat.image}` : cat.image} 
-                        alt={cat.name} 
-                        className="w-12 h-12 rounded-full object-cover border border-neutral-200" 
+                      <img
+                        src={cat.image.startsWith('/') ? `http://localhost:5000${cat.image}` : cat.image}
+                        alt={cat.name}
+                        className="w-12 h-12 rounded-full object-cover border border-neutral-200"
                       />
                     ) : (
                       <div className="w-12 h-12 rounded-full bg-neutral-100 border border-neutral-200 flex items-center justify-center text-neutral-400 text-xs">No img</div>
@@ -260,14 +260,14 @@ export default function AdminCategoriesPage() {
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
               <h3 className="text-lg font-bold text-neutral-900">Edit Category</h3>
-              <button 
-                onClick={cancelEditing} 
+              <button
+                onClick={cancelEditing}
                 className="text-neutral-400 hover:text-neutral-900 transition-colors bg-neutral-100 hover:bg-neutral-200 p-1.5 rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="p-6 space-y-5">
               <div>
                 <label className="block text-xs font-bold uppercase text-neutral-700 mb-1">Category Name</label>
@@ -298,7 +298,7 @@ export default function AdminCategoriesPage() {
                 />
               </div>
             </div>
-            
+
             <div className="p-6 border-t border-neutral-100 bg-neutral-50 flex gap-3 justify-end">
               <button
                 onClick={cancelEditing}

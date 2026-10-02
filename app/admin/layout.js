@@ -19,12 +19,12 @@ export default function AdminLayout({ children }) {
       if (adminStr) {
         try {
           const adminUser = JSON.parse(adminStr);
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/verify-admin`, {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/verify-admin`, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${adminUser.token}` },
             cache: 'no-store'
           });
-          
+
           if (res.ok) {
             setIsAuthenticated(true);
           } else {

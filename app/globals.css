@@ -35,12 +35,17 @@ h2,
 h3,
 h4,
 h5,
-h6,
+h6 {
+  font-family: var(--font-primary);
+  font-weight: 800;
+  @apply text-[13px] lg:text-[15px] xl:text-base;
+}
+
 button,
 .btn {
   font-family: var(--font-primary);
   font-weight: 800;
-  @apply text-[13px] lg:text-[15px] xl:text-base;
+  @apply text-[14px];
 }
 
 h1 {

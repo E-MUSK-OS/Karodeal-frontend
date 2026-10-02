@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Terms & Conditions | Dealora',
+  title: 'Terms & Conditions | KaroDeal',
 };
 
 export default function TermsPage() {

@@ -45,7 +45,7 @@ export default function MissingCashback() {
 
     try {
       if (showLoading) setIsLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/missing-cashback`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/missing-cashback`, {
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
 
@@ -69,7 +69,7 @@ export default function MissingCashback() {
 
   const fetchStores = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/meta/stores`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/meta/stores`);
       if (res.ok) {
         const data = await res.json();
         setAvailableStores(data || []);
@@ -123,8 +123,8 @@ export default function MissingCashback() {
 
     try {
       const url = editingTicketId
-        ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/missing-cashback/${editingTicketId}`
-        : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/missing-cashback`;
+        ? `${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/missing-cashback/${editingTicketId}`
+        : `${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/missing-cashback`;
 
       let bodyData;
       let headersConfig = {
@@ -195,7 +195,7 @@ export default function MissingCashback() {
         formData.append('attachment', chatAttachment);
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/missing-cashback/${viewingTicket.id}/messages`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/missing-cashback/${viewingTicket.id}/messages`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${user.token}`
@@ -227,7 +227,7 @@ export default function MissingCashback() {
       const userStr = localStorage.getItem('user');
       const user = userStr ? JSON.parse(userStr) : null;
       if (user) {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/missing-cashback/${ticket.id}/read`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/missing-cashback/${ticket.id}/read`, {
           method: 'PUT',
           headers: { 'Authorization': `Bearer ${user.token}` }
         }).then(() => {
@@ -346,8 +346,8 @@ export default function MissingCashback() {
                       <span className="block text-[10px] font-bold text-neutral-400 uppercase mb-2">Order Screenshots</span>
                       <div className="flex flex-wrap gap-2">
                         {viewingTicket.orderScreenshots.map((img, i) => (
-                          <a key={i} href={`${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace('/api', '')}${img}`} target="_blank" rel="noreferrer">
-                            <img src={`${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace('/api', '')}${img}`} alt={`Proof ${i + 1}`} className="w-16 h-16 object-cover rounded-lg border border-neutral-200 hover:opacity-80 transition-opacity" />
+                          <a key={i} href={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${img}`} target="_blank" rel="noreferrer">
+                            <img src={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${img}`} alt={`Proof ${i + 1}`} className="w-16 h-16 object-cover rounded-lg border border-neutral-200 hover:opacity-80 transition-opacity" />
                           </a>
                         ))}
                       </div>
@@ -366,8 +366,8 @@ export default function MissingCashback() {
                       </span>
                       <p className={`text-sm break-words ${msg.sender === 'USER' ? 'text-neutral-700' : 'text-amber-900'}`}>{msg.message}</p>
                       {msg.attachment && (
-                        <a href={`${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace('/api', '')}${msg.attachment}`} target="_blank" rel="noreferrer" className="block mt-2">
-                          <img src={`${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace('/api', '')}${msg.attachment}`} alt="Attachment" className="w-24 h-24 object-cover rounded-lg border border-neutral-200 hover:opacity-80 transition-opacity" />
+                        <a href={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${msg.attachment}`} target="_blank" rel="noreferrer" className="block mt-2">
+                          <img src={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${msg.attachment}`} alt="Attachment" className="w-24 h-24 object-cover rounded-lg border border-neutral-200 hover:opacity-80 transition-opacity" />
                         </a>
                       )}
                     </div>

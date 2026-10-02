@@ -21,7 +21,7 @@ export default function ProfileAccountSettings() {
   useEffect(() => {
     const fetchLatestProfile = async (token, cachedUser) => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/profile`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/profile`, {
           method: 'GET',
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -62,7 +62,7 @@ export default function ProfileAccountSettings() {
 
     try {
       // Send update request to backend
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/profile`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ export default function ProfileAccountSettings() {
   const handleDeleteAccount = async () => {
     if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/delete-account`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/delete-account`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${user.token}`
@@ -473,7 +473,7 @@ export default function ProfileAccountSettings() {
           </div>
         </form>
       </div>
-      </>
+    </>
   );
 }
 

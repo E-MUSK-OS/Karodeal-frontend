@@ -12,7 +12,7 @@ export default function LatestDrops() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
         const res = await fetch(`${apiUrl}/products`);
         if (res.ok) {
           const allProducts = await res.json();
@@ -31,17 +31,17 @@ export default function LatestDrops() {
         <div>
           <h2 className="text-3xl md:text-5xl font-black text-black uppercase tracking-tighter">Latest Drops</h2>
         </div>
-        
+
         <div className="mt-6 md:mt-0">
           <Link href="/deals" className="hidden md:block">
             <Button variant="outline">View All</Button>
           </Link>
         </div>
       </div>
-      
+
       {/* Use the StoreOfferCard */}
       <DealGrid deals={topDeals} cardType="storeOffer" mobileGrid={true} />
-      
+
       <div className="mt-12 md:hidden text-center">
         <Link href="/deals">
           <Button variant="outline" fullWidth>View All Deals</Button>

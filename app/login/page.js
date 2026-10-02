@@ -18,7 +18,7 @@ export default function Login() {
     const formPassword = e.target.password.value;
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/login`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: formEmail, password: formPassword }),
@@ -33,7 +33,7 @@ export default function Login() {
 
       localStorage.setItem('user', JSON.stringify({ ...data.user, token: data.token }));
       window.dispatchEvent(new Event('auth-change'));
-      
+
       const urlParams = new URLSearchParams(window.location.search);
       const returnUrl = urlParams.get('returnUrl');
       router.push(returnUrl || '/');

@@ -31,7 +31,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Dealora */}
+          {/* KaroDeal */}
           <div>
             <h5 className="text-black uppercase tracking-widest mb-4 md:mb-6">Company</h5>
             <ul className="space-y-3 md:space-y-4">

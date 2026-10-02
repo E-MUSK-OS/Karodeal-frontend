@@ -10,7 +10,7 @@ export async function generateMetadata({ params }) {
   if (!store) return { title: 'Store Not Found' };
 
   return {
-    title: `${store.name} Deals & Offers | Dealora`,
+    title: `${store.name} Deals & Offers | KaroDeal`,
   };
 }
 

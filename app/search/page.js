@@ -19,7 +19,7 @@ function SearchContent() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
         const res = await fetch(`${apiUrl}/products`);
         if (res.ok) setProducts(await res.json());
       } catch (err) {

@@ -2,25 +2,25 @@ import Link from 'next/link';
 import Button from '@/components/common/Button';
 
 export const metadata = {
-  title: 'About Us | Dealora',
+  title: 'About Us | KaroDeal',
 };
 
 export default function AboutPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-8 lg:px-16 py-12 md:py-24 mb-16 md:mb-20">
       <div className="text-center mb-12 md:mb-24 border-b border-black pb-8 md:pb-12">
-        <h1 className="text-4xl md:text-7xl font-black text-black uppercase tracking-tighter mb-4 md:mb-6">About</h1>
-        <p className=" sm:text-lg md:text-xl text-neutral-500 font-bold uppercase tracking-widest max-w-2xl mx-auto">
+        <h2 className="text-4xl md:text-7xl font-black text-black uppercase tracking-tighter mb-4 md:mb-6">About</h2>
+        <p className=" text-neutral-500 font-bold max-w-2xl mx-auto">
           We curate the internet's best deals.
         </p>
       </div>
 
       <div className="space-y-16 md:space-y-24">
         <section>
-          <h2 className="text-2xl md:text-3xl font-black text-black uppercase tracking-tighter mb-6 md:mb-8">Who we are</h2>
+          <h4 className="text-2xl md:text-3xl font-black text-black uppercase tracking-tighter mb-6 md:mb-8">Who we are</h4>
           <div className=" md:text-lg text-neutral-600 leading-relaxed space-y-4 md:space-y-6">
             <p>
-              Dealora is India's premier shopping discovery platform. Founded with the vision of simplifying the online shopping experience, we bring together the best deals, discounts, and offers from across the internet into one unified, easy-to-use interface.
+              KaroDeal is India's premier shopping discovery platform. Founded with the vision of simplifying the online shopping experience, we bring together the best deals, discounts, and offers from across the internet into one unified, easy-to-use interface.
             </p>
             <p>
               We understand that comparing prices across platforms is tedious. Our team works around the clock to curate these offers so you don't have to.

@@ -2,7 +2,7 @@ import { getCategories, getProducts } from '@/lib/fetchProducts';
 import CategoryCard from '@/components/categories/CategoryCard';
 
 export const metadata = {
-  title: 'All Categories | Dealora',
+  title: 'All Categories | KaroDeal',
 };
 
 export default async function CategoriesPage() {
