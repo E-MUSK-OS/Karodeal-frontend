@@ -30,7 +30,7 @@ export default function PrivacyPolicyPage() {
 
         <div>
           <h4 className="text-xl md:text-2xl font-black text-black uppercase tracking-tighter mb-4 md:mb-6">4. Contact Us</h4>
-          <p>If you have any questions about this Privacy Policy, You can contact us by email: privacy@dealora.com</p>
+          <p>If you have any questions about this Privacy Policy, You can contact us by email: support@karodeal.in</p>
         </div>
       </div>
     </div>

@@ -17,9 +17,9 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-3 mb-4 md:mb-6">
               <div className="w-8 h-8 bg-black flex items-center justify-center text-white font-bold text-lg">
-                D
+                K
               </div>
-              <span className="font-black text-2xl tracking-tighter uppercase text-black">Dealora</span>
+              <span className="font-black text-2xl tracking-tighter uppercase text-black">karodeal</span>
             </Link>
             <p className="text-sm lg:text-[15px] xl:text-base text-neutral-500 mb-6 md:mb-8 max-w-sm leading-relaxed">
               Discover. Save. Shop Smart. The definitive source for verified discounts and offers across the internet's best platforms.
@@ -62,7 +62,7 @@ export default function Footer() {
         </div>
 
         <div className="pt-6 md:pt-8 border-t border-neutral-200 flex flex-col md:flex-row justify-between items-center  text-neutral-400 font-medium text-center md:text-left gap-4 md:gap-0">
-          <p>&copy; {new Date().getFullYear()} DEALORA. ALL RIGHTS RESERVED.</p>
+          <p>&copy; {new Date().getFullYear()} KARODEAL. ALL RIGHTS RESERVED.</p>
           <p className="text-sm lg:text-[15px] xl:text-base uppercase tracking-widest">Built for Smart Shoppers</p>
         </div>
       </div>
