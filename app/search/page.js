@@ -5,6 +5,7 @@ import { Search as SearchIcon } from 'lucide-react';
 import DealGrid from '@/components/deals/DealGrid';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Fuse from 'fuse.js';
+import Button from '@/components/common/Button';
 
 function SearchContent() {
   const searchParams = useSearchParams();
@@ -83,12 +84,12 @@ function SearchContent() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <button
+          <Button variant="none" size="none"
             type="submit"
             className="absolute right-0 bottom-4 text-black hover:text-neutral-500 transition-colors focus:outline-none"
           >
             <SearchIcon className="h-5 w-5 md:h-6 md:w-6" strokeWidth={3} />
-          </button>
+          </Button>
         </form>
       </div>
 

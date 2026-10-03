@@ -6,6 +6,7 @@ import { Navigation, Autoplay } from 'swiper/modules';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
+import Button from '@/components/common/Button';
 
 export default function Slider({
   children,
@@ -49,24 +50,24 @@ export default function Slider({
       </Swiper>
 
       {/* Left Navigation Button */}
-      <button
+      <Button variant="none" size="none"
         className={`${prevClass} absolute -left-1 sm:-left-2 md:-left-2 lg:-left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/90 backdrop-blur-sm rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.2)] items-center justify-center z-20 border border-white/20 hover:scale-110 hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed ${isLocked ? 'hidden' : 'flex'}`}
         aria-label="Scroll left"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="white" className="w-4 h-4">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
-      </button>
+      </Button>
 
       {/* Right Navigation Button */}
-      <button
+      <Button variant="none" size="none"
         className={`${nextClass} absolute -right-1 sm:-right-2 md:-right-2 lg:-right-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/90 backdrop-blur-sm rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.2)] items-center justify-center z-20 border border-white/20 hover:scale-110 hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed ${isLocked ? 'hidden' : 'flex'}`}
         aria-label="Scroll right"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="white" className="w-4 h-4">
           <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
         </svg>
-      </button>
+      </Button>
     </div>
   );
 }

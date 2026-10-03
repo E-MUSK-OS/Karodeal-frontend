@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Loader2, X, Check } from 'lucide-react';
 import Button from '@/components/common/Button';
+import PageLoader from '@/components/common/PageLoader';
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState([]);
@@ -216,8 +217,8 @@ export default function AdminCategoriesPage() {
           <h4 className="text-lg font-bold text-neutral-900 mb-4">Active Categories</h4>
           <div className="divide-y divide-neutral-100">
             {loading ? (
-              <div className="py-8 flex justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+              <div className="py-4">
+                <PageLoader />
               </div>
             ) : categories.length === 0 ? (
               <div className="py-8 text-center text-neutral-500">No categories found. Add one to get started.</div>

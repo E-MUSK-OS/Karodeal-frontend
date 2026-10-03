@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Search, Bell, User, LogOut, ShieldCheck, ExternalLink, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Button from '@/components/common/Button';
 
 export default function AdminHeader({ onMenuClick }) {
   const [adminUser, setAdminUser] = useState(null);
@@ -25,12 +26,12 @@ export default function AdminHeader({ onMenuClick }) {
     <header className="h-16 bg-white border-b border-neutral-200 px-4 md:px-6 flex items-center justify-between sticky top-0 z-30 w-full">
       {/* Mobile Menu Button */}
       <div className="flex items-center md:hidden">
-        <button 
+        <Button variant="none" size="none" 
           onClick={onMenuClick}
           className="p-2 -ml-2 text-neutral-600 hover:text-black focus:outline-none"
         >
           <Menu className="w-6 h-6" />
-        </button>
+        </Button>
       </div>
       
       {/* Spacer for desktop to push right controls */}
@@ -62,13 +63,13 @@ export default function AdminHeader({ onMenuClick }) {
               {adminUser?.email || 'admin@tagdo.com'}
             </div>
           </div>
-          <button
+          <Button variant="none" size="none"
             onClick={handleLogout}
             title="Logout"
             className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
           >
             <LogOut className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
       </div>
     </header>

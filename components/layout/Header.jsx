@@ -142,7 +142,7 @@ export default function Header() {
             <Link href="/search" className="text-black focus:outline-none">
               <Search className="h-5 w-5" strokeWidth={2} />
             </Link>
-            <button
+            <Button variant="none" size="none"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="text-black focus:outline-none"
             >
@@ -151,7 +151,7 @@ export default function Header() {
               ) : (
                 <Menu className="h-6 w-6" strokeWidth={2} />
               )}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -168,7 +168,7 @@ export default function Header() {
           <div className="mt-8">
             {user ? (
               <div className="flex flex-col gap-4">
-                <button
+                <Button variant="none" size="none"
                   onClick={() => {
                     localStorage.removeItem('user');
                     window.dispatchEvent(new Event('auth-change'));
@@ -178,7 +178,7 @@ export default function Header() {
                 >
                   <User className="w-4 h-4" />
                   Logout
-                </button>
+                </Button>
               </div>
             ) : (
               <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>

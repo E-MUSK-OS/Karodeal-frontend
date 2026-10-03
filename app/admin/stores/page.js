@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { ShoppingBag, Plus, Trash2, Edit3, ExternalLink, CheckCircle2, Upload, X, Loader2 } from 'lucide-react';
 import Button from '@/components/common/Button';
+import PageLoader from '@/components/common/PageLoader';
 
 export default function AdminStoresPage() {
   const [stores, setStores] = useState([]);
@@ -12,6 +13,7 @@ export default function AdminStoresPage() {
   const [logoUrl, setLogoUrl] = useState('');
   const [imageInputType, setImageInputType] = useState('url'); // 'url' | 'file'
   const [isReloading, setIsReloading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -30,6 +32,7 @@ export default function AdminStoresPage() {
       console.error('Failed to load stores:', err);
     } finally {
       setIsReloading(false);
+      setInitialLoading(false);
     }
   };
 
@@ -167,7 +170,17 @@ export default function AdminStoresPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
-              {stores.map((store, index) => (
+              {initialLoading ? (
+                <tr>
+                  <td colSpan="4" className="p-8">
+                    <PageLoader />
+                  </td>
+                </tr>
+              ) : stores.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="p-8 text-center text-neutral-500 font-medium">No stores found.</td>
+                </tr>
+              ) : stores.map((store, index) => (
                 <tr key={store.id} className="hover:bg-neutral-50/70 transition-colors">
                   <td className="py-4 px-6 font-mono text-sm text-neutral-500 font-bold">
                     {index + 1}

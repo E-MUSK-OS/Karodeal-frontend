@@ -5,6 +5,7 @@ import {
   Search, Plus, Edit3, Trash2, CheckCircle2, ExternalLink, Tag, RefreshCw, X, Upload, ChevronUp, ChevronDown, ArrowUpDown, Loader2
 } from 'lucide-react';
 import Button from '@/components/common/Button';
+import PageLoader from '@/components/common/PageLoader';
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
@@ -18,6 +19,7 @@ export default function AdminProductsPage() {
   const [dbCategories, setDbCategories] = useState([]);
   const [imageInputType, setImageInputType] = useState('url'); // 'url' | 'file'
   const [isReloading, setIsReloading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 25;
@@ -71,6 +73,7 @@ export default function AdminProductsPage() {
       console.error('Failed to load data', err);
     } finally {
       setIsReloading(false);
+      setInitialLoading(false);
     }
   };
 
@@ -423,7 +426,17 @@ export default function AdminProductsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
-              {paginatedProducts.map((p, index) => {
+              {initialLoading ? (
+                <tr>
+                  <td colSpan="8" className="p-8">
+                    <PageLoader />
+                  </td>
+                </tr>
+              ) : paginatedProducts.length === 0 ? (
+                <tr>
+                  <td colSpan="8" className="p-8 text-center text-neutral-500 font-medium">No product cards found.</td>
+                </tr>
+              ) : paginatedProducts.map((p, index) => {
                 const displayCashback = p.cashback !== undefined && p.cashback !== ''
                   ? p.cashback
                   : (((p.id ? p.id.charCodeAt(p.id.length - 1) : 0) % 5) + 2 + ((p.id ? p.id.charCodeAt(p.id.length - 1) : 0) % 2 === 0 ? 0.5 : 0));

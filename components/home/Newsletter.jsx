@@ -50,12 +50,12 @@ export default function Newsletter() {
               required
               className="text-center flex-grow px-6 py-3 sm:py-4 bg-transparent border border-neutral-700 text-white placeholder-neutral-500 focus:outline-none focus:border-white transition-colors uppercase tracking-widest text-xs font-bold sm:text-left rounded-none [&:-webkit-autofill]:bg-black [&:-webkit-autofill]:text-white [&:-webkit-autofill]:[-webkit-box-shadow:0_0_0px_1000px_black_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:white]"
             />
-            <button
+            <Button variant="none" size="none"
               type="submit"
               className="bg-white text-black px-8 py-3 sm:py-4 font-bold uppercase tracking-widest text-sm border border-white hover:bg-white cursor-pointer"
             >
               Subscribe
-            </button>
+            </Button>
           </form>
         )}
       </div>

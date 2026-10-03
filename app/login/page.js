@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import Button from '@/components/common/Button';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -54,12 +55,12 @@ export default function Login() {
 
         {/* Header Section */}
         <div className="flex items-center mb-6">
-          <button
+          <Button variant="none" size="none"
             onClick={() => router.back()}
             className="p-1 -ml-1 text-black hover:bg-neutral-100 rounded-full transition-colors"
           >
             <ArrowLeft strokeWidth={2.5} className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
 
         <div>
@@ -113,13 +114,13 @@ export default function Login() {
             >
               Password
             </label>
-            <button
+            <Button variant="none" size="none"
               type="button"
               className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-black"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-            </button>
+            </Button>
           </div>
 
           <div className="flex justify-end mb-6">
@@ -133,7 +134,7 @@ export default function Login() {
               By continuing, you agree to Tagdo's <Link href="/terms" className="text-sm lg:text-[15px] xl:text-base text-black font-medium hover:underline">terms & conditions</Link> and <Link href="/privacy-policy" className="text-sm lg:text-[15px] xl:text-base text-black font-medium hover:underline">privacy policy</Link>
             </p>
 
-            <button
+            <Button variant="none" size="none"
               type="submit"
               disabled={isLoading}
               className="w-full bg-black hover:bg-neutral-800 text-white font-medium py-3.5 px-4 rounded-xl transition-colors text-lg flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
@@ -145,7 +146,7 @@ export default function Login() {
                 </svg>
               )}
               {isLoading ? 'Loading...' : 'Continue'}
-            </button>
+            </Button>
             <p className="text-sm text-center text-neutral-500 mt-4">
               Don't have an account? <Link href="/signup" className="text-sm lg:text-[15px] xl:text-base text-black font-medium hover:underline">Sign up</Link>
             </p>
