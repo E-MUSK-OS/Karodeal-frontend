@@ -91,10 +91,7 @@ export default function Header() {
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center mr-4 lg:mr-8">
             <Link href="/" className="flex items-center gap-2 lg:gap-3">
-              <div className="w-7 h-7 lg:w-8 lg:h-8 bg-black flex items-center justify-center text-white font-bold text-sm lg:text-lg">
-                K
-              </div>
-              <span className="font-black text-xl lg:text-2xl tracking-tighter text-black uppercase">KaroDeal</span>
+              <img src="/images/logo.png" alt="KaroDeal Logo" className="h-10 lg:h-12 w-auto object-contain" />
             </Link>
           </div>
 

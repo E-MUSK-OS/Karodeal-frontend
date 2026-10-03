@@ -16,10 +16,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-3 mb-4 md:mb-6">
-              <div className="w-8 h-8 bg-black flex items-center justify-center text-white font-bold text-lg">
-                K
-              </div>
-              <span className="font-black text-2xl tracking-tighter uppercase text-black">karodeal</span>
+              <img src="/images/logo.png" alt="KaroDeal Logo" className="h-16 w-auto object-contain scale-110 origin-left" />
             </Link>
             <p className="text-sm lg:text-[15px] xl:text-base text-neutral-500 mb-6 md:mb-8 max-w-sm leading-relaxed">
               Discover. Save. Shop Smart. The definitive source for verified discounts and offers across the internet's best platforms.

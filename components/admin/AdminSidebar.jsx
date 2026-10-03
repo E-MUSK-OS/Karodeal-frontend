@@ -44,19 +44,16 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
         ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         {/* Brand Header */}
-        <div className="h-16 flex items-center justify-between px-6 border-b border-neutral-800">
+        <div className="h-16 flex items-center justify-between px-6 border-b border-neutral-200 bg-white">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-white text-black flex items-center justify-center font-extrabold text-lg">
-              K
-            </div>
+            <img src="/images/logo.png" alt="KaroDeal Admin Logo" className="h-9 w-auto object-contain" />
             <div>
-              <span className="font-extrabold text-lg tracking-tight block leading-none">KARODEAL</span>
-              <span className="text-[10px] text-neutral-400 font-semibold tracking-wider uppercase">Admin Control</span>
+              <span className="text-[10px] text-neutral-500 font-bold tracking-wider uppercase">Admin Control</span>
             </div>
           </div>
           
           <button 
-            className="md:hidden text-neutral-400 hover:text-white"
+            className="md:hidden text-neutral-500 hover:text-black"
             onClick={() => setIsOpen(false)}
           >
             <X className="w-5 h-5" />

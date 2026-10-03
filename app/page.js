@@ -14,8 +14,7 @@ import TheProcess from '@/components/home/TheProcess';
 
 async function getBackendStatus() {
   try {
-    // This connects frontend to the backend url specified in .env
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/health`, { cache: 'no-store' });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/health`, { next: { revalidate: 60 } });
     return await res.json();
   } catch (error) {
     return { status: 'error', message: 'Backend is not running. Please start it on port 5000.' };
@@ -59,10 +58,12 @@ const banners = [
 ];
 
 export default async function Home() {
-  const products = await getProducts();
-  const stores = await getStores();
-  const categories = await getCategories();
-  const backendStatus = await getBackendStatus();
+  const [products, stores, categories, backendStatus] = await Promise.all([
+    getProducts(),
+    getStores(),
+    getCategories(),
+    getBackendStatus()
+  ]);
   console.log('Live Backend Status:', backendStatus.message);
 
   return (
