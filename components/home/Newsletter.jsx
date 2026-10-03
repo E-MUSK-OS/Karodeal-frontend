@@ -27,20 +27,10 @@ export default function Newsletter() {
           savings.
         </p>
 
-        {submitted ? (
-          <div className="flex flex-col items-center justify-center p-8 border border-neutral-800 bg-neutral-900 animate-fade-in">
-            <CheckCircle2
-              className="w-12 h-12 text-white mb-4"
-              strokeWidth={1}
-            />
-            <p className="text-xl font-bold text-white uppercase tracking-widest">
-              Subscribed
-            </p>
-          </div>
-        ) : (
+        <div className="relative max-w-lg mx-auto">
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-3 sm:flex-row sm:gap-0 max-w-lg mx-auto"
+            className="flex flex-col gap-3 sm:flex-row sm:gap-0 w-full"
           >
             <input
               type="email"
@@ -52,12 +42,19 @@ export default function Newsletter() {
             />
             <Button variant="none" size="none"
               type="submit"
-              className="bg-white text-black px-8 py-3 sm:py-4 font-bold uppercase tracking-widest text-sm border border-white hover:bg-white cursor-pointer"
+              className="bg-white text-black px-8 py-3 sm:py-4 font-bold uppercase tracking-widest text-sm border border-white hover:bg-neutral-200 cursor-pointer transition-colors"
             >
               Subscribe
             </Button>
           </form>
-        )}
+
+          {submitted && (
+            <div className="absolute -bottom-10 left-0 right-0 flex items-center justify-center gap-2 text-emerald-400 font-bold text-xs uppercase tracking-widest animate-popup">
+              <CheckCircle2 className="w-4 h-4" />
+              Subscribed Successfully
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

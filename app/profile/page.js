@@ -115,25 +115,6 @@ export default function ProfileAccountSettings() {
     router.push('/');
   };
 
-  const handleDeleteAccount = async () => {
-    if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) return;
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/delete-account`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-        }
-      });
-      if (res.ok) {
-        handleLogout();
-      } else {
-        const data = await res.json();
-        setErrorMessage(data.error || 'Failed to delete account');
-      }
-    } catch (err) {
-      setErrorMessage('Failed to delete account. Please try again.');
-    }
-  };
 
   if (!user) return null;
 
@@ -334,14 +315,6 @@ export default function ProfileAccountSettings() {
                   {isSaving ? 'Saving...' : 'Save Changes'}
                 </Button>
 
-                <Button variant="none" size="none"
-                  type="button"
-                  onClick={handleDeleteAccount}
-                  className="w-full py-3 text-red-600 hover:bg-red-50 font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Delete Account
-                </Button>
 
                 <Button variant="none" size="none"
                   type="button"
@@ -453,14 +426,6 @@ export default function ProfileAccountSettings() {
             </Button>
 
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <Button variant="none" size="none"
-                type="button"
-                onClick={handleDeleteAccount}
-                className="w-full sm:w-auto px-6 py-3 text-red-600 hover:bg-red-50 font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100"
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete Account
-              </Button>
 
               <Button variant="none" size="none"
                 type="button"

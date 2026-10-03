@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { IndianRupee, Landmark, Smartphone, AlertCircle, ArrowRight, BadgeCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/common/Button';
+import PageLoader from '@/components/common/PageLoader';
 
 export default function Payments() {
   const [balance, setBalance] = useState(0);

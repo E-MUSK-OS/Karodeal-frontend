@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShieldAlert, Search, CheckCircle, XCircle, Clock, Save, ArrowLeft, ArrowRight, Calendar, Paperclip, X } from 'lucide-react';
 import Button from '@/components/common/Button';
+import PageLoader from '@/components/common/PageLoader';
 
 export default function AdminMissingCashback() {
   const [tickets, setTickets] = useState([]);
@@ -373,8 +374,8 @@ export default function AdminMissingCashback() {
       ) : (
         <div className="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden">
           {isLoading ? (
-            <div className="p-8 text-center text-neutral-500">Loading tickets...</div>
-          ) : filteredTickets.length > 0 ? (
+              <PageLoader />
+            ) : filteredTickets.length > 0 ? (
             <div className="overflow-x-auto w-full">
               <table className="w-full text-left border-collapse min-w-[800px]">
                 <thead>

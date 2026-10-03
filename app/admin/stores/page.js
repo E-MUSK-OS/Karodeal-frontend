@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { ShoppingBag, Plus, Trash2, Edit3, ExternalLink, CheckCircle2, Upload, X, Loader2 } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
+import ConfirmModal from '@/components/common/ConfirmModal';
 
 export default function AdminStoresPage() {
   const [stores, setStores] = useState([]);
@@ -15,6 +16,7 @@ export default function AdminStoresPage() {
   const [isReloading, setIsReloading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', confirmText: '', onConfirm: () => {}, isDestructive: true });
 
   useEffect(() => {
     loadStores();
@@ -117,26 +119,34 @@ export default function AdminStoresPage() {
   };
 
   const handleDeleteStore = async (id) => {
-    if (!confirm('Are you sure you want to delete this store?')) return;
-    try {
-      const adminUserStr = localStorage.getItem('adminUser');
-      const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Store',
+      message: 'Are you sure you want to delete this store?',
+      confirmText: 'Delete',
+      isDestructive: true,
+      onConfirm: async () => {
+        try {
+          const adminUserStr = localStorage.getItem('adminUser');
+          const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/meta/stores/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/meta/stores/${id}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (res.ok) {
+            loadStores();
+          } else {
+            alert('Failed to delete store');
+          }
+        } catch (err) {
+          console.error(err);
         }
-      });
-
-      if (res.ok) {
-        loadStores();
-      } else {
-        alert('Failed to delete store');
       }
-    } catch (err) {
-      console.error(err);
-    }
+    });
   };
 
   return (
@@ -284,8 +294,8 @@ export default function AdminStoresPage() {
                       type="button"
                       onClick={() => setImageInputType('url')}
                       className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'url'
-                          ? 'bg-white text-black shadow-xs'
-                          : 'text-neutral-500 hover:text-black'
+                        ? 'bg-white text-black shadow-xs'
+                        : 'text-neutral-500 hover:text-black'
                         }`}
                     >
                       Image URL
@@ -294,8 +304,8 @@ export default function AdminStoresPage() {
                       type="button"
                       onClick={() => setImageInputType('file')}
                       className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'file'
-                          ? 'bg-white text-black shadow-xs'
-                          : 'text-neutral-500 hover:text-black'
+                        ? 'bg-white text-black shadow-xs'
+                        : 'text-neutral-500 hover:text-black'
                         }`}
                     >
                       Upload File
@@ -384,6 +394,7 @@ export default function AdminStoresPage() {
           </div>
         </div>
       )}
+      <ConfirmModal {...confirmModal} onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })} />
     </div>
   );
 }

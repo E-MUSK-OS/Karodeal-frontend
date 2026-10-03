@@ -6,12 +6,13 @@ import {
 } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
+import ConfirmModal from '@/components/common/ConfirmModal';
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStore, setSelectedStore] = useState('ALL');
-  const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
   const [editingProduct, setEditingProduct] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -23,6 +24,7 @@ export default function AdminProductsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 25;
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', confirmText: '', onConfirm: () => {}, isDestructive: true });
 
   const [openDropdown, setOpenDropdown] = useState(null);
 
@@ -225,25 +227,33 @@ export default function AdminProductsPage() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this product card?')) return;
-    try {
-      const adminUserStr = localStorage.getItem('adminUser');
-      const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Product',
+      message: 'Are you sure you want to delete this product card?',
+      confirmText: 'Delete',
+      isDestructive: true,
+      onConfirm: async () => {
+        try {
+          const adminUserStr = localStorage.getItem('adminUser');
+          const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${id}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (res.ok) {
+            loadProducts();
+            showToast('Product card deleted.');
+          } else {
+            alert('Failed to delete product');
+          }
+        } catch (err) {
+          console.error(err);
         }
-      });
-      if (res.ok) {
-        loadProducts();
-        showToast('Product card deleted.');
-      } else {
-        alert('Failed to delete product');
       }
-    } catch (err) {
-      console.error(err);
-    }
+    });
   };
 
   const filteredProducts = products.filter((p) => {
@@ -404,14 +414,14 @@ export default function AdminProductsPage() {
                 <th className="p-4 pl-6 cursor-pointer hover:bg-neutral-200 transition-colors group select-none w-24">
                   <div className="flex items-center">SR NO.</div>
                 </th>
-                <th className="p-4 cursor-pointer hover:bg-neutral-200 transition-colors group select-none" onClick={() => handleSort('title')}>
-                  <div className="flex items-center">Product <SortIcon columnKey="title" /></div>
+                <th className="p-4 cursor-pointer hover:bg-neutral-200 transition-colors group select-none" onClick={() => handleSort('createdAt')}>
+                  <div className="flex items-center">Product <SortIcon columnKey="createdAt" /></div>
                 </th>
-                <th className="p-4 cursor-pointer hover:bg-neutral-200 transition-colors group select-none" onClick={() => handleSort('store')}>
-                  <div className="flex items-center">Store <SortIcon columnKey="store" /></div>
+                <th className="p-4 select-none">
+                  <div className="flex items-center">Store</div>
                 </th>
-                <th className="p-4 cursor-pointer hover:bg-neutral-200 transition-colors group select-none" onClick={() => handleSort('category')}>
-                  <div className="flex items-center">Category <SortIcon columnKey="category" /></div>
+                <th className="p-4 select-none">
+                  <div className="flex items-center">Category</div>
                 </th>
                 <th className="p-4 cursor-pointer hover:bg-neutral-200 transition-colors group select-none" onClick={() => handleSort('discount')}>
                   <div className="flex items-center">Discount <SortIcon columnKey="discount" /></div>
@@ -426,7 +436,7 @@ export default function AdminProductsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
-              {initialLoading ? (
+              {(initialLoading || isReloading) ? (
                 <tr>
                   <td colSpan="8" className="p-8">
                     <PageLoader />
@@ -1073,6 +1083,7 @@ export default function AdminProductsPage() {
           </div>
         </div>
       )}
+      <ConfirmModal {...confirmModal} onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })} />
     </div>
   );
 }

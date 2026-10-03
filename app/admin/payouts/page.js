@@ -3,12 +3,15 @@
 import { useState, useEffect } from 'react';
 import { IndianRupee, Search, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import Button from '@/components/common/Button';
+import PageLoader from '@/components/common/PageLoader';
+import ConfirmModal from '@/components/common/ConfirmModal';
 
 export default function AdminPayouts() {
   const [payouts, setPayouts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [processingId, setProcessingId] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', confirmText: '', onConfirm: () => {}, isDestructive: false });
 
   useEffect(() => {
     fetchPayouts();
@@ -35,34 +38,41 @@ export default function AdminPayouts() {
   };
 
   const handleProcess = async (id, status, adminNote = '') => {
-    if (!confirm(`Are you sure you want to mark this payout as ${status}?`)) return;
+    setConfirmModal({
+      isOpen: true,
+      title: 'Process Payout',
+      message: `Are you sure you want to mark this payout as ${status}?`,
+      confirmText: status === 'COMPLETED' ? 'Mark Completed' : 'Mark Failed',
+      isDestructive: status === 'FAILED',
+      onConfirm: async () => {
+        setProcessingId(id);
+        try {
+          const userStr = localStorage.getItem('adminUser');
+          const user = JSON.parse(userStr);
 
-    setProcessingId(id);
-    try {
-      const userStr = localStorage.getItem('adminUser');
-      const user = JSON.parse(userStr);
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/payouts/admin/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${user.token}`
+            },
+            body: JSON.stringify({ status, adminNote })
+          });
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/payouts/admin/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`
-        },
-        body: JSON.stringify({ status, adminNote })
-      });
-
-      if (res.ok) {
-        // Update local state
-        setPayouts(payouts.map(p => p.id === id ? { ...p, status, adminNote } : p));
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Failed to process payout');
+          if (res.ok) {
+            // Update local state
+            setPayouts(payouts.map(p => p.id === id ? { ...p, status, adminNote } : p));
+          } else {
+            const data = await res.json();
+            alert(data.error || 'Failed to process payout');
+          }
+        } catch (err) {
+          alert('An error occurred');
+        } finally {
+          setProcessingId(null);
+        }
       }
-    } catch (err) {
-      alert('An error occurred');
-    } finally {
-      setProcessingId(null);
-    }
+    });
   };
 
   const filteredPayouts = payouts.filter(p =>
@@ -91,6 +101,7 @@ export default function AdminPayouts() {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-neutral-200 overflow-hidden w-full">
+        {isLoading ? <PageLoader /> : (
         <div className="overflow-x-auto w-full">
           <table className="w-full text-left min-w-[900px]">
             <thead className="bg-neutral-50 border-b border-neutral-200">
@@ -103,9 +114,7 @@ export default function AdminPayouts() {
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-200">
-              {isLoading ? (
-                <tr><td colSpan="5" className="py-8 text-center text-neutral-500">Loading...</td></tr>
-              ) : filteredPayouts.length === 0 ? (
+              {filteredPayouts.length === 0 ? (
                 <tr><td colSpan="5" className="py-8 text-center text-neutral-500">No payout requests found</td></tr>
               ) : (
                 filteredPayouts.map((payout) => (
@@ -166,7 +175,9 @@ export default function AdminPayouts() {
             </tbody>
           </table>
         </div>
+        )}
       </div>
+      <ConfirmModal {...confirmModal} onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })} />
     </div>
   );
 }

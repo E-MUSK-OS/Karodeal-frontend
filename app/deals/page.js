@@ -3,15 +3,18 @@ import { useState, useEffect } from 'react';
 
 import DealGrid from '@/components/deals/DealGrid';
 import Button from '@/components/common/Button';
+import PageLoader from '@/components/common/PageLoader';
 
 export default function DealsPage() {
   const [allDeals, setAllDeals] = useState([]);
   const [filters, setFilters] = useState([{ id: 'all', label: 'All Deals' }]);
   const [visibleCount, setVisibleCount] = useState(6);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
 
@@ -35,6 +38,8 @@ export default function DealsPage() {
         }
       } catch (err) {
         console.error('Error fetching data:', err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -85,15 +90,20 @@ export default function DealsPage() {
         </div>
       </div>
 
-      {/* cardType="storeOffer" renders the Amazon-style cards. mobileGrid={true} disables slider and uses grid */}
-      <DealGrid deals={visibleDeals} cardType="storeOffer" mobileGrid={true} />
+      {loading ? (
+        <PageLoader />
+      ) : (
+        <>
+          <DealGrid deals={visibleDeals} cardType="storeOffer" mobileGrid={true} />
 
-      {hasMore && (
-        <div className="mt-12 flex justify-center">
-          <Button onClick={handleViewMore} size="md" variant="primary">
-            View More
-          </Button>
-        </div>
+          {hasMore && (
+            <div className="mt-12 flex justify-center">
+              <Button onClick={handleViewMore} size="md" variant="primary">
+                View More
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

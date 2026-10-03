@@ -4,6 +4,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShieldAlert, CheckCircle, XCircle, Search, Calendar, FileText, ArrowRight } from 'lucide-react';
 import Button from '@/components/common/Button';
+import PageLoader from '@/components/common/PageLoader';
+import ConfirmModal from '@/components/common/ConfirmModal';
+import Lightbox from "yet-another-react-lightbox";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import "yet-another-react-lightbox/styles.css";
 
 export default function AdminClaims() {
   const [claims, setClaims] = useState([]);
@@ -15,6 +20,8 @@ export default function AdminClaims() {
   const [adminNote, setAdminNote] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', confirmText: '', onConfirm: () => { }, isDestructive: false });
+  const [lightboxImage, setLightboxImage] = useState(null);
 
   const router = useRouter();
 
@@ -102,40 +109,47 @@ export default function AdminClaims() {
       return;
     }
 
-    if (!confirm(`Are you sure you want to change the cashback to ₹${awardedCashback}? This will adjust the user's wallet balance by the difference.`)) return;
+    setConfirmModal({
+      isOpen: true,
+      title: 'Update Cashback',
+      message: `Are you sure you want to change the cashback to ₹${awardedCashback}? This will adjust the user's wallet balance by the difference.`,
+      confirmText: 'Update Cashback',
+      isDestructive: false,
+      onConfirm: async () => {
+        const userStr = localStorage.getItem('adminUser');
+        const user = JSON.parse(userStr);
+        setIsUpdating(true);
 
-    const userStr = localStorage.getItem('adminUser');
-    const user = JSON.parse(userStr);
-    setIsUpdating(true);
+        try {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/claims/admin/${viewingClaim.id}/cashback`, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${user.token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              newAwardedCashback: parseFloat(awardedCashback),
+              adminNote
+            })
+          });
 
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/claims/admin/${viewingClaim.id}/cashback`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${user.token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          newAwardedCashback: parseFloat(awardedCashback),
-          adminNote
-        })
-      });
-
-      if (res.ok) {
-        alert('Cashback amount successfully updated!');
-        setViewingClaim(null);
-        setAwardedCashback('');
-        setAdminNote('');
-        fetchClaims();
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Failed to update cashback');
+          if (res.ok) {
+            alert('Cashback amount successfully updated!');
+            setViewingClaim(null);
+            setAwardedCashback('');
+            setAdminNote('');
+            fetchClaims();
+          } else {
+            const data = await res.json();
+            alert(data.error || 'Failed to update cashback');
+          }
+        } catch (error) {
+          alert('An error occurred.');
+        } finally {
+          setIsUpdating(false);
+        }
       }
-    } catch (error) {
-      alert('An error occurred.');
-    } finally {
-      setIsUpdating(false);
-    }
+    });
   };
 
   const formatDate = (dateString) => {
@@ -152,6 +166,7 @@ export default function AdminClaims() {
   const getImageUrl = (url) => {
     if (!url) return '';
     if (url.startsWith('data:')) return url;
+    if (url.startsWith('http')) return url;
     return `${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${url}`;
   };
 
@@ -299,18 +314,18 @@ export default function AdminClaims() {
 
                         <div className="bg-white/60 p-4 rounded-xl border border-green-200">
                           <label className="block text-xs font-bold text-green-800 mb-1.5">Edit Cashback Amount (₹)</label>
-                          <div className="flex gap-2">
+                          <div className="flex flex-col xl:flex-row gap-2">
                             <input
                               type="number"
                               value={awardedCashback}
                               onChange={(e) => setAwardedCashback(e.target.value)}
                               placeholder="New Amount"
-                              className="flex-1 px-3 py-2 text-sm rounded-lg border border-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                              className="flex-1 min-w-0 px-3 py-2 text-sm rounded-lg border border-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white w-full"
                             />
                             <Button variant="none" size="none"
                               onClick={handleUpdateAwardedCashback}
                               disabled={isUpdating || parseFloat(awardedCashback) === viewingClaim.awardedCashback}
-                              className="bg-green-700 hover:bg-green-800 text-white font-bold px-4 py-2 text-sm rounded-lg disabled:opacity-50 transition-colors"
+                              className="bg-green-700 hover:bg-green-800 text-white font-bold px-4 py-2 text-sm rounded-lg disabled:opacity-50 transition-colors whitespace-nowrap w-full xl:w-auto text-center justify-center"
                             >
                               Update
                             </Button>
@@ -343,21 +358,21 @@ export default function AdminClaims() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-neutral-700 mb-3">1. Invoice / Receipt</span>
-                  <a href={getImageUrl(viewingClaim.invoiceScreenshot)} target="_blank" rel="noreferrer" className="block aspect-square w-full relative group bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 hover:border-black transition-colors">
+                  <button onClick={() => setLightboxImage(getImageUrl(viewingClaim.invoiceScreenshot))} className="block aspect-square w-full relative group bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 hover:border-black transition-colors focus:outline-none">
                     <img src={getImageUrl(viewingClaim.invoiceScreenshot)} className="object-cover w-full h-full" alt="Invoice" />
-                  </a>
+                  </button>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-neutral-700 mb-3">2. Product Review</span>
-                  <a href={getImageUrl(viewingClaim.reviewScreenshot)} target="_blank" rel="noreferrer" className="block aspect-square w-full relative group bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 hover:border-black transition-colors">
+                  <button onClick={() => setLightboxImage(getImageUrl(viewingClaim.reviewScreenshot))} className="block aspect-square w-full relative group bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 hover:border-black transition-colors focus:outline-none">
                     <img src={getImageUrl(viewingClaim.reviewScreenshot)} className="object-cover w-full h-full" alt="Review" />
-                  </a>
+                  </button>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-neutral-700 mb-3">3. Non-Return Proof</span>
-                  <a href={getImageUrl(viewingClaim.noReturnScreenshot)} target="_blank" rel="noreferrer" className="block aspect-square w-full relative group bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 hover:border-black transition-colors">
+                  <button onClick={() => setLightboxImage(getImageUrl(viewingClaim.noReturnScreenshot))} className="block aspect-square w-full relative group bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 hover:border-black transition-colors focus:outline-none">
                     <img src={getImageUrl(viewingClaim.noReturnScreenshot)} className="object-cover w-full h-full" alt="No Return" />
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
@@ -385,7 +400,7 @@ export default function AdminClaims() {
 
           <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm w-full overflow-hidden">
             {isLoading ? (
-              <div className="p-8 text-center text-neutral-500">Loading claims...</div>
+              <PageLoader />
             ) : (
               <div className="overflow-x-auto w-full">
                 <table className="w-full text-left min-w-[900px]">
@@ -466,6 +481,14 @@ export default function AdminClaims() {
           </div>
         </>
       )}
+      <ConfirmModal {...confirmModal} onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })} />
+      <Lightbox
+        open={!!lightboxImage}
+        close={() => setLightboxImage(null)}
+        slides={[{ src: lightboxImage }]}
+        plugins={[Zoom]}
+        zoom={{ scrollToZoom: true, maxZoomPixelRatio: 5 }}
+      />
     </div>
   );
 }

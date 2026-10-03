@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShieldAlert, Plus, X, Calendar, ArrowRight, CheckCircle, Clock, XCircle, Loader2 } from 'lucide-react';
 import Button from '@/components/common/Button';
+import PageLoader from '@/components/common/PageLoader';
 
 export default function ClaimCashback() {
   const [claims, setClaims] = useState([]);
@@ -220,7 +221,7 @@ export default function ClaimCashback() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
               <div>
-                <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">Order Details</h3>
+                <h5 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">Order Details</h5>
                 <div className="space-y-4">
                   <div>
                     <p className="text-xs text-neutral-500 mb-1">Store / Product</p>
@@ -245,7 +246,7 @@ export default function ClaimCashback() {
               </div>
 
               <div>
-                <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">Claim Verdict</h3>
+                <h5 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">Claim Verdict</h5>
                 {viewingClaim.status === 'APPROVED' && (
                   <div className="bg-green-50 text-green-900 p-4 rounded-xl border border-green-200">
                     <p className="text-sm font-medium mb-1">Congratulations! Your claim was approved.</p>
@@ -296,7 +297,7 @@ export default function ClaimCashback() {
             </div>
 
             <div>
-              <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">Submitted Proofs</h3>
+              <h5 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">Submitted Proofs</h5>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-neutral-700 mb-2">1. Invoice / Receipt</span>
@@ -347,13 +348,7 @@ export default function ClaimCashback() {
           {/* Table */}
           <div className="bg-white rounded-3xl border border-neutral-100 shadow-sm overflow-hidden">
             {isLoading ? (
-              <div className="p-8">
-                <div className="animate-pulse space-y-4">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="flex gap-4 p-4 rounded-2xl bg-neutral-50 border border-neutral-100 h-16"></div>
-                  ))}
-                </div>
-              </div>
+              <PageLoader />
             ) : claims.length > 0 ? (
               <div className="overflow-x-auto w-full">
                 <table className="w-full text-left border-collapse min-w-[600px]">

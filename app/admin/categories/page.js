@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Loader2, X, Check } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
+import ConfirmModal from '@/components/common/ConfirmModal';
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState([]);
@@ -11,6 +12,7 @@ export default function AdminCategoriesPage() {
   const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', confirmText: '', onConfirm: () => {}, isDestructive: true });
 
   // Edit state
   const [editingId, setEditingId] = useState(null);
@@ -86,24 +88,32 @@ export default function AdminCategoriesPage() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this category? This will also delete all associated products.')) return;
-    try {
-      const token = getToken();
-      const res = await fetch(`https://karodeal-backend.vercel.app/api/meta/categories/${id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (res.ok) {
-        setCategories(categories.filter((c) => c.id !== id));
-      } else {
-        alert('Failed to delete category');
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Category',
+      message: 'Are you sure you want to delete this category? This will also delete all associated products.',
+      confirmText: 'Delete',
+      isDestructive: true,
+      onConfirm: async () => {
+        try {
+          const token = getToken();
+          const res = await fetch(`https://karodeal-backend.vercel.app/api/meta/categories/${id}`, {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (res.ok) {
+            setCategories(categories.filter((c) => c.id !== id));
+          } else {
+            alert('Failed to delete category');
+          }
+        } catch (error) {
+          console.error('Error deleting category:', error);
+          alert('Failed to delete category');
+        }
       }
-    } catch (error) {
-      console.error('Error deleting category:', error);
-      alert('Failed to delete category');
-    }
+    });
   };
 
   const startEditing = (cat) => {
@@ -332,6 +342,7 @@ export default function AdminCategoriesPage() {
           </div>
         </div>
       )}
+      <ConfirmModal {...confirmModal} onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })} />
     </div>
   );
 }

@@ -16,7 +16,7 @@ export default function Button({
 }) {
   const isDisabled = disabled || isLoading;
   const isNone = variant === 'none';
-  const baseClasses = `btn group inline-flex items-center justify-center gap-2 transition-all duration-300 active:scale-95 focus:outline-none whitespace-nowrap ${isDisabled ? 'opacity-70 cursor-not-allowed pointer-events-none' : ''} ${!isNone ? 'font-bold uppercase tracking-widest rounded-full shadow-sm hover:shadow-md' : ''}`;
+  const baseClasses = `btn group inline-flex items-center justify-center gap-2 transition-all duration-300 active:scale-95 focus:outline-none whitespace-nowrap ${isDisabled ? 'opacity-70 cursor-not-allowed pointer-events-none' : ''} ${!isNone ? 'font-bold uppercase rounded-full shadow-sm hover:shadow-md' : ''}`;
 
   const variants = {
     primary: "bg-black text-white hover:bg-neutral-700 border border-black hover:border-neutral-700",

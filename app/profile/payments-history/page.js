@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { History, IndianRupee, Clock, CheckCircle2, XCircle, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import PageLoader from '@/components/common/PageLoader';
 
 export default function TransactionHistory() {
   const [transactions, setTransactions] = useState([]);
@@ -68,12 +69,8 @@ export default function TransactionHistory() {
       </div>
 
       {isLoading ? (
-        <div className="bg-white rounded-3xl border border-neutral-100 p-8 shadow-sm space-y-4 animate-pulse">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="h-20 bg-neutral-100 rounded-2xl w-full"></div>
-          ))}
-        </div>
-      ) : transactions.length > 0 ? (
+              <PageLoader />
+            ) : transactions.length > 0 ? (
         <div className="bg-white rounded-3xl border border-neutral-100 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">

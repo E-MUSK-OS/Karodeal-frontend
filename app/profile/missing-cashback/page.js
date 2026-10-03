@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShieldAlert, Plus, X, Calendar, Search, ArrowRight, Edit2, Paperclip, ChevronDown, Loader2 } from 'lucide-react';
 import Button from '@/components/common/Button';
+import PageLoader from '@/components/common/PageLoader';
 
 export default function MissingCashback() {
   const [tickets, setTickets] = useState([]);
@@ -322,7 +323,7 @@ export default function MissingCashback() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
               <div>
-                <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">Order Details</h3>
+                <h5 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">Order Details</h5>
                 <div className="space-y-4">
                   <div>
                     <p className="text-xs text-neutral-500 mb-1">Order Amount</p>
@@ -340,7 +341,7 @@ export default function MissingCashback() {
               </div>
 
               <div className="flex flex-col h-[400px]">
-                <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4 shrink-0">Conversation History</h3>
+                <h5 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4 shrink-0">Conversation History</h5>
                 <div className="flex-1 overflow-y-auto pr-2 space-y-4 mb-4">
                   {viewingTicket.userNote && (
                     <div className="bg-neutral-50 rounded-xl p-3 border border-neutral-100 mr-8">
@@ -480,13 +481,7 @@ export default function MissingCashback() {
             </div>
 
             {isLoading ? (
-              <div className="p-8">
-                <div className="animate-pulse space-y-4">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="flex gap-4 p-4 rounded-2xl bg-neutral-50 border border-neutral-100 h-16"></div>
-                  ))}
-                </div>
-              </div>
+              <PageLoader />
             ) : filteredTickets.length > 0 ? (
               <div className="overflow-x-auto w-full">
                 <table className="w-full text-left border-collapse min-w-[600px]">
@@ -563,7 +558,7 @@ export default function MissingCashback() {
           <div className="flex min-h-full items-center justify-center p-4">
             <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 relative">
               <div className="shrink-0 flex items-center justify-between p-6 border-b border-neutral-100 bg-neutral-50/50">
-                <h2 className="text-lg font-bold text-neutral-900">{editingTicketId ? 'Edit Ticket' : 'Raise Missing Cashback Ticket'}</h2>
+                <h4 className="text-lg font-bold text-neutral-900">{editingTicketId ? 'Edit Ticket' : 'Raise Missing Cashback Ticket'}</h4>
                 <Button variant="none" size="none"
                   onClick={() => setIsModalOpen(false)}
                   className="p-2 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full transition-colors"
