@@ -178,6 +178,12 @@ export default function ClaimCashback() {
     setIsModalOpen(true);
   };
 
+  const getImageUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('data:')) return url;
+    return `${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${url}`;
+  };
+
   return (
     <div className="space-y-6 lg:space-y-8 animate-in fade-in duration-500 font-sans pb-10 relative">
       {viewingClaim ? (
@@ -293,20 +299,20 @@ export default function ClaimCashback() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-neutral-700 mb-2">1. Invoice / Receipt</span>
-                  <a href={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${viewingClaim.invoiceScreenshot}`} target="_blank" rel="noreferrer" className="block aspect-square w-full relative group bg-neutral-100 rounded-xl overflow-hidden border border-neutral-200">
-                    <img src={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${viewingClaim.invoiceScreenshot}`} className="object-cover w-full h-full" alt="Invoice" />
+                  <a href={getImageUrl(viewingClaim.invoiceScreenshot)} target="_blank" rel="noreferrer" className="block aspect-square w-full relative group bg-neutral-100 rounded-xl overflow-hidden border border-neutral-200">
+                    <img src={getImageUrl(viewingClaim.invoiceScreenshot)} className="object-cover w-full h-full" alt="Invoice" />
                   </a>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-neutral-700 mb-2">2. Product Review</span>
-                  <a href={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${viewingClaim.reviewScreenshot}`} target="_blank" rel="noreferrer" className="block aspect-square w-full relative group bg-neutral-100 rounded-xl overflow-hidden border border-neutral-200">
-                    <img src={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${viewingClaim.reviewScreenshot}`} className="object-cover w-full h-full" alt="Review" />
+                  <a href={getImageUrl(viewingClaim.reviewScreenshot)} target="_blank" rel="noreferrer" className="block aspect-square w-full relative group bg-neutral-100 rounded-xl overflow-hidden border border-neutral-200">
+                    <img src={getImageUrl(viewingClaim.reviewScreenshot)} className="object-cover w-full h-full" alt="Review" />
                   </a>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-neutral-700 mb-2">3. Non-Return Proof</span>
-                  <a href={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${viewingClaim.noReturnScreenshot}`} target="_blank" rel="noreferrer" className="block aspect-square w-full relative group bg-neutral-100 rounded-xl overflow-hidden border border-neutral-200">
-                    <img src={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${viewingClaim.noReturnScreenshot}`} className="object-cover w-full h-full" alt="No Return" />
+                  <a href={getImageUrl(viewingClaim.noReturnScreenshot)} target="_blank" rel="noreferrer" className="block aspect-square w-full relative group bg-neutral-100 rounded-xl overflow-hidden border border-neutral-200">
+                    <img src={getImageUrl(viewingClaim.noReturnScreenshot)} className="object-cover w-full h-full" alt="No Return" />
                   </a>
                 </div>
               </div>

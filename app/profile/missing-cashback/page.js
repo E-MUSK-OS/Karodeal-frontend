@@ -247,6 +247,12 @@ export default function MissingCashback() {
     setIsModalOpen(true);
   };
 
+  const getImageUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('data:')) return url;
+    return `${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${url}`;
+  };
+
   const openNewTicketModal = () => {
     setEditingTicketId(null);
     setStoreName('');
@@ -346,8 +352,8 @@ export default function MissingCashback() {
                       <span className="block text-[10px] font-bold text-neutral-400 uppercase mb-2">Order Screenshots</span>
                       <div className="flex flex-wrap gap-2">
                         {viewingTicket.orderScreenshots.map((img, i) => (
-                          <a key={i} href={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${img}`} target="_blank" rel="noreferrer">
-                            <img src={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${img}`} alt={`Proof ${i + 1}`} className="w-16 h-16 object-cover rounded-lg border border-neutral-200 hover:opacity-80 transition-opacity" />
+                          <a key={i} href={getImageUrl(img)} target="_blank" rel="noreferrer">
+                            <img src={getImageUrl(img)} alt={`Proof ${i + 1}`} className="w-16 h-16 object-cover rounded-lg border border-neutral-200 hover:opacity-80 transition-opacity" />
                           </a>
                         ))}
                       </div>
@@ -366,8 +372,8 @@ export default function MissingCashback() {
                       </span>
                       <p className={`text-sm break-words ${msg.sender === 'USER' ? 'text-neutral-700' : 'text-amber-900'}`}>{msg.message}</p>
                       {msg.attachment && (
-                        <a href={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${msg.attachment}`} target="_blank" rel="noreferrer" className="block mt-2">
-                          <img src={`${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${msg.attachment}`} alt="Attachment" className="w-24 h-24 object-cover rounded-lg border border-neutral-200 hover:opacity-80 transition-opacity" />
+                        <a href={getImageUrl(msg.attachment)} target="_blank" rel="noreferrer" className="block mt-2">
+                          <img src={getImageUrl(msg.attachment)} alt="Attachment" className="w-24 h-24 object-cover rounded-lg border border-neutral-200 hover:opacity-80 transition-opacity" />
                         </a>
                       )}
                     </div>
