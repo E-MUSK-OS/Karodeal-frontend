@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { User, Mail, Phone, Save, CheckCircle2, LogOut, ArrowLeft, Trash2 } from 'lucide-react';
+import Button from '@/components/common/Button';
 
 export default function ProfileSettingsPage() {
   const [user, setUser] = useState(null);
@@ -220,33 +221,33 @@ export default function ProfileSettingsPage() {
         </div>
 
         <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <button
+          <Button variant="none" size="none"
             type="submit"
             disabled={isSaving}
             className="w-full sm:w-auto px-6 py-3 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             {isSaving ? 'Saving...' : 'Save Changes'}
-          </button>
+          </Button>
 
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <button
+            <Button variant="none" size="none"
               type="button"
               onClick={handleDeleteAccount}
               className="w-full sm:w-auto px-6 py-3 text-red-600 hover:bg-red-50 font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100"
             >
               <Trash2 className="w-4 h-4" />
               Delete Account
-            </button>
+            </Button>
 
-            <button
+            <Button variant="none" size="none"
               type="button"
               onClick={handleLogout}
               className="w-full sm:w-auto px-6 py-3 text-red-600 hover:bg-red-50 font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100"
             >
               <LogOut className="w-4 h-4" />
               Logout Account
-            </button>
+            </Button>
           </div>
         </div>
       </form>

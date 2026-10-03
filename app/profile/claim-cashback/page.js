@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShieldAlert, Plus, X, Calendar, ArrowRight, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { ShieldAlert, Plus, X, Calendar, ArrowRight, CheckCircle, Clock, XCircle, Loader2 } from 'lucide-react';
+import Button from '@/components/common/Button';
 
 export default function ClaimCashback() {
   const [claims, setClaims] = useState([]);
@@ -188,12 +189,12 @@ export default function ClaimCashback() {
     <div className="space-y-6 lg:space-y-8 animate-in fade-in duration-500 font-sans pb-10 relative">
       {viewingClaim ? (
         <div className="animate-in slide-in-from-right-4 duration-300">
-          <button
+          <Button variant="none" size="none"
             onClick={() => setViewingClaim(null)}
             className="flex items-center gap-2 text-sm font-bold text-neutral-500 hover:text-black transition-colors mb-6"
           >
             <ArrowRight className="w-4 h-4 rotate-180" /> Back to Claims
-          </button>
+          </Button>
 
           <div className="bg-white rounded-3xl border border-neutral-100 shadow-sm overflow-hidden p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-neutral-100 pb-6">
@@ -263,7 +264,7 @@ export default function ClaimCashback() {
                     )}
 
                     {!viewingClaim.hasMissingTicket ? (
-                      <button
+                      <Button variant="none" size="none"
                         onClick={() => {
                           const params = new URLSearchParams({
                             storeName: viewingClaim.storeName || '',
@@ -277,7 +278,7 @@ export default function ClaimCashback() {
                         className="mt-5 w-full bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
                       >
                         <ShieldAlert className="w-4 h-4" /> Raise Missing Cashback Ticket
-                      </button>
+                      </Button>
                     ) : (
                       <div className="mt-5 bg-neutral-100 text-neutral-600 p-3 rounded-xl border border-neutral-200 text-center text-xs font-bold">
                         A missing cashback ticket has been raised for this claim.
@@ -335,12 +336,12 @@ export default function ClaimCashback() {
               </p>
             </div>
 
-            <button
+            <Button variant="none" size="none"
               onClick={openNewClaimModal}
               className="bg-black text-white hover:bg-neutral-800 px-5 py-3 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2 shadow-md shrink-0"
             >
               <Plus className="w-4 h-4" /> Submit New Claim
-            </button>
+            </Button>
           </div>
 
           {/* Table */}
@@ -420,10 +421,10 @@ export default function ClaimCashback() {
           <div className="flex min-h-full items-center justify-center p-4">
             <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 relative">
               <div className="shrink-0 flex items-center justify-between p-6 border-b border-neutral-100 bg-neutral-50/50">
-                <h2 className="text-lg font-bold text-neutral-900">Submit Cashback Claim</h2>
-                <button onClick={() => setIsModalOpen(false)} className="p-2 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full transition-colors">
+                <h4 className="text-lg font-bold text-neutral-900">Submit Cashback Claim</h4>
+                <Button variant="none" size="none" onClick={() => setIsModalOpen(false)} className="p-2 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full transition-colors">
                   <X className="w-5 h-5" />
-                </button>
+                </Button>
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 space-y-4">
@@ -561,7 +562,7 @@ export default function ClaimCashback() {
                 </div>
 
                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mt-6">
-                  <h3 className="text-sm font-bold text-blue-900 mb-3">Upload Proofs (Required)</h3>
+                  <h4 className="text-sm font-bold text-blue-900 mb-3">Upload Proofs (Required)</h4>
 
                   <div className="space-y-4">
                     <div>
@@ -580,13 +581,15 @@ export default function ClaimCashback() {
                 </div>
 
                 <div className="pt-4">
-                  <button
+                  <Button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-black hover:bg-neutral-800 text-white font-bold py-3.5 rounded-xl transition-all disabled:opacity-70 shadow-md"
+                    variant="primary"
+                    fullWidth={true}
+                    isLoading={isSubmitting}
+                    className="py-3.5 rounded-xl normal-case tracking-normal shadow-md"
                   >
                     {isSubmitting ? 'Submitting...' : 'Submit Claim'}
-                  </button>
+                  </Button>
                 </div>
               </form>
             </div>

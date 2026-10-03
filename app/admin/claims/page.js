@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShieldAlert, CheckCircle, XCircle, Search, Calendar, FileText, ArrowRight } from 'lucide-react';
+import Button from '@/components/common/Button';
 
 export default function AdminClaims() {
   const [claims, setClaims] = useState([]);
@@ -158,12 +159,12 @@ export default function AdminClaims() {
     <div className="space-y-6 animate-in fade-in duration-500 relative">
       {viewingClaim ? (
         <div className="animate-in slide-in-from-right-4 duration-300">
-          <button
+          <Button variant="none" size="none"
             onClick={() => setViewingClaim(null)}
             className="flex items-center gap-2 text-sm font-bold text-neutral-500 hover:text-black transition-colors mb-6"
           >
             <ArrowRight className="w-4 h-4 rotate-180" /> Back to Claims List
-          </button>
+          </Button>
 
           <div className="bg-white rounded-3xl border border-neutral-100 shadow-sm overflow-hidden p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-neutral-100 pb-6">
@@ -273,20 +274,20 @@ export default function AdminClaims() {
                     </div>
 
                     <div className="flex gap-3 pt-2">
-                      <button
+                      <Button variant="none" size="none"
                         onClick={() => handleUpdateStatus('APPROVED')}
                         disabled={isUpdating}
                         className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
                       >
                         <CheckCircle className="w-5 h-5" /> Approve & Credit
-                      </button>
-                      <button
+                      </Button>
+                      <Button variant="none" size="none"
                         onClick={() => handleUpdateStatus('REJECTED')}
                         disabled={isUpdating}
                         className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
                       >
                         <XCircle className="w-5 h-5" /> Reject
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ) : (
@@ -306,13 +307,13 @@ export default function AdminClaims() {
                               placeholder="New Amount"
                               className="flex-1 px-3 py-2 text-sm rounded-lg border border-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
                             />
-                            <button
+                            <Button variant="none" size="none"
                               onClick={handleUpdateAwardedCashback}
                               disabled={isUpdating || parseFloat(awardedCashback) === viewingClaim.awardedCashback}
                               className="bg-green-700 hover:bg-green-800 text-white font-bold px-4 py-2 text-sm rounded-lg disabled:opacity-50 transition-colors"
                             >
                               Update
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -324,13 +325,13 @@ export default function AdminClaims() {
                       </div>
                     )}
                     {viewingClaim.status === 'REJECTED' && (
-                      <button
+                      <Button variant="none" size="none"
                         onClick={() => handleUpdateStatus('PENDING')}
                         disabled={isUpdating}
                         className="mt-4 bg-white border border-red-200 hover:bg-red-100 text-red-800 font-bold py-2.5 px-5 rounded-xl transition-colors shadow-sm text-sm"
                       >
                         Reopen Claim
-                      </button>
+                      </Button>
                     )}
                   </div>
                 )}
@@ -368,7 +369,7 @@ export default function AdminClaims() {
             <h3 className="text-2xl font-bold text-neutral-900">Manage Cashback Claims</h3>
             <div className="flex bg-neutral-100 p-1 rounded-lg overflow-x-auto whitespace-nowrap hide-scrollbar max-w-full">
               {['ALL', 'PENDING', 'APPROVED', 'REJECTED'].map(status => (
-                <button
+                <Button variant="none" size="none"
                   key={status}
                   onClick={() => setStatusFilter(status)}
                   className={`px-2 sm:px-4 py-1.5 sm:py-2 rounded-md text-[10px] sm:text-sm font-bold transition-all flex-1 text-center ${statusFilter === status
@@ -377,7 +378,7 @@ export default function AdminClaims() {
                     }`}
                 >
                   {status}
-                </button>
+                </Button>
               ))}
             </div>
           </div>

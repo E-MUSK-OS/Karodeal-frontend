@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShieldAlert, Plus, X, Calendar, Search, ArrowRight, Edit2, Paperclip, ChevronDown } from 'lucide-react';
+import { ShieldAlert, Plus, X, Calendar, Search, ArrowRight, Edit2, Paperclip, ChevronDown, Loader2 } from 'lucide-react';
+import Button from '@/components/common/Button';
 
 export default function MissingCashback() {
   const [tickets, setTickets] = useState([]);
@@ -283,12 +284,12 @@ export default function MissingCashback() {
     <div className="space-y-6 lg:space-y-8 animate-in fade-in duration-500 font-sans pb-10 relative">
       {viewingTicket ? (
         <div className="animate-in slide-in-from-right-4 duration-300">
-          <button
+          <Button variant="none" size="none"
             onClick={() => setViewingTicket(null)}
             className="flex items-center gap-2 text-sm font-bold text-neutral-500 hover:text-black transition-colors mb-6"
           >
             <ArrowRight className="w-4 h-4 rotate-180" /> Back to Tickets
-          </button>
+          </Button>
 
           <div className="bg-white rounded-3xl border border-neutral-100 shadow-sm overflow-hidden p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-neutral-100 pb-6">
@@ -310,12 +311,12 @@ export default function MissingCashback() {
               </div>
 
               {viewingTicket.status === 'PENDING' && (
-                <button
+                <Button variant="none" size="none"
                   onClick={() => handleEditClick(viewingTicket)}
                   className="bg-neutral-100 text-neutral-700 hover:bg-neutral-200 hover:text-black px-4 py-2.5 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2 shrink-0"
                 >
                   <Edit2 className="w-4 h-4" /> Edit Ticket
-                </button>
+                </Button>
               )}
             </div>
 
@@ -394,7 +395,7 @@ export default function MissingCashback() {
                       {chatAttachment && (
                         <div className="flex items-center gap-1 text-[10px] bg-neutral-100 text-neutral-600 px-2 py-1 rounded w-fit">
                           <span className="truncate max-w-[100px]">{chatAttachment.name}</span>
-                          <button type="button" onClick={() => setChatAttachment(null)} className="hover:text-red-500"><X className="w-3 h-3" /></button>
+                          <Button variant="none" size="none" type="button" onClick={() => setChatAttachment(null)} className="hover:text-red-500"><X className="w-3 h-3" /></Button>
                         </div>
                       )}
                       <input
@@ -405,13 +406,15 @@ export default function MissingCashback() {
                         className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-black"
                       />
                     </div>
-                    <button
+                    <Button
                       type="submit"
-                      disabled={isSendingMsg || (!chatMessage.trim() && !chatAttachment)}
-                      className="bg-black text-white px-4 py-2.5 rounded-xl text-sm font-bold disabled:opacity-50 transition-opacity self-end"
+                      variant="primary"
+                      disabled={!chatMessage.trim() && !chatAttachment}
+                      isLoading={isSendingMsg}
+                      className="text-sm rounded-xl !px-4 !py-2.5 normal-case tracking-normal self-end"
                     >
-                      {isSendingMsg ? '...' : 'Send'}
-                    </button>
+                      {isSendingMsg ? 'Sending...' : 'Send'}
+                    </Button>
                   </form>
                 ) : (
                   <div className="shrink-0 bg-neutral-50 p-3 rounded-xl border border-neutral-200 text-center text-xs text-neutral-500 font-medium">
@@ -438,12 +441,12 @@ export default function MissingCashback() {
               </p>
             </div>
 
-            <button
+            <Button variant="none" size="none"
               onClick={openNewTicketModal}
               className="bg-black text-white hover:bg-neutral-800 px-5 py-3 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2 shadow-md shrink-0"
             >
               <Plus className="w-4 h-4" /> Raise Ticket
-            </button>
+            </Button>
           </div>
 
           {/* Information Banner */}
@@ -561,12 +564,12 @@ export default function MissingCashback() {
             <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 relative">
               <div className="shrink-0 flex items-center justify-between p-6 border-b border-neutral-100 bg-neutral-50/50">
                 <h2 className="text-lg font-bold text-neutral-900">{editingTicketId ? 'Edit Ticket' : 'Raise Missing Cashback Ticket'}</h2>
-                <button
+                <Button variant="none" size="none"
                   onClick={() => setIsModalOpen(false)}
                   className="p-2 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full transition-colors"
                 >
                   <X className="w-5 h-5" />
-                </button>
+                </Button>
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 space-y-4">
@@ -658,13 +661,15 @@ export default function MissingCashback() {
                 )}
 
                 <div className="pt-2">
-                  <button
+                  <Button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-black hover:bg-neutral-800 text-white font-bold py-3.5 rounded-xl transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-md"
+                    variant="primary"
+                    fullWidth={true}
+                    isLoading={isSubmitting}
+                    className="py-3.5 rounded-xl normal-case tracking-normal shadow-md"
                   >
                     {isSubmitting ? 'Saving...' : (editingTicketId ? 'Save Changes' : 'Submit Ticket')}
-                  </button>
+                  </Button>
                 </div>
               </form>
             </div>

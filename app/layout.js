@@ -13,8 +13,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <meta name="google-site-verification" content="qdUja2S1m93HFP5-fCxw6Z2oZ4iY2movGhgGqDKD2pY" />
       <body className="flex flex-col min-h-screen pb-16 md:pb-0">
-        <NextTopLoader 
+        <NextTopLoader
           color="#000000"
           initialPosition={0.08}
           crawlSpeed={200}

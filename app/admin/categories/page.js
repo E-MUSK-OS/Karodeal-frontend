@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Loader2, X, Check } from 'lucide-react';
+import Button from '@/components/common/Button';
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState([]);
@@ -8,6 +9,7 @@ export default function AdminCategoriesPage() {
   const [slug, setSlug] = useState(''); // Slug field for adding
   const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Edit state
   const [editingId, setEditingId] = useState(null);
@@ -48,6 +50,7 @@ export default function AdminCategoriesPage() {
   const handleAddCategory = async (e) => {
     e.preventDefault();
     if (!name) return;
+    setIsSubmitting(true);
     try {
       const token = getToken();
       const formData = new FormData();
@@ -76,6 +79,8 @@ export default function AdminCategoriesPage() {
     } catch (error) {
       console.error('Error creating category:', error);
       alert('Failed to create category');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -115,6 +120,7 @@ export default function AdminCategoriesPage() {
 
   const handleUpdate = async (id) => {
     if (!editName) return;
+    setIsSubmitting(true);
     try {
       const token = getToken();
       const formData = new FormData();
@@ -142,6 +148,8 @@ export default function AdminCategoriesPage() {
     } catch (error) {
       console.error('Error updating category:', error);
       alert('Failed to update category');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -190,13 +198,16 @@ export default function AdminCategoriesPage() {
               />
             </div>
 
-            <button
+            <Button
               type="submit"
-              className="w-full py-3 bg-black hover:bg-neutral-800 text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2"
+              variant="primary"
+              fullWidth={true}
+              isLoading={isSubmitting}
+              icon={!isSubmitting && <Plus className="w-4 h-4" />}
+              className="py-3 rounded-xl normal-case tracking-normal shadow-md text-xs"
             >
-              <Plus className="w-4 h-4" />
-              Add Category
-            </button>
+              {isSubmitting ? 'Adding...' : 'Add Category'}
+            </Button>
           </form>
         </div>
 
@@ -232,20 +243,20 @@ export default function AdminCategoriesPage() {
                   </div>
 
                   <div className="flex items-center gap-1 self-end sm:self-auto">
-                    <button
+                    <Button variant="none" size="none"
                       onClick={() => startEditing(cat)}
                       className="p-2 text-neutral-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                       title="Edit"
                     >
                       <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="none" size="none"
                       onClick={() => handleDelete(cat.id)}
                       className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       title="Delete"
                     >
                       <Trash2 className="w-4 h-4" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ))
@@ -259,13 +270,13 @@ export default function AdminCategoriesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-neutral-900">Edit Category</h3>
-              <button
+              <h4 className="text-lg font-bold text-neutral-900">Edit Category</h4>
+              <Button variant="none" size="none"
                 onClick={cancelEditing}
                 className="text-neutral-400 hover:text-neutral-900 transition-colors bg-neutral-100 hover:bg-neutral-200 p-1.5 rounded-lg"
               >
                 <X className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
 
             <div className="p-6 space-y-5">
@@ -300,19 +311,22 @@ export default function AdminCategoriesPage() {
             </div>
 
             <div className="p-6 border-t border-neutral-100 bg-neutral-50 flex gap-3 justify-end">
-              <button
+              <Button variant="none" size="none"
                 onClick={cancelEditing}
                 className="px-5 py-2.5 text-sm font-bold text-neutral-700 hover:bg-neutral-200 rounded-xl transition-colors"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => handleUpdate(editingId)}
-                className="px-5 py-2.5 text-sm font-bold text-white bg-black hover:bg-neutral-800 rounded-xl transition-colors flex items-center gap-2"
+                variant="primary"
+                size="md"
+                isLoading={isSubmitting}
+                icon={!isSubmitting && <Check className="w-4 h-4" />}
+                className="text-sm rounded-xl !px-5 !py-2.5 normal-case tracking-normal shadow-md"
               >
-                <Check className="w-4 h-4" />
-                Save Changes
-              </button>
+                {isSubmitting ? 'Saving...' : 'Save Changes'}
+              </Button>
             </div>
           </div>
         </div>

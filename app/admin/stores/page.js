@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { ShoppingBag, Plus, Trash2, Edit3, ExternalLink, CheckCircle2, Upload } from 'lucide-react';
+import { ShoppingBag, Plus, Trash2, Edit3, ExternalLink, CheckCircle2, Upload, X, Loader2 } from 'lucide-react';
+import Button from '@/components/common/Button';
 
 export default function AdminStoresPage() {
   const [stores, setStores] = useState([]);
@@ -11,6 +12,7 @@ export default function AdminStoresPage() {
   const [logoUrl, setLogoUrl] = useState('');
   const [imageInputType, setImageInputType] = useState('url'); // 'url' | 'file'
   const [isReloading, setIsReloading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     loadStores();
@@ -52,6 +54,7 @@ export default function AdminStoresPage() {
   const handleAddStore = async (e) => {
     e.preventDefault();
     if (!name) return;
+    setIsSubmitting(true);
     try {
       const adminUserStr = localStorage.getItem('adminUser');
       const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
@@ -86,6 +89,8 @@ export default function AdminStoresPage() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -140,13 +145,13 @@ export default function AdminStoresPage() {
           <p className="text-sm text-neutral-500">Manage affiliate stores and cashback rates</p>
         </div>
 
-        <button
+        <Button variant="none" size="none"
           onClick={handleOpenAdd}
           className="px-4 py-2.5 bg-black hover:bg-neutral-800 text-white font-medium text-xs rounded-xl transition-colors flex items-center gap-2 shadow-sm"
         >
           <Plus className="w-4 h-4" />
           Add New Store
-        </button>
+        </Button>
       </div>
 
       {/* Stores Table - Simple Design */}
@@ -190,20 +195,20 @@ export default function AdminStoresPage() {
                   </td>
                   <td className="py-4 px-6 pr-8">
                     <div className="flex items-center justify-end gap-1 whitespace-nowrap">
-                      <button
+                      <Button variant="none" size="none"
                         onClick={() => handleOpenEdit(store)}
                         className="p-2 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-lg transition-colors"
                         title="Edit Store"
                       >
                         <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button
+                      </Button>
+                      <Button variant="none" size="none"
                         onClick={() => handleDeleteStore(store.id)}
                         className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Delete Store"
                       >
                         <Trash2 className="w-4 h-4" />
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -217,7 +222,15 @@ export default function AdminStoresPage() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-neutral-200">
-            <h2 className="text-xl font-bold text-neutral-900 mb-4">{editingStoreId ? 'Edit Store' : 'Add New Affiliate Store'}</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-xl font-bold text-neutral-900">{editingStoreId ? 'Edit Store' : 'Add New Affiliate Store'}</h4>
+              <Button variant="none" size="none"
+                onClick={() => setIsModalOpen(false)}
+                className="p-1.5 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
             <form onSubmit={handleAddStore} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold uppercase text-neutral-700 mb-1">Store Name</label>
@@ -254,7 +267,7 @@ export default function AdminStoresPage() {
                     Store Logo
                   </label>
                   <div className="flex items-center bg-neutral-100 p-0.5 rounded-xl border border-neutral-200">
-                    <button
+                    <Button variant="none" size="none"
                       type="button"
                       onClick={() => setImageInputType('url')}
                       className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'url'
@@ -263,8 +276,8 @@ export default function AdminStoresPage() {
                         }`}
                     >
                       Image URL
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="none" size="none"
                       type="button"
                       onClick={() => setImageInputType('file')}
                       className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'file'
@@ -273,7 +286,7 @@ export default function AdminStoresPage() {
                         }`}
                     >
                       Upload File
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -323,13 +336,13 @@ export default function AdminStoresPage() {
                         <span className="text-xs text-neutral-700 font-mono truncate flex-1 font-semibold">
                           Image selected
                         </span>
-                        <button
+                        <Button variant="none" size="none"
                           type="button"
                           onClick={() => setLogoUrl('')}
                           className="text-xs font-bold text-red-600 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors"
                         >
                           Remove
-                        </button>
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -337,19 +350,22 @@ export default function AdminStoresPage() {
               </div>
 
               <div className="pt-4 flex items-center justify-end gap-3">
-                <button
+                <Button variant="none" size="none"
                   type="button"
                   onClick={() => setIsModalOpen(false)}
                   className="px-4 py-2.5 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 rounded-xl transition-colors"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  className="px-5 py-2.5 bg-black hover:bg-neutral-800 text-white font-bold text-xs rounded-xl transition-colors"
+                  variant="primary"
+                  size="md"
+                  isLoading={isSubmitting}
+                  className="text-xs rounded-xl !px-5 !py-2.5 normal-case tracking-normal"
                 >
                   {editingStoreId ? 'Update Store' : 'Save Store'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

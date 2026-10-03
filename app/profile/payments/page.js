@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { IndianRupee, Landmark, Smartphone, AlertCircle, ArrowRight, BadgeCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Button from '@/components/common/Button';
 
 export default function Payments() {
   const [balance, setBalance] = useState(0);
@@ -155,13 +156,13 @@ export default function Payments() {
             </div>
           </div>
 
-          <button
+          <Button variant="none" size="none"
             type="submit"
             disabled={balance < 1000 || isLoading}
             className="w-auto inline-flex justify-center items-center gap-1.5 bg-emerald-500 text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Submit Request <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+          </Button>
         </form>
       </div>
     </div>

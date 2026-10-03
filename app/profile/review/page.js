@@ -4,6 +4,7 @@ import { Star, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import Button from '@/components/common/Button';
 
 function ReviewPageContent() {
   const searchParams = useSearchParams();
@@ -101,12 +102,12 @@ function ReviewPageContent() {
                 </div>
                 <div className="p-4 border-t border-neutral-100 bg-neutral-50/50 flex flex-col gap-3">
                   <span className="text-sm font-bold text-black text-center">Tell Us About Your Experience!</span>
-                  <button
+                  <Button variant="none" size="none"
                     onClick={() => setIsWriting(true)}
                     className="w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-neutral-800 transition-colors"
                   >
                     Write a Review
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
@@ -116,12 +117,12 @@ function ReviewPageContent() {
                     <MessageSquare className="w-5 h-5" />
                     Write a Review
                   </h2>
-                  <button
+                  <Button variant="none" size="none"
                     onClick={() => setIsWriting(false)}
                     className="text-sm text-neutral-500 hover:text-black font-semibold"
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
 
                 {!user ? (
@@ -139,7 +140,7 @@ function ReviewPageContent() {
                       </label>
                       <div className="flex gap-1">
                         {[1, 2, 3, 4, 5].map((star) => (
-                          <button
+                          <Button variant="none" size="none"
                             key={star}
                             type="button"
                             onClick={() => setRating(star)}
@@ -153,7 +154,7 @@ function ReviewPageContent() {
                                   : 'text-neutral-300'
                                 }`}
                             />
-                          </button>
+                          </Button>
                         ))}
                       </div>
                     </div>
@@ -172,12 +173,12 @@ function ReviewPageContent() {
                       />
                     </div>
 
-                    <button
+                    <Button variant="none" size="none"
                       type="submit"
                       className="w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-neutral-800 transition-colors"
                     >
                       Publish Review
-                    </button>
+                    </Button>
                   </form>
                 )}
               </div>

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Lock, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import Button from '@/components/common/Button';
 
 export default function ChangePassword() {
   const [user, setUser] = useState(null);
@@ -73,13 +74,13 @@ export default function ChangePassword() {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 p-5 sm:p-6 md:p-8">
-      <button
+      <Button variant="none" size="none"
         onClick={() => router.back()}
         className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-600 hover:text-black mb-6"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Profile
-      </button>
+      </Button>
 
       <div className="mb-6">
         <h5 className="text-xl font-bold text-neutral-900 flex items-center gap-2">
@@ -118,13 +119,13 @@ export default function ChangePassword() {
               className="w-full px-4 py-3 pr-12 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
               required
             />
-            <button
+            <Button variant="none" size="none"
               type="button"
               className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-black"
               onClick={() => setShowCurrentPassword(!showCurrentPassword)}
             >
               {showCurrentPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -141,13 +142,13 @@ export default function ChangePassword() {
               className="w-full px-4 py-3 pr-12 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
               required
             />
-            <button
+            <Button variant="none" size="none"
               type="button"
               className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-black"
               onClick={() => setShowNewPassword(!showNewPassword)}
             >
               {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -164,24 +165,24 @@ export default function ChangePassword() {
               className="w-full px-4 py-3 pr-12 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
               required
             />
-            <button
+            <Button variant="none" size="none"
               type="button"
               className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-black"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             >
               {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-            </button>
+            </Button>
           </div>
         </div>
 
         <div className="pt-2">
-          <button
+          <Button variant="none" size="none"
             type="submit"
             disabled={isUpdating}
             className="w-full sm:w-auto px-6 py-3 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors shadow-sm disabled:opacity-50"
           >
             {isUpdating ? 'Updating...' : 'Update Password'}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

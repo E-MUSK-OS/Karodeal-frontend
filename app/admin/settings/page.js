@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { Settings, Lock, Mail, Save, CheckCircle2, User, Phone } from 'lucide-react';
+import Button from '@/components/common/Button';
 
 export default function AdminSettingsPage() {
   const [adminUser, setAdminUser] = useState(null);
@@ -169,14 +170,14 @@ export default function AdminSettingsPage() {
           </div>
 
           <div className="pt-2">
-            <button
+            <Button variant="none" size="none"
               type="submit"
               disabled={isSavingProfile}
               className="px-6 py-3 bg-black hover:bg-neutral-800 text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {isSavingProfile ? 'Saving...' : 'Save Profile'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
@@ -230,14 +231,14 @@ export default function AdminSettingsPage() {
           </div>
 
           <div className="pt-2">
-            <button
+            <Button variant="none" size="none"
               type="submit"
               disabled={isSavingPassword}
               className="px-6 py-3 bg-black hover:bg-neutral-800 text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {isSavingPassword ? 'Updating...' : 'Update Password'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

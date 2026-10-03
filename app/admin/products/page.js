@@ -2,8 +2,9 @@
 import { useState, useEffect } from 'react';
 
 import {
-  Search, Plus, Edit3, Trash2, CheckCircle2, ExternalLink, Tag, RefreshCw, X, Upload, ChevronUp, ChevronDown, ArrowUpDown
+  Search, Plus, Edit3, Trash2, CheckCircle2, ExternalLink, Tag, RefreshCw, X, Upload, ChevronUp, ChevronDown, ArrowUpDown, Loader2
 } from 'lucide-react';
+import Button from '@/components/common/Button';
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
@@ -17,6 +18,7 @@ export default function AdminProductsPage() {
   const [dbCategories, setDbCategories] = useState([]);
   const [imageInputType, setImageInputType] = useState('url'); // 'url' | 'file'
   const [isReloading, setIsReloading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 25;
 
@@ -119,7 +121,7 @@ export default function AdminProductsPage() {
   const handleSaveEdit = async (e) => {
     e.preventDefault();
     if (!editingProduct) return;
-
+    setIsSubmitting(true);
     try {
       const adminUserStr = localStorage.getItem('adminUser');
       const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
@@ -152,6 +154,8 @@ export default function AdminProductsPage() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -174,6 +178,7 @@ export default function AdminProductsPage() {
 
   const handleSaveAdd = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       const adminUserStr = localStorage.getItem('adminUser');
       const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
@@ -211,6 +216,8 @@ export default function AdminProductsPage() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -333,13 +340,13 @@ export default function AdminProductsPage() {
           </p>
         </div>
 
-        <button
+        <Button variant="none" size="none"
           onClick={handleOpenAdd}
           className="px-4 py-2.5 bg-black hover:bg-neutral-800 text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-2 shadow-sm"
         >
           <Plus className="w-4 h-4" />
           Add New Product Card
-        </button>
+        </Button>
       </div>
 
       {/* Search & Store Filters */}
@@ -377,14 +384,14 @@ export default function AdminProductsPage() {
           <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">
             Showing {filteredProducts.length} Product Cards
           </span>
-          <button
+          <Button variant="none" size="none"
             onClick={loadProducts}
             disabled={isReloading}
             className="text-xs font-semibold text-neutral-600 hover:text-black flex items-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isReloading ? 'animate-spin text-black' : ''}`} />
             {isReloading ? 'Reloading...' : 'Reload'}
-          </button>
+          </Button>
         </div>
 
         <div className="overflow-x-auto overflow-y-auto max-h-[70vh] w-full">
@@ -467,20 +474,20 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="p-4 pr-6">
                       <div className="flex items-center justify-end gap-1 whitespace-nowrap">
-                        <button
+                        <Button variant="none" size="none"
                           onClick={() => handleOpenEdit(p)}
                           className="p-2 text-neutral-600 hover:text-black hover:bg-neutral-100 rounded-lg transition-colors"
                           title="Edit Product Card"
                         >
                           <Edit3 className="w-4 h-4" />
-                        </button>
-                        <button
+                        </Button>
+                        <Button variant="none" size="none"
                           onClick={() => handleDelete(p.id)}
                           className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           title="Delete Product"
                         >
                           <Trash2 className="w-4 h-4" />
-                        </button>
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -497,13 +504,13 @@ export default function AdminProductsPage() {
               Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredProducts.length)} of {filteredProducts.length} entries
             </span>
             <div className="flex gap-1">
-              <button
+              <Button variant="none" size="none"
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
                 className="px-3 py-1 text-xs font-semibold rounded-lg bg-neutral-50 text-neutral-600 hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Previous
-              </button>
+              </Button>
 
               <div className="flex items-center gap-1">
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -514,7 +521,7 @@ export default function AdminProductsPage() {
                   else pageNum = currentPage - 2 + i;
 
                   return (
-                    <button
+                    <Button variant="none" size="none"
                       key={pageNum}
                       onClick={() => setCurrentPage(pageNum)}
                       className={`w-7 h-7 flex items-center justify-center text-xs font-bold rounded-lg transition-colors ${currentPage === pageNum
@@ -523,18 +530,18 @@ export default function AdminProductsPage() {
                         }`}
                     >
                       {pageNum}
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
 
-              <button
+              <Button variant="none" size="none"
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
                 className="px-3 py-1 text-xs font-semibold rounded-lg bg-neutral-50 text-neutral-600 hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Next
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -545,16 +552,16 @@ export default function AdminProductsPage() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-neutral-200 max-h-[90vh] overflow-y-auto my-8">
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-100">
-              <h2 className="text-xl font-bold text-neutral-900 flex items-center gap-2">
+              <h4 className="text-xl font-bold text-neutral-900 flex items-center gap-2">
                 <Edit3 className="w-5 h-5 text-neutral-700" />
                 Edit Card Details
-              </h2>
-              <button
+              </h4>
+              <Button variant="none" size="none"
                 onClick={() => setEditingProduct(null)}
                 className="p-1.5 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full"
               >
                 <X className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
 
             <form onSubmit={handleSaveEdit} className="space-y-4">
@@ -678,7 +685,7 @@ export default function AdminProductsPage() {
                     Product Image
                   </label>
                   <div className="flex items-center bg-neutral-100 p-0.5 rounded-xl border border-neutral-200">
-                    <button
+                    <Button variant="none" size="none"
                       type="button"
                       onClick={() => setImageInputType('url')}
                       className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'url'
@@ -687,8 +694,8 @@ export default function AdminProductsPage() {
                         }`}
                     >
                       Image URL
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="none" size="none"
                       type="button"
                       onClick={() => setImageInputType('file')}
                       className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'file'
@@ -697,7 +704,7 @@ export default function AdminProductsPage() {
                         }`}
                     >
                       Upload File
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -748,13 +755,13 @@ export default function AdminProductsPage() {
                         <span className="text-xs text-neutral-700 font-mono truncate flex-1 font-semibold">
                           Image selected
                         </span>
-                        <button
+                        <Button variant="none" size="none"
                           type="button"
                           onClick={() => setFormData({ ...formData, image: '' })}
                           className="text-xs font-bold text-red-600 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors"
                         >
                           Remove
-                        </button>
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -774,19 +781,22 @@ export default function AdminProductsPage() {
               </div>
 
               <div className="pt-4 flex items-center justify-end gap-3">
-                <button
+                <Button variant="none" size="none"
                   type="button"
                   onClick={() => setEditingProduct(null)}
                   className="px-5 py-3 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 rounded-xl transition-colors"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  className="px-6 py-3 bg-black hover:bg-neutral-800 text-white font-bold text-xs rounded-xl transition-colors shadow-md"
+                  variant="primary"
+                  size="md"
+                  isLoading={isSubmitting}
+                  className="text-xs rounded-xl !px-6 !py-3 normal-case tracking-normal shadow-md"
                 >
                   Update Card Data
-                </button>
+                </Button>
               </div>
             </form>
           </div>
@@ -798,16 +808,16 @@ export default function AdminProductsPage() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-neutral-200 max-h-[90vh] overflow-y-auto my-8">
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-100">
-              <h2 className="text-xl font-bold text-neutral-900 flex items-center gap-2">
+              <h4 className="text-xl font-bold text-neutral-900 flex items-center gap-2">
                 <Plus className="w-5 h-5 text-neutral-700" />
                 Add New Product Card
-              </h2>
-              <button
+              </h4>
+              <Button variant="none" size="none"
                 onClick={() => setIsAddModalOpen(false)}
                 className="p-1.5 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full"
               >
                 <X className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
 
             <form onSubmit={handleSaveAdd} className="space-y-4">
@@ -932,7 +942,7 @@ export default function AdminProductsPage() {
                     Product Image
                   </label>
                   <div className="flex items-center bg-neutral-100 p-0.5 rounded-xl border border-neutral-200">
-                    <button
+                    <Button variant="none" size="none"
                       type="button"
                       onClick={() => setImageInputType('url')}
                       className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'url'
@@ -941,8 +951,8 @@ export default function AdminProductsPage() {
                         }`}
                     >
                       Image URL
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="none" size="none"
                       type="button"
                       onClick={() => setImageInputType('file')}
                       className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'file'
@@ -951,7 +961,7 @@ export default function AdminProductsPage() {
                         }`}
                     >
                       Upload File
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -1002,13 +1012,13 @@ export default function AdminProductsPage() {
                         <span className="text-xs text-neutral-700 font-mono truncate flex-1 font-semibold">
                           Image selected
                         </span>
-                        <button
+                        <Button variant="none" size="none"
                           type="button"
                           onClick={() => setFormData({ ...formData, image: '' })}
                           className="text-xs font-bold text-red-600 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors"
                         >
                           Remove
-                        </button>
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -1029,19 +1039,22 @@ export default function AdminProductsPage() {
               </div>
 
               <div className="pt-4 flex items-center justify-end gap-3">
-                <button
+                <Button variant="none" size="none"
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
                   className="px-5 py-3 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 rounded-xl transition-colors"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  className="px-6 py-3 bg-black hover:bg-neutral-800 text-white font-bold text-xs rounded-xl transition-colors shadow-md"
+                  variant="primary"
+                  size="md"
+                  isLoading={isSubmitting}
+                  className="text-xs rounded-xl !px-6 !py-3 normal-case tracking-normal shadow-md"
                 >
                   Add Product Card
-                </button>
+                </Button>
               </div>
             </form>
           </div>

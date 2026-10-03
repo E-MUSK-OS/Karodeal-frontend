@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { IndianRupee, Search, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import Button from '@/components/common/Button';
 
 export default function AdminPayouts() {
   const [payouts, setPayouts] = useState([]);
@@ -137,14 +138,14 @@ export default function AdminPayouts() {
                     <td className="py-4 px-4 text-right">
                       {payout.status === 'PENDING' ? (
                         <div className="flex items-center justify-end gap-2">
-                          <button
+                          <Button variant="none" size="none"
                             onClick={() => handleProcess(payout.id, 'APPROVED')}
                             disabled={processingId === payout.id}
                             className="px-3 py-1.5 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 disabled:opacity-50"
                           >
                             Approve
-                          </button>
-                          <button
+                          </Button>
+                          <Button variant="none" size="none"
                             onClick={() => {
                               const note = prompt('Reason for rejection (optional):');
                               if (note !== null) handleProcess(payout.id, 'REJECTED', note);
@@ -153,7 +154,7 @@ export default function AdminPayouts() {
                             className="px-3 py-1.5 bg-red-100 text-red-700 text-xs font-bold rounded-lg hover:bg-red-200 disabled:opacity-50"
                           >
                             Reject
-                          </button>
+                          </Button>
                         </div>
                       ) : (
                         <span className="text-xs text-neutral-400 font-medium">Processed</span>

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Button from '@/components/common/Button';
 import {
   User, Mail, Phone, Save, CheckCircle2, LogOut, Settings, Wallet,
   IndianRupee, History, Ticket, Search, HelpCircle, Star, ShieldCheck, ArrowLeft, Lock, Trash2, Receipt
@@ -152,13 +153,13 @@ export default function ProfileAccountSettings() {
 
             {/* Account Settings Option Button */}
             <div className="px-5 py-3.5 border-b border-neutral-100 bg-white hover:bg-neutral-50 transition-colors">
-              <button
+              <Button variant="none" size="none"
                 onClick={() => setMobileView('settings')}
                 className="flex items-center gap-3 text-black w-full text-left focus:outline-none"
               >
                 <Settings className="w-5 h-5 text-neutral-800" />
                 <span className="text-[14px] font-semibold">Account Settings</span>
-              </button>
+              </Button>
             </div>
 
             {/* Change Password Link */}
@@ -225,22 +226,22 @@ export default function ProfileAccountSettings() {
 
             {/* Logout */}
             <div className="px-5 py-4 bg-white hover:bg-neutral-50 transition-colors">
-              <button onClick={handleLogout} className="flex items-center gap-3 text-red-600 w-full text-left">
+              <Button variant="none" size="none" onClick={handleLogout} className="flex items-center gap-3 text-red-600 w-full text-left">
                 <LogOut className="w-5 h-5 text-red-600" />
                 <span className="text-[14px] font-medium">Logout</span>
-              </button>
+              </Button>
             </div>
           </>
         ) : (
           /* MOBILE ACCOUNT SETTINGS FORM VIEW */
           <div className="p-5 sm:p-6">
-            <button
+            <Button variant="none" size="none"
               onClick={() => setMobileView('menu')}
               className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-600 hover:text-black mb-6"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Profile
-            </button>
+            </Button>
 
             <div className="mb-6">
               <h2 className="text-xl font-bold text-neutral-900 flex items-center gap-2">
@@ -324,32 +325,32 @@ export default function ProfileAccountSettings() {
               </div>
 
               <div className="pt-2 flex flex-col gap-3">
-                <button
+                <Button variant="none" size="none"
                   type="submit"
                   disabled={isSaving}
                   className="w-full py-3 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
                   {isSaving ? 'Saving...' : 'Save Changes'}
-                </button>
+                </Button>
 
-                <button
+                <Button variant="none" size="none"
                   type="button"
                   onClick={handleDeleteAccount}
                   className="w-full py-3 text-red-600 hover:bg-red-50 font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100"
                 >
                   <Trash2 className="w-4 h-4" />
                   Delete Account
-                </button>
+                </Button>
 
-                <button
+                <Button variant="none" size="none"
                   type="button"
                   onClick={handleLogout}
                   className="w-full py-3 text-red-600 hover:bg-red-50 font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100"
                 >
                   <LogOut className="w-4 h-4" />
                   Logout Account
-                </button>
+                </Button>
               </div>
             </form>
           </div>
@@ -442,33 +443,33 @@ export default function ProfileAccountSettings() {
 
           {/* Action Buttons */}
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <button
+            <Button variant="none" size="none"
               type="submit"
               disabled={isSaving}
               className="w-full sm:w-auto px-6 py-3 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {isSaving ? 'Saving...' : 'Save Changes'}
-            </button>
+            </Button>
 
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <button
+              <Button variant="none" size="none"
                 type="button"
                 onClick={handleDeleteAccount}
                 className="w-full sm:w-auto px-6 py-3 text-red-600 hover:bg-red-50 font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100"
               >
                 <Trash2 className="w-4 h-4" />
                 Delete Account
-              </button>
+              </Button>
 
-              <button
+              <Button variant="none" size="none"
                 type="button"
                 onClick={handleLogout}
                 className="w-full sm:w-auto px-6 py-3 text-red-600 hover:bg-red-50 font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100"
               >
                 <LogOut className="w-4 h-4" />
                 Logout Account
-              </button>
+              </Button>
             </div>
           </div>
         </form>

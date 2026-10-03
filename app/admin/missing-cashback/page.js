@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShieldAlert, Search, CheckCircle, XCircle, Clock, Save, ArrowLeft, ArrowRight, Calendar, Paperclip, X } from 'lucide-react';
+import Button from '@/components/common/Button';
 
 export default function AdminMissingCashback() {
   const [tickets, setTickets] = useState([]);
@@ -197,12 +198,12 @@ export default function AdminMissingCashback() {
 
       {selectedTicket ? (
         <div className="animate-in slide-in-from-right-4 duration-300">
-          <button
+          <Button variant="none" size="none"
             onClick={() => setSelectedTicket(null)}
             className="flex items-center gap-2 text-sm font-bold text-neutral-500 hover:text-black transition-colors mb-6"
           >
             <ArrowLeft className="w-4 h-4" /> Back to Tickets
-          </button>
+          </Button>
 
           <div className="bg-white rounded-3xl border border-neutral-100 shadow-sm overflow-hidden p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-neutral-100 pb-6">
@@ -304,7 +305,7 @@ export default function AdminMissingCashback() {
                       {chatAttachment && (
                         <div className="flex items-center gap-1 text-[10px] bg-neutral-100 text-neutral-600 px-2 py-1 rounded w-fit">
                           <span className="truncate max-w-[100px]">{chatAttachment.name}</span>
-                          <button type="button" onClick={() => setChatAttachment(null)} className="hover:text-red-500"><X className="w-3 h-3" /></button>
+                          <Button variant="none" size="none" type="button" onClick={() => setChatAttachment(null)} className="hover:text-red-500"><X className="w-3 h-3" /></Button>
                         </div>
                       )}
                       <input
@@ -315,13 +316,13 @@ export default function AdminMissingCashback() {
                         className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-black"
                       />
                     </div>
-                    <button
+                    <Button variant="none" size="none"
                       type="submit"
                       disabled={isSendingMsg || (!chatMessage.trim() && !chatAttachment)}
                       className="bg-black text-white px-4 py-2.5 rounded-xl text-sm font-bold disabled:opacity-50 transition-opacity self-end"
                     >
                       {isSendingMsg ? '...' : 'Send'}
-                    </button>
+                    </Button>
                   </form>
                 </div>
               </div>
@@ -333,7 +334,7 @@ export default function AdminMissingCashback() {
                     <label className="block text-xs font-bold text-neutral-700 mb-2">Update Status</label>
                     <div className="grid grid-cols-3 gap-2">
                       {['PENDING', 'RESOLVED', 'REJECTED'].map((opt) => (
-                        <button
+                        <Button variant="none" size="none"
                           key={opt}
                           type="button"
                           onClick={() => setStatus(opt)}
@@ -345,7 +346,7 @@ export default function AdminMissingCashback() {
                             }`}
                         >
                           {opt}
-                        </button>
+                        </Button>
                       ))}
                     </div>
                     {status === 'RESOLVED' && (
@@ -356,13 +357,13 @@ export default function AdminMissingCashback() {
                   </div>
 
                   <div className="pt-2">
-                    <button
+                    <Button variant="none" size="none"
                       type="submit"
                       disabled={isUpdating}
                       className="w-full bg-black hover:bg-neutral-800 text-white px-5 py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-70 flex items-center justify-center gap-2 shadow-md"
                     >
                       <Save className="w-4 h-4" /> {isUpdating ? 'Saving...' : 'Save Changes'}
-                    </button>
+                    </Button>
                   </div>
                 </form>
               </div>
