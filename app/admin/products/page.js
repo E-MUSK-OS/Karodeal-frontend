@@ -7,6 +7,7 @@ import {
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
 import ConfirmModal from '@/components/common/ConfirmModal';
+import StoreOfferCard from '@/components/deals/StoreOfferCard';
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
@@ -44,6 +45,7 @@ export default function AdminProductsPage() {
     image: '',
     affiliateUrl: '',
     isTrending: false,
+    cardType: 'builder',
   });
 
   useEffect(() => {
@@ -109,6 +111,7 @@ export default function AdminProductsPage() {
     setEditingProduct(product);
     const img = product.image || '';
     setImageInputType(img.startsWith('data:') ? 'file' : 'url');
+    const isCustom = product.salePrice === 0 && product.discount === 0;
     setFormData({
       title: product.title || '',
       store: product.storeId || '',
@@ -120,6 +123,7 @@ export default function AdminProductsPage() {
       image: img,
       affiliateUrl: product.affiliateUrl || '',
       isTrending: product.isTrending || false,
+      cardType: isCustom ? 'custom' : 'builder',
     });
   };
 
@@ -130,6 +134,7 @@ export default function AdminProductsPage() {
     try {
       const adminUserStr = localStorage.getItem('adminUser');
       const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
+      const isCustom = formData.cardType === 'custom';
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${editingProduct.id}`, {
         method: 'PUT',
         headers: {
@@ -137,13 +142,13 @@ export default function AdminProductsPage() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          title: formData.title.trim(),
+          title: isCustom ? `Custom Deal ${Date.now()}` : formData.title.trim(),
           store: formData.store,
           category: formData.category,
-          originalPrice: Number(formData.originalPrice) || 0,
-          salePrice: Number(formData.salePrice) || 0,
-          discount: Number(formData.discount) || 0,
-          cashback: formData.cashback !== '' ? Number(formData.cashback) : 0,
+          originalPrice: isCustom ? 0 : (Number(formData.originalPrice) || 0),
+          salePrice: isCustom ? 0 : (Number(formData.salePrice) || 0),
+          discount: isCustom ? 0 : (Number(formData.discount) || 0),
+          cashback: isCustom ? 0 : (formData.cashback !== '' ? Number(formData.cashback) : 0),
           image: formData.image.trim(),
           affiliateUrl: formData.affiliateUrl.trim(),
           isTrending: formData.isTrending,
@@ -177,6 +182,7 @@ export default function AdminProductsPage() {
       image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop',
       affiliateUrl: 'https://amazon.in',
       isTrending: false,
+      cardType: 'builder',
     });
     setIsAddModalOpen(true);
   };
@@ -187,7 +193,9 @@ export default function AdminProductsPage() {
     try {
       const adminUserStr = localStorage.getItem('adminUser');
       const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
-      const slug = formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
+      const isCustom = formData.cardType === 'custom';
+      const actualTitle = isCustom ? `Custom Deal ${Date.now()}` : formData.title.trim();
+      const slug = actualTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
         method: 'POST',
         headers: {
@@ -196,13 +204,13 @@ export default function AdminProductsPage() {
         },
         body: JSON.stringify({
           slug,
-          title: formData.title.trim(),
+          title: actualTitle,
           store: formData.store,
           category: formData.category,
-          originalPrice: Number(formData.originalPrice) || 0,
-          salePrice: Number(formData.salePrice) || 0,
-          discount: Number(formData.discount) || 0,
-          cashback: formData.cashback !== '' ? Number(formData.cashback) : 0,
+          originalPrice: isCustom ? 0 : (Number(formData.originalPrice) || 0),
+          salePrice: isCustom ? 0 : (Number(formData.salePrice) || 0),
+          discount: isCustom ? 0 : (Number(formData.discount) || 0),
+          cashback: isCustom ? 0 : (formData.cashback !== '' ? Number(formData.cashback) : 0),
           rating: '4.5',
           reviews: 120,
           image: formData.image.trim(),
@@ -573,33 +581,42 @@ export default function AdminProductsPage() {
       {/* Edit Product Modal */}
       {editingProduct && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-neutral-200 max-h-[90vh] overflow-y-auto my-8">
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-100">
-              <h4 className="text-xl font-bold text-neutral-900 flex items-center gap-2">
-                <Edit3 className="w-5 h-5 text-neutral-700" />
-                Edit Card Details
-              </h4>
-              <Button variant="none" size="none"
-                onClick={() => setEditingProduct(null)}
-                className="p-1.5 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-5xl w-full shadow-2xl border border-neutral-200 max-h-[90vh] overflow-y-auto my-8">
+            <div className="flex flex-col lg:flex-row gap-8">
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-100">
+                  <h4 className="text-xl font-bold text-neutral-900 flex items-center gap-2">
+                    <Edit3 className="w-5 h-5 text-neutral-700" />
+                    Edit Card Details
+                  </h4>
+                  <Button variant="none" size="none"
+                    onClick={() => setEditingProduct(null)}
+                    className="p-1.5 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full lg:hidden"
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
 
-            <form onSubmit={handleSaveEdit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                  Product Card Title
-                </label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-3 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-semibold"
-                  required
-                />
-              </div>
+                <form onSubmit={handleSaveEdit} className="space-y-4">
+                <div className="flex gap-2 p-1 bg-neutral-100 rounded-xl mb-4 w-fit">
+                  <button type="button" onClick={() => setFormData({...formData, cardType: 'builder'})} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType !== 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-black'}`}>Card Builder</button>
+                  <button type="button" onClick={() => setFormData({...formData, cardType: 'custom'})} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType === 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-black'}`}>Custom Upload</button>
+                </div>
+
+              {formData.cardType !== 'custom' && (
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                    Product Card Title
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    className="w-full px-4 py-3 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-semibold"
+                    required={formData.cardType !== 'custom'}
+                  />
+                </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -633,74 +650,76 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                    Sale Price (₹)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.salePrice}
-                    onChange={(e) => setFormData({ ...formData, salePrice: e.target.value })}
-                    className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold"
-                    required
-                  />
-                </div>
+              {formData.cardType !== 'custom' && (
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                      Sale Price (₹)
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.salePrice}
+                      onChange={(e) => setFormData({ ...formData, salePrice: e.target.value })}
+                      className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold"
+                      required={formData.cardType !== 'custom'}
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                    Orig. Price (₹)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.originalPrice}
-                    onChange={(e) => {
-                      const originalPrice = e.target.value;
-                      let salePrice = formData.salePrice;
-                      if (originalPrice && formData.discount) {
-                        salePrice = Math.round(Number(originalPrice) * (1 - Number(formData.discount) / 100));
-                      }
-                      setFormData({ ...formData, originalPrice, salePrice });
-                    }}
-                    className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
-                  />
-                </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                      Orig. Price (₹)
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.originalPrice}
+                      onChange={(e) => {
+                        const originalPrice = e.target.value;
+                        let salePrice = formData.salePrice;
+                        if (originalPrice && formData.discount) {
+                          salePrice = Math.round(Number(originalPrice) * (1 - Number(formData.discount) / 100));
+                        }
+                        setFormData({ ...formData, originalPrice, salePrice });
+                      }}
+                      className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                    Discount (%)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.discount}
-                    onChange={(e) => {
-                      const discount = e.target.value;
-                      let salePrice = formData.salePrice;
-                      if (discount && formData.originalPrice) {
-                        salePrice = Math.round(Number(formData.originalPrice) * (1 - Number(discount) / 100));
-                      }
-                      setFormData({ ...formData, discount, salePrice });
-                    }}
-                    placeholder="e.g. 62"
-                    className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-amber-700"
-                    required
-                  />
-                </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                      Discount (%)
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.discount}
+                      onChange={(e) => {
+                        const discount = e.target.value;
+                        let salePrice = formData.salePrice;
+                        if (discount && formData.originalPrice) {
+                          salePrice = Math.round(Number(formData.originalPrice) * (1 - Number(discount) / 100));
+                        }
+                        setFormData({ ...formData, discount, salePrice });
+                      }}
+                      placeholder="e.g. 62"
+                      className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-amber-700"
+                      required={formData.cardType !== 'custom'}
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                    Cashback (₹)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={formData.cashback}
-                    onChange={(e) => setFormData({ ...formData, cashback: e.target.value })}
-                    placeholder="e.g. 5"
-                    className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-emerald-700"
-                  />
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                      Cashback (₹)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={formData.cashback}
+                      onChange={(e) => setFormData({ ...formData, cashback: e.target.value })}
+                      placeholder="e.g. 5"
+                      className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-emerald-700"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-1.5">
@@ -822,6 +841,34 @@ export default function AdminProductsPage() {
                 </Button>
               </div>
             </form>
+            </div>
+              {/* Right side: Preview */}
+              <div className="w-full lg:w-[420px] shrink-0 hidden lg:flex flex-col border-l border-neutral-100 pl-8 relative">
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-100">
+                  <h4 className="text-sm font-bold uppercase tracking-wider text-neutral-500">Live Preview</h4>
+                  <Button variant="none" size="none"
+                    onClick={() => setEditingProduct(null)}
+                    className="p-1.5 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full"
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
+                <div className="sticky top-0 flex justify-center">
+                  <StoreOfferCard 
+                    deal={{
+                      title: formData.title || 'Product Title',
+                      discount: formData.cardType === 'custom' ? 0 : (formData.discount || 0),
+                      salePrice: formData.cardType === 'custom' ? 0 : 999,
+                      cashback: formData.cardType === 'custom' ? 0 : formData.cashback,
+                      image: formData.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop',
+                      affiliateUrl: formData.affiliateUrl || '#'
+                    }} 
+                    store={dbStores.find(s => s.id === formData.store) || { name: 'Store', logoUrl: '' }}
+                    fullWidth={true}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -829,34 +876,43 @@ export default function AdminProductsPage() {
       {/* Add Product Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-neutral-200 max-h-[90vh] overflow-y-auto my-8">
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-100">
-              <h4 className="text-xl font-bold text-neutral-900 flex items-center gap-2">
-                <Plus className="w-5 h-5 text-neutral-700" />
-                Add New Product Card
-              </h4>
-              <Button variant="none" size="none"
-                onClick={() => setIsAddModalOpen(false)}
-                className="p-1.5 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-5xl w-full shadow-2xl border border-neutral-200 max-h-[90vh] overflow-y-auto my-8">
+            <div className="flex flex-col lg:flex-row gap-8">
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-100">
+                  <h4 className="text-xl font-bold text-neutral-900 flex items-center gap-2">
+                    <Plus className="w-5 h-5 text-neutral-700" />
+                    Add New Product Card
+                  </h4>
+                  <Button variant="none" size="none"
+                    onClick={() => setIsAddModalOpen(false)}
+                    className="p-1.5 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full lg:hidden"
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
 
-            <form onSubmit={handleSaveAdd} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                  Product Card Title
-                </label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="e.g. Philips Classic Clogs"
-                  className="w-full px-4 py-3 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-semibold"
-                  required
-                />
-              </div>
+                <form onSubmit={handleSaveAdd} className="space-y-4">
+                <div className="flex gap-2 p-1 bg-neutral-100 rounded-xl mb-4 w-fit">
+                  <button type="button" onClick={() => setFormData({...formData, cardType: 'builder'})} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType !== 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-black'}`}>Card Builder</button>
+                  <button type="button" onClick={() => setFormData({...formData, cardType: 'custom'})} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType === 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-black'}`}>Custom Upload</button>
+                </div>
+
+              {formData.cardType !== 'custom' && (
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                    Product Card Title
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    placeholder="e.g. Philips Classic Clogs"
+                    className="w-full px-4 py-3 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-semibold"
+                    required={formData.cardType !== 'custom'}
+                  />
+                </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -890,74 +946,76 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                    Sale Price (₹)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.salePrice}
-                    onChange={(e) => setFormData({ ...formData, salePrice: e.target.value })}
-                    className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold"
-                    required
-                  />
-                </div>
+              {formData.cardType !== 'custom' && (
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                      Sale Price (₹)
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.salePrice}
+                      onChange={(e) => setFormData({ ...formData, salePrice: e.target.value })}
+                      className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold"
+                      required={formData.cardType !== 'custom'}
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                    Orig. Price (₹)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.originalPrice}
-                    onChange={(e) => {
-                      const originalPrice = e.target.value;
-                      let salePrice = formData.salePrice;
-                      if (originalPrice && formData.discount) {
-                        salePrice = Math.round(Number(originalPrice) * (1 - Number(formData.discount) / 100));
-                      }
-                      setFormData({ ...formData, originalPrice, salePrice });
-                    }}
-                    className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
-                  />
-                </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                      Orig. Price (₹)
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.originalPrice}
+                      onChange={(e) => {
+                        const originalPrice = e.target.value;
+                        let salePrice = formData.salePrice;
+                        if (originalPrice && formData.discount) {
+                          salePrice = Math.round(Number(originalPrice) * (1 - Number(formData.discount) / 100));
+                        }
+                        setFormData({ ...formData, originalPrice, salePrice });
+                      }}
+                      className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                    Discount (%)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.discount}
-                    onChange={(e) => {
-                      const discount = e.target.value;
-                      let salePrice = formData.salePrice;
-                      if (discount && formData.originalPrice) {
-                        salePrice = Math.round(Number(formData.originalPrice) * (1 - Number(discount) / 100));
-                      }
-                      setFormData({ ...formData, discount, salePrice });
-                    }}
-                    placeholder="e.g. 62"
-                    className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-amber-700"
-                    required
-                  />
-                </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                      Discount (%)
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.discount}
+                      onChange={(e) => {
+                        const discount = e.target.value;
+                        let salePrice = formData.salePrice;
+                        if (discount && formData.originalPrice) {
+                          salePrice = Math.round(Number(formData.originalPrice) * (1 - Number(discount) / 100));
+                        }
+                        setFormData({ ...formData, discount, salePrice });
+                      }}
+                      placeholder="e.g. 62"
+                      className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-amber-700"
+                      required={formData.cardType !== 'custom'}
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                    Cashback (₹)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={formData.cashback}
-                    onChange={(e) => setFormData({ ...formData, cashback: e.target.value })}
-                    placeholder="e.g. 5"
-                    className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-emerald-700"
-                  />
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                      Cashback (₹)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={formData.cashback}
+                      onChange={(e) => setFormData({ ...formData, cashback: e.target.value })}
+                      placeholder="e.g. 5"
+                      className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-emerald-700"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-1.5">
@@ -1080,6 +1138,34 @@ export default function AdminProductsPage() {
                 </Button>
               </div>
             </form>
+            </div>
+              {/* Right side: Preview */}
+              <div className="w-full lg:w-[420px] shrink-0 hidden lg:flex flex-col border-l border-neutral-100 pl-8 relative">
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-100">
+                  <h4 className="text-sm font-bold uppercase tracking-wider text-neutral-500">Live Preview</h4>
+                  <Button variant="none" size="none"
+                    onClick={() => setIsAddModalOpen(false)}
+                    className="p-1.5 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full"
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
+                <div className="sticky top-0 flex justify-center">
+                  <StoreOfferCard 
+                    deal={{
+                      title: formData.title || 'Product Title',
+                      discount: formData.cardType === 'custom' ? 0 : (formData.discount || 0),
+                      salePrice: formData.cardType === 'custom' ? 0 : 999,
+                      cashback: formData.cardType === 'custom' ? 0 : formData.cashback,
+                      image: formData.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop',
+                      affiliateUrl: formData.affiliateUrl || '#'
+                    }} 
+                    store={dbStores.find(s => s.id === formData.store) || { name: 'Store', logoUrl: '' }}
+                    fullWidth={true}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

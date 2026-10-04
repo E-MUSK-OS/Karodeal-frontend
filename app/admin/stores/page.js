@@ -10,7 +10,6 @@ export default function AdminStoresPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStoreId, setEditingStoreId] = useState(null);
   const [name, setName] = useState('');
-  const [slug, setSlug] = useState('');
   const [logoUrl, setLogoUrl] = useState('');
   const [imageInputType, setImageInputType] = useState('url'); // 'url' | 'file'
   const [isReloading, setIsReloading] = useState(false);
@@ -77,7 +76,6 @@ export default function AdminStoresPage() {
         },
         body: JSON.stringify({
           name: name.trim(),
-          slug: slug.trim(),
           logoUrl: logoUrl.trim()
         })
       });
@@ -85,7 +83,6 @@ export default function AdminStoresPage() {
       if (res.ok) {
         loadStores();
         setName('');
-        setSlug('');
         setLogoUrl('');
         setEditingStoreId(null);
         setIsModalOpen(false);
@@ -112,7 +109,6 @@ export default function AdminStoresPage() {
   const handleOpenAdd = () => {
     setEditingStoreId(null);
     setName('');
-    setSlug('');
     setLogoUrl('');
     setImageInputType('url');
     setIsModalOpen(true);
@@ -262,26 +258,11 @@ export default function AdminStoresPage() {
                   value={name}
                   onChange={(e) => {
                     setName(e.target.value);
-                    if (!editingStoreId) {
-                      setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
-                    }
                   }}
                   placeholder="e.g. Nykaa"
                   className="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
                   required
                 />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase text-neutral-700 mb-1">Store Slug</label>
-                <input
-                  type="text"
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                  placeholder="e.g. nykaa"
-                  className="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
-                />
-                <p className="text-[10px] text-neutral-500 mt-1">Leave blank to auto-generate from name.</p>
               </div>
 
               <div>

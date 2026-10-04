@@ -8,7 +8,6 @@ import ConfirmModal from '@/components/common/ConfirmModal';
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState('');
-  const [slug, setSlug] = useState(''); // Slug field for adding
   const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,7 +16,6 @@ export default function AdminCategoriesPage() {
   // Edit state
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
-  const [editSlug, setEditSlug] = useState('');
   const [editImageFile, setEditImageFile] = useState(null);
 
   const getToken = () => {
@@ -58,7 +56,6 @@ export default function AdminCategoriesPage() {
       const token = getToken();
       const formData = new FormData();
       formData.append('name', name.trim());
-      formData.append('slug', slug.trim());
       if (imageFile) {
         formData.append('image', imageFile);
       }
@@ -119,13 +116,11 @@ export default function AdminCategoriesPage() {
   const startEditing = (cat) => {
     setEditingId(cat.id);
     setEditName(cat.name || '');
-    setEditSlug(cat.slug || '');
   };
 
   const cancelEditing = () => {
     setEditingId(null);
     setEditName('');
-    setEditSlug('');
     setEditImageFile(null);
   };
 
@@ -136,7 +131,6 @@ export default function AdminCategoriesPage() {
       const token = getToken();
       const formData = new FormData();
       formData.append('name', editName.trim());
-      formData.append('slug', editSlug.trim());
       if (editImageFile) {
         formData.append('image', editImageFile);
       }
@@ -185,17 +179,6 @@ export default function AdminCategoriesPage() {
                 placeholder="e.g. Home & Kitchen"
                 className="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
                 required
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-neutral-700 mb-1">Slug (Optional)</label>
-              <input
-                type="text"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                placeholder="e.g. home-kitchen"
-                className="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
               />
             </div>
 
@@ -299,15 +282,6 @@ export default function AdminCategoriesPage() {
                   onChange={(e) => setEditName(e.target.value)}
                   className="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black transition-shadow"
                   required
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase text-neutral-700 mb-1">Slug</label>
-                <input
-                  type="text"
-                  value={editSlug}
-                  onChange={(e) => setEditSlug(e.target.value)}
-                  className="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black transition-shadow"
                 />
               </div>
               <div>

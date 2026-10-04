@@ -50,6 +50,32 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
 
   const dealUrl = currentDeal.affiliateUrl || `https://www.${storeIdStr}.com`;
 
+  // IF IT'S A CUSTOM IMAGE CARD
+  if (currentDeal.salePrice === 0 && currentDeal.discount === 0) {
+    return (
+      <a
+        href={dealUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`block relative flex flex-col justify-center items-center ${widthClass} ${heightClass} rounded-2xl md:rounded-[32px] overflow-hidden shrink-0 bg-neutral-100 p-0 group shadow-lg hover:shadow-xl/20 active:shadow-xl/20 hover:-translate-y-2 active:-translate-y-2 transition-all duration-500 ease-out cursor-pointer`}
+      >
+        <img src={currentDeal.image} alt={currentDeal.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onError={(e) => { e.target.style.display = 'none'; }} />
+        
+        {/* Grab Deal Button Overlay */}
+        <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 z-20">
+          <span
+            className="btn group/btn bg-white/95 text-black font-black uppercase !text-[12px] !px-[10px] !py-[5px] sm:!text-[14px] sm:!px-6 sm:!py-3 md:!px-8 md:!py-3.5 rounded-full w-fit hover:bg-white hover:scale-105 hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] transition-all duration-300 active:scale-95 flex items-center gap-2 whitespace-nowrap"
+          >
+            Grab Deal
+            <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 opacity-0 -ml-4 group-hover/btn:opacity-100 group-hover/btn:ml-0 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </span>
+        </div>
+      </a>
+    );
+  }
+
   return (
     <a
       href={dealUrl}
