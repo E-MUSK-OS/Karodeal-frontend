@@ -70,9 +70,8 @@ export default function AdminDashboardPage() {
             pCashback = claimsData.claims
               .filter(c => c.status === 'PENDING')
               .reduce((sum, c) => {
-                const cbRate = c.product?.cashback || 0;
-                // Assuming product.cashback is a percentage
-                return sum + ((Number(c.orderAmount) || 0) * (Number(cbRate) || 0)) / 100;
+                const cbAmt = c.product?.cashback || 0;
+                return sum + Number(cbAmt);
               }, 0);
           }
         }

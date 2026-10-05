@@ -51,7 +51,10 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio = 1 }) =
             image={imageSrc}
             crop={crop}
             zoom={zoom}
+            minZoom={0.2}
+            restrictPosition={false}
             aspect={aspectRatio}
+            objectFit="auto-cover"
             onCropChange={setCrop}
             onCropComplete={onCropCompleteInternal}
             onZoomChange={setZoom}
@@ -63,7 +66,7 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio = 1 }) =
             <input
               type="range"
               value={zoom}
-              min={1}
+              min={0.2}
               max={3}
               step={0.1}
               aria-labelledby="Zoom"

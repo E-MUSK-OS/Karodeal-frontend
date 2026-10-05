@@ -54,6 +54,9 @@ export default async function getCroppedImg(
   croppedCanvas.width = pixelCrop.width
   croppedCanvas.height = pixelCrop.height
 
+  croppedCtx.fillStyle = '#ffffff'
+  croppedCtx.fillRect(0, 0, croppedCanvas.width, croppedCanvas.height)
+
   croppedCtx.drawImage(
     canvas,
     pixelCrop.x,

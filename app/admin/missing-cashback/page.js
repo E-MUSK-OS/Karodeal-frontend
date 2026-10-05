@@ -212,8 +212,8 @@ export default function AdminMissingCashback() {
                 <div className="flex items-center gap-3 mb-2">
                   <h2 className="text-2xl font-black text-neutral-900">{selectedTicket.storeName}</h2>
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase ${selectedTicket.status === 'RESOLVED' ? 'bg-green-100 text-green-700' :
-                      selectedTicket.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                        'bg-amber-100 text-amber-700'
+                    selectedTicket.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                      'bg-amber-100 text-amber-700'
                     }`}>
                     {selectedTicket.status}
                   </span>
@@ -340,10 +340,10 @@ export default function AdminMissingCashback() {
                           type="button"
                           onClick={() => setStatus(opt)}
                           className={`py-2 text-xs font-bold rounded-lg transition-colors border ${status === opt
-                              ? (opt === 'RESOLVED' ? 'bg-green-100 text-green-700 border-green-200' :
-                                opt === 'REJECTED' ? 'bg-red-100 text-red-700 border-red-200' :
-                                  'bg-amber-100 text-amber-700 border-amber-200')
-                              : 'bg-white text-neutral-500 border-neutral-200 hover:bg-neutral-50'
+                            ? (opt === 'RESOLVED' ? 'bg-green-100 text-green-700 border-green-200' :
+                              opt === 'REJECTED' ? 'bg-red-100 text-red-700 border-red-200' :
+                                'bg-amber-100 text-amber-700 border-amber-200')
+                            : 'bg-white text-neutral-500 border-neutral-200 hover:bg-neutral-50'
                             }`}
                         >
                           {opt}
@@ -374,8 +374,8 @@ export default function AdminMissingCashback() {
       ) : (
         <div className="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden">
           {isLoading ? (
-              <PageLoader />
-            ) : filteredTickets.length > 0 ? (
+            <PageLoader />
+          ) : filteredTickets.length > 0 ? (
             <div className="overflow-x-auto w-full">
               <table className="w-full text-left border-collapse min-w-[800px]">
                 <thead>
@@ -419,8 +419,8 @@ export default function AdminMissingCashback() {
                       </td>
                       <td className="py-4 px-4">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase ${ticket.status === 'RESOLVED' ? 'bg-green-100 text-green-700 border border-green-200' :
-                            ticket.status === 'REJECTED' ? 'bg-red-100 text-red-700 border border-red-200' :
-                              'bg-amber-100 text-amber-700 border border-amber-200'
+                          ticket.status === 'REJECTED' ? 'bg-red-100 text-red-700 border border-red-200' :
+                            'bg-amber-100 text-amber-700 border border-amber-200'
                           }`}>
                           {ticket.status === 'PENDING' && <Clock className="w-3 h-3" />}
                           {ticket.status === 'RESOLVED' && <CheckCircle className="w-3 h-3" />}
