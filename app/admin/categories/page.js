@@ -4,6 +4,7 @@ import { Plus, Trash2, Edit2, Loader2, X, Check } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
 import ConfirmModal from '@/components/common/ConfirmModal';
+import ImageCropper from '@/components/admin/ImageCropper';
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState([]);
@@ -17,6 +18,42 @@ export default function AdminCategoriesPage() {
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
   const [editImageFile, setEditImageFile] = useState(null);
+
+  // Cropper state
+  const [cropImageSrc, setCropImageSrc] = useState(null);
+  const [cropTarget, setCropTarget] = useState(null); // 'add' or 'edit'
+
+  const handleFileChange = (e, target) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setCropImageSrc(event.target.result);
+        setCropTarget(target);
+      };
+      reader.readAsDataURL(file);
+      e.target.value = ''; // Reset input
+    }
+  };
+
+  const handleCropComplete = async (croppedBase64) => {
+    try {
+      const res = await fetch(croppedBase64);
+      const blob = await res.blob();
+      const file = new File([blob], 'cropped.jpg', { type: 'image/jpeg' });
+      
+      if (cropTarget === 'add') {
+        setImageFile(file);
+      } else if (cropTarget === 'edit') {
+        setEditImageFile(file);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setCropImageSrc(null);
+      setCropTarget(null);
+    }
+  };
 
   const getToken = () => {
     const adminUserStr = localStorage.getItem('adminUser');
@@ -71,7 +108,6 @@ export default function AdminCategoriesPage() {
         const data = await res.json();
         setCategories([...categories, data]);
         setName('');
-        setSlug('');
         setImageFile(null);
       } else {
         alert('Failed to create category');
@@ -187,9 +223,14 @@ export default function AdminCategoriesPage() {
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setImageFile(e.target.files[0])}
-                className="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                onChange={(e) => handleFileChange(e, 'add')}
+                className="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
               />
+              {imageFile && (
+                <div className="mt-2 text-xs font-semibold text-green-600">
+                  Image ready ({Math.round(imageFile.size / 1024)} KB)
+                </div>
+              )}
             </div>
 
             <Button
@@ -289,9 +330,14 @@ export default function AdminCategoriesPage() {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => setEditImageFile(e.target.files[0])}
-                  className="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  onChange={(e) => handleFileChange(e, 'edit')}
+                  className="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
                 />
+                {editImageFile && (
+                  <div className="mt-2 text-xs font-semibold text-green-600">
+                    New image ready ({Math.round(editImageFile.size / 1024)} KB)
+                  </div>
+                )}
               </div>
             </div>
 
@@ -315,6 +361,17 @@ export default function AdminCategoriesPage() {
             </div>
           </div>
         </div>
+      )}
+      {cropImageSrc && (
+        <ImageCropper
+          imageSrc={cropImageSrc}
+          aspectRatio={2.8 / 3}
+          onCropComplete={handleCropComplete}
+          onCancel={() => {
+            setCropImageSrc(null);
+            setCropTarget(null);
+          }}
+        />
       )}
       <ConfirmModal {...confirmModal} onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })} />
     </div>

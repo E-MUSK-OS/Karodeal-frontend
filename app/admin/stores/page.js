@@ -150,7 +150,7 @@ export default function AdminStoresPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h3 className="text-2xl font-extrabold text-neutral-900">Stores Management</h3>
-          <p className="text-sm text-neutral-500">Manage affiliate stores and cashback rates</p>
+          <p className="text-sm text-neutral-500">Manage stores</p>
         </div>
 
         <Button variant="none" size="none"

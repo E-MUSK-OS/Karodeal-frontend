@@ -160,7 +160,7 @@ export default function Payments() {
           <Button variant="none" size="none"
             type="submit"
             disabled={balance < 1000 || isLoading}
-            className="w-auto inline-flex justify-center items-center gap-1.5 bg-black text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-[#f96b02] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-auto inline-flex justify-center items-center gap-1.5 bg-black text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Submit Request <ArrowRight className="w-3.5 h-3.5" />
           </Button>

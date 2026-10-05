@@ -197,7 +197,7 @@ export default function Signup() {
               </label>
               <Button variant="none" size="none"
                 type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-[#f96b02]"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-black"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -215,7 +215,7 @@ export default function Signup() {
               <Button variant="none" size="none"
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-black hover:bg-[#f96b02] text-white font-medium py-3.5 px-4 rounded-xl transition-colors text-lg flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full bg-black hover:bg-neutral-800 text-white font-medium py-3.5 px-4 rounded-xl transition-colors text-lg flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isLoading && (
                   <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -260,7 +260,7 @@ export default function Signup() {
               <Button variant="none" size="none"
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-black hover:bg-[#f96b02] text-white font-medium py-3.5 px-4 rounded-xl transition-colors text-lg flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full bg-black hover:bg-neutral-800 text-white font-medium py-3.5 px-4 rounded-xl transition-colors text-lg flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isLoading && (
                   <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

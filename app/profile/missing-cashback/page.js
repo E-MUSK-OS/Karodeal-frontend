@@ -444,7 +444,7 @@ export default function MissingCashback() {
 
             <Button variant="none" size="none"
               onClick={openNewTicketModal}
-              className="bg-black text-white hover:bg-[#f96b02] px-5 py-3 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2 shadow-md shrink-0"
+              className="bg-black text-white hover:bg-neutral-800 px-5 py-3 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2 shadow-md shrink-0"
             >
               <Plus className="w-4 h-4" /> Raise Ticket
             </Button>
@@ -507,7 +507,7 @@ export default function MissingCashback() {
                         </td>
                         <td className="py-4 px-6">
                           <div className="flex items-center gap-2 mb-1">
-                            <p className="font-bold text-neutral-900 text-sm group-hover:text-[#f96b02] transition-colors">{ticket.storeName}</p>
+                            <p className="font-bold text-neutral-900 text-sm group-hover:text-black transition-colors">{ticket.storeName}</p>
                             {ticket.userUnread && (
                               <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse ml-1"></span>
                             )}
@@ -529,7 +529,7 @@ export default function MissingCashback() {
                               {ticket.status}
                             </span>
 
-                            <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-[#f96b02] transition-colors transform group-hover:translate-x-1" />
+                            <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-black transition-colors transform group-hover:translate-x-1" />
                           </div>
                         </td>
                       </tr>

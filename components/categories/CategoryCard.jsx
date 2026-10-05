@@ -10,7 +10,7 @@ export default function CategoryCard({ category, products = [] }) {
             className="group relative flex flex-col bg-white rounded-2xl md:rounded-[32px] overflow-hidden border border-neutral-100 shadow-sm hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.15)] hover:-translate-y-2 transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]"
         >
             {/* Top Image Section */}
-            <div className="relative h-56 md:h-72 lg:h-80 w-full overflow-hidden bg-[#fafafa] flex items-center justify-center">
+            <div className="relative aspect-[2.8/3] w-full overflow-hidden bg-[#fafafa] flex items-center justify-center">
                 <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-500 z-10 pointer-events-none"></div>
                 <img
                     src={category.image || 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=800&auto=format&fit=crop'}
