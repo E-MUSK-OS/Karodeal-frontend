@@ -176,7 +176,7 @@ export default function AdminClaims() {
         <div className="animate-in slide-in-from-right-4 duration-300">
           <Button variant="none" size="none"
             onClick={() => setViewingClaim(null)}
-            className="flex items-center gap-2 text-sm font-bold text-neutral-500 hover:text-black transition-colors mb-6"
+            className="flex items-center gap-2 text-sm font-bold text-neutral-500 hover:text-[#f96b02] transition-colors mb-6"
           >
             <ArrowRight className="w-4 h-4 rotate-180" /> Back to Claims List
           </Button>
@@ -358,19 +358,19 @@ export default function AdminClaims() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-neutral-700 mb-3">1. Invoice / Receipt</span>
-                  <button onClick={() => setLightboxImage(getImageUrl(viewingClaim.invoiceScreenshot))} className="block aspect-square w-full relative group bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 hover:border-black transition-colors focus:outline-none">
+                  <button onClick={() => setLightboxImage(getImageUrl(viewingClaim.invoiceScreenshot))} className="block aspect-square w-full relative group bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 hover:border-[#f96b02] transition-colors focus:outline-none">
                     <img src={getImageUrl(viewingClaim.invoiceScreenshot)} className="object-cover w-full h-full" alt="Invoice" />
                   </button>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-neutral-700 mb-3">2. Product Review</span>
-                  <button onClick={() => setLightboxImage(getImageUrl(viewingClaim.reviewScreenshot))} className="block aspect-square w-full relative group bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 hover:border-black transition-colors focus:outline-none">
+                  <button onClick={() => setLightboxImage(getImageUrl(viewingClaim.reviewScreenshot))} className="block aspect-square w-full relative group bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 hover:border-[#f96b02] transition-colors focus:outline-none">
                     <img src={getImageUrl(viewingClaim.reviewScreenshot)} className="object-cover w-full h-full" alt="Review" />
                   </button>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-neutral-700 mb-3">3. Non-Return Proof</span>
-                  <button onClick={() => setLightboxImage(getImageUrl(viewingClaim.noReturnScreenshot))} className="block aspect-square w-full relative group bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 hover:border-black transition-colors focus:outline-none">
+                  <button onClick={() => setLightboxImage(getImageUrl(viewingClaim.noReturnScreenshot))} className="block aspect-square w-full relative group bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 hover:border-[#f96b02] transition-colors focus:outline-none">
                     <img src={getImageUrl(viewingClaim.noReturnScreenshot)} className="object-cover w-full h-full" alt="No Return" />
                   </button>
                 </div>
@@ -389,7 +389,7 @@ export default function AdminClaims() {
                   onClick={() => setStatusFilter(status)}
                   className={`px-2 sm:px-4 py-1.5 sm:py-2 rounded-md text-[10px] sm:text-sm font-bold transition-all flex-1 text-center ${statusFilter === status
                     ? 'bg-white text-black shadow-sm'
-                    : 'text-neutral-500 hover:text-black hover:bg-neutral-200/50'
+                    : 'text-neutral-500 hover:text-[#f96b02] hover:bg-neutral-200/50'
                     }`}
                 >
                   {status}
@@ -463,7 +463,7 @@ export default function AdminClaims() {
                         </td>
                         <td className="px-6 py-4 text-xs text-neutral-500">{formatDate(claim.createdAt)}</td>
                         <td className="px-6 py-4 text-right">
-                          <ArrowRight className="w-5 h-5 text-neutral-300 group-hover:text-black transition-colors inline-block" />
+                          <ArrowRight className="w-5 h-5 text-neutral-300 group-hover:text-[#f96b02] transition-colors inline-block" />
                         </td>
                       </tr>
                     ))}

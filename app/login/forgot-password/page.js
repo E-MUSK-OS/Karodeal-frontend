@@ -162,7 +162,7 @@ export default function ForgotPassword() {
               <Button variant="none" size="none"
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-black hover:bg-neutral-800 text-white font-medium py-3.5 px-4 rounded-xl transition-colors text-lg disabled:opacity-50"
+                className="w-full bg-black hover:bg-[#f96b02] text-white font-medium py-3.5 px-4 rounded-xl transition-colors text-lg disabled:opacity-50"
               >
                 {isLoading ? 'Sending...' : 'Send Verification Code'}
               </Button>
@@ -200,7 +200,7 @@ export default function ForgotPassword() {
               <Button variant="none" size="none"
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-black hover:bg-neutral-800 text-white font-medium py-3.5 px-4 rounded-xl transition-colors text-lg disabled:opacity-50"
+                className="w-full bg-black hover:bg-[#f96b02] text-white font-medium py-3.5 px-4 rounded-xl transition-colors text-lg disabled:opacity-50"
               >
                 {isLoading ? 'Verifying...' : 'Verify Code'}
               </Button>
@@ -231,7 +231,7 @@ export default function ForgotPassword() {
               </label>
               <Button variant="none" size="none"
                 type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-black"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-[#f96b02]"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -242,7 +242,7 @@ export default function ForgotPassword() {
               <Button variant="none" size="none"
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-black hover:bg-neutral-800 text-white font-medium py-3.5 px-4 rounded-xl transition-colors text-lg disabled:opacity-50"
+                className="w-full bg-black hover:bg-[#f96b02] text-white font-medium py-3.5 px-4 rounded-xl transition-colors text-lg disabled:opacity-50"
               >
                 {isLoading ? 'Resetting...' : 'Reset Password'}
               </Button>

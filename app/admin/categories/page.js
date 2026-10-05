@@ -239,7 +239,7 @@ export default function AdminCategoriesPage() {
                   <div className="flex items-center gap-1 self-end sm:self-auto">
                     <Button variant="none" size="none"
                       onClick={() => startEditing(cat)}
-                      className="p-2 text-neutral-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="p-2 text-neutral-400 hover:text-[#f96b02] hover:bg-blue-50 rounded-lg transition-colors"
                       title="Edit"
                     >
                       <Edit2 className="w-4 h-4" />
@@ -267,7 +267,7 @@ export default function AdminCategoriesPage() {
               <h4 className="text-lg font-bold text-neutral-900">Edit Category</h4>
               <Button variant="none" size="none"
                 onClick={cancelEditing}
-                className="text-neutral-400 hover:text-neutral-900 transition-colors bg-neutral-100 hover:bg-neutral-200 p-1.5 rounded-lg"
+                className="text-neutral-400 hover:text-[#f96b02] transition-colors bg-neutral-100 hover:bg-neutral-200 p-1.5 rounded-lg"
               >
                 <X className="w-5 h-5" />
               </Button>

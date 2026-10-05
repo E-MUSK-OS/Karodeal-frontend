@@ -51,7 +51,7 @@ export default function Slider({
 
       {/* Left Navigation Button */}
       <Button variant="none" size="none"
-        className={`${prevClass} absolute -left-1 sm:-left-2 md:-left-2 lg:-left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/90 backdrop-blur-sm rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.2)] items-center justify-center z-20 border border-white/20 hover:scale-110 hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed ${isLocked ? 'hidden' : 'flex'}`}
+        className={`${prevClass} absolute -left-1 sm:-left-2 md:-left-2 lg:-left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/90 backdrop-blur-sm rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.2)] items-center justify-center z-20 border border-white/20 hover:scale-110 hover:bg-[#f96b02] transition-all disabled:opacity-50 disabled:cursor-not-allowed ${isLocked ? 'hidden' : 'flex'}`}
         aria-label="Scroll left"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="white" className="w-4 h-4">
@@ -61,7 +61,7 @@ export default function Slider({
 
       {/* Right Navigation Button */}
       <Button variant="none" size="none"
-        className={`${nextClass} absolute -right-1 sm:-right-2 md:-right-2 lg:-right-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/90 backdrop-blur-sm rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.2)] items-center justify-center z-20 border border-white/20 hover:scale-110 hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed ${isLocked ? 'hidden' : 'flex'}`}
+        className={`${nextClass} absolute -right-1 sm:-right-2 md:-right-2 lg:-right-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/90 backdrop-blur-sm rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.2)] items-center justify-center z-20 border border-white/20 hover:scale-110 hover:bg-[#f96b02] transition-all disabled:opacity-50 disabled:cursor-not-allowed ${isLocked ? 'hidden' : 'flex'}`}
         aria-label="Scroll right"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="white" className="w-4 h-4">

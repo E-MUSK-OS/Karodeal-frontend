@@ -86,7 +86,7 @@ function SearchContent() {
           />
           <Button variant="none" size="none"
             type="submit"
-            className="absolute right-0 bottom-4 text-black hover:text-neutral-500 transition-colors focus:outline-none"
+            className="absolute right-0 bottom-4 text-black hover:text-[#f96b02] transition-colors focus:outline-none"
           >
             <SearchIcon className="h-5 w-5 md:h-6 md:w-6" strokeWidth={3} />
           </Button>

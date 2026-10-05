@@ -327,7 +327,7 @@ export default function ClaimCashback() {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 bg-white p-6 rounded-3xl border border-neutral-100 shadow-sm">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
+                <div className="p-2 bg-orange-50 text-[#f96b02] rounded-xl">
                   <ShieldAlert className="w-6 h-6" />
                 </div>
                 <h5 className="text-2xl font-extrabold text-neutral-900 tracking-tight">Claim Cashback</h5>
@@ -339,7 +339,7 @@ export default function ClaimCashback() {
 
             <Button variant="none" size="none"
               onClick={openNewClaimModal}
-              className="bg-black text-white hover:bg-neutral-800 px-5 py-3 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2 shadow-md shrink-0"
+              className="bg-black text-white hover:bg-[#f96b02] px-5 py-3 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2 shadow-md shrink-0"
             >
               <Plus className="w-4 h-4" /> Submit New Claim
             </Button>
@@ -373,7 +373,7 @@ export default function ClaimCashback() {
                           </span>
                         </td>
                         <td className="py-4 px-6">
-                          <p className="font-bold text-neutral-900 text-sm group-hover:text-blue-600 transition-colors mb-1">{claim.storeName}</p>
+                          <p className="font-bold text-neutral-900 text-sm group-hover:text-[#f96b02] transition-colors mb-1">{claim.storeName}</p>
                           {claim.product && (
                             <p className="text-xs text-blue-500 font-semibold truncate max-w-[200px]">{claim.product.title}</p>
                           )}
@@ -387,7 +387,7 @@ export default function ClaimCashback() {
                               }`}>
                               {getStatusIcon(claim.status)} {claim.status}
                             </span>
-                            <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-blue-500 transition-colors transform group-hover:translate-x-1" />
+                            <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-[#f96b02] transition-colors transform group-hover:translate-x-1" />
                           </div>
                         </td>
                       </tr>

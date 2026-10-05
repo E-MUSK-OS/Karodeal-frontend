@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function StoreCard({ store, products = [] }) {
   const activeDeals = products.filter(p => p.store === store.id);
-  const activeCategories = [...new Set(activeDeals.map(p => p.category))].slice(0, 3);
+  const activeCategories = [...new Set(activeDeals.map(p => p.categoryRel?.name || p.category))].filter(Boolean).slice(0, 3);
 
   return (
     <Link
@@ -36,7 +36,7 @@ export default function StoreCard({ store, products = [] }) {
         <div className="flex flex-wrap gap-2 mb-8 mt-auto">
           {activeCategories.map(cat => (
             <span key={cat} className="text-[10px] font-bold text-neutral-500 bg-neutral-50 px-3 py-1.5 rounded-lg border border-neutral-100 uppercase tracking-widest group-hover:border-neutral-200 group-hover:text-black transition-colors">
-              {cat.replace('-', ' ')}
+              {cat}
             </span>
           ))}
         </div>

@@ -45,6 +45,7 @@ export default function AdminProductsPage() {
     image: '',
     affiliateUrl: '',
     isTrending: false,
+    isActive: true,
     cardType: 'builder',
   });
 
@@ -55,8 +56,16 @@ export default function AdminProductsPage() {
   const loadProducts = async () => {
     setIsReloading(true);
     try {
-      const [productsRes, storesRes, categoriesRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`),
+      const adminUserStr = localStorage.getItem('adminUser');
+      const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
+      
+      let productsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/admin`, { headers: { 'Authorization': `Bearer ${token}` } });
+      if (productsRes.status === 404) {
+        // Fallback for when backend is not yet updated on Vercel
+        productsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`);
+      }
+
+      const [storesRes, categoriesRes] = await Promise.all([
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/meta/stores`),
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/meta/categories`)
       ]);
@@ -123,6 +132,7 @@ export default function AdminProductsPage() {
       image: img,
       affiliateUrl: product.affiliateUrl || '',
       isTrending: product.isTrending || false,
+      isActive: product.isActive !== undefined ? product.isActive : true,
       cardType: isCustom ? 'custom' : 'builder',
     });
   };
@@ -152,6 +162,7 @@ export default function AdminProductsPage() {
           image: formData.image.trim(),
           affiliateUrl: formData.affiliateUrl.trim(),
           isTrending: formData.isTrending,
+          isActive: formData.isActive,
         })
       });
 
@@ -182,6 +193,7 @@ export default function AdminProductsPage() {
       image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop',
       affiliateUrl: 'https://amazon.in',
       isTrending: false,
+      isActive: true,
       cardType: 'builder',
     });
     setIsAddModalOpen(true);
@@ -216,6 +228,7 @@ export default function AdminProductsPage() {
           image: formData.image.trim(),
           affiliateUrl: formData.affiliateUrl.trim(),
           isTrending: formData.isTrending,
+          isActive: formData.isActive,
           features: ['Best Seller', 'Verified Deal'],
         })
       });
@@ -263,6 +276,32 @@ export default function AdminProductsPage() {
       }
     });
   };
+
+  const handleToggleActive = async (product) => {
+    try {
+      const adminUserStr = localStorage.getItem('adminUser');
+      const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${product.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          isActive: !product.isActive
+        })
+      });
+      if (res.ok) {
+        setProducts(prev => prev.map(p => p.id === product.id ? { ...p, isActive: !p.isActive } : p));
+        showToast(`Product ${product.isActive ? 'deactivated' : 'activated'} successfully!`);
+      } else {
+        alert('Failed to toggle status');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
 
   const filteredProducts = products.filter((p) => {
     const matchesSearch =
@@ -363,7 +402,7 @@ export default function AdminProductsPage() {
 
         <Button variant="none" size="none"
           onClick={handleOpenAdd}
-          className="px-4 py-2.5 bg-black hover:bg-neutral-800 text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-2 shadow-sm"
+          className="px-4 py-2.5 bg-black hover:bg-[#f96b02] text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-2 shadow-sm"
         >
           <Plus className="w-4 h-4" />
           Add New Product Card
@@ -408,7 +447,7 @@ export default function AdminProductsPage() {
           <Button variant="none" size="none"
             onClick={loadProducts}
             disabled={isReloading}
-            className="text-xs font-semibold text-neutral-600 hover:text-black flex items-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-xs font-semibold text-neutral-600 hover:text-[#f96b02] flex items-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isReloading ? 'animate-spin text-black' : ''}`} />
             {isReloading ? 'Reloading...' : 'Reload'}
@@ -440,19 +479,20 @@ export default function AdminProductsPage() {
                 <th className="p-4 cursor-pointer hover:bg-neutral-200 transition-colors group select-none" onClick={() => handleSort('salePrice')}>
                   <div className="flex items-center">Price <SortIcon columnKey="salePrice" /></div>
                 </th>
+                <th className="p-4 text-center select-none">Status</th>
                 <th className="p-4 pr-6 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
               {(initialLoading || isReloading) ? (
                 <tr>
-                  <td colSpan="8" className="p-8">
+                  <td colSpan="9" className="p-8">
                     <PageLoader />
                   </td>
                 </tr>
               ) : paginatedProducts.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="p-8 text-center text-neutral-500 font-medium">No product cards found.</td>
+                  <td colSpan="9" className="p-8 text-center text-neutral-500 font-medium">No product cards found.</td>
                 </tr>
               ) : paginatedProducts.map((p, index) => {
                 const displayCashback = p.cashback !== undefined && p.cashback !== ''
@@ -503,11 +543,21 @@ export default function AdminProductsPage() {
                         <div className="text-xs text-neutral-400 line-through">₹{p.originalPrice}</div>
                       )}
                     </td>
+                    <td className="p-4 text-center">
+                      <button
+                        onClick={() => handleToggleActive(p)}
+                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none transition-colors ${p.isActive ? 'bg-emerald-500' : 'bg-neutral-300'}`}
+                        title={p.isActive ? 'Click to Deactivate' : 'Click to Activate'}
+                      >
+                        <span className="sr-only">Toggle active status</span>
+                        <span aria-hidden="true" className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${p.isActive ? 'translate-x-2' : '-translate-x-2'}`} />
+                      </button>
+                    </td>
                     <td className="p-4 pr-6">
                       <div className="flex items-center justify-end gap-1 whitespace-nowrap">
                         <Button variant="none" size="none"
                           onClick={() => handleOpenEdit(p)}
-                          className="p-2 text-neutral-600 hover:text-black hover:bg-neutral-100 rounded-lg transition-colors"
+                          className="p-2 text-neutral-600 hover:text-[#f96b02] hover:bg-neutral-100 rounded-lg transition-colors"
                           title="Edit Product Card"
                         >
                           <Edit3 className="w-4 h-4" />
@@ -591,7 +641,7 @@ export default function AdminProductsPage() {
                   </h4>
                   <Button variant="none" size="none"
                     onClick={() => setEditingProduct(null)}
-                    className="p-1.5 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full lg:hidden"
+                    className="p-1.5 text-neutral-400 hover:text-[#f96b02] hover:bg-neutral-100 rounded-full lg:hidden"
                   >
                     <X className="w-5 h-5" />
                   </Button>
@@ -599,8 +649,8 @@ export default function AdminProductsPage() {
 
                 <form onSubmit={handleSaveEdit} className="space-y-4">
                 <div className="flex gap-2 p-1 bg-neutral-100 rounded-xl mb-4 w-fit">
-                  <button type="button" onClick={() => setFormData({...formData, cardType: 'builder'})} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType !== 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-black'}`}>Card Builder</button>
-                  <button type="button" onClick={() => setFormData({...formData, cardType: 'custom'})} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType === 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-black'}`}>Custom Upload</button>
+                  <button type="button" onClick={() => setFormData({...formData, cardType: 'builder'})} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType !== 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-[#f96b02]'}`}>Card Builder</button>
+                  <button type="button" onClick={() => setFormData({...formData, cardType: 'custom'})} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType === 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-[#f96b02]'}`}>Custom Upload</button>
                 </div>
 
               {formData.cardType !== 'custom' && (
@@ -732,7 +782,7 @@ export default function AdminProductsPage() {
                       onClick={() => setImageInputType('url')}
                       className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'url'
                           ? 'bg-white text-black shadow-xs'
-                          : 'text-neutral-500 hover:text-black'
+                          : 'text-neutral-500 hover:text-[#f96b02]'
                         }`}
                     >
                       Image URL
@@ -742,7 +792,7 @@ export default function AdminProductsPage() {
                       onClick={() => setImageInputType('file')}
                       className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'file'
                           ? 'bg-white text-black shadow-xs'
-                          : 'text-neutral-500 hover:text-black'
+                          : 'text-neutral-500 hover:text-[#f96b02]'
                         }`}
                     >
                       Upload File
@@ -773,7 +823,7 @@ export default function AdminProductsPage() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <div className="border-2 border-dashed border-neutral-300 hover:border-black rounded-2xl p-4 text-center transition-colors cursor-pointer relative bg-neutral-50 flex flex-col items-center justify-center gap-1">
+                    <div className="border-2 border-dashed border-neutral-300 hover:border-[#f96b02] rounded-2xl p-4 text-center transition-colors cursor-pointer relative bg-neutral-50 flex flex-col items-center justify-center gap-1">
                       <input
                         type="file"
                         accept="image/*"
@@ -848,7 +898,7 @@ export default function AdminProductsPage() {
                   <h4 className="text-sm font-bold uppercase tracking-wider text-neutral-500">Live Preview</h4>
                   <Button variant="none" size="none"
                     onClick={() => setEditingProduct(null)}
-                    className="p-1.5 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full"
+                    className="p-1.5 text-neutral-400 hover:text-[#f96b02] hover:bg-neutral-100 rounded-full"
                   >
                     <X className="w-5 h-5" />
                   </Button>
@@ -886,7 +936,7 @@ export default function AdminProductsPage() {
                   </h4>
                   <Button variant="none" size="none"
                     onClick={() => setIsAddModalOpen(false)}
-                    className="p-1.5 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full lg:hidden"
+                    className="p-1.5 text-neutral-400 hover:text-[#f96b02] hover:bg-neutral-100 rounded-full lg:hidden"
                   >
                     <X className="w-5 h-5" />
                   </Button>
@@ -894,8 +944,8 @@ export default function AdminProductsPage() {
 
                 <form onSubmit={handleSaveAdd} className="space-y-4">
                 <div className="flex gap-2 p-1 bg-neutral-100 rounded-xl mb-4 w-fit">
-                  <button type="button" onClick={() => setFormData({...formData, cardType: 'builder'})} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType !== 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-black'}`}>Card Builder</button>
-                  <button type="button" onClick={() => setFormData({...formData, cardType: 'custom'})} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType === 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-black'}`}>Custom Upload</button>
+                  <button type="button" onClick={() => setFormData({...formData, cardType: 'builder'})} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType !== 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-[#f96b02]'}`}>Card Builder</button>
+                  <button type="button" onClick={() => setFormData({...formData, cardType: 'custom'})} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType === 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-[#f96b02]'}`}>Custom Upload</button>
                 </div>
 
               {formData.cardType !== 'custom' && (
@@ -1028,7 +1078,7 @@ export default function AdminProductsPage() {
                       onClick={() => setImageInputType('url')}
                       className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'url'
                           ? 'bg-white text-black shadow-xs'
-                          : 'text-neutral-500 hover:text-black'
+                          : 'text-neutral-500 hover:text-[#f96b02]'
                         }`}
                     >
                       Image URL
@@ -1038,7 +1088,7 @@ export default function AdminProductsPage() {
                       onClick={() => setImageInputType('file')}
                       className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'file'
                           ? 'bg-white text-black shadow-xs'
-                          : 'text-neutral-500 hover:text-black'
+                          : 'text-neutral-500 hover:text-[#f96b02]'
                         }`}
                     >
                       Upload File
@@ -1069,7 +1119,7 @@ export default function AdminProductsPage() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <div className="border-2 border-dashed border-neutral-300 hover:border-black rounded-2xl p-4 text-center transition-colors cursor-pointer relative bg-neutral-50 flex flex-col items-center justify-center gap-1">
+                    <div className="border-2 border-dashed border-neutral-300 hover:border-[#f96b02] rounded-2xl p-4 text-center transition-colors cursor-pointer relative bg-neutral-50 flex flex-col items-center justify-center gap-1">
                       <input
                         type="file"
                         accept="image/*"
@@ -1145,7 +1195,7 @@ export default function AdminProductsPage() {
                   <h4 className="text-sm font-bold uppercase tracking-wider text-neutral-500">Live Preview</h4>
                   <Button variant="none" size="none"
                     onClick={() => setIsAddModalOpen(false)}
-                    className="p-1.5 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full"
+                    className="p-1.5 text-neutral-400 hover:text-[#f96b02] hover:bg-neutral-100 rounded-full"
                   >
                     <X className="w-5 h-5" />
                   </Button>

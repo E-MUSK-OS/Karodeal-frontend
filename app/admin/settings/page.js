@@ -173,7 +173,7 @@ export default function AdminSettingsPage() {
             <Button variant="none" size="none"
               type="submit"
               disabled={isSavingProfile}
-              className="px-6 py-3 bg-black hover:bg-neutral-800 text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50"
+              className="px-6 py-3 bg-black hover:bg-[#f96b02] text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {isSavingProfile ? 'Saving...' : 'Save Profile'}
@@ -234,7 +234,7 @@ export default function AdminSettingsPage() {
             <Button variant="none" size="none"
               type="submit"
               disabled={isSavingPassword}
-              className="px-6 py-3 bg-black hover:bg-neutral-800 text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50"
+              className="px-6 py-3 bg-black hover:bg-[#f96b02] text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {isSavingPassword ? 'Updating...' : 'Update Password'}

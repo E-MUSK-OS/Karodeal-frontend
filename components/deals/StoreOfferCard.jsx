@@ -97,7 +97,7 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
         <div className="flex flex-col justify-between w-[55%] h-full pr-2">
           {/* Top: Logo */}
           <div className="mb-2 md:mb-4">
-            <div className="bg-white/90 backdrop-blur-xl px-2.5 py-1.5 sm:px-3 sm:py-2 md:py-2.5 rounded-xl sm:rounded-2xl w-fit max-w-[90px] sm:max-w-[100px] md:max-w-[150px] h-9 sm:h-10 md:h-12 flex items-center justify-center shadow-[0_8px_16px_-6px_rgba(0,0,0,0.2)] border border-white/50">
+            <div className="bg-white/90 backdrop-blur-xl p-2 rounded-xl sm:rounded-2xl w-fit max-w-[90px] sm:max-w-[100px] md:max-w-[180px] h-9 sm:h-10 md:h-13 flex items-center justify-center shadow-[0_8px_16px_-6px_rgba(0,0,0,0.2)] border border-white/50">
               <img
                 src={store.logoUrl}
                 alt={store.name}

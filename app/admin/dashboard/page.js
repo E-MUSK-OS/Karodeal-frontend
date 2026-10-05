@@ -2,36 +2,111 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
-  Users, ShoppingBag, Tag, IndianRupee, TrendingUp, Plus, ArrowUpRight, ShieldCheck, CheckCircle2, Clock 
+  Users, ShoppingBag, Tag, IndianRupee, TrendingUp, Plus, ArrowUpRight, ShieldCheck, CheckCircle2, Clock, Package 
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState({
-    usersCount: 12,
-    storesCount: 8,
-    dealsCount: 24,
-    pendingCashback: '₹4,250.00',
+    pendingWithdrawal: 0,
+    storesCount: 0,
+    dealsCount: 0,
+    pendingCashback: 0,
   });
-
   const [recentUsers, setRecentUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch users list from localStorage or fallback
-    const usersStr = localStorage.getItem('users');
-    if (usersStr) {
-      const parsedUsers = JSON.parse(usersStr);
-      setRecentUsers(parsedUsers.slice(-5).reverse());
-      setStats((prev) => ({
-        ...prev,
-        usersCount: Math.max(parsedUsers.length, 12),
-      }));
-    } else {
-      setRecentUsers([
-        { name: 'Elon Musk', email: '2383elonmusk@gmail.com', date: 'Today' },
-        { name: 'Rahul Sharma', email: 'rahul.s@example.com', date: 'Yesterday' },
-        { name: 'Priya Patel', email: 'priya.p@example.com', date: '2 days ago' },
-      ]);
-    }
+    const fetchStats = async () => {
+      try {
+        const authStr = localStorage.getItem('adminUser') || localStorage.getItem('user');
+        if (!authStr) {
+          fallbackData();
+          return;
+        }
+        const user = JSON.parse(authStr);
+
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
+        
+        const [usersRes, storesRes, productsRes, payoutsRes, claimsRes] = await Promise.all([
+          fetch(`${apiUrl}/auth`, { headers: { 'Authorization': `Bearer ${user.token}` } }),
+          fetch(`${apiUrl}/meta/stores`),
+          fetch(`${apiUrl}/products`),
+          fetch(`${apiUrl}/payouts/admin`, { headers: { 'Authorization': `Bearer ${user.token}` } }),
+          fetch(`${apiUrl}/claims/admin`, { headers: { 'Authorization': `Bearer ${user.token}` } })
+        ]);
+
+        let pWithdrawal = 0, sCount = 0, dCount = 0, pCashback = 0;
+        let rUsers = [];
+
+        if (usersRes.ok) {
+          const usersData = await usersRes.json();
+          if (usersData.success && Array.isArray(usersData.users)) {
+            rUsers = usersData.users.slice(0, 5); // top 5
+          }
+        }
+
+        if (storesRes.ok) {
+          const storesData = await storesRes.json();
+          if (Array.isArray(storesData)) sCount = storesData.length;
+        }
+
+        if (productsRes.ok) {
+          const productsData = await productsRes.json();
+          if (Array.isArray(productsData)) dCount = productsData.length;
+        }
+
+        if (payoutsRes.ok) {
+          const payoutsData = await payoutsRes.json();
+          if (payoutsData.success && Array.isArray(payoutsData.payouts)) {
+            pWithdrawal = payoutsData.payouts
+              .filter(p => p.status === 'PENDING')
+              .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+          }
+        }
+
+        if (claimsRes.ok) {
+          const claimsData = await claimsRes.json();
+          if (claimsData.claims && Array.isArray(claimsData.claims)) {
+            pCashback = claimsData.claims
+              .filter(c => c.status === 'PENDING')
+              .reduce((sum, c) => {
+                const cbRate = c.product?.cashback || 0;
+                // Assuming product.cashback is a percentage
+                return sum + ((Number(c.orderAmount) || 0) * (Number(cbRate) || 0)) / 100;
+              }, 0);
+          }
+        }
+
+        setStats({
+          pendingWithdrawal: pWithdrawal,
+          storesCount: sCount,
+          dealsCount: dCount,
+          pendingCashback: pCashback
+        });
+        setRecentUsers(rUsers);
+      } catch (err) {
+        console.error("Error fetching stats:", err);
+        fallbackData();
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const fallbackData = () => {
+      const usersStr = localStorage.getItem('users');
+      if (usersStr) {
+        const parsedUsers = JSON.parse(usersStr);
+        setRecentUsers(parsedUsers.slice(-5).reverse());
+        setStats(prev => ({ ...prev, pendingWithdrawal: 4250, storesCount: 8, dealsCount: 24, pendingCashback: 1250 }));
+      } else {
+        setRecentUsers([
+          { name: 'Elon Musk', email: '2383elonmusk@gmail.com', createdAt: new Date().toISOString() }
+        ]);
+        setStats({ pendingWithdrawal: 4250, storesCount: 8, dealsCount: 24, pendingCashback: 1250 });
+      }
+    };
+
+    fetchStats();
   }, []);
 
   return (
@@ -41,24 +116,7 @@ export default function AdminDashboardPage() {
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">Overview</span>
           <h3 className="text-2xl font-extrabold text-neutral-900 mt-0.5">Admin Dashboard</h3>
-          <p className="text-sm text-neutral-500">Welcome to the Tagdo KaroDeal Admin Portal.</p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Link
-            href="/admin/stores"
-            className="px-4 py-2.5 bg-black hover:bg-neutral-800 text-white font-medium text-xs rounded-xl transition-colors flex items-center gap-2 shadow-sm"
-          >
-            <Plus className="w-4 h-4" />
-            Add Store
-          </Link>
-          <Link
-            href="/admin/deals"
-            className="px-4 py-2.5 bg-white hover:bg-neutral-50 border border-neutral-200 text-neutral-900 font-medium text-xs rounded-xl transition-colors flex items-center gap-2 shadow-sm"
-          >
-            <Plus className="w-4 h-4" />
-            Add Deal
-          </Link>
+          <p className="text-sm text-neutral-500">Welcome to the KaroDeal Admin Portal.</p>
         </div>
       </div>
 
@@ -66,15 +124,15 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between">
           <div>
-            <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Total Users</div>
-            <div className="text-2xl font-extrabold text-neutral-900 mt-1">{stats.usersCount}</div>
-            <div className="text-xs text-emerald-600 font-semibold flex items-center gap-1 mt-2">
-              <TrendingUp className="w-3.5 h-3.5" />
-              +14% this week
+            <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Pending Withdrawals</div>
+            <div className="text-2xl font-extrabold text-neutral-900 mt-1">₹{Number(stats.pendingWithdrawal || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+            <div className="text-xs text-rose-600 font-semibold flex items-center gap-1 mt-2">
+              <Clock className="w-3.5 h-3.5" />
+              Payouts to process
             </div>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-neutral-100 text-neutral-900 flex items-center justify-center">
-            <Users className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center">
+            <IndianRupee className="w-6 h-6" />
           </div>
         </div>
 
@@ -91,22 +149,22 @@ export default function AdminDashboardPage() {
 
         <div className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between">
           <div>
-            <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Active Deals</div>
+            <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Products</div>
             <div className="text-2xl font-extrabold text-neutral-900 mt-1">{stats.dealsCount}</div>
             <div className="text-xs text-emerald-600 font-semibold flex items-center gap-1 mt-2">
               <CheckCircle2 className="w-3.5 h-3.5" />
-              Live coupons & offers
+              Live products & deals
             </div>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-neutral-100 text-neutral-900 flex items-center justify-center">
-            <Tag className="w-6 h-6" />
+            <Package className="w-6 h-6" />
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between">
           <div>
             <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Pending Cashback</div>
-            <div className="text-2xl font-extrabold text-neutral-900 mt-1">{stats.pendingCashback}</div>
+            <div className="text-2xl font-extrabold text-neutral-900 mt-1">₹{Number(stats.pendingCashback || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
             <div className="text-xs text-amber-600 font-semibold flex items-center gap-1 mt-2">
               <Clock className="w-3.5 h-3.5" />
               Claims awaiting review
@@ -125,7 +183,7 @@ export default function AdminDashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h4 className="text-lg font-bold text-neutral-900">Recent User Registrations</h4>
-              <p className="text-xs text-neutral-500">Newly registered shoppers on Tagdo</p>
+              <p className="text-xs text-neutral-500">Newly registered shoppers on karodeal</p>
             </div>
             <Link
               href="/admin/users"
@@ -175,21 +233,21 @@ export default function AdminDashboardPage() {
             <div className="space-y-3">
               <Link
                 href="/admin/stores"
-                className="p-4 rounded-xl border border-neutral-200 hover:border-black hover:bg-neutral-50 transition-all flex items-center justify-between group"
+                className="p-4 rounded-xl border border-neutral-200 hover:border-[#f96b02] hover:bg-neutral-50 transition-all flex items-center justify-between group"
               >
                 <div className="flex items-center gap-3">
                   <ShoppingBag className="w-5 h-5 text-neutral-700" />
                   <div>
                     <div className="text-sm font-bold text-neutral-900">Manage Stores</div>
-                    <div className="text-xs text-neutral-500">Add or edit store cashback rates</div>
+                    <div className="text-xs text-neutral-500">Add or edit store</div>
                   </div>
                 </div>
-                <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />
+                <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-[#f96b02] transition-colors" />
               </Link>
 
               <Link
                 href="/admin/categories"
-                className="p-4 rounded-xl border border-neutral-200 hover:border-black hover:bg-neutral-50 transition-all flex items-center justify-between group"
+                className="p-4 rounded-xl border border-neutral-200 hover:border-[#f96b02] hover:bg-neutral-50 transition-all flex items-center justify-between group"
               >
                 <div className="flex items-center gap-3">
                   <Tag className="w-5 h-5 text-neutral-700" />
@@ -198,21 +256,21 @@ export default function AdminDashboardPage() {
                     <div className="text-xs text-neutral-500">Organize category mappings</div>
                   </div>
                 </div>
-                <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />
+                <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-[#f96b02] transition-colors" />
               </Link>
 
               <Link
-                href="/admin/deals"
-                className="p-4 rounded-xl border border-neutral-200 hover:border-black hover:bg-neutral-50 transition-all flex items-center justify-between group"
+                href="/admin/products"
+                className="p-4 rounded-xl border border-neutral-200 hover:border-[#f96b02] hover:bg-neutral-50 transition-all flex items-center justify-between group"
               >
                 <div className="flex items-center gap-3">
-                  <TrendingUp className="w-5 h-5 text-neutral-700" />
+                  <Package className="w-5 h-5 text-neutral-700" />
                   <div>
-                    <div className="text-sm font-bold text-neutral-900">Deals & Coupons</div>
-                    <div className="text-xs text-neutral-500">Publish store offers & promo codes</div>
+                    <div className="text-sm font-bold text-neutral-900">Products & Cards</div>
+                    <div className="text-xs text-neutral-500">Manage all products and deals</div>
                   </div>
                 </div>
-                <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />
+                <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-[#f96b02] transition-colors" />
               </Link>
             </div>
           </div>

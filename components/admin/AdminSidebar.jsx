@@ -54,7 +54,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
           </div>
           
           <Button variant="none" size="none" 
-            className="md:hidden text-neutral-500 hover:text-black"
+            className="md:hidden text-neutral-500 hover:text-[#f96b02]"
             onClick={() => setIsOpen(false)}
           >
             <X className="w-5 h-5" />
@@ -77,7 +77,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
               className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all ${
                 isActive
                   ? 'bg-white text-black shadow-sm font-semibold'
-                  : 'text-neutral-400 hover:text-white hover:bg-neutral-800/60'
+                  : 'text-neutral-400 hover:text-white hover:bg-neutral-800'
               }`}
             >
               <Icon className={`w-5 h-5 ${isActive ? 'text-black' : 'text-neutral-400'}`} />

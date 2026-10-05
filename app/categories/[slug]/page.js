@@ -31,7 +31,7 @@ export default async function CategoryDetailsPage({ params }) {
       <div className="mb-6 md:mb-8">
         <Link 
           href="/categories" 
-          className="inline-flex items-center text-[10px] md:text-xs font-bold uppercase tracking-widest text-neutral-500 hover:text-black transition-colors group"
+          className="inline-flex items-center text-[10px] md:text-xs font-bold uppercase tracking-widest text-neutral-500 hover:text-[#f96b02] transition-colors group"
         >
           <svg className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />

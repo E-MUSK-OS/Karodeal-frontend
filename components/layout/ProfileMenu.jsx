@@ -123,7 +123,7 @@ export default function ProfileMenu({ user }) {
 
           {/* Logout */}
           <div className="px-5 py-4 bg-white hover:bg-neutral-50 transition-colors">
-            <Button variant="none" size="none" onClick={handleLogout} className="flex items-center gap-4 text-red-600 w-full text-left">
+            <Button variant="none" size="none" onClick={handleLogout} className="flex items-center justify-start gap-4 text-red-600 w-full text-left">
               <LogOut className="w-5 h-5" />
               <span className="text-[14px] font-medium">Logout</span>
             </Button>

@@ -99,7 +99,6 @@ export default function AdminStoresPage() {
   const handleOpenEdit = (store) => {
     setEditingStoreId(store.id);
     setName(store.name);
-    setSlug(store.slug || '');
     const img = store.logoUrl || '';
     setLogoUrl(img);
     setImageInputType(img.startsWith('data:') ? 'file' : 'url');
@@ -156,7 +155,7 @@ export default function AdminStoresPage() {
 
         <Button variant="none" size="none"
           onClick={handleOpenAdd}
-          className="px-4 py-2.5 bg-black hover:bg-neutral-800 text-white font-medium text-xs rounded-xl transition-colors flex items-center gap-2 shadow-sm"
+          className="px-4 py-2.5 bg-black hover:bg-[#f96b02] text-white font-medium text-xs rounded-xl transition-colors flex items-center gap-2 shadow-sm"
         >
           <Plus className="w-4 h-4" />
           Add New Store
@@ -216,7 +215,7 @@ export default function AdminStoresPage() {
                     <div className="flex items-center justify-end gap-1 whitespace-nowrap">
                       <Button variant="none" size="none"
                         onClick={() => handleOpenEdit(store)}
-                        className="p-2 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-lg transition-colors"
+                        className="p-2 text-neutral-400 hover:text-[#f96b02] hover:bg-neutral-100 rounded-lg transition-colors"
                         title="Edit Store"
                       >
                         <Edit3 className="w-4 h-4" />
@@ -245,7 +244,7 @@ export default function AdminStoresPage() {
               <h4 className="text-xl font-bold text-neutral-900">{editingStoreId ? 'Edit Store' : 'Add New Affiliate Store'}</h4>
               <Button variant="none" size="none"
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full transition-colors"
+                className="p-1.5 text-neutral-400 hover:text-[#f96b02] hover:bg-neutral-100 rounded-full transition-colors"
               >
                 <X className="w-5 h-5" />
               </Button>
@@ -276,7 +275,7 @@ export default function AdminStoresPage() {
                       onClick={() => setImageInputType('url')}
                       className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'url'
                         ? 'bg-white text-black shadow-xs'
-                        : 'text-neutral-500 hover:text-black'
+                        : 'text-neutral-500 hover:text-[#f96b02]'
                         }`}
                     >
                       Image URL
@@ -286,7 +285,7 @@ export default function AdminStoresPage() {
                       onClick={() => setImageInputType('file')}
                       className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'file'
                         ? 'bg-white text-black shadow-xs'
-                        : 'text-neutral-500 hover:text-black'
+                        : 'text-neutral-500 hover:text-[#f96b02]'
                         }`}
                     >
                       Upload File
@@ -316,7 +315,7 @@ export default function AdminStoresPage() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <div className="border-2 border-dashed border-neutral-300 hover:border-black rounded-2xl p-4 text-center transition-colors cursor-pointer relative bg-neutral-50 flex flex-col items-center justify-center gap-1">
+                    <div className="border-2 border-dashed border-neutral-300 hover:border-[#f96b02] rounded-2xl p-4 text-center transition-colors cursor-pointer relative bg-neutral-50 flex flex-col items-center justify-center gap-1">
                       <input
                         type="file"
                         accept="image/*"

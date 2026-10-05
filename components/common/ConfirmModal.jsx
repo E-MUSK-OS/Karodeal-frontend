@@ -38,7 +38,7 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
               className={`flex-1 px-5 py-3 font-bold text-sm rounded-xl transition-colors text-white ${
                 isDestructive 
                   ? 'bg-red-600 hover:bg-red-700 shadow-[0_4px_14px_0_rgba(220,38,38,0.39)]' 
-                  : 'bg-black hover:bg-neutral-800'
+                  : 'bg-black hover:bg-[#f96b02]'
               }`}
             >
               {confirmText}

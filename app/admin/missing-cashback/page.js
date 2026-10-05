@@ -201,7 +201,7 @@ export default function AdminMissingCashback() {
         <div className="animate-in slide-in-from-right-4 duration-300">
           <Button variant="none" size="none"
             onClick={() => setSelectedTicket(null)}
-            className="flex items-center gap-2 text-sm font-bold text-neutral-500 hover:text-black transition-colors mb-6"
+            className="flex items-center gap-2 text-sm font-bold text-neutral-500 hover:text-[#f96b02] transition-colors mb-6"
           >
             <ArrowLeft className="w-4 h-4" /> Back to Tickets
           </Button>
@@ -297,7 +297,7 @@ export default function AdminMissingCashback() {
                   </div>
 
                   <form onSubmit={handleSendMessage} className="shrink-0 flex gap-2 items-center">
-                    <label className="cursor-pointer text-neutral-400 hover:text-black transition-colors p-2 bg-neutral-50 rounded-xl border border-neutral-200">
+                    <label className="cursor-pointer text-neutral-400 hover:text-[#f96b02] transition-colors p-2 bg-neutral-50 rounded-xl border border-neutral-200">
                       <Paperclip className="w-5 h-5" />
                       <input type="file" className="hidden" accept="image/*" onChange={(e) => setChatAttachment(e.target.files[0])} />
                     </label>
@@ -361,7 +361,7 @@ export default function AdminMissingCashback() {
                     <Button variant="none" size="none"
                       type="submit"
                       disabled={isUpdating}
-                      className="w-full bg-black hover:bg-neutral-800 text-white px-5 py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-70 flex items-center justify-center gap-2 shadow-md"
+                      className="w-full bg-black hover:bg-[#f96b02] text-white px-5 py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-70 flex items-center justify-center gap-2 shadow-md"
                     >
                       <Save className="w-4 h-4" /> {isUpdating ? 'Saving...' : 'Save Changes'}
                     </Button>
@@ -429,7 +429,7 @@ export default function AdminMissingCashback() {
                         </span>
                       </td>
                       <td className="py-4 px-4 text-right">
-                        <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-blue-500 transition-colors transform group-hover:translate-x-1 inline-block" />
+                        <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-[#f96b02] transition-colors transform group-hover:translate-x-1 inline-block" />
                       </td>
                     </tr>
                   ))}

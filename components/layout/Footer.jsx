@@ -22,9 +22,9 @@ export default function Footer() {
               Discover. Save. Shop Smart. The definitive source for verified discounts and offers across the internet's best platforms.
             </p>
             <div className="flex space-x-6">
-              <a href="#" className="text-sm lg:text-[15px] xl:text-base font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors">Instagram</a>
-              <a href="#" className="text-sm lg:text-[15px] xl:text-base font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors">Facebook</a>
-              <a href="#" className="text-sm lg:text-[15px] xl:text-base font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors">X</a>
+              <a href="#" className="text-sm lg:text-[15px] xl:text-base font-bold uppercase tracking-widest text-neutral-400 hover:text-[#f96b02] transition-colors">Instagram</a>
+              <a href="#" className="text-sm lg:text-[15px] xl:text-base font-bold uppercase tracking-widest text-neutral-400 hover:text-[#f96b02] transition-colors">Facebook</a>
+              <a href="#" className="text-sm lg:text-[15px] xl:text-base font-bold uppercase tracking-widest text-neutral-400 hover:text-[#f96b02] transition-colors">X</a>
             </div>
           </div>
 
@@ -32,8 +32,8 @@ export default function Footer() {
           <div>
             <h5 className="text-black uppercase tracking-widest mb-4 md:mb-6">Company</h5>
             <ul className="space-y-3 md:space-y-4">
-              <li><Link href="/about" className="text-sm lg:text-[15px] xl:text-base text-neutral-500 hover:text-black  transition-colors">About Us</Link></li>
-              <li><Link href="/contact" className="text-sm lg:text-[15px] xl:text-base text-neutral-500 hover:text-black  transition-colors">Contact</Link></li>
+              <li><Link href="/about" className="text-sm lg:text-[15px] xl:text-base text-neutral-500 hover:text-[#f96b02]  transition-colors">About Us</Link></li>
+              <li><Link href="/contact" className="text-sm lg:text-[15px] xl:text-base text-neutral-500 hover:text-[#f96b02]  transition-colors">Contact</Link></li>
             </ul>
           </div>
 
@@ -41,9 +41,9 @@ export default function Footer() {
           <div>
             <h5 className="text-black uppercase tracking-widest mb-4 md:mb-6">Discover</h5>
             <ul className="space-y-3 md:space-y-4">
-              <li><Link href="/deals" className="text-sm lg:text-[15px] xl:text-base text-neutral-500 hover:text-black  transition-colors">All Deals</Link></li>
-              <li><Link href="/categories" className="text-sm lg:text-[15px] xl:text-base text-neutral-500 hover:text-black  transition-colors">Categories</Link></li>
-              <li><Link href="/stores" className="text-sm lg:text-[15px] xl:text-base text-neutral-500 hover:text-black  transition-colors">Stores</Link></li>
+              <li><Link href="/deals" className="text-sm lg:text-[15px] xl:text-base text-neutral-500 hover:text-[#f96b02]  transition-colors">All Deals</Link></li>
+              <li><Link href="/categories" className="text-sm lg:text-[15px] xl:text-base text-neutral-500 hover:text-[#f96b02]  transition-colors">Categories</Link></li>
+              <li><Link href="/stores" className="text-sm lg:text-[15px] xl:text-base text-neutral-500 hover:text-[#f96b02]  transition-colors">Stores</Link></li>
             </ul>
           </div>
 
@@ -51,8 +51,8 @@ export default function Footer() {
           <div>
             <h5 className="text-black uppercase tracking-widest mb-4 md:mb-6">Legal</h5>
             <ul className="space-y-3 md:space-y-4">
-              <li><Link href="/privacy-policy" className="text-sm lg:text-[15px] xl:text-base text-neutral-500 hover:text-black  transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="text-sm lg:text-[15px] xl:text-base text-neutral-500 hover:text-black  transition-colors">Terms & Conditions</Link></li>
+              <li><Link href="/privacy-policy" className="text-sm lg:text-[15px] xl:text-base text-neutral-500 hover:text-[#f96b02]  transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="text-sm lg:text-[15px] xl:text-base text-neutral-500 hover:text-[#f96b02]  transition-colors">Terms & Conditions</Link></li>
             </ul>
           </div>
 

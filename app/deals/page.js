@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import DealGrid from '@/components/deals/DealGrid';
 import Button from '@/components/common/Button';
@@ -52,9 +52,29 @@ export default function DealsPage() {
   const visibleDeals = filteredDeals.slice(0, visibleCount);
   const hasMore = visibleCount < filteredDeals.length;
 
-  const handleViewMore = () => {
-    setVisibleCount(prev => prev + 6);
-  };
+  const loaderRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setVisibleCount((prev) => prev + 6);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentLoader = loaderRef.current;
+    if (currentLoader) {
+      observer.observe(currentLoader);
+    }
+
+    return () => {
+      if (currentLoader) {
+        observer.unobserve(currentLoader);
+      }
+    };
+  }, [hasMore]);
 
   const handleFilterClick = (filterId) => {
     setActiveFilter(filterId);
@@ -97,10 +117,8 @@ export default function DealsPage() {
           <DealGrid deals={visibleDeals} cardType="storeOffer" mobileGrid={true} />
 
           {hasMore && (
-            <div className="mt-12 flex justify-center">
-              <Button onClick={handleViewMore} size="md" variant="primary">
-                View More
-              </Button>
+            <div ref={loaderRef} className="mt-12 flex justify-center py-8">
+              <div className="w-8 h-8 border-4 border-neutral-200 border-t-black rounded-full animate-spin"></div>
             </div>
           )}
         </>

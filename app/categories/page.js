@@ -16,7 +16,7 @@ export default async function CategoriesPage() {
         <p className="text-sm lg:text-[15px] xl:text-base text-neutral-500 font-medium tracking-widest">Browse by section</p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 md:gap-10 pt-8 sm:pt-12 border-t border-neutral-200">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-12 pt-8 sm:pt-12 border-t border-neutral-200">
         {categories.map(category => (
           <div key={category.id} className="border-neutral-200">
             <CategoryCard category={category} products={products} />

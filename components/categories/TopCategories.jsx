@@ -30,7 +30,7 @@ function TopCategoryCard({ category }) {
       </div>
 
       {/* Title */}
-      <span className="text-sm lg:text-[15px] xl:text-base mt-3  font-semibold text-neutral-800 group-hover:text-black transition-colors line-clamp-2 leading-tight max-w-[100px] sm:max-w-[120px]">
+      <span className="text-sm lg:text-[15px] xl:text-base mt-3  font-semibold text-neutral-800 group-hover:text-[#f96b02] transition-colors line-clamp-2 leading-tight max-w-[100px] sm:max-w-[120px]">
         {category.name}
       </span>
     </Link>

@@ -10,7 +10,7 @@ export default function CategoryCard({ category, products = [] }) {
             className="group relative flex flex-col bg-white rounded-2xl md:rounded-[32px] overflow-hidden border border-neutral-100 shadow-sm hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.15)] hover:-translate-y-2 transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]"
         >
             {/* Top Image Section */}
-            <div className="relative h-44 md:h-56 w-full overflow-hidden bg-[#fafafa] flex items-center justify-center">
+            <div className="relative h-56 md:h-72 lg:h-80 w-full overflow-hidden bg-[#fafafa] flex items-center justify-center">
                 <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-500 z-10 pointer-events-none"></div>
                 <img
                     src={category.image || 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=800&auto=format&fit=crop'}
@@ -27,7 +27,7 @@ export default function CategoryCard({ category, products = [] }) {
 
             {/* Bottom Content Section */}
             <div className="p-4 md:p-5 flex flex-col items-center justify-center text-center relative z-20 bg-white">
-                <h5 className="text-black tracking-tight mb-1 group-hover:text-blue-600 transition-colors duration-300">
+                <h5 className="text-black tracking-tight mb-1 group-hover:text-[#f96b02] transition-colors duration-300">
                     {category.name}
                 </h5>
                 <p className="text-sm lg:text-[15px] xl:text-base text-neutral-400">

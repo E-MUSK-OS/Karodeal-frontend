@@ -28,7 +28,7 @@ export default function AdminHeader({ onMenuClick }) {
       <div className="flex items-center md:hidden">
         <Button variant="none" size="none" 
           onClick={onMenuClick}
-          className="p-2 -ml-2 text-neutral-600 hover:text-black focus:outline-none"
+          className="p-2 -ml-2 text-neutral-600 hover:text-[#f96b02] focus:outline-none"
         >
           <Menu className="w-6 h-6" />
         </Button>
@@ -42,7 +42,7 @@ export default function AdminHeader({ onMenuClick }) {
         <Link
           href="/"
           target="_blank"
-          className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-neutral-600 hover:text-black bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors"
+          className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-neutral-600 hover:text-[#f96b02] bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors"
         >
           <ExternalLink className="w-3.5 h-3.5" />
           View Live Store

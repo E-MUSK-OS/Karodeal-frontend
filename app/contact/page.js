@@ -44,7 +44,7 @@ export default function ContactPage() {
                 <h5 className="text-neutral-400 uppercase tracking-widest mb-2 flex items-center gap-2">
                   <Mail className="w-3.5 h-3.5" /> Email
                 </h5>
-                <a href="mailto:support@karodeal.in" className="text-lg md:text-xl font-bold text-black hover:text-neutral-500 transition-colors tracking-tighter block break-all">
+                <a href="mailto:support@karodeal.in" className="text-lg md:text-xl font-bold text-black hover:text-[#f96b02] transition-colors tracking-tighter block break-all">
                   support@karodeal.in
                 </a>
               </div>
