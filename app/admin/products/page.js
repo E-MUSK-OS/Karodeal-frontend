@@ -278,6 +278,9 @@ export default function AdminProductsPage() {
   };
 
   const handleToggleActive = async (product) => {
+    // Optimistic UI update
+    setProducts(prev => prev.map(p => p.id === product.id ? { ...p, isActive: !p.isActive } : p));
+    
     try {
       const adminUserStr = localStorage.getItem('adminUser');
       const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
@@ -292,13 +295,16 @@ export default function AdminProductsPage() {
         })
       });
       if (res.ok) {
-        setProducts(prev => prev.map(p => p.id === product.id ? { ...p, isActive: !p.isActive } : p));
         showToast(`Product ${product.isActive ? 'deactivated' : 'activated'} successfully!`);
       } else {
+        // Revert on failure
+        setProducts(prev => prev.map(p => p.id === product.id ? { ...p, isActive: product.isActive } : p));
         alert('Failed to toggle status');
       }
     } catch (err) {
       console.error(err);
+      // Revert on failure
+      setProducts(prev => prev.map(p => p.id === product.id ? { ...p, isActive: product.isActive } : p));
     }
   };
 
