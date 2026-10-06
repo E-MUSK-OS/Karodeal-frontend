@@ -71,7 +71,6 @@ export default async function Home() {
       <Hero />
 
       <div className="w-full mt-8 sm:mt-12">
-        {/* Top Categories */}
         <TopCategories categories={categories} />
 
 
