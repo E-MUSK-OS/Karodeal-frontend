@@ -15,11 +15,14 @@ export default function ProductClicksPage() {
 
   const fetchClicks = async () => {
     try {
-      const token = localStorage.getItem('adminToken');
-      if (!token) {
+      const adminStr = localStorage.getItem('adminUser');
+      if (!adminStr) {
         router.push('/admin/login');
         return;
       }
+      
+      const adminUser = JSON.parse(adminStr);
+      const token = adminUser.token;
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
       const res = await fetch(`${apiUrl}/admin/clicks`, {
@@ -33,7 +36,7 @@ export default function ProductClicksPage() {
         setClicks(data);
       } else {
         if (res.status === 401 || res.status === 403) {
-          localStorage.removeItem('adminToken');
+          localStorage.removeItem('adminUser');
           router.push('/admin/login');
         }
       }
