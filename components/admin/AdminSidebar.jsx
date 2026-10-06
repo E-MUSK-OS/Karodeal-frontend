@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Button from '@/components/common/Button';
 import { 
-  LayoutDashboard, ShoppingBag, FolderTree, Tag, Users, Settings, LogOut, Package, IndianRupee, Ticket, X 
+  LayoutDashboard, ShoppingBag, FolderTree, Tag, Users, Settings, LogOut, Package, IndianRupee, Ticket, X, MousePointerClick
 } from 'lucide-react';
 
 export default function AdminSidebar({ isOpen, setIsOpen }) {
@@ -25,6 +25,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
     { name: 'Users', href: '/admin/users', icon: Users },
     { name: 'Cashback Claims', href: '/admin/claims', icon: Ticket },
     { name: 'Missing Cashback', href: '/admin/missing-cashback', icon: Ticket },
+    { name: 'Click Tracking', href: '/admin/clicks', icon: MousePointerClick },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
 
