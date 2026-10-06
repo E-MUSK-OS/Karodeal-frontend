@@ -4,7 +4,7 @@ import Footer from '@/components/layout/Footer';
 import ScrollToTop from '@/components/common/ScrollToTop';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import NextTopLoader from 'nextjs-toploader';
-import Script from 'next/script';
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 export const metadata = {
   title: 'KaroDeal | Discover. Save. Shop Smart.',
@@ -17,17 +17,6 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <head>
-        <Script strategy="afterInteractive" src="https://www.googletagmanager.com/gtag/js?id=G-6V8BF2S1R3" />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-6V8BF2S1R3');
-          `}
-        </Script>
-      </head>
       <body className="flex flex-col min-h-screen pb-16 md:pb-0">
         <NextTopLoader
           color="#000000"
@@ -48,6 +37,7 @@ export default function RootLayout({ children }) {
         <MobileBottomNav />
         <ScrollToTop />
       </body>
+      <GoogleAnalytics gaId="G-6V8BF2S1R3" />
     </html>
   );
 }
