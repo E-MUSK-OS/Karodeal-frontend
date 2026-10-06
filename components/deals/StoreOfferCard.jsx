@@ -53,7 +53,18 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
   const handleDealClick = () => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      
+      let token = null;
+      if (typeof window !== 'undefined') {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          try {
+            const user = JSON.parse(userStr);
+            token = user.token;
+          } catch (e) {}
+        }
+      }
+
       fetch(`${apiUrl}/products/${currentDeal.id}/click`, {
         method: 'POST',
         headers: {
