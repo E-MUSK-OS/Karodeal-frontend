@@ -12,7 +12,7 @@ export const metadata = {
     default: 'KaroDeal | Discover. Save. Shop Smart.',
     template: '%s | KaroDeal'
   },
-  description: 'Discover the latest discounts, offers, coupons, and trending products from India\\'s top shopping platforms like Amazon, Flipkart, Myntra, and more.',
+  description: "Discover the latest discounts, offers, coupons, and trending products from India's top shopping platforms like Amazon, Flipkart, Myntra, and more.",
   keywords: ['Deals', 'Coupons', 'Offers', 'Discounts', 'Online Shopping', 'Amazon Deals', 'Flipkart Offers', 'KaroDeal', 'India Shopping'],
   authors: [{ name: 'KaroDeal Team' }],
   creator: 'KaroDeal',
@@ -24,7 +24,7 @@ export const metadata = {
   },
   openGraph: {
     title: 'KaroDeal | Discover. Save. Shop Smart.',
-    description: 'Discover the latest discounts, offers, coupons, and trending products from India\\'s top shopping platforms.',
+    description: "Discover the latest discounts, offers, coupons, and trending products from India's top shopping platforms.",
     url: 'https://karodeal.in',
     siteName: 'KaroDeal',
     images: [
