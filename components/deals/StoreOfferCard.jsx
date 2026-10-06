@@ -50,6 +50,22 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
 
   const dealUrl = currentDeal.affiliateUrl || `https://www.${storeIdStr}.com`;
 
+  const handleDealClick = () => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      fetch(`${apiUrl}/products/${currentDeal.id}/click`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        }
+      }).catch(err => console.error(err));
+    } catch (error) {
+      console.error('Error tracking click:', error);
+    }
+  };
+
   // IF IT'S A CUSTOM IMAGE CARD
   if (currentDeal.salePrice === 0 && currentDeal.discount === 0) {
     return (
@@ -57,6 +73,7 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
         href={dealUrl}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={handleDealClick}
         className={`block relative flex flex-col justify-center items-center ${widthClass} ${heightClass} rounded-2xl md:rounded-[32px] overflow-hidden shrink-0 bg-neutral-100 p-0 group shadow-lg hover:shadow-xl/20 active:shadow-xl/20 hover:-translate-y-2 active:-translate-y-2 transition-all duration-500 ease-out cursor-pointer`}
       >
         <img src={currentDeal.image} alt={currentDeal.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onError={(e) => { e.target.style.display = 'none'; }} />
@@ -81,6 +98,7 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
       href={dealUrl}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={handleDealClick}
       className={`block relative flex flex-col justify-between ${widthClass} ${heightClass} rounded-2xl md:rounded-[32px] overflow-hidden shrink-0 ${bgClass} p-3 md:p-6 group shadow-lg hover:shadow-xl/20 active:shadow-xl/20 hover:-translate-y-2 active:-translate-y-2 transition-all duration-500 ease-out cursor-pointer`}
     >
       {/* Noise Texture Overlay for that premium tactile feel */}
