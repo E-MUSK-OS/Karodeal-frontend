@@ -47,7 +47,7 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
   const cashbackType = storeIdStr === 'flipkart' ? 'Cashback' : 'Rewards';
 
   const widthClass = fullWidth ? "w-full" : "w-[260px] sm:w-[300px] md:w-[360px]";
-  const heightClass = "min-h-[160px] sm:min-h-[180px] md:min-h-[200px] h-auto";
+  const heightClass = "h-[170px] sm:h-[190px] md:h-[220px]";
 
   const offerPageUrl = `/offer/${currentDeal.id}`;
 
@@ -94,21 +94,21 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
         </div>
 
         {/* Text Area */}
-        <div className="flex flex-col flex-1 justify-center">
-          <p className="text-white/90 text-[10px] sm:text-[11px] font-bold tracking-wide line-clamp-1 mb-0.5">
+        <div className="flex flex-col flex-1 justify-center overflow-hidden">
+          <p className="text-white/90 text-[10px] sm:text-[11px] font-bold tracking-wide line-clamp-2 sm:line-clamp-1 mb-0.5 leading-tight">
             {currentDeal.title}
           </p>
-          <h3 className="text-white text-lg sm:text-xl md:text-2xl font-black leading-tight mb-1.5 sm:mb-2 tracking-tighter">
+          <h3 className="text-white text-lg sm:text-xl md:text-2xl font-black leading-tight mb-1.5 sm:mb-2 tracking-tighter shrink-0">
             Upto {currentDeal.discount}% Off
           </h3>
 
-          <span className={`${tagClass} text-[9px] sm:text-[10px] font-bold px-2 py-1 rounded-md flex items-center justify-center w-fit mb-2 sm:mb-3`}>
+          <span className={`${tagClass} text-[9px] sm:text-[10px] font-bold px-2 py-1 rounded-md flex items-center justify-center w-fit mb-1 sm:mb-2 shrink-0`}>
             Flat ₹{cashback} {cashbackType}
           </span>
         </div>
 
         {/* Button */}
-        <div className="mt-auto">
+        <div className="mt-auto shrink-0">
           <span className="bg-white text-black font-black uppercase text-[9px] sm:text-[10px] md:text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full inline-flex items-center justify-center hover:bg-neutral-100 transition-colors duration-200 shadow-sm whitespace-nowrap">
             Offer Details
           </span>
@@ -116,8 +116,8 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
       </div>
 
       {/* Right Column: Product Image */}
-      <div className="w-[45%] h-auto flex items-stretch justify-end z-10">
-        <div className="w-full h-full min-h-[120px] bg-white overflow-hidden shadow-sm rounded-lg sm:rounded-xl">
+      <div className="w-[45%] h-full flex items-stretch justify-end z-10">
+        <div className="w-full h-full bg-white overflow-hidden shadow-sm rounded-lg sm:rounded-xl">
           <img
             src={currentDeal.image}
             alt={currentDeal.title}
