@@ -312,25 +312,7 @@ export default function AdminClaims() {
                       <div className="mb-4">
                         <p className="text-sm lg:text-[15px] xl:text-base font-medium mb-3">Cashback Awarded: <span className="font-black text-xl">₹{viewingClaim.awardedCashback}</span></p>
 
-                        <div className="bg-white/60 p-4 rounded-xl border border-green-200">
-                          <label className="block text-xs font-bold text-green-800 mb-1.5">Edit Cashback Amount (₹)</label>
-                          <div className="flex flex-col xl:flex-row gap-2">
-                            <input
-                              type="number"
-                              value={awardedCashback}
-                              onChange={(e) => setAwardedCashback(e.target.value)}
-                              placeholder="New Amount"
-                              className="flex-1 min-w-0 px-3 py-2 text-sm rounded-lg border border-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white w-full"
-                            />
-                            <Button variant="none" size="none"
-                              onClick={handleUpdateAwardedCashback}
-                              disabled={isUpdating || parseFloat(awardedCashback) === viewingClaim.awardedCashback}
-                              className="bg-green-700 hover:bg-green-800 text-white font-bold px-4 py-2 text-sm rounded-lg disabled:opacity-50 transition-colors whitespace-nowrap w-full xl:w-auto text-center justify-center"
-                            >
-                              Update
-                            </Button>
-                          </div>
-                        </div>
+
                       </div>
                     )}
                     {viewingClaim.adminNote && (

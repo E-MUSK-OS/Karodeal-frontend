@@ -12,6 +12,7 @@ export default function AdminPayouts() {
   const [searchQuery, setSearchQuery] = useState('');
   const [processingId, setProcessingId] = useState(null);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', confirmText: '', onConfirm: () => {}, isDestructive: false });
+  const [rejectModal, setRejectModal] = useState({ isOpen: false, payoutId: null, note: '' });
 
   useEffect(() => {
     fetchPayouts();
@@ -37,42 +38,48 @@ export default function AdminPayouts() {
     }
   };
 
-  const handleProcess = async (id, status, adminNote = '') => {
-    setConfirmModal({
-      isOpen: true,
-      title: 'Process Payout',
-      message: `Are you sure you want to mark this payout as ${status}?`,
-      confirmText: status === 'COMPLETED' ? 'Mark Completed' : 'Mark Failed',
-      isDestructive: status === 'FAILED',
-      onConfirm: async () => {
-        setProcessingId(id);
-        try {
-          const userStr = localStorage.getItem('adminUser');
-          const user = JSON.parse(userStr);
+  const handleProcess = async (id, status, adminNote = '', skipConfirm = false) => {
+    const processAction = async () => {
+      setProcessingId(id);
+      try {
+        const userStr = localStorage.getItem('adminUser');
+        const user = JSON.parse(userStr);
 
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/payouts/admin/${id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${user.token}`
-            },
-            body: JSON.stringify({ status, adminNote })
-          });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/payouts/admin/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user.token}`
+          },
+          body: JSON.stringify({ status, adminNote })
+        });
 
-          if (res.ok) {
-            // Update local state
-            setPayouts(payouts.map(p => p.id === id ? { ...p, status, adminNote } : p));
-          } else {
-            const data = await res.json();
-            alert(data.error || 'Failed to process payout');
-          }
-        } catch (err) {
-          alert('An error occurred');
-        } finally {
-          setProcessingId(null);
+        if (res.ok) {
+          // Update local state
+          setPayouts(payouts.map(p => p.id === id ? { ...p, status, adminNote } : p));
+        } else {
+          const data = await res.json();
+          alert(data.error || 'Failed to process payout');
         }
+      } catch (err) {
+        alert('An error occurred');
+      } finally {
+        setProcessingId(null);
       }
-    });
+    };
+
+    if (skipConfirm) {
+      processAction();
+    } else {
+      setConfirmModal({
+        isOpen: true,
+        title: 'Process Payout',
+        message: `Are you sure you want to mark this payout as ${status}?`,
+        confirmText: status === 'APPROVED' ? 'Approve' : 'Reject',
+        isDestructive: status === 'REJECTED',
+        onConfirm: processAction
+      });
+    }
   };
 
   const filteredPayouts = payouts.filter(p =>
@@ -155,10 +162,7 @@ export default function AdminPayouts() {
                             Approve
                           </Button>
                           <Button variant="none" size="none"
-                            onClick={() => {
-                              const note = prompt('Reason for rejection (optional):');
-                              if (note !== null) handleProcess(payout.id, 'REJECTED', note);
-                            }}
+                            onClick={() => setRejectModal({ isOpen: true, payoutId: payout.id, note: '' })}
                             disabled={processingId === payout.id}
                             className="px-3 py-1.5 bg-red-100 text-red-700 text-xs font-bold rounded-lg hover:bg-red-200 disabled:opacity-50"
                           >
@@ -177,6 +181,51 @@ export default function AdminPayouts() {
         </div>
         )}
       </div>
+      
+      {rejectModal.isOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-fade-in">
+          <div 
+            className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border border-neutral-200 animate-popup"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col text-left">
+              <h4 className="text-xl font-extrabold text-neutral-900 mb-2">
+                Reject Payout
+              </h4>
+              <p className="text-sm text-neutral-500 mb-4 font-medium">
+                Reason for rejection (optional):
+              </p>
+              
+              <textarea
+                value={rejectModal.note}
+                onChange={(e) => setRejectModal({ ...rejectModal, note: e.target.value })}
+                placeholder="e.g. Invalid bank details"
+                className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-black mb-6 resize-none"
+                rows="3"
+              />
+              
+              <div className="flex items-center gap-3 w-full">
+                <Button variant="none" size="none"
+                  onClick={() => setRejectModal({ isOpen: false, payoutId: null, note: '' })}
+                  className="flex-1 px-5 py-3 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-bold text-sm rounded-xl transition-colors"
+                >
+                  Cancel
+                </Button>
+                <Button variant="none" size="none"
+                  onClick={() => {
+                    handleProcess(rejectModal.payoutId, 'REJECTED', rejectModal.note, true);
+                    setRejectModal({ isOpen: false, payoutId: null, note: '' });
+                  }}
+                  className="flex-1 px-5 py-3 font-bold text-sm rounded-xl transition-colors text-white bg-red-600 hover:bg-red-700 shadow-[0_4px_14px_0_rgba(220,38,38,0.39)]"
+                >
+                  Reject
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <ConfirmModal {...confirmModal} onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })} />
     </div>
   );

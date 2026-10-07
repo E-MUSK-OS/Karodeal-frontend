@@ -24,7 +24,6 @@ export default function AdminHeader({ onMenuClick }) {
 
   return (
     <header className="h-16 bg-white border-b border-neutral-200 px-4 md:px-6 flex items-center justify-between sticky top-0 z-30 w-full">
-      {/* Mobile Menu Button */}
       <div className="flex items-center md:hidden">
         <Button variant="none" size="none" 
           onClick={onMenuClick}
