@@ -47,7 +47,7 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
   const cashbackType = storeIdStr === 'flipkart' ? 'Cashback' : 'Rewards';
 
   const widthClass = fullWidth ? "w-full" : "w-[260px] sm:w-[300px] md:w-[360px]";
-  const heightClass = "h-[140px] sm:h-[160px] md:h-[200px]";
+  const heightClass = "min-h-[160px] sm:min-h-[180px] md:min-h-[200px] h-auto";
 
   const offerPageUrl = `/offer/${currentDeal.id}`;
 
@@ -58,7 +58,7 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
         href={offerPageUrl}
         className={`block relative flex flex-col justify-center items-center ${widthClass} ${heightClass} rounded-2xl md:rounded-[24px] overflow-hidden shrink-0 bg-neutral-100 p-0 group shadow-lg hover:shadow-xl/20 active:shadow-xl/20 hover:-translate-y-2 active:-translate-y-2 transition-all duration-500 ease-out cursor-pointer`}
       >
-        <img src={currentDeal.image} alt={currentDeal.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onError={(e) => { e.target.style.display = 'none'; }} />
+        <img src={currentDeal.image} alt={currentDeal.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onError={(e) => { e.target.style.display = 'none'; }} />
         
         {/* Grab Deal Button Overlay */}
         <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 z-20">
@@ -78,9 +78,9 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
       className={`block relative flex flex-row justify-between items-stretch ${widthClass} ${heightClass} rounded-[20px] md:rounded-[24px] overflow-hidden shrink-0 ${bgClass} p-3 sm:p-4 group shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out cursor-pointer`}
     >
       {/* Left Column: Logo + All Text + Button */}
-      <div className="flex flex-col justify-between w-[55%] h-full z-10 pr-2">
+      <div className="flex flex-col justify-between w-[55%] h-full z-10 pr-1">
         {/* Top: Logo */}
-        <div className="bg-white rounded-lg sm:rounded-xl w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center shadow-sm shrink-0 p-1">
+        <div className="bg-white rounded-lg sm:rounded-xl w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center shadow-sm shrink-0 p-1 mb-1.5 sm:mb-2">
           <img
             src={store.logoUrl}
             alt={store.name}
@@ -94,34 +94,34 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
         </div>
 
         {/* Text Area */}
-        <div className="flex flex-col flex-1 justify-center mt-1 sm:mt-2">
+        <div className="flex flex-col flex-1 justify-center">
           <p className="text-white/90 text-[10px] sm:text-[11px] font-bold tracking-wide line-clamp-1 mb-0.5">
             {currentDeal.title}
           </p>
-          <h3 className="text-white text-lg sm:text-xl md:text-2xl font-black leading-tight mb-1 sm:mb-2 tracking-tighter">
+          <h3 className="text-white text-lg sm:text-xl md:text-2xl font-black leading-tight mb-1.5 sm:mb-2 tracking-tighter">
             Upto {currentDeal.discount}% Off
           </h3>
 
-          <span className={`${tagClass} text-[9px] sm:text-[10px] font-bold px-2 py-1 rounded-md flex items-center justify-center w-fit`}>
+          <span className={`${tagClass} text-[9px] sm:text-[10px] font-bold px-2 py-1 rounded-md flex items-center justify-center w-fit mb-2 sm:mb-3`}>
             Flat ₹{cashback} {cashbackType}
           </span>
         </div>
 
         {/* Button */}
-        <div className="mt-auto pt-1">
-          <span className="bg-white text-black font-black uppercase text-[9px] sm:text-[10px] md:text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full inline-flex items-center justify-center hover:bg-neutral-100 transition-colors duration-200 shadow-sm">
+        <div className="mt-auto">
+          <span className="bg-white text-black font-black uppercase text-[9px] sm:text-[10px] md:text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full inline-flex items-center justify-center hover:bg-neutral-100 transition-colors duration-200 shadow-sm whitespace-nowrap">
             Offer Details
           </span>
         </div>
       </div>
 
       {/* Right Column: Product Image */}
-      <div className="w-[45%] h-full flex items-center justify-end z-10 py-2 pr-1">
-        <div className="w-full h-full bg-white overflow-hidden shadow-sm rounded-md sm:rounded-lg">
+      <div className="w-[45%] h-auto flex items-stretch justify-end z-10">
+        <div className="w-full h-full min-h-[120px] bg-white overflow-hidden shadow-sm rounded-lg sm:rounded-xl">
           <img
             src={currentDeal.image}
             alt={currentDeal.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-contain sm:object-cover group-hover:scale-105 transition-transform duration-500"
             onError={(e) => { e.target.style.display = 'none'; }}
           />
         </div>
