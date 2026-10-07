@@ -46,8 +46,8 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
   const cashback = getCashback(currentDeal);
   const cashbackType = storeIdStr === 'flipkart' ? 'Cashback' : 'Rewards';
 
-  const widthClass = fullWidth ? "w-full" : "w-[260px] sm:w-[300px] md:w-[360px]";
-  const heightClass = "h-[170px] sm:h-[190px] md:h-[220px]";
+  const widthClass = fullWidth ? "w-full" : "w-[280px] sm:w-[340px] md:w-[420px] lg:w-[460px]";
+  const heightClass = "h-[180px] sm:h-[210px] md:h-[260px] lg:h-[280px]";
 
   const offerPageUrl = `/offer/${currentDeal.id}`;
 
@@ -63,7 +63,7 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
         {/* Grab Deal Button Overlay */}
         <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 z-20">
           <span
-            className="bg-white text-black font-black uppercase text-[9px] sm:text-[10px] md:text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full inline-flex items-center justify-center hover:bg-neutral-100 transition-colors duration-200 shadow-sm"
+            className="bg-white text-black font-black uppercase text-[10px] sm:text-[11px] md:text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full inline-flex items-center justify-center hover:bg-neutral-100 transition-colors duration-200 shadow-sm"
           >
             Offer Details
           </span>
@@ -75,12 +75,12 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
   return (
     <Link
       href={offerPageUrl}
-      className={`block relative flex flex-row justify-between items-stretch ${widthClass} ${heightClass} rounded-[20px] md:rounded-[24px] overflow-hidden shrink-0 ${bgClass} p-3 sm:p-4 group shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out cursor-pointer`}
+      className={`block relative flex flex-row justify-between items-stretch ${widthClass} ${heightClass} rounded-[20px] md:rounded-[24px] lg:rounded-[32px] overflow-hidden shrink-0 ${bgClass} p-3 sm:p-4 md:p-5 group shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out cursor-pointer`}
     >
       {/* Left Column: Logo + All Text + Button */}
-      <div className="flex flex-col justify-between w-[55%] h-full z-10 pr-1">
+      <div className="flex flex-col justify-between w-[55%] h-full z-10 pr-1 md:pr-2">
         {/* Top: Logo */}
-        <div className="bg-white rounded-lg sm:rounded-xl w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center shadow-sm shrink-0 p-1 mb-1.5 sm:mb-2">
+        <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 flex items-center justify-center shadow-sm shrink-0 p-1 md:p-2 mb-1.5 sm:mb-2 md:mb-3">
           <img
             src={store.logoUrl}
             alt={store.name}
@@ -95,21 +95,21 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
 
         {/* Text Area */}
         <div className="flex flex-col flex-1 justify-center overflow-hidden">
-          <p className="text-white/90 text-[10px] sm:text-[11px] font-bold tracking-wide line-clamp-2 sm:line-clamp-1 mb-0.5 leading-tight">
+          <p className="text-white/90 text-[10px] sm:text-[11px] md:text-sm font-bold tracking-wide line-clamp-2 sm:line-clamp-1 mb-0.5 md:mb-1.5 leading-tight">
             {currentDeal.title}
           </p>
-          <h3 className="text-white text-lg sm:text-xl md:text-2xl font-black leading-tight mb-1.5 sm:mb-2 tracking-tighter shrink-0">
+          <h3 className="text-white text-lg sm:text-2xl md:text-3xl lg:text-4xl font-black leading-tight mb-1.5 sm:mb-2 md:mb-4 tracking-tighter shrink-0">
             Upto {currentDeal.discount}% Off
           </h3>
 
-          <span className={`${tagClass} text-[9px] sm:text-[10px] font-bold px-2 py-1 rounded-md flex items-center justify-center w-fit mb-1 sm:mb-2 shrink-0`}>
+          <span className={`${tagClass} text-[9px] sm:text-[10px] md:text-xs font-bold px-2 py-1 md:px-3 md:py-1.5 rounded-md flex items-center justify-center w-fit mb-1 sm:mb-2 md:mb-3 shrink-0`}>
             Flat ₹{cashback} {cashbackType}
           </span>
         </div>
 
         {/* Button */}
         <div className="mt-auto shrink-0">
-          <span className="bg-white text-black font-black uppercase text-[9px] sm:text-[10px] md:text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full inline-flex items-center justify-center hover:bg-neutral-100 transition-colors duration-200 shadow-sm whitespace-nowrap">
+          <span className="bg-white text-black font-black uppercase text-[9px] sm:text-[10px] md:text-xs px-3 py-1.5 sm:px-4 sm:py-2 md:px-5 md:py-2.5 rounded-full inline-flex items-center justify-center hover:bg-neutral-100 transition-colors duration-200 shadow-sm whitespace-nowrap">
             Offer Details
           </span>
         </div>
@@ -117,7 +117,7 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
 
       {/* Right Column: Product Image */}
       <div className="w-[45%] h-full flex items-stretch justify-end z-10">
-        <div className="w-full h-full bg-white overflow-hidden shadow-sm rounded-lg sm:rounded-xl">
+        <div className="w-full h-full bg-white overflow-hidden shadow-sm rounded-lg sm:rounded-xl md:rounded-2xl">
           <img
             src={currentDeal.image}
             alt={currentDeal.title}

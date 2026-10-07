@@ -28,7 +28,12 @@ export default function StoreDealsSection({ store, deals }) {
         </Button>
       </div>
 
-      <Slider>
+      <Slider
+        breakpoints={{
+          0: { spaceBetween: 8 },
+          768: { spaceBetween: 12 },
+        }}
+      >
         {deals.slice(0, 8).map(deal => (
           <div key={deal.id} className="shrink-0 snap-start">
             <StoreOfferCard product={deal} store={store} />
