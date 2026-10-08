@@ -201,7 +201,7 @@ export default function ClaimCashback() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-neutral-100 pb-6">
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <h2 className="text-2xl font-black text-neutral-900">{viewingClaim.storeName}</h2>
+                  <h2 className="font-black text-neutral-900">{viewingClaim.storeName}</h2>
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide ${viewingClaim.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
                     viewingClaim.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
                       'bg-amber-100 text-amber-700'
@@ -221,7 +221,7 @@ export default function ClaimCashback() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
               <div>
-                <h5 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">Order Details</h5>
+                <h5 className="font-bold text-neutral-400 uppercase tracking-wider mb-4">Order Details</h5>
                 <div className="space-y-4">
                   <div>
                     <p className="text-xs text-neutral-500 mb-1">Store / Product</p>
@@ -246,7 +246,7 @@ export default function ClaimCashback() {
               </div>
 
               <div>
-                <h5 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">Claim Verdict</h5>
+                <h5 className="font-bold text-neutral-400 uppercase tracking-wider mb-4">Claim Verdict</h5>
                 {viewingClaim.status === 'APPROVED' && (
                   <div className="bg-green-50 text-green-900 p-4 rounded-xl border border-green-200">
                     <p className="text-sm font-medium mb-1">Congratulations! Your claim was approved.</p>
@@ -297,7 +297,7 @@ export default function ClaimCashback() {
             </div>
 
             <div>
-              <h5 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">Submitted Proofs</h5>
+              <h5 className="font-bold text-neutral-400 uppercase tracking-wider mb-4">Submitted Proofs</h5>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-neutral-700 mb-2">1. Invoice / Receipt</span>
@@ -330,7 +330,7 @@ export default function ClaimCashback() {
                 <div className="p-2 bg-orange-50 text-[#f96b02] rounded-xl">
                   <ShieldAlert className="w-6 h-6" />
                 </div>
-                <h5 className="text-2xl font-extrabold text-neutral-900 tracking-tight">Claim Cashback</h5>
+                <h5 className="font-extrabold text-neutral-900 tracking-tight">Claim Cashback</h5>
               </div>
               <p className="text-neutral-500 text-sm max-w-lg">
                 Submit proofs of your purchase, review, and non-return window to manually claim your cashback.
@@ -400,7 +400,7 @@ export default function ClaimCashback() {
                 <div className="w-20 h-20 bg-neutral-50 rounded-full flex items-center justify-center mb-4 border border-neutral-100">
                   <ShieldAlert className="w-8 h-8 text-neutral-300" />
                 </div>
-                <h3 className="text-lg font-bold text-neutral-900 mb-2">No claims found</h3>
+                <h3 className="font-bold text-neutral-900 mb-2">No claims found</h3>
                 <p className="text-neutral-500 mb-6 max-w-sm text-sm">
                   You haven't submitted any cashback claims yet. Make sure to claim your cashback after your return window expires!
                 </p>
@@ -416,7 +416,7 @@ export default function ClaimCashback() {
           <div className="flex min-h-full items-center justify-center p-4">
             <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 relative">
               <div className="shrink-0 flex items-center justify-between p-6 border-b border-neutral-100 bg-neutral-50/50">
-                <h4 className="text-lg font-bold text-neutral-900">Submit Cashback Claim</h4>
+                <h4 className="font-bold text-neutral-900">Submit Cashback Claim</h4>
                 <Button variant="none" size="none" onClick={() => setIsModalOpen(false)} className="p-2 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full transition-colors">
                   <X className="w-5 h-5" />
                 </Button>
@@ -539,6 +539,7 @@ export default function ClaimCashback() {
                       type="date"
                       value={orderDate}
                       onChange={(e) => setOrderDate(e.target.value)}
+                      max={new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
                       className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-black transition-all"
                       required
                     />
@@ -557,20 +558,50 @@ export default function ClaimCashback() {
                 </div>
 
                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mt-6">
-                  <h4 className="text-sm font-bold text-blue-900 mb-3">Upload Proofs (Required)</h4>
+                  <h4 className="font-bold text-blue-900 mb-3">Upload Proofs (Required)</h4>
 
                   <div className="space-y-4">
                     <div>
                       <label className="block text-xs font-bold text-blue-800 mb-1">1. Invoice / Order Summary</label>
-                      <input type="file" accept="image/*" onChange={(e) => setInvoiceScreenshot(e.target.files[0])} className="text-xs file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700" required />
+                      <input type="file" accept="image/*" onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file && file.size > 1024 * 1024) {
+                          setFormError('Invoice image must be less than 1MB.');
+                          e.target.value = '';
+                          setInvoiceScreenshot(null);
+                        } else {
+                          setFormError('');
+                          setInvoiceScreenshot(file);
+                        }
+                      }} className="text-xs file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700" required />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-blue-800 mb-1">2. Product Review Screenshot</label>
-                      <input type="file" accept="image/*" onChange={(e) => setReviewScreenshot(e.target.files[0])} className="text-xs file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700" required />
+                      <input type="file" accept="image/*" onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file && file.size > 1024 * 1024) {
+                          setFormError('Review screenshot must be less than 1MB.');
+                          e.target.value = '';
+                          setReviewScreenshot(null);
+                        } else {
+                          setFormError('');
+                          setReviewScreenshot(file);
+                        }
+                      }} className="text-xs file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700" required />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-blue-800 mb-1">3. Non-Return Proof (Window expired)</label>
-                      <input type="file" accept="image/*" onChange={(e) => setNoReturnScreenshot(e.target.files[0])} className="text-xs file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700" required />
+                      <input type="file" accept="image/*" onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file && file.size > 1024 * 1024) {
+                          setFormError('Non-return proof must be less than 1MB.');
+                          e.target.value = '';
+                          setNoReturnScreenshot(null);
+                        } else {
+                          setFormError('');
+                          setNoReturnScreenshot(file);
+                        }
+                      }} className="text-xs file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700" required />
                     </div>
                   </div>
                 </div>

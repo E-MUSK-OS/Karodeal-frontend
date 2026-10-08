@@ -12,7 +12,7 @@ export default async function StoresPage() {
     <div className="min-h-screen bg-white pb-20">
       {/* Simple & Elegant Hero Section */}
       <div className="pt-12 pb-10 sm:pt-16 sm:pb-14 mb-10 sm:mb-16 bg-white border-b border-neutral-200">
-        <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 text-center">
+        <div className="page-container text-center">
 
           <h2 className="text-black uppercase tracking-tighter mb-6 leading-none">
             Top Stores
@@ -25,7 +25,7 @@ export default async function StoresPage() {
       </div>
 
       {/* Grid Section */}
-      <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16">
+      <div className="page-container">
         <div className="flex items-center justify-between mb-10 sm:mb-14">
           <h3 className="text-black uppercase tracking-tight">All Partners <span className="text-sm lg:text-[15px] xl:text-base text-neutral-400 ml-2">({stores.length})</span></h3>
           <div className="h-px bg-neutral-200 flex-grow ml-8 hidden sm:block"></div>

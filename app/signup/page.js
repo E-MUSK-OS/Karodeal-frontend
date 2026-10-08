@@ -126,7 +126,7 @@ export default function Signup() {
         </div>
 
         <div>
-          <h2 className="text-2xl font-extrabold text-black tracking-tight leading-tight">
+          <h2 className="font-extrabold text-black tracking-tight leading-tight">
             {step === 1 ? 'Sign up' : 'Verify Email'}
           </h2>
           <p className="mt-1.5 text-sm text-neutral-500">

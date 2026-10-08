@@ -149,7 +149,7 @@ export default function AdminStoresPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="text-2xl font-extrabold text-neutral-900">Stores Management</h3>
+          <h3 className="font-extrabold text-neutral-900">Stores Management</h3>
           <p className="text-sm text-neutral-500">Manage stores</p>
         </div>
 
@@ -241,7 +241,7 @@ export default function AdminStoresPage() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-neutral-200">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="text-xl font-bold text-neutral-900">{editingStoreId ? 'Edit Store' : 'Add New Affiliate Store'}</h4>
+              <h4 className="font-bold text-neutral-900">{editingStoreId ? 'Edit Store' : 'Add New Affiliate Store'}</h4>
               <Button variant="none" size="none"
                 onClick={() => setIsModalOpen(false)}
                 className="p-1.5 text-neutral-400 hover:text-[#f96b02] hover:bg-neutral-100 rounded-full transition-colors"

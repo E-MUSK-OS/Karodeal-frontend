@@ -52,7 +52,7 @@ export default function ProductClicksPage() {
   return (
     <div className="bg-white rounded-xl sm:rounded-2xl border border-neutral-200 overflow-hidden shadow-sm">
       <div className="p-4 sm:p-6 border-b border-neutral-200">
-        <h2 className="text-lg sm:text-xl font-bold text-neutral-900">Product Click Analytics</h2>
+        <h2 className="font-bold text-neutral-900">Product Click Analytics</h2>
         <p className="text-xs sm:text-sm text-neutral-500 mt-1">See which users clicked on your deals</p>
       </div>
 

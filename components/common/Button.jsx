@@ -12,6 +12,7 @@ export default function Button({
   className = '',
   isLoading = false,
   disabled = false,
+  as = 'button',
   ...props
 }) {
   const isDisabled = disabled || isLoading;
@@ -56,9 +57,10 @@ export default function Button({
     );
   }
 
+  const Component = as;
   return (
-    <button className={classes} disabled={isDisabled} {...props}>
+    <Component className={classes} disabled={isDisabled} {...props}>
       {content}
-    </button>
+    </Component>
   );
 }

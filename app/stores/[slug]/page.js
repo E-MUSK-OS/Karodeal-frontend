@@ -27,7 +27,7 @@ export default async function StoreDetailsPage({ params }) {
   const storeProducts = products.filter(p => p.store === store.id);
 
   return (
-    <div className="py-8 md:py-12 lg:py-20 mb-10 md:mb-20 px-4 md:px-8 lg:px-12 overflow-hidden">
+    <div className="py-8 md:py-12 lg:py-20 mb-10 md:mb-20 page-container overflow-hidden">
       <div className="mb-6 md:mb-8">
         <Link 
           href="/stores" 

@@ -92,7 +92,7 @@ export default function AdminPayouts() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h3 className="text-2xl font-bold text-neutral-900">Payout Requests</h3>
+          <h3 className="font-bold text-neutral-900">Payout Requests</h3>
           <p className="text-sm text-neutral-500">Manage user withdrawal requests</p>
         </div>
         <div className="relative w-full sm:w-72">
@@ -189,7 +189,7 @@ export default function AdminPayouts() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col text-left">
-              <h4 className="text-xl font-extrabold text-neutral-900 mb-2">
+              <h4 className="font-extrabold text-neutral-900 mb-2">
                 Reject Payout
               </h4>
               <p className="text-sm text-neutral-500 mb-4 font-medium">

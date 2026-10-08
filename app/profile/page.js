@@ -225,7 +225,7 @@ export default function ProfileAccountSettings() {
             </Button>
 
             <div className="mb-6">
-              <h2 className="text-xl font-bold text-neutral-900 flex items-center gap-2">
+              <h2 className="font-bold text-neutral-900 flex items-center gap-2">
                 <User className="w-5 h-5 text-neutral-700" />
                 Account Settings
               </h2>
@@ -333,7 +333,7 @@ export default function ProfileAccountSettings() {
       {/* DESKTOP MEDIA VIEW (Account Settings Form) */}
       <div className="hidden md:block bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-neutral-200">
         <div className="mb-6">
-          <h4 className="text-xl font-bold text-neutral-900 flex items-center gap-2">
+          <h4 className="font-bold text-neutral-900 flex items-center gap-2">
             <User className="w-5 h-5 text-neutral-700" />
             Account Settings
           </h4>

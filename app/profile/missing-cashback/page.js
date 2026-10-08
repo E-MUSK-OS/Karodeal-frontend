@@ -296,7 +296,7 @@ export default function MissingCashback() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-neutral-100 pb-6">
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <h2 className="text-2xl font-black text-neutral-900">{viewingTicket.storeName}</h2>
+                  <h2 className="font-black text-neutral-900">{viewingTicket.storeName}</h2>
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide ${viewingTicket.status === 'RESOLVED' ? 'bg-green-100 text-green-700' :
                     viewingTicket.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
                       'bg-amber-100 text-amber-700'
@@ -323,7 +323,7 @@ export default function MissingCashback() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
               <div>
-                <h5 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">Order Details</h5>
+                <h5 className="font-bold text-neutral-400 uppercase tracking-wider mb-4">Order Details</h5>
                 <div className="space-y-4">
                   <div>
                     <p className="text-xs text-neutral-500 mb-1">Order Amount</p>
@@ -341,7 +341,7 @@ export default function MissingCashback() {
               </div>
 
               <div className="flex flex-col h-[400px]">
-                <h5 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4 shrink-0">Conversation History</h5>
+                <h5 className="font-bold text-neutral-400 uppercase tracking-wider mb-4 shrink-0">Conversation History</h5>
                 <div className="flex-1 overflow-y-auto pr-2 space-y-4 mb-4">
                   {viewingTicket.userNote && (
                     <div className="bg-neutral-50 rounded-xl p-3 border border-neutral-100 mr-8">
@@ -435,7 +435,7 @@ export default function MissingCashback() {
                 <div className="p-2 bg-orange-50 text-[#f96b02] rounded-xl">
                   <ShieldAlert className="w-6 h-6" />
                 </div>
-                <h5 className="text-2xl font-extrabold text-neutral-900 tracking-tight">Missing Cashback</h5>
+                <h5 className="font-extrabold text-neutral-900 tracking-tight">Missing Cashback</h5>
               </div>
               <p className="text-neutral-500 text-sm max-w-lg">
                 Did you shop but the cashback hasn&apos;t tracked after 72 hours? Raise a ticket and our team will investigate it with the store.
@@ -456,7 +456,7 @@ export default function MissingCashback() {
               <InfoIcon />
             </div>
             <div>
-              <h5 className="text-amber-900 font-bold text-sm sm:text-base mb-1">Important Rules for Missing Cashback</h5>
+              <h5 className="text-amber-900 font-bold mb-1">Important Rules for Missing Cashback</h5>
               <ul className="text-amber-800/80 text-xs sm:text-sm leading-relaxed list-disc list-inside space-y-1">
                 <li>Wait for at least <strong>72 hours</strong> after your purchase before raising a ticket.</li>
                 <li>Tickets must be raised within <strong>7 days</strong> of the transaction date.</li>
@@ -542,7 +542,7 @@ export default function MissingCashback() {
                 <div className="w-20 h-20 bg-neutral-50 rounded-full flex items-center justify-center mb-4 border border-neutral-100">
                   <ShieldAlert className="w-8 h-8 text-neutral-300" />
                 </div>
-                <h3 className="text-lg font-bold text-neutral-900 mb-2">No tickets found</h3>
+                <h3 className="font-bold text-neutral-900 mb-2">No tickets found</h3>
                 <p className="text-neutral-500 mb-6 max-w-sm text-sm">
                   You haven&apos;t raised any missing cashback claims yet, or your search didn&apos;t match any.
                 </p>
@@ -558,7 +558,7 @@ export default function MissingCashback() {
           <div className="flex min-h-full items-center justify-center p-4">
             <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 relative">
               <div className="shrink-0 flex items-center justify-between p-6 border-b border-neutral-100 bg-neutral-50/50">
-                <h4 className="text-lg font-bold text-neutral-900">{editingTicketId ? 'Edit Ticket' : 'Raise Missing Cashback Ticket'}</h4>
+                <h4 className="font-bold text-neutral-900">{editingTicketId ? 'Edit Ticket' : 'Raise Missing Cashback Ticket'}</h4>
                 <Button variant="none" size="none"
                   onClick={() => setIsModalOpen(false)}
                   className="p-2 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full transition-colors"

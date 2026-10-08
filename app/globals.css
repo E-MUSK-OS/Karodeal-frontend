@@ -15,61 +15,63 @@
   --font-secondary: var(--font-secondary);
 }
 
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-secondary);
-  font-weight: 500;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  max-width: 1920px;
-  margin-inline: auto;
-}
+@layer base {
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-secondary);
+    font-weight: 500;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    max-width: 1920px;
+    margin-inline: auto;
+  }
 
-p {
-  font-weight: 500;
-}
+  p {
+    font-weight: 500;
+  }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-primary);
-  font-weight: 800;
-  @apply text-[13px] lg:text-[15px] xl:text-base;
-}
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-primary);
+    font-weight: 800;
+    @apply text-[13px] lg:text-[15px] xl:text-base;
+  }
 
-button,
-.btn {
-  font-family: var(--font-primary);
-  font-weight: 800;
-  @apply text-[14px];
-}
+  button,
+  .btn {
+    font-family: var(--font-primary);
+    font-weight: 800;
+    @apply text-[13px] sm:text-[14px];
+  }
 
-h1 {
-  @apply text-3xl sm:text-4xl md:text-5xl lg:text-7xl;
-}
+  h1 {
+    @apply text-3xl sm:text-4xl md:text-5xl lg:text-7xl;
+  }
 
-h2 {
-  @apply text-2xl sm:text-3xl lg:text-4xl;
-}
+  h2 {
+    @apply text-2xl sm:text-3xl lg:text-4xl;
+  }
 
-h3 {
-  @apply text-xl sm:text-3xl;
-}
+  h3 {
+    @apply text-xl sm:text-3xl;
+  }
 
-h4 {
-  @apply text-base sm:text-xl lg:text-2xl;
-}
+  h4 {
+    @apply text-base sm:text-xl lg:text-2xl;
+  }
 
-h5 {
-  @apply text-sm sm:text-lg lg:text-xl;
-}
+  h5 {
+    @apply text-sm sm:text-lg lg:text-xl;
+  }
 
-h6 {
-  @apply text-xs sm:text-base lg:text-lg;
+  h6 {
+    @apply text-xs sm:text-base lg:text-lg;
+  }
 }
 
 /* Custom Scrollbar */
@@ -96,6 +98,10 @@ h6 {
 .max-w-8xl {
   max-width: 90rem;
   /* 1440px */
+}
+
+.page-container {
+  @apply px-4  md:px-6 2xl:px-12 max-w-[1990px] mx-auto w-full;
 }
 
 /* Hide scrollbar for elements with this class */

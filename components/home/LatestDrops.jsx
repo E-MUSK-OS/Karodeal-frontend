@@ -29,7 +29,7 @@ export default function LatestDrops() {
     <section className="mb-10 md:mb-20">
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 md:mb-12 border-b border-black pb-4">
         <div>
-          <h2 className="text-3xl md:text-5xl font-black text-black uppercase tracking-tighter">Latest Drops</h2>
+          <h2 className="font-black text-black uppercase tracking-tighter">Latest Drops</h2>
         </div>
 
         <div className="mt-6 md:mt-0">

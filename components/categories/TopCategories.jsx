@@ -44,7 +44,7 @@ export default function TopCategories({ categories }) {
     <section className="mb-6 md:mb-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end md:mb-6 gap-4">
         <div>
-          <h2 className="text-xl md:text-3xl font-black text-black uppercase tracking-tighter">Shop by Category</h2>
+          <h2 className="font-black text-black uppercase tracking-tighter">Shop by Category</h2>
         </div>
         <div className="hidden sm:block">
           <Button href="/categories" variant="outline">

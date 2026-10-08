@@ -19,7 +19,7 @@ export default function StoreDealsSection({ store, deals }) {
   return (
     <section className="mb-2 md:mb-12">
       <div className="flex justify-between items-end mb-2 md:mb-6">
-        <h2 className="text-xl md:text-2xl font-black text-black uppercase tracking-tight">
+        <h2 className="font-black text-black uppercase tracking-tight">
           {title}
         </h2>
         <Button href={`/stores/${store.id}`} variant="outline">
@@ -35,7 +35,7 @@ export default function StoreDealsSection({ store, deals }) {
         }}
       >
         {deals.slice(0, 8).map(deal => (
-          <div key={deal.id} className="shrink-0 snap-start">
+          <div key={deal.id} className="shrink-0 snap-start h-full flex">
             <StoreOfferCard product={deal} store={store} />
           </div>
         ))}

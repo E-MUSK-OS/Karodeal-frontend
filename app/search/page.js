@@ -74,7 +74,7 @@ function SearchContent() {
   return (
     <div className="py-8 md:py-12 mb-10 px-4">
       <div className="max-w-3xl mx-auto text-center mb-12">
-        <h1 className="text-3xl md:text-5xl font-black text-black uppercase tracking-tighter mb-8">Search</h1>
+        <h1 className="font-black text-black uppercase tracking-tighter mb-8">Search</h1>
 
         <form onSubmit={handleSearch} className="relative w-full">
           <input
@@ -96,7 +96,7 @@ function SearchContent() {
       {hasSearched && (
         <section>
           <div className="flex justify-between items-end mb-8 border-b border-black pb-3">
-            <h2 className="text-xl md:text-3xl font-black text-black uppercase tracking-tighter">
+            <h2 className="font-black text-black uppercase tracking-tighter">
               Results
             </h2>
             <span className="text-neutral-500 text-xs font-bold uppercase tracking-widest">{results.length} found</span>

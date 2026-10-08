@@ -4,7 +4,7 @@ export default function TheProcess() {
   return (
     <section className="mb-8 sm:mb-12 md:mb-20 border border-black p-6 sm:p-8 lg:p-12">
       <div className="text-center mb-6 sm:mb-10 md:mb-12">
-        <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-black uppercase tracking-tighter">
+        <h2 className="font-black text-black uppercase tracking-tighter">
           The Process
         </h2>
       </div>
@@ -15,7 +15,7 @@ export default function TheProcess() {
           <h4 className="text-black uppercase tracking-widest mb-3 sm:mb-4">Discover</h4>
           <p className="text-sm lg:text-[15px] xl:text-base text-neutral-500  font-medium max-w-xs">Curated deals updated daily.</p>
         </div>
-        <div className="flex flex-col items-center py-8 md:py-0 md:px-4 lg:px-8">
+        <div className="flex flex-col items-center py-8 md:py-0 md:page-container">
           <span className="text-4xl sm:text-5xl md:text-6xl font-black text-neutral-200 mb-4 sm:mb-6">02</span>
           <h4 className="text-black uppercase tracking-widest mb-3 sm:mb-4">Compare</h4>
           <p className="text-sm lg:text-[15px] xl:text-base text-neutral-500  font-medium max-w-xs">Evaluate prices instantly.</p>

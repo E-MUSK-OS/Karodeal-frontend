@@ -82,7 +82,7 @@ export default function DealsPage() {
   };
 
   return (
-    <div className="px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-8 sm:py-12 md:py-20 mb-12 md:mb-20 max-w-[1920px] mx-auto">
+    <div className="page-container py-8 sm:py-12 md:py-20 mb-12 md:mb-20">
       <div className="w-full text-center mb-10 sm:mb-16 border-b border-neutral-200 pb-10 sm:pb-14">
         <h2 className="text-black uppercase tracking-tighter mb-6 leading-none">All Deals</h2>
         <p className="text-sm lg:text-[15px] xl:text-base text-neutral-500 font-medium max-w-2xl mx-auto leading-relaxed">Explore best offers from top platforms</p>

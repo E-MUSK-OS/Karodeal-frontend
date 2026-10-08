@@ -26,7 +26,7 @@ export default function DealGrid({ deals, cardType = 'deal', mobileGrid = false 
       )}
 
       {/* Grid View */}
-      <div className={`${mobileGrid ? 'grid grid-cols-1' : 'hidden sm:grid'} sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center`}>
+      <div className={`${mobileGrid ? 'grid grid-cols-1' : 'hidden sm:grid'} sm:grid-cols-2 xl:grid-cols-3 gap-6 justify-items-center`}>
         {deals.map(deal => (
           <StoreOfferCard key={deal.id} deal={deal} fullWidth={true} />
         ))}

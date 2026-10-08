@@ -64,7 +64,7 @@ export default function Login() {
         </div>
 
         <div>
-          <h2 className="text-2xl font-extrabold text-black tracking-tight leading-tight">
+          <h2 className="font-extrabold text-black tracking-tight leading-tight">
             Login
           </h2>
           <p className="mt-1.5 text-sm text-neutral-500">

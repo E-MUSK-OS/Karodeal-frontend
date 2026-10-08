@@ -67,7 +67,7 @@ export default function AdminLoginPage() {
         {/* Header Branding */}
         <div className="flex flex-col items-center text-center mb-8">
           <img src="/images/logo.png" alt="KaroDeal Admin Logo" className="h-20 lg:h-24 w-auto object-contain mb-4" />
-          <h4 className="text-2xl font-extrabold text-neutral-900 tracking-tight">Admin Portal</h4>
+          <h4 className="font-extrabold text-neutral-900 tracking-tight">Admin Portal</h4>
           <p className="text-sm text-neutral-500 mt-1">Sign in with administrator credentials</p>
         </div>
 

@@ -185,7 +185,7 @@ export default function AdminClaims() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-neutral-100 pb-6">
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <h2 className="text-2xl font-black text-neutral-900">Review Claim: {viewingClaim.user?.name}</h2>
+                  <h2 className="font-black text-neutral-900">Review Claim: {viewingClaim.user?.name}</h2>
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide ${viewingClaim.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
                     viewingClaim.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
                       'bg-amber-100 text-amber-700'
@@ -201,7 +201,7 @@ export default function AdminClaims() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
               <div>
-                <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">Order Details</h3>
+                <h3 className="font-bold text-neutral-400 uppercase tracking-wider mb-4">Order Details</h3>
                 <div className="space-y-4">
                   <div>
                     <p className="text-xs text-neutral-500 mb-1">Store / Product</p>
@@ -227,7 +227,7 @@ export default function AdminClaims() {
 
               {viewingClaim.product && (
                 <div>
-                  <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">Product Info</h3>
+                  <h3 className="font-bold text-neutral-400 uppercase tracking-wider mb-4">Product Info</h3>
                   <div className="bg-neutral-50 rounded-2xl p-4 border border-neutral-200">
                     <img src={viewingClaim.product.image} alt={viewingClaim.product.title} className="w-full h-32 object-contain bg-white rounded-xl mb-4 border border-neutral-100" />
                     <p className="font-bold text-sm text-neutral-900 line-clamp-2 mb-3">{viewingClaim.product.title}</p>
@@ -260,7 +260,7 @@ export default function AdminClaims() {
               )}
 
               <div className={!viewingClaim.product ? "md:col-span-1 lg:col-span-2" : ""}>
-                <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">Take Action</h3>
+                <h3 className="font-bold text-neutral-400 uppercase tracking-wider mb-4">Take Action</h3>
                 {viewingClaim.status === 'PENDING' ? (
                   <div className="bg-blue-50 p-6 rounded-2xl border border-blue-200 space-y-4">
                     <div>
@@ -307,7 +307,7 @@ export default function AdminClaims() {
                   </div>
                 ) : (
                   <div className={`p-6 rounded-2xl border ${viewingClaim.status === 'APPROVED' ? 'bg-green-50 border-green-200 text-green-900' : 'bg-red-50 border-red-200 text-red-900'}`}>
-                    <h3 className="text-lg font-black mb-2">Claim {viewingClaim.status}</h3>
+                    <h3 className="font-black mb-2">Claim {viewingClaim.status}</h3>
                     {viewingClaim.status === 'APPROVED' && (
                       <div className="mb-4">
                         <p className="text-sm lg:text-[15px] xl:text-base font-medium mb-3">Cashback Awarded: <span className="font-black text-xl">₹{viewingClaim.awardedCashback}</span></p>
@@ -336,7 +336,7 @@ export default function AdminClaims() {
             </div>
 
             <div>
-              <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">Submitted Proofs</h3>
+              <h3 className="font-bold text-neutral-400 uppercase tracking-wider mb-4">Submitted Proofs</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-neutral-700 mb-3">1. Invoice / Receipt</span>
@@ -363,7 +363,7 @@ export default function AdminClaims() {
       ) : (
         <>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <h3 className="text-2xl font-bold text-neutral-900">Manage Cashback Claims</h3>
+            <h3 className="font-bold text-neutral-900">Manage Cashback Claims</h3>
             <div className="flex bg-neutral-100 p-1 rounded-lg overflow-x-auto whitespace-nowrap hide-scrollbar max-w-full">
               {['ALL', 'PENDING', 'APPROVED', 'REJECTED'].map(status => (
                 <Button variant="none" size="none"

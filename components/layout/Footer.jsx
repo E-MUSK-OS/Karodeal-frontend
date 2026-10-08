@@ -9,7 +9,7 @@ export default function Footer() {
     return null;
   }
   return (
-    <footer className="bg-white text-black pt-10 md:pt-24 pb-8 md:pb-12 border-t border-neutral-200 mt-10 md:mt-24 px-4 lg:px-9">
+    <footer className="bg-white text-black pt-10 md:pt-24 pb-8 md:pb-12 border-t border-neutral-200 mt-10 md:mt-24 page-container">
       <div className="">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-12 mb-10 md:mb-20">
 
@@ -22,7 +22,7 @@ export default function Footer() {
               Discover. Save. Shop Smart. The definitive source for verified discounts and offers across the internet's best platforms.
             </p>
             <div className="flex space-x-6">
-              <a href="#" className="text-sm lg:text-[15px] xl:text-base font-bold uppercase tracking-widest text-neutral-400 hover:text-[#f96b02] transition-colors">Instagram</a>
+              <a href="https://www.instagram.com/karodeal_/" target='_blank' className="text-sm lg:text-[15px] xl:text-base font-bold uppercase tracking-widest text-neutral-400 hover:text-[#f96b02] transition-colors">Instagram</a>
               <a href="#" className="text-sm lg:text-[15px] xl:text-base font-bold uppercase tracking-widest text-neutral-400 hover:text-[#f96b02] transition-colors">Facebook</a>
               <a href="#" className="text-sm lg:text-[15px] xl:text-base font-bold uppercase tracking-widest text-neutral-400 hover:text-[#f96b02] transition-colors">X</a>
             </div>

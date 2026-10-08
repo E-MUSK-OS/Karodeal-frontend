@@ -6,7 +6,7 @@ export default function Hero() {
     <section className="bg-white border-b border-neutral-200">
       <div className="pt-10 pb-10 sm:pt-16 sm:pb-16 md:pt-20 md:pb-24 lg:pt-24 lg:pb-28">
         <div className="max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-black uppercase tracking-tighter mb-2 sm:mb-6 md:mb-8 leading-[1.1] sm:leading-[1] md:leading-[0.95]">
+          <h1 className="font-black text-black uppercase tracking-tighter mb-2 sm:mb-6 md:mb-8 leading-[1.1] sm:leading-[1] md:leading-[0.95]">
             The Best Deals. <br />
             <span className="text-neutral-400">Zero Clutter.</span>
           </h1>

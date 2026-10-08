@@ -82,7 +82,7 @@ export default function Header() {
 
   return (
     <header
-      className={`sticky px-4 lg:px-9 top-0 z-50 w-full bg-white border-b border-neutral-200 transition-all duration-300 ${isScrolled ? 'shadow-md' : ''
+      className={`sticky page-container top-0 z-50 w-full bg-white border-b border-neutral-200 transition-all duration-300 ${isScrolled ? 'shadow-md' : ''
         }`}
     >
       <div className="">

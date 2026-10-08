@@ -15,7 +15,7 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
             <AlertTriangle className="w-8 h-8" />
           </div>
           
-          <h4 className="text-xl font-extrabold text-neutral-900 mb-2">
+          <h4 className="font-extrabold text-neutral-900 mb-2">
             {title}
           </h4>
           

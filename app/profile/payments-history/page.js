@@ -63,7 +63,7 @@ export default function TransactionHistory() {
           <History className="w-6 h-6" />
         </div>
         <div>
-          <h5 className="text-2xl font-extrabold text-neutral-900 tracking-tight">Transaction History</h5>
+          <h5 className="font-extrabold text-neutral-900 tracking-tight">Transaction History</h5>
           <p className="text-neutral-500 text-sm">Track your cashback earnings and withdrawal requests.</p>
         </div>
       </div>
@@ -136,7 +136,7 @@ export default function TransactionHistory() {
           <div className="w-20 h-20 bg-neutral-50 rounded-full flex items-center justify-center mb-4 border border-neutral-100">
             <History className="w-8 h-8 text-neutral-400" />
           </div>
-          <h3 className="text-lg font-bold text-neutral-900 mb-2">No transactions yet</h3>
+          <h3 className="font-bold text-neutral-900 mb-2">No transactions yet</h3>
           <p className="text-neutral-500 mb-6 max-w-sm text-sm">
             Your cashback earnings and withdrawals will appear here.
           </p>

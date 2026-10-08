@@ -4,9 +4,9 @@ export const metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-8 lg:px-16 pt-12 md:pt-24 pb-24">
+    <div className="page-container pt-12 md:pt-24 pb-24">
       <div className="border-b border-black pb-6 md:pb-8 mb-8 md:mb-12">
-        <h3 className="text-4xl md:text-6xl font-black text-black uppercase tracking-tighter mb-4">Privacy Policy</h3>
+        <h3 className="font-black text-black uppercase tracking-tighter mb-4">Privacy Policy</h3>
         <p className="text-neutral-500 font-bold tracking-widest uppercase text-[10px] md:text-xs">Last updated: October 7, 2026</p>
       </div>
 
@@ -16,7 +16,7 @@ export default function PrivacyPolicyPage() {
         </p>
 
         <div>
-          <h4 className="text-xl md:text-2xl font-black text-black uppercase tracking-tighter mb-4 md:mb-6">1. Information We Collect</h4>
+          <h4 className="font-black text-black uppercase tracking-tighter mb-4 md:mb-6">1. Information We Collect</h4>
           <p className="mb-4">To provide you with our cashback services, we collect the following types of information:</p>
           <ul className="list-disc pl-6 space-y-2">
             <li><strong>Personal Information:</strong> Name, email address, and profile details provided during registration.</li>
@@ -27,7 +27,7 @@ export default function PrivacyPolicyPage() {
         </div>
 
         <div>
-          <h4 className="text-xl md:text-2xl font-black text-black uppercase tracking-tighter mb-4 md:mb-6">2. How We Use Your Information</h4>
+          <h4 className="font-black text-black uppercase tracking-tighter mb-4 md:mb-6">2. How We Use Your Information</h4>
           <p className="mb-4">The data we collect is primarily used to ensure a smooth cashback experience. Specifically, we use it to:</p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Verify your purchases and product reviews to approve or reject cashback claims.</li>
@@ -39,7 +39,7 @@ export default function PrivacyPolicyPage() {
         </div>
 
         <div>
-          <h4 className="text-xl md:text-2xl font-black text-black uppercase tracking-tighter mb-4 md:mb-6">3. Tracking Technologies and Cookies</h4>
+          <h4 className="font-black text-black uppercase tracking-tighter mb-4 md:mb-6">3. Tracking Technologies and Cookies</h4>
           <p>
             As a cashback platform, tracking cookies are essential to our service. When you click on a deal link on KaroDeal, we use affiliate cookies to track your outward journey to the partner retailer (e.g., Amazon, Flipkart). 
             This allows the retailer to identify that you came from KaroDeal, which is mandatory for your cashback to be tracked successfully. By using our service, you consent to the use of these tracking technologies.
@@ -47,7 +47,7 @@ export default function PrivacyPolicyPage() {
         </div>
 
         <div>
-          <h4 className="text-xl md:text-2xl font-black text-black uppercase tracking-tighter mb-4 md:mb-6">4. Data Sharing & Security</h4>
+          <h4 className="font-black text-black uppercase tracking-tighter mb-4 md:mb-6">4. Data Sharing & Security</h4>
           <p>
             We <strong>do not sell</strong> your personal information to third parties. We may share basic tracking IDs with our affiliate partners solely for the purpose of validating your purchases. 
             The screenshots (invoices, reviews) and payment details you upload are stored securely and are only accessible by our admin team for verification and payout processing.
@@ -55,14 +55,14 @@ export default function PrivacyPolicyPage() {
         </div>
 
         <div>
-          <h4 className="text-xl md:text-2xl font-black text-black uppercase tracking-tighter mb-4 md:mb-6">5. Data Retention</h4>
+          <h4 className="font-black text-black uppercase tracking-tighter mb-4 md:mb-6">5. Data Retention</h4>
           <p>
             We retain your personal information, claim proofs, and payment details for as long as your account remains active or as needed to provide you services, comply with legal obligations, resolve disputes, and enforce our agreements.
           </p>
         </div>
 
         <div>
-          <h4 className="text-xl md:text-2xl font-black text-black uppercase tracking-tighter mb-4 md:mb-6">6. Contact Us</h4>
+          <h4 className="font-black text-black uppercase tracking-tighter mb-4 md:mb-6">6. Contact Us</h4>
           <p>
             If you have any questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact our support team by email at: <strong>support@karodeal.in</strong>
           </p>

@@ -181,7 +181,7 @@ export default function AdminMissingCashback() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h3 className="text-2xl font-bold text-neutral-900 tracking-tight">Missing Cashback Claims</h3>
+          <h3 className="font-bold text-neutral-900 tracking-tight">Missing Cashback Claims</h3>
           <p className="text-sm text-neutral-500 mt-1">Manage and resolve user cashback tickets</p>
         </div>
 
@@ -210,7 +210,7 @@ export default function AdminMissingCashback() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-neutral-100 pb-6">
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <h2 className="text-2xl font-black text-neutral-900">{selectedTicket.storeName}</h2>
+                  <h2 className="font-black text-neutral-900">{selectedTicket.storeName}</h2>
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase ${selectedTicket.status === 'RESOLVED' ? 'bg-green-100 text-green-700' :
                     selectedTicket.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
                       'bg-amber-100 text-amber-700'
@@ -234,7 +234,7 @@ export default function AdminMissingCashback() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="space-y-8">
                 <div>
-                  <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">Order Details</h3>
+                  <h3 className="font-bold text-neutral-400 uppercase tracking-wider mb-4">Order Details</h3>
                   <div className="bg-neutral-50 rounded-2xl p-5 border border-neutral-100 space-y-4">
                     <div>
                       <p className="text-xs text-neutral-500 mb-1">Order Amount</p>
@@ -252,7 +252,7 @@ export default function AdminMissingCashback() {
                 </div>
 
                 <div className="flex flex-col h-[400px]">
-                  <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4 shrink-0">Conversation History</h3>
+                  <h3 className="font-bold text-neutral-400 uppercase tracking-wider mb-4 shrink-0">Conversation History</h3>
                   <div className="flex-1 overflow-y-auto pr-2 space-y-4 mb-4">
                     {selectedTicket.userNote && (
                       <div className="bg-neutral-50 rounded-xl p-3 border border-neutral-100 mr-8 text-left">
@@ -329,7 +329,7 @@ export default function AdminMissingCashback() {
               </div>
 
               <div>
-                <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-4">Manage & Update</h3>
+                <h3 className="font-bold text-neutral-400 uppercase tracking-wider mb-4">Manage & Update</h3>
                 <form onSubmit={handleUpdate} className="bg-white rounded-2xl p-6 border border-neutral-200 shadow-sm space-y-5">
                   <div>
                     <label className="block text-xs font-bold text-neutral-700 mb-2">Update Status</label>
@@ -439,7 +439,7 @@ export default function AdminMissingCashback() {
           ) : (
             <div className="p-12 text-center flex flex-col items-center">
               <ShieldAlert className="w-12 h-12 text-neutral-300 mb-3" />
-              <h3 className="text-lg font-bold text-neutral-900 mb-1">No claims found</h3>
+              <h3 className="font-bold text-neutral-900 mb-1">No claims found</h3>
               <p className="text-sm text-neutral-500">There are no missing cashback tickets matching your criteria.</p>
             </div>
           )}

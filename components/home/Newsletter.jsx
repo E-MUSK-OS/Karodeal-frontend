@@ -19,7 +19,7 @@ export default function Newsletter() {
   return (
     <section className="bg-black p-8 sm:p-12 md:p-16 text-center">
       <div className="max-w-2xl mx-auto">
-        <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter mb-2 sm:mb-6">
+        <h2 className="font-black text-white uppercase tracking-tighter mb-2 sm:mb-6">
           Never Miss a Deal
         </h2>
         <p className="text-sm lg:text-[15px] xl:text-base text-neutral-400  mb-12 font-medium tracking-wide">

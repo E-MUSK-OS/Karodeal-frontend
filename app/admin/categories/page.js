@@ -197,14 +197,14 @@ export default function AdminCategoriesPage() {
   return (
     <div className="space-y-6 relative">
       <div>
-        <h3 className="text-2xl font-extrabold text-neutral-900">Categories Management</h3>
+        <h3 className="font-extrabold text-neutral-900">Categories Management</h3>
         <p className="text-sm text-neutral-500">Organize site categories and store classifications</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Add Form */}
         <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm h-max">
-          <h4 className="text-lg font-bold text-neutral-900 mb-4">Add New Category</h4>
+          <h4 className="font-bold text-neutral-900 mb-4">Add New Category</h4>
           <form onSubmit={handleAddCategory} className="space-y-4">
             <div>
               <label className="block text-xs font-bold uppercase text-neutral-700 mb-1">Category Name</label>
@@ -248,7 +248,7 @@ export default function AdminCategoriesPage() {
 
         {/* List */}
         <div className="lg:col-span-2 bg-white rounded-2xl border border-neutral-200 shadow-sm p-6">
-          <h4 className="text-lg font-bold text-neutral-900 mb-4">Active Categories</h4>
+          <h4 className="font-bold text-neutral-900 mb-4">Active Categories</h4>
           <div className="divide-y divide-neutral-100">
             {loading ? (
               <div className="py-4">
@@ -305,7 +305,7 @@ export default function AdminCategoriesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
-              <h4 className="text-lg font-bold text-neutral-900">Edit Category</h4>
+              <h4 className="font-bold text-neutral-900">Edit Category</h4>
               <Button variant="none" size="none"
                 onClick={cancelEditing}
                 className="text-neutral-400 hover:text-[#f96b02] transition-colors bg-neutral-100 hover:bg-neutral-200 p-1.5 rounded-lg"

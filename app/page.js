@@ -67,7 +67,7 @@ export default async function Home() {
   console.log('Live Backend Status:', backendStatus.message);
 
   return (
-    <div className="flex flex-col px-4 lg:px-8 ">
+    <div className="flex flex-col page-container ">
       <Hero />
 
       <div className="w-full mt-8 sm:mt-12">

@@ -114,7 +114,7 @@ export default function AdminDashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">Overview</span>
-          <h3 className="text-2xl font-extrabold text-neutral-900 mt-0.5">Admin Dashboard</h3>
+          <h3 className="font-extrabold text-neutral-900 mt-0.5">Admin Dashboard</h3>
           <p className="text-sm text-neutral-500">Welcome to the KaroDeal Admin Portal.</p>
         </div>
       </div>
@@ -181,7 +181,7 @@ export default function AdminDashboardPage() {
         <div className="lg:col-span-2 bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h4 className="text-lg font-bold text-neutral-900">Recent User Registrations</h4>
+              <h4 className="font-bold text-neutral-900">Recent User Registrations</h4>
               <p className="text-xs text-neutral-500">Newly registered shoppers on karodeal</p>
             </div>
             <Link
@@ -226,7 +226,7 @@ export default function AdminDashboardPage() {
         {/* Quick Management Panel */}
         <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm flex flex-col justify-between">
           <div>
-            <h4 className="text-lg font-bold text-neutral-900 mb-1">Quick Admin Actions</h4>
+            <h4 className="font-bold text-neutral-900 mb-1">Quick Admin Actions</h4>
             <p className="text-xs text-neutral-500 mb-6">Shortcuts to manage site content</p>
 
             <div className="space-y-3">

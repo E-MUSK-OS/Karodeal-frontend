@@ -25,7 +25,7 @@ export default function AdminProductsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 25;
-  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', confirmText: '', onConfirm: () => {}, isDestructive: true });
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', confirmText: '', onConfirm: () => { }, isDestructive: true });
 
   const [openDropdown, setOpenDropdown] = useState(null);
 
@@ -58,7 +58,7 @@ export default function AdminProductsPage() {
     try {
       const adminUserStr = localStorage.getItem('adminUser');
       const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
-      
+
       let productsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/admin`, { headers: { 'Authorization': `Bearer ${token}` } });
       if (productsRes.status === 404) {
         // Fallback for when backend is not yet updated on Vercel
@@ -280,7 +280,7 @@ export default function AdminProductsPage() {
   const handleToggleActive = async (product) => {
     // Optimistic UI update
     setProducts(prev => prev.map(p => p.id === product.id ? { ...p, isActive: !p.isActive } : p));
-    
+
     try {
       const adminUserStr = localStorage.getItem('adminUser');
       const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
@@ -400,7 +400,7 @@ export default function AdminProductsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="text-2xl font-extrabold text-neutral-900">Product & Deal Cards</h3>
+          <h3 className="font-extrabold text-neutral-900">Product & Deal Cards</h3>
           <p className="text-sm text-neutral-500">
             Manage product cards shown across the website dynamically from the database.
           </p>
@@ -612,8 +612,8 @@ export default function AdminProductsPage() {
                       key={pageNum}
                       onClick={() => setCurrentPage(pageNum)}
                       className={`w-7 h-7 flex items-center justify-center text-xs font-bold rounded-lg transition-colors ${currentPage === pageNum
-                          ? 'bg-black text-white'
-                          : 'bg-neutral-50 text-neutral-600 hover:bg-neutral-200'
+                        ? 'bg-black text-white'
+                        : 'bg-neutral-50 text-neutral-600 hover:bg-neutral-200'
                         }`}
                     >
                       {pageNum}
@@ -637,11 +637,11 @@ export default function AdminProductsPage() {
       {/* Edit Product Modal */}
       {editingProduct && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-5xl w-full shadow-2xl border border-neutral-200 max-h-[90vh] overflow-y-auto my-8">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-[1200px] w-full shadow-2xl border border-neutral-200 max-h-[90vh] overflow-y-auto my-8">
             <div className="flex flex-col lg:flex-row gap-8">
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-100">
-                  <h4 className="text-xl font-bold text-neutral-900 flex items-center gap-2">
+                  <h4 className="font-bold text-neutral-900 flex items-center gap-2">
                     <Edit3 className="w-5 h-5 text-neutral-700" />
                     Edit Card Details
                   </h4>
@@ -654,254 +654,254 @@ export default function AdminProductsPage() {
                 </div>
 
                 <form onSubmit={handleSaveEdit} className="space-y-4">
-                <div className="flex gap-2 p-1 bg-neutral-100 rounded-xl mb-4 w-fit">
-                  <button type="button" onClick={() => setFormData({...formData, cardType: 'builder'})} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType !== 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-[#f96b02]'}`}>Card Builder</button>
-                  <button type="button" onClick={() => setFormData({...formData, cardType: 'custom'})} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType === 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-[#f96b02]'}`}>Custom Upload</button>
-                </div>
-
-              {formData.cardType !== 'custom' && (
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                    Product Card Title
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-4 py-3 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-semibold"
-                    required={formData.cardType !== 'custom'}
-                  />
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                    Store
-                  </label>
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <CustomSelect
-                      value={formData.store}
-                      onChange={(val) => setFormData({ ...formData, store: val })}
-                      options={dbStores}
-                      placeholder="Select Store"
-                      dropdownKey="edit-store"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                    Category
-                  </label>
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <CustomSelect
-                      value={formData.category}
-                      onChange={(val) => setFormData({ ...formData, category: val })}
-                      options={dbCategories}
-                      placeholder="Select Category"
-                      dropdownKey="edit-category"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {formData.cardType !== 'custom' && (
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                      Sale Price (₹)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.salePrice}
-                      onChange={(e) => setFormData({ ...formData, salePrice: e.target.value })}
-                      className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold"
-                      required={formData.cardType !== 'custom'}
-                    />
+                  <div className="flex gap-2 p-1 bg-neutral-100 rounded-xl mb-4 w-fit">
+                    <button type="button" onClick={() => setFormData({ ...formData, cardType: 'builder' })} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType !== 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-[#f96b02]'}`}>Card Builder</button>
+                    <button type="button" onClick={() => setFormData({ ...formData, cardType: 'custom' })} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType === 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-[#f96b02]'}`}>Custom Upload</button>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                      Orig. Price (₹)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.originalPrice}
-                      onChange={(e) => {
-                        const originalPrice = e.target.value;
-                        let salePrice = formData.salePrice;
-                        if (originalPrice && formData.discount) {
-                          salePrice = Math.round(Number(originalPrice) * (1 - Number(formData.discount) / 100));
-                        }
-                        setFormData({ ...formData, originalPrice, salePrice });
-                      }}
-                      className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
-                    />
-                  </div>
+                  {formData.cardType !== 'custom' && (
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                        Product Card Title
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.title}
+                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        className="w-full px-4 py-3 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-semibold"
+                        required={formData.cardType !== 'custom'}
+                      />
+                    </div>
+                  )}
 
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                      Discount (%)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.discount}
-                      onChange={(e) => {
-                        const discount = e.target.value;
-                        let salePrice = formData.salePrice;
-                        if (discount && formData.originalPrice) {
-                          salePrice = Math.round(Number(formData.originalPrice) * (1 - Number(discount) / 100));
-                        }
-                        setFormData({ ...formData, discount, salePrice });
-                      }}
-                      placeholder="e.g. 62"
-                      className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-amber-700"
-                      required={formData.cardType !== 'custom'}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                      Cashback (₹)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={formData.cashback}
-                      onChange={(e) => setFormData({ ...formData, cashback: e.target.value })}
-                      placeholder="e.g. 5"
-                      className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-emerald-700"
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-1.5">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700">
-                    Product Image
-                  </label>
-                  <div className="flex items-center bg-neutral-100 p-0.5 rounded-xl border border-neutral-200">
-                    <Button variant="none" size="none"
-                      type="button"
-                      onClick={() => setImageInputType('url')}
-                      className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'url'
-                          ? 'bg-white text-black shadow-xs'
-                          : 'text-neutral-500 hover:text-[#f96b02]'
-                        }`}
-                    >
-                      Image URL
-                    </Button>
-                    <Button variant="none" size="none"
-                      type="button"
-                      onClick={() => setImageInputType('file')}
-                      className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'file'
-                          ? 'bg-white text-black shadow-xs'
-                          : 'text-neutral-500 hover:text-[#f96b02]'
-                        }`}
-                    >
-                      Upload File
-                    </Button>
-                  </div>
-                </div>
-
-                {imageInputType === 'url' ? (
-                  <div className="flex gap-2 items-center">
-                    <input
-                      type="text"
-                      value={formData.image}
-                      onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                      placeholder="https://images.unsplash.com/..."
-                      className="w-full px-4 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-mono text-xs"
-                      required
-                    />
-                    {formData.image && (
-                      <div className="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 shrink-0 overflow-hidden p-1 flex items-center justify-center">
-                        <img
-                          src={formData.image}
-                          alt="Preview"
-                          className="max-h-full max-w-full object-contain"
-                          onError={(e) => { e.target.style.display = 'none'; }}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                        Store
+                      </label>
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <CustomSelect
+                          value={formData.store}
+                          onChange={(val) => setFormData({ ...formData, store: val })}
+                          options={dbStores}
+                          placeholder="Select Store"
+                          dropdownKey="edit-store"
                         />
                       </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="border-2 border-dashed border-neutral-300 hover:border-[#f96b02] rounded-2xl p-4 text-center transition-colors cursor-pointer relative bg-neutral-50 flex flex-col items-center justify-center gap-1">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageFileUpload}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                      />
-                      <Upload className="w-5 h-5 text-neutral-600" />
-                      <span className="text-xs font-bold text-neutral-800">Click or drag image file here</span>
-                      <span className="text-[10px] text-neutral-400">PNG, JPG, WEBP, GIF up to 5MB</span>
                     </div>
 
-                    {formData.image && (
-                      <div className="flex items-center gap-3 p-2 bg-neutral-50 border border-neutral-200 rounded-xl">
-                        <div className="w-10 h-10 rounded-lg bg-white border border-neutral-200 shrink-0 overflow-hidden p-1 flex items-center justify-center">
-                          <img
-                            src={formData.image}
-                            alt="Preview"
-                            className="max-h-full max-w-full object-contain"
-                          />
-                        </div>
-                        <span className="text-xs text-neutral-700 font-mono truncate flex-1 font-semibold">
-                          Image selected
-                        </span>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                        Category
+                      </label>
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <CustomSelect
+                          value={formData.category}
+                          onChange={(val) => setFormData({ ...formData, category: val })}
+                          options={dbCategories}
+                          placeholder="Select Category"
+                          dropdownKey="edit-category"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {formData.cardType !== 'custom' && (
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                          Orig. Price (₹)
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.originalPrice}
+                          onChange={(e) => {
+                            const originalPrice = e.target.value;
+                            let salePrice = formData.salePrice;
+                            if (originalPrice && formData.discount) {
+                              salePrice = Math.round(Number(originalPrice) * (1 - Number(formData.discount) / 100));
+                            }
+                            setFormData({ ...formData, originalPrice, salePrice });
+                          }}
+                          className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                          Discount (%)
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.discount}
+                          onChange={(e) => {
+                            const discount = e.target.value;
+                            let salePrice = formData.salePrice;
+                            if (discount && formData.originalPrice) {
+                              salePrice = Math.round(Number(formData.originalPrice) * (1 - Number(discount) / 100));
+                            }
+                            setFormData({ ...formData, discount, salePrice });
+                          }}
+                          placeholder="e.g. 62"
+                          className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-amber-700"
+                          required={formData.cardType !== 'custom'}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                          Sale Price (₹)
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.salePrice}
+                          onChange={(e) => setFormData({ ...formData, salePrice: e.target.value })}
+                          className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold"
+                          required={formData.cardType !== 'custom'}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                          Cashback (₹)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={formData.cashback}
+                          onChange={(e) => setFormData({ ...formData, cashback: e.target.value })}
+                          placeholder="e.g. 5"
+                          className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-emerald-700"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-1.5">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700">
+                        Product Image
+                      </label>
+                      <div className="flex items-center bg-neutral-100 p-0.5 rounded-xl border border-neutral-200">
                         <Button variant="none" size="none"
                           type="button"
-                          onClick={() => setFormData({ ...formData, image: '' })}
-                          className="text-xs font-bold text-red-600 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors"
+                          onClick={() => setImageInputType('url')}
+                          className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'url'
+                            ? 'bg-white text-black shadow-xs'
+                            : 'text-neutral-500 hover:text-[#f96b02]'
+                            }`}
                         >
-                          Remove
+                          Image URL
                         </Button>
+                        <Button variant="none" size="none"
+                          type="button"
+                          onClick={() => setImageInputType('file')}
+                          className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'file'
+                            ? 'bg-white text-black shadow-xs'
+                            : 'text-neutral-500 hover:text-[#f96b02]'
+                            }`}
+                        >
+                          Upload File
+                        </Button>
+                      </div>
+                    </div>
+
+                    {imageInputType === 'url' ? (
+                      <div className="flex gap-2 items-center">
+                        <input
+                          type="text"
+                          value={formData.image}
+                          onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                          placeholder="https://images.unsplash.com/..."
+                          className="w-full px-4 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-mono text-xs"
+                          required
+                        />
+                        {formData.image && (
+                          <div className="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 shrink-0 overflow-hidden p-1 flex items-center justify-center">
+                            <img
+                              src={formData.image}
+                              alt="Preview"
+                              className="max-h-full max-w-full object-contain"
+                              onError={(e) => { e.target.style.display = 'none'; }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="border-2 border-dashed border-neutral-300 hover:border-[#f96b02] rounded-2xl p-4 text-center transition-colors cursor-pointer relative bg-neutral-50 flex flex-col items-center justify-center gap-1">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageFileUpload}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                          />
+                          <Upload className="w-5 h-5 text-neutral-600" />
+                          <span className="text-xs font-bold text-neutral-800">Click or drag image file here</span>
+                          <span className="text-[10px] text-neutral-400">PNG, JPG, WEBP, GIF up to 5MB</span>
+                        </div>
+
+                        {formData.image && (
+                          <div className="flex items-center gap-3 p-2 bg-neutral-50 border border-neutral-200 rounded-xl">
+                            <div className="w-10 h-10 rounded-lg bg-white border border-neutral-200 shrink-0 overflow-hidden p-1 flex items-center justify-center">
+                              <img
+                                src={formData.image}
+                                alt="Preview"
+                                className="max-h-full max-w-full object-contain"
+                              />
+                            </div>
+                            <span className="text-xs text-neutral-700 font-mono truncate flex-1 font-semibold">
+                              Image selected
+                            </span>
+                            <Button variant="none" size="none"
+                              type="button"
+                              onClick={() => setFormData({ ...formData, image: '' })}
+                              className="text-xs font-bold text-red-600 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors"
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                )}
-              </div>
 
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                  Affiliate Link URL
-                </label>
-                <input
-                  type="text"
-                  value={formData.affiliateUrl}
-                  onChange={(e) => setFormData({ ...formData, affiliateUrl: e.target.value })}
-                  className="w-full px-4 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-mono text-xs"
-                />
-              </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                      Affiliate Link URL
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.affiliateUrl}
+                      onChange={(e) => setFormData({ ...formData, affiliateUrl: e.target.value })}
+                      className="w-full px-4 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-mono text-xs"
+                    />
+                  </div>
 
-              <div className="pt-4 flex items-center justify-end gap-3">
-                <Button variant="none" size="none"
-                  type="button"
-                  onClick={() => setEditingProduct(null)}
-                  className="px-5 py-3 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 rounded-xl transition-colors"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="md"
-                  isLoading={isSubmitting}
-                  className="text-xs rounded-xl !px-6 !py-3 normal-case tracking-normal shadow-md"
-                >
-                  Update Card Data
-                </Button>
+                  <div className="pt-4 flex items-center justify-end gap-3">
+                    <Button variant="none" size="none"
+                      type="button"
+                      onClick={() => setEditingProduct(null)}
+                      className="px-5 py-3 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 rounded-xl transition-colors"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="md"
+                      isLoading={isSubmitting}
+                      className="text-xs rounded-xl !px-6 !py-3 normal-case tracking-normal shadow-md"
+                    >
+                      Update Card Data
+                    </Button>
+                  </div>
+                </form>
               </div>
-            </form>
-            </div>
               {/* Right side: Preview */}
-              <div className="w-full lg:w-[420px] shrink-0 hidden lg:flex flex-col border-l border-neutral-100 pl-8 relative">
+              <div className="w-full lg:w-[550px] shrink-0 hidden lg:flex flex-col border-l border-neutral-100 pl-8 relative">
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-100">
-                  <h4 className="text-sm font-bold uppercase tracking-wider text-neutral-500">Live Preview</h4>
+                  <h4 className="font-bold uppercase tracking-wider text-neutral-500">Live Preview</h4>
                   <Button variant="none" size="none"
                     onClick={() => setEditingProduct(null)}
                     className="p-1.5 text-neutral-400 hover:text-[#f96b02] hover:bg-neutral-100 rounded-full"
@@ -910,7 +910,7 @@ export default function AdminProductsPage() {
                   </Button>
                 </div>
                 <div className="sticky top-0 flex justify-center">
-                  <StoreOfferCard 
+                  <StoreOfferCard
                     deal={{
                       title: formData.title || 'Product Title',
                       discount: formData.cardType === 'custom' ? 0 : (formData.discount || 0),
@@ -918,7 +918,7 @@ export default function AdminProductsPage() {
                       cashback: formData.cardType === 'custom' ? 0 : formData.cashback,
                       image: formData.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop',
                       affiliateUrl: formData.affiliateUrl || '#'
-                    }} 
+                    }}
                     store={dbStores.find(s => s.id === formData.store) || { name: 'Store', logoUrl: '' }}
                     fullWidth={true}
                   />
@@ -932,11 +932,11 @@ export default function AdminProductsPage() {
       {/* Add Product Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-5xl w-full shadow-2xl border border-neutral-200 max-h-[90vh] overflow-y-auto my-8">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-[1200px] w-full shadow-2xl border border-neutral-200 max-h-[90vh] overflow-y-auto my-8">
             <div className="flex flex-col lg:flex-row gap-8">
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-100">
-                  <h4 className="text-xl font-bold text-neutral-900 flex items-center gap-2">
+                  <h4 className="font-bold text-neutral-900 flex items-center gap-2">
                     <Plus className="w-5 h-5 text-neutral-700" />
                     Add New Product Card
                   </h4>
@@ -949,256 +949,256 @@ export default function AdminProductsPage() {
                 </div>
 
                 <form onSubmit={handleSaveAdd} className="space-y-4">
-                <div className="flex gap-2 p-1 bg-neutral-100 rounded-xl mb-4 w-fit">
-                  <button type="button" onClick={() => setFormData({...formData, cardType: 'builder'})} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType !== 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-[#f96b02]'}`}>Card Builder</button>
-                  <button type="button" onClick={() => setFormData({...formData, cardType: 'custom'})} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType === 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-[#f96b02]'}`}>Custom Upload</button>
-                </div>
-
-              {formData.cardType !== 'custom' && (
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                    Product Card Title
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="e.g. Philips Classic Clogs"
-                    className="w-full px-4 py-3 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-semibold"
-                    required={formData.cardType !== 'custom'}
-                  />
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                    Store
-                  </label>
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <CustomSelect
-                      value={formData.store}
-                      onChange={(val) => setFormData({ ...formData, store: val })}
-                      options={dbStores}
-                      placeholder="Select Store"
-                      dropdownKey="add-store"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                    Category
-                  </label>
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <CustomSelect
-                      value={formData.category}
-                      onChange={(val) => setFormData({ ...formData, category: val })}
-                      options={dbCategories}
-                      placeholder="Select Category"
-                      dropdownKey="add-category"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {formData.cardType !== 'custom' && (
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                      Sale Price (₹)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.salePrice}
-                      onChange={(e) => setFormData({ ...formData, salePrice: e.target.value })}
-                      className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold"
-                      required={formData.cardType !== 'custom'}
-                    />
+                  <div className="flex gap-2 p-1 bg-neutral-100 rounded-xl mb-4 w-fit">
+                    <button type="button" onClick={() => setFormData({ ...formData, cardType: 'builder' })} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType !== 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-[#f96b02]'}`}>Card Builder</button>
+                    <button type="button" onClick={() => setFormData({ ...formData, cardType: 'custom' })} className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${formData.cardType === 'custom' ? 'bg-white shadow text-black' : 'text-neutral-500 hover:text-[#f96b02]'}`}>Custom Upload</button>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                      Orig. Price (₹)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.originalPrice}
-                      onChange={(e) => {
-                        const originalPrice = e.target.value;
-                        let salePrice = formData.salePrice;
-                        if (originalPrice && formData.discount) {
-                          salePrice = Math.round(Number(originalPrice) * (1 - Number(formData.discount) / 100));
-                        }
-                        setFormData({ ...formData, originalPrice, salePrice });
-                      }}
-                      className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
-                    />
-                  </div>
+                  {formData.cardType !== 'custom' && (
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                        Product Card Title
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.title}
+                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        placeholder="e.g. Philips Classic Clogs"
+                        className="w-full px-4 py-3 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-semibold"
+                        required={formData.cardType !== 'custom'}
+                      />
+                    </div>
+                  )}
 
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                      Discount (%)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.discount}
-                      onChange={(e) => {
-                        const discount = e.target.value;
-                        let salePrice = formData.salePrice;
-                        if (discount && formData.originalPrice) {
-                          salePrice = Math.round(Number(formData.originalPrice) * (1 - Number(discount) / 100));
-                        }
-                        setFormData({ ...formData, discount, salePrice });
-                      }}
-                      placeholder="e.g. 62"
-                      className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-amber-700"
-                      required={formData.cardType !== 'custom'}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                      Cashback (₹)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={formData.cashback}
-                      onChange={(e) => setFormData({ ...formData, cashback: e.target.value })}
-                      placeholder="e.g. 5"
-                      className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-emerald-700"
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-1.5">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700">
-                    Product Image
-                  </label>
-                  <div className="flex items-center bg-neutral-100 p-0.5 rounded-xl border border-neutral-200">
-                    <Button variant="none" size="none"
-                      type="button"
-                      onClick={() => setImageInputType('url')}
-                      className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'url'
-                          ? 'bg-white text-black shadow-xs'
-                          : 'text-neutral-500 hover:text-[#f96b02]'
-                        }`}
-                    >
-                      Image URL
-                    </Button>
-                    <Button variant="none" size="none"
-                      type="button"
-                      onClick={() => setImageInputType('file')}
-                      className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'file'
-                          ? 'bg-white text-black shadow-xs'
-                          : 'text-neutral-500 hover:text-[#f96b02]'
-                        }`}
-                    >
-                      Upload File
-                    </Button>
-                  </div>
-                </div>
-
-                {imageInputType === 'url' ? (
-                  <div className="flex gap-2 items-center">
-                    <input
-                      type="text"
-                      value={formData.image}
-                      onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                      placeholder="https://images.unsplash.com/..."
-                      className="w-full px-4 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-mono text-xs"
-                      required
-                    />
-                    {formData.image && (
-                      <div className="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 shrink-0 overflow-hidden p-1 flex items-center justify-center">
-                        <img
-                          src={formData.image}
-                          alt="Preview"
-                          className="max-h-full max-w-full object-contain"
-                          onError={(e) => { e.target.style.display = 'none'; }}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                        Store
+                      </label>
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <CustomSelect
+                          value={formData.store}
+                          onChange={(val) => setFormData({ ...formData, store: val })}
+                          options={dbStores}
+                          placeholder="Select Store"
+                          dropdownKey="add-store"
                         />
                       </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="border-2 border-dashed border-neutral-300 hover:border-[#f96b02] rounded-2xl p-4 text-center transition-colors cursor-pointer relative bg-neutral-50 flex flex-col items-center justify-center gap-1">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageFileUpload}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                      />
-                      <Upload className="w-5 h-5 text-neutral-600" />
-                      <span className="text-xs font-bold text-neutral-800">Click or drag image file here</span>
-                      <span className="text-[10px] text-neutral-400">PNG, JPG, WEBP, GIF up to 5MB</span>
                     </div>
 
-                    {formData.image && (
-                      <div className="flex items-center gap-3 p-2 bg-neutral-50 border border-neutral-200 rounded-xl">
-                        <div className="w-10 h-10 rounded-lg bg-white border border-neutral-200 shrink-0 overflow-hidden p-1 flex items-center justify-center">
-                          <img
-                            src={formData.image}
-                            alt="Preview"
-                            className="max-h-full max-w-full object-contain"
-                          />
-                        </div>
-                        <span className="text-xs text-neutral-700 font-mono truncate flex-1 font-semibold">
-                          Image selected
-                        </span>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                        Category
+                      </label>
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <CustomSelect
+                          value={formData.category}
+                          onChange={(val) => setFormData({ ...formData, category: val })}
+                          options={dbCategories}
+                          placeholder="Select Category"
+                          dropdownKey="add-category"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {formData.cardType !== 'custom' && (
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                          Orig. Price (₹)
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.originalPrice}
+                          onChange={(e) => {
+                            const originalPrice = e.target.value;
+                            let salePrice = formData.salePrice;
+                            if (originalPrice && formData.discount) {
+                              salePrice = Math.round(Number(originalPrice) * (1 - Number(formData.discount) / 100));
+                            }
+                            setFormData({ ...formData, originalPrice, salePrice });
+                          }}
+                          className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                          Discount (%)
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.discount}
+                          onChange={(e) => {
+                            const discount = e.target.value;
+                            let salePrice = formData.salePrice;
+                            if (discount && formData.originalPrice) {
+                              salePrice = Math.round(Number(formData.originalPrice) * (1 - Number(discount) / 100));
+                            }
+                            setFormData({ ...formData, discount, salePrice });
+                          }}
+                          placeholder="e.g. 62"
+                          className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-amber-700"
+                          required={formData.cardType !== 'custom'}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                          Sale Price (₹)
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.salePrice}
+                          onChange={(e) => setFormData({ ...formData, salePrice: e.target.value })}
+                          className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold"
+                          required={formData.cardType !== 'custom'}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                          Cashback (₹)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={formData.cashback}
+                          onChange={(e) => setFormData({ ...formData, cashback: e.target.value })}
+                          placeholder="e.g. 5"
+                          className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-emerald-700"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-1.5">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700">
+                        Product Image
+                      </label>
+                      <div className="flex items-center bg-neutral-100 p-0.5 rounded-xl border border-neutral-200">
                         <Button variant="none" size="none"
                           type="button"
-                          onClick={() => setFormData({ ...formData, image: '' })}
-                          className="text-xs font-bold text-red-600 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors"
+                          onClick={() => setImageInputType('url')}
+                          className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'url'
+                            ? 'bg-white text-black shadow-xs'
+                            : 'text-neutral-500 hover:text-[#f96b02]'
+                            }`}
                         >
-                          Remove
+                          Image URL
                         </Button>
+                        <Button variant="none" size="none"
+                          type="button"
+                          onClick={() => setImageInputType('file')}
+                          className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${imageInputType === 'file'
+                            ? 'bg-white text-black shadow-xs'
+                            : 'text-neutral-500 hover:text-[#f96b02]'
+                            }`}
+                        >
+                          Upload File
+                        </Button>
+                      </div>
+                    </div>
+
+                    {imageInputType === 'url' ? (
+                      <div className="flex gap-2 items-center">
+                        <input
+                          type="text"
+                          value={formData.image}
+                          onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                          placeholder="https://images.unsplash.com/..."
+                          className="w-full px-4 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-mono text-xs"
+                          required
+                        />
+                        {formData.image && (
+                          <div className="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 shrink-0 overflow-hidden p-1 flex items-center justify-center">
+                            <img
+                              src={formData.image}
+                              alt="Preview"
+                              className="max-h-full max-w-full object-contain"
+                              onError={(e) => { e.target.style.display = 'none'; }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="border-2 border-dashed border-neutral-300 hover:border-[#f96b02] rounded-2xl p-4 text-center transition-colors cursor-pointer relative bg-neutral-50 flex flex-col items-center justify-center gap-1">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageFileUpload}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                          />
+                          <Upload className="w-5 h-5 text-neutral-600" />
+                          <span className="text-xs font-bold text-neutral-800">Click or drag image file here</span>
+                          <span className="text-[10px] text-neutral-400">PNG, JPG, WEBP, GIF up to 5MB</span>
+                        </div>
+
+                        {formData.image && (
+                          <div className="flex items-center gap-3 p-2 bg-neutral-50 border border-neutral-200 rounded-xl">
+                            <div className="w-10 h-10 rounded-lg bg-white border border-neutral-200 shrink-0 overflow-hidden p-1 flex items-center justify-center">
+                              <img
+                                src={formData.image}
+                                alt="Preview"
+                                className="max-h-full max-w-full object-contain"
+                              />
+                            </div>
+                            <span className="text-xs text-neutral-700 font-mono truncate flex-1 font-semibold">
+                              Image selected
+                            </span>
+                            <Button variant="none" size="none"
+                              type="button"
+                              onClick={() => setFormData({ ...formData, image: '' })}
+                              className="text-xs font-bold text-red-600 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors"
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                )}
-              </div>
 
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
-                  Affiliate Link URL
-                </label>
-                <input
-                  type="text"
-                  value={formData.affiliateUrl}
-                  onChange={(e) => setFormData({ ...formData, affiliateUrl: e.target.value })}
-                  placeholder="https://example.com/store/deal"
-                  className="w-full px-4 py-3 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-mono text-xs"
-                />
-              </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                      Affiliate Link URL
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.affiliateUrl}
+                      onChange={(e) => setFormData({ ...formData, affiliateUrl: e.target.value })}
+                      placeholder="https://example.com/store/deal"
+                      className="w-full px-4 py-3 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-mono text-xs"
+                    />
+                  </div>
 
-              <div className="pt-4 flex items-center justify-end gap-3">
-                <Button variant="none" size="none"
-                  type="button"
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="px-5 py-3 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 rounded-xl transition-colors"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="md"
-                  isLoading={isSubmitting}
-                  className="text-xs rounded-xl !px-6 !py-3 normal-case tracking-normal shadow-md"
-                >
-                  Add Product Card
-                </Button>
+                  <div className="pt-4 flex items-center justify-end gap-3">
+                    <Button variant="none" size="none"
+                      type="button"
+                      onClick={() => setIsAddModalOpen(false)}
+                      className="px-5 py-3 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 rounded-xl transition-colors"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="md"
+                      isLoading={isSubmitting}
+                      className="text-xs rounded-xl !px-6 !py-3 normal-case tracking-normal shadow-md"
+                    >
+                      Add Product Card
+                    </Button>
+                  </div>
+                </form>
               </div>
-            </form>
-            </div>
               {/* Right side: Preview */}
-              <div className="w-full lg:w-[420px] shrink-0 hidden lg:flex flex-col border-l border-neutral-100 pl-8 relative">
+              <div className="w-full lg:w-[550px] shrink-0 hidden lg:flex flex-col border-l border-neutral-100 pl-8 relative">
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-100">
-                  <h4 className="text-sm font-bold uppercase tracking-wider text-neutral-500">Live Preview</h4>
+                  <h4 className="font-bold uppercase tracking-wider text-neutral-500">Live Preview</h4>
                   <Button variant="none" size="none"
                     onClick={() => setIsAddModalOpen(false)}
                     className="p-1.5 text-neutral-400 hover:text-[#f96b02] hover:bg-neutral-100 rounded-full"
@@ -1207,7 +1207,7 @@ export default function AdminProductsPage() {
                   </Button>
                 </div>
                 <div className="sticky top-0 flex justify-center">
-                  <StoreOfferCard 
+                  <StoreOfferCard
                     deal={{
                       title: formData.title || 'Product Title',
                       discount: formData.cardType === 'custom' ? 0 : (formData.discount || 0),
@@ -1215,7 +1215,7 @@ export default function AdminProductsPage() {
                       cashback: formData.cardType === 'custom' ? 0 : formData.cashback,
                       image: formData.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop',
                       affiliateUrl: formData.affiliateUrl || '#'
-                    }} 
+                    }}
                     store={dbStores.find(s => s.id === formData.store) || { name: 'Store', logoUrl: '' }}
                     fullWidth={true}
                   />

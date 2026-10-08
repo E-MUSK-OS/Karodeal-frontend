@@ -40,7 +40,7 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio = 1 }) =
     <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden flex flex-col">
         <div className="p-4 border-b flex justify-between items-center">
-          <h3 className="font-bold text-lg">Crop Image</h3>
+          <h3 className="font-bold">Crop Image</h3>
           <button onClick={onCancel} className="text-gray-500 hover:text-black">
             Close
           </button>

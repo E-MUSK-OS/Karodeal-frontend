@@ -124,7 +124,7 @@ export default function ProfileSettingsPage() {
       </div>
 
       <div className="mb-6">
-        <h5 className="text-xl font-bold text-neutral-900 flex items-center gap-2">
+        <h5 className="font-bold text-neutral-900 flex items-center gap-2">
           <User className="w-5 h-5 text-neutral-700" />
           Account Settings
         </h5>

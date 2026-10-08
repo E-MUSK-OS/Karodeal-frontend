@@ -23,7 +23,7 @@ export default function HelpPage() {
   return (
     <div className="bg-white p-5 md:p-8 rounded-xl shadow-sm border border-neutral-200">
       <div className="mb-8 border-b border-neutral-100 pb-6">
-        <h4 className="text-2xl font-extrabold text-neutral-900 uppercase tracking-tight mb-2">
+        <h4 className="font-extrabold text-neutral-900 uppercase tracking-tight mb-2">
           Help & Support
         </h4>
         <p className="text-sm lg:text-[15px] xl:text-base text-neutral-500 font-medium">Find answers to common questions or reach out to our team.</p>
@@ -32,7 +32,7 @@ export default function HelpPage() {
       <div className="space-y-10">
         {/* Contact Options */}
         <div>
-          <h4 className="text-lg font-bold text-black mb-4">Contact Us</h4>
+          <h4 className="font-bold text-black mb-4">Contact Us</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-center gap-4 p-4 rounded-xl border border-neutral-100 bg-neutral-50 hover:bg-neutral-100 transition-colors">
               <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm border border-neutral-200 text-black">
@@ -48,7 +48,7 @@ export default function HelpPage() {
 
         {/* FAQs */}
         <div>
-          <h4 className="text-lg font-bold text-black mb-4">Frequently Asked Questions</h4>
+          <h4 className="font-bold text-black mb-4">Frequently Asked Questions</h4>
           <div className="space-y-3">
             {faqs.map((faq, index) => (
               <details key={index} className="group bg-neutral-50 rounded-xl border border-neutral-100 overflow-hidden">

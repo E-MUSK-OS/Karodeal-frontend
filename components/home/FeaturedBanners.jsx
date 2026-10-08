@@ -21,7 +21,7 @@ export default function FeaturedBanners({ banners }) {
               <span className={`inline-block ${banner.badgeColor || 'bg-white text-black'} px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 shadow-sm border border-white/20`}>
                 {banner.store}
               </span>
-              <h3 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4 leading-[1.1] drop-shadow-md">
+              <h3 className="font-black text-white uppercase tracking-tighter mb-4 leading-[1.1] drop-shadow-md">
                 {banner.headline}
               </h3>
               <p className="text-sm lg:text-[15px] xl:text-base font-bold text-white/80 mb-6 uppercase tracking-wider">

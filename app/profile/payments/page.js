@@ -97,7 +97,7 @@ export default function Payments() {
             <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg">
               <IndianRupee className="w-5 h-5" />
             </div>
-            <h4 className="text-xl font-bold text-neutral-900">Withdraw Money</h4>
+            <h4 className="font-bold text-neutral-900">Withdraw Money</h4>
           </div>
           <p className="text-neutral-500 text-xs">
             Transfer your available cashback directly to your UPI. Minimum withdrawal amount is ₹1000.
@@ -112,7 +112,7 @@ export default function Payments() {
       </div>
 
       <div className="bg-white rounded-xl border border-neutral-200 p-5 shadow-sm">
-        <h5 className="text-sm font-bold text-neutral-900 mb-4">Payment Details</h5>
+        <h5 className="font-bold text-neutral-900 mb-4">Payment Details</h5>
 
         {error && (
           <div className="mb-4 bg-red-50 text-red-600 p-3 rounded-lg flex items-start gap-2 border border-red-100">

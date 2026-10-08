@@ -120,12 +120,12 @@ export default function AdminSettingsPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h3 className="text-2xl font-extrabold text-neutral-900">Admin Settings</h3>
+        <h3 className="font-extrabold text-neutral-900">Admin Settings</h3>
         <p className="text-sm text-neutral-500">Update admin portal credentials and personal details</p>
       </div>
 
       <div className="bg-white rounded-2xl border border-neutral-200 p-6 sm:p-8 shadow-sm">
-        <h4 className="text-lg font-bold text-neutral-900 mb-6">Profile Details</h4>
+        <h4 className="font-bold text-neutral-900 mb-6">Profile Details</h4>
         {profileSuccess && (
           <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-800 text-sm font-medium">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
@@ -183,7 +183,7 @@ export default function AdminSettingsPage() {
       </div>
 
       <div className="bg-white rounded-2xl border border-neutral-200 p-6 sm:p-8 shadow-sm">
-        <h4 className="text-lg font-bold text-neutral-900 mb-6">Change Password</h4 >
+        <h4 className="font-bold text-neutral-900 mb-6">Change Password</h4 >
         {passwordSuccess && (
           <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-800 text-sm font-medium">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />

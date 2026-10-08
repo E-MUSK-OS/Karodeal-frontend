@@ -69,9 +69,9 @@ function ReviewPageContent() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="page-container py-12">
       <div className="text-center mb-12">
-        <h3 className="text-3xl md:text-4xl font-extrabold text-black uppercase tracking-tight mb-4">
+        <h3 className="font-extrabold text-black uppercase tracking-tight mb-4">
           Review Us
         </h3>
         <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
@@ -87,7 +87,7 @@ function ReviewPageContent() {
             {!isWriting ? (
               <div className="flex flex-col h-full">
                 <div className="p-6 pb-8">
-                  <h4 className="text-xl font-bold text-black mb-4">Reviews</h4>
+                  <h4 className="font-bold text-black mb-4">Reviews</h4>
                   <div className="text-[14px] text-neutral-600 space-y-4 leading-relaxed">
                     <p>
                       Lakhs of Indians visit karodeal every day and make the most of our best offers to get the best deals plus some extra Cashback, right into their bank account. KaroDeal reviews from these users show how our deals and offers have held up over the years.
@@ -113,7 +113,7 @@ function ReviewPageContent() {
             ) : (
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-black flex items-center gap-2">
+                  <h2 className="font-bold text-black flex items-center gap-2">
                     <MessageSquare className="w-5 h-5" />
                     Write a Review
                   </h2>
@@ -188,7 +188,7 @@ function ReviewPageContent() {
 
         {/* Published Reviews Feed */}
         <div className="lg:col-span-2 space-y-6">
-          <h2 className="text-xl font-bold text-black mb-6">Recent Reviews</h2>
+          <h2 className="font-bold text-black mb-6">Recent Reviews</h2>
 
           {reviews.length === 0 ? (
             <div className="text-center py-12 bg-neutral-50 rounded-2xl border border-neutral-200">
@@ -200,7 +200,7 @@ function ReviewPageContent() {
                 <div key={rev.id} className="bg-white rounded-2xl p-6 border border-neutral-200 shadow-sm transition-shadow hover:shadow-md">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h5 className="font-bold text-black text-lg">{rev.name}</h5>
+                      <h5 className="font-bold text-black">{rev.name}</h5>
                       <span className="text-sm text-neutral-500 font-medium">{rev.date}</span>
                     </div>
                     <div className="flex gap-0.5">

@@ -22,7 +22,7 @@ export default function ContactPage() {
       </div>
 
       {/* Main Content Overlay */}
-      <div className="relative z-10 pt-16 md:pt-24 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+      <div className="relative z-10 pt-16 md:pt-24 page-container">
         
         <div className="text-center text-white mb-12 md:mb-16">
           <h1 className="uppercase tracking-tighter mb-4">

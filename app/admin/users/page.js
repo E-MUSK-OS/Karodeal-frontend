@@ -93,7 +93,7 @@ export default function AdminUsersPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="text-2xl font-extrabold text-neutral-900">Users Management</h3>
+          <h3 className="font-extrabold text-neutral-900">Users Management</h3>
           <p className="text-sm text-neutral-500">View and manage registered user accounts</p>
         </div>
 
