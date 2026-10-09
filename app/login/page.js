@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import Button from '@/components/common/Button';
+import { useGoogleLogin } from '@react-oauth/google';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -48,6 +49,39 @@ export default function Login() {
       setIsLoading(false);
     }
   };
+
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setIsLoading(true);
+      setError('');
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/google`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ credential: tokenResponse.access_token }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          setError(data.error || 'Google login failed');
+          return;
+        }
+
+        localStorage.setItem('user', JSON.stringify({ ...data.user, token: data.token }));
+        window.dispatchEvent(new Event('auth-change'));
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnUrl = urlParams.get('returnUrl');
+        router.push(returnUrl || '/');
+      } catch (err) {
+        setError('Failed to connect to backend server');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: () => setError('Google login failed')
+  });
 
   return (
     <div className="bg-white flex flex-col justify-center py-12 relative font-sans ">
@@ -128,6 +162,24 @@ export default function Login() {
               Forgot password?
             </Link>
           </div>
+
+          <div className="mb-6 flex justify-center w-full relative">
+            <button
+              type="button"
+              onClick={() => loginWithGoogle()}
+              className="w-full flex items-center justify-center gap-3 bg-white border border-neutral-300 rounded-lg px-4 py-3.5 text-[15px] font-medium text-neutral-700 hover:bg-neutral-50 transition-colors shadow-sm relative"
+            >
+              <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5 absolute left-4" />
+              <span>Continue with Google</span>
+            </button>
+          </div>
+
+          <div className="relative flex items-center mb-6">
+            <div className="flex-grow border-t border-neutral-300"></div>
+            <span className="flex-shrink-0 mx-4 text-neutral-400 text-sm">Or log in with email</span>
+            <div className="flex-grow border-t border-neutral-300"></div>
+          </div>
+
           {/* Terms and Bottom Button */}
           <div className="mt-auto">
             <p className="text-[13px] text-neutral-500 mb-5 leading-relaxed">

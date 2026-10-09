@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Button from '@/components/common/Button';
 
-export default function StoreOfferCard({ deal, product, store: propStore, fullWidth = false }) {
+export default function StoreOfferCard({ deal, product, store: propStore, fullWidth = false, isPreview = false }) {
   const router = useRouter();
 
   // Backwards compatibility if called with product instead of deal
@@ -58,36 +58,55 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
 
   const offerPageUrl = `/deals/${generateSlug(currentDeal.title)}-${currentDeal.id}`;
 
+  const Wrapper = isPreview ? 'div' : Link;
+  const wrapperProps = isPreview ? {} : { href: offerPageUrl };
+
   // IF IT'S A CUSTOM IMAGE CARD
-  if (currentDeal.salePrice === 0 && currentDeal.discount === 0) {
+  if (currentDeal.originalPrice === 0 && currentDeal.salePrice === 0) {
     return (
-      <Link
-        href={offerPageUrl}
-        className={`block relative flex flex-col justify-center items-center ${widthClass} ${heightClass} ${minHeightClass} rounded-2xl md:rounded-[24px] overflow-hidden shrink-0 bg-neutral-100 p-0 group shadow-lg hover:shadow-xl/20 active:shadow-xl/20 hover:-translate-y-2 active:-translate-y-2 transition-all duration-500 ease-out cursor-pointer`}
+      <Wrapper
+        {...wrapperProps}
+        className={`block relative flex flex-col justify-center items-center ${widthClass} ${heightClass} ${minHeightClass} rounded-2xl md:rounded-[24px] overflow-hidden shrink-0 bg-neutral-100 p-0 group shadow-lg hover:shadow-xl/20 active:shadow-xl/20 hover:-translate-y-2 active:-translate-y-2 transition-all duration-500 ease-out ${isPreview ? 'cursor-default' : 'cursor-pointer'}`}
       >
         <img src={currentDeal.image} alt={currentDeal.title} className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
 
+        {/* Store Logo Overlay */}
+        <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20 pointer-events-none">
+          <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 flex items-center justify-center shadow-md shrink-0 p-1 md:p-2">
+            <img
+              src={store.logoUrl || null}
+              alt={store.name}
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'block';
+              }}
+            />
+            <span className="hidden text-[8px] font-black uppercase text-black tracking-widest text-center leading-none">{logoText}</span>
+          </div>
+        </div>
+
         {/* Grab Deal Button Overlay */}
         <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 z-20 pointer-events-none">
-          <Button as="span" variant="outline" size="none" className="pointer-events-auto border-none text-[10px] sm:text-xs md:text-sm h-7 sm:h-8 md:h-10 px-2 sm:px-3 md:px-4">
+          <Button as="span" variant="outline" size="none" className="pointer-events-auto border-none text-[10px] sm:text-xs md:text-sm h-7 sm:h-8 md:h-10 px-2 sm:px-3 md:px-4 bg-white text-black shadow-lg">
             Offer Details
           </Button>
         </div>
-      </Link>
+      </Wrapper>
     );
   }
 
   return (
-    <Link
-      href={offerPageUrl}
-      className={`block relative flex flex-row justify-between items-stretch ${widthClass} ${heightClass} rounded-[20px] md:rounded-[24px] lg:rounded-[32px] overflow-hidden shrink-0 ${bgClass} p-3 sm:p-4 md:p-5 group shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out cursor-pointer`}
+    <Wrapper
+      {...wrapperProps}
+      className={`block relative flex flex-row justify-between items-stretch ${widthClass} ${heightClass} rounded-[20px] md:rounded-[24px] lg:rounded-[32px] overflow-hidden shrink-0 ${bgClass} p-3 sm:p-4 md:p-5 group shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out ${isPreview ? 'cursor-default' : 'cursor-pointer'}`}
     >
       {/* Left Column: Logo + All Text + Button */}
       <div className="flex flex-col w-[55%] h-full z-10 pr-1 md:pr-2">
         {/* Top: Logo */}
         <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 flex items-center justify-center shadow-sm shrink-0 p-1 md:p-2">
           <img
-            src={store.logoUrl}
+            src={store.logoUrl || null}
             alt={store.name}
             className="w-full h-full object-contain"
             onError={(e) => {
@@ -132,6 +151,6 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
           />
         </div>
       </div>
-    </Link>
+    </Wrapper>
   );
 }

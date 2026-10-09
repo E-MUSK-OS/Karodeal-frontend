@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@next/third-parties": "^16.3.8",
+    "@react-oauth/google": "^0.13.5",
     "bcryptjs": "^3.0.3",
     "fuse.js": "^7.5.0",
     "jose": "^6.2.12",
@@ -21,6 +22,7 @@
     "react-dom": "19.2.8",
     "react-easy-crop": "^6.2.3",
     "swiper": "^14.2.0",
+    "xlsx": "^0.18.5",
     "yet-another-react-lightbox": "^3.32.2"
   },
   "devDependencies": {
