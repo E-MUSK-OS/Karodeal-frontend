@@ -6,9 +6,37 @@ import { CheckCircle2, Mail, MapPin } from 'lucide-react';
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setIsLoading(true);
+    setError('');
+
+    const name = e.target.name.value;
+    const email = e.target.email.value;
+    const message = e.target.message.value;
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        setError(data.error || 'Failed to send message');
+      }
+    } catch (err) {
+      setError('Failed to connect to the server');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -22,7 +50,7 @@ export default function ContactPage() {
       </div>
 
       {/* Main Content Overlay */}
-      <div className="relative z-10 pt-16 md:pt-24 page-container">
+      <div className="relative z-10 pt-16 md:pt-24 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="text-center text-white mb-12 md:mb-16">
           <h1 className="uppercase tracking-tighter mb-4">
@@ -89,9 +117,10 @@ export default function ContactPage() {
                     <textarea id="message" rows="5" required className="w-full bg-neutral-100/50 border border-neutral-200 rounded-xl focus:border-black focus:ring-1 focus:ring-black px-4 py-3 text-[13px] font-medium text-black placeholder-neutral-400 focus:outline-none transition-all resize-none" placeholder="How can we help you?"></textarea>
                   </div>
 
-                  <div className="pt-4 flex sm:justify-end">
-                    <Button type="submit" variant="primary" className="w-full sm:w-auto px-10 py-4 rounded-xl">
-                      Send Message
+                  <div className="pt-4 flex sm:justify-end flex-col sm:flex-row items-center gap-4">
+                    {error && <span className="text-red-500 font-medium text-sm">{error}</span>}
+                    <Button type="submit" variant="primary" disabled={isLoading} className="w-full sm:w-auto px-10 py-4 rounded-xl disabled:opacity-70 disabled:cursor-not-allowed">
+                      {isLoading ? 'Sending...' : 'Send Message'}
                     </Button>
                   </div>
                 </form>

@@ -103,6 +103,8 @@ export default function OfferDetailsPage({ params }) {
   };
   const cashback = getCashback(deal);
 
+  const isCustom = deal.originalPrice === 0 && deal.salePrice === 0;
+
   let bgClass = "bg-neutral-900";
   let tagClass = "bg-blue-500";
 
@@ -127,13 +129,11 @@ export default function OfferDetailsPage({ params }) {
     <div className="page-container py-8 sm:py-12 md:py-20 min-h-screen">
 
       {/* Product Highlight Section */}
-      <div className={`${bgClass} rounded-[1.25rem] sm:rounded-[1.5rem] md:rounded-[2rem] shadow-xl overflow-hidden mb-8 sm:mb-12 flex flex-row min-h-[160px] sm:min-h-[220px] md:min-h-[260px] max-w-3xl mx-auto`}>
+      {isCustom ? (
+        <div className="rounded-[1.25rem] sm:rounded-[1.5rem] md:rounded-[2rem] shadow-xl overflow-hidden mb-8 sm:mb-12 relative flex flex-col max-w-3xl mx-auto bg-neutral-100 group">
+          <img src={deal.image} alt={deal.title} className="w-full h-auto object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
 
-        {/* Left Area: Text & Action */}
-        <div className="w-[50%] md:w-[55%] p-3 sm:p-6 md:p-8 flex flex-col justify-center">
-
-          {/* Logo */}
-          <div className="mb-2.5 sm:mb-4 md:mb-6">
+          <div className="absolute top-3 left-3 sm:top-6 sm:left-6 md:top-8 md:left-8 z-20 pointer-events-none">
             <div className="bg-white rounded-sm sm:rounded-xl md:rounded-2xl w-6 h-6 sm:w-10 sm:h-10 md:w-14 md:h-14 flex items-center justify-center shadow-md shrink-0 p-1 sm:p-1.5 md:p-2">
               <img
                 src={store.logoUrl}
@@ -144,22 +144,7 @@ export default function OfferDetailsPage({ params }) {
             </div>
           </div>
 
-          <p className="text-white/90 text-[10px] sm:text-xs md:text-sm font-bold tracking-wide mb-2 sm:mb-3 md:mb-4 line-clamp-1">
-            {deal.title}
-          </p>
-
-          <h2 className="text-xl sm:text-3xl md:text-5xl font-black tracking-tighter text-white mb-2 sm:mb-4 md:mb-6 leading-none">
-            Upto {deal.discount}% Off
-          </h2>
-
-          <div className="mb-3 sm:mb-6 md:mb-8">
-            <span className="bg-[rgba(255,255,255,0.7)] text-black font-bold rounded-md flex items-center justify-center w-fit px-1.5 sm:px-2 py-0.5 sm:py-1 shrink-0 gap-1 sm:gap-1.5 shadow-sm">
-              <img src="/images/favicon.png" alt="logo" className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 object-contain rounded-sm sm:rounded" />
-              <span className="text-[10px] sm:text-xs lg:text-sm whitespace-nowrap">Flat ₹{cashback} Cashback</span>
-            </span>
-          </div>
-
-          <div className="mt-1 sm:mt-auto w-fit">
+          <div className="absolute bottom-3 left-3 sm:bottom-6 sm:left-6 md:bottom-8 md:left-8 z-20">
             <Button
               as="a"
               href={dealUrl}
@@ -168,29 +153,80 @@ export default function OfferDetailsPage({ params }) {
               onClick={handleDealClick}
               variant="outline"
               size="none"
-              className="border-none bg-white text-black text-[9px] sm:text-[11px] md:text-sm font-black uppercase tracking-widest px-3 sm:px-5 md:px-6 py-1.5 sm:py-2 md:py-3 shadow-lg"
+              className="border-none bg-white text-black text-[9px] sm:text-[11px] md:text-sm font-black uppercase tracking-widest px-3 sm:px-5 md:px-6 py-1.5 sm:py-2 md:py-3 shadow-lg flex items-center justify-center"
             >
               <span className="hidden sm:inline">Grab Deal & Earn Cashback</span>
               <span className="sm:hidden">Grab Deal</span>
               <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-0.5" />
             </Button>
-            <p className="text-[8.5px] sm:text-[10px] md:text-xs text-white/70 mt-1 sm:mt-2 md:mt-3 font-medium text-left">
-              *Redirects to store
-            </p>
           </div>
         </div>
+      ) : (
+        <div className={`${bgClass} rounded-[1.25rem] sm:rounded-[1.5rem] md:rounded-[2rem] shadow-xl overflow-hidden mb-8 sm:mb-12 flex flex-row min-h-[160px] sm:min-h-[220px] md:min-h-[260px] max-w-3xl mx-auto`}>
 
-        {/* Right Area: Image */}
-        <div className="w-[50%] md:w-[45%] bg-white flex items-center justify-center overflow-hidden">
-          <img
-            src={deal.image}
-            alt={deal.title}
-            className="w-full h-full object-cover"
-            onError={(e) => { e.target.style.display = 'none'; }}
-          />
+          {/* Left Area: Text & Action */}
+          <div className="w-[50%] md:w-[55%] p-3 sm:p-6 md:p-8 flex flex-col justify-center">
+
+            {/* Logo */}
+            <div className="mb-2.5 sm:mb-4 md:mb-6">
+              <div className="bg-white rounded-sm sm:rounded-xl md:rounded-2xl w-6 h-6 sm:w-10 sm:h-10 md:w-14 md:h-14 flex items-center justify-center shadow-md shrink-0 p-1 sm:p-1.5 md:p-2">
+                <img
+                  src={store.logoUrl}
+                  alt={store.name}
+                  className="w-full h-full object-contain"
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
+              </div>
+            </div>
+
+            <p className="text-white/90 text-[10px] sm:text-xs md:text-sm font-bold tracking-wide mb-2 sm:mb-3 md:mb-4 line-clamp-1">
+              {deal.title}
+            </p>
+
+            <h2 className="text-xl sm:text-3xl md:text-5xl font-black tracking-tighter text-white mb-2 sm:mb-4 md:mb-6 leading-none">
+              Upto {deal.discount}% Off
+            </h2>
+
+            <div className="mb-3 sm:mb-6 md:mb-8">
+              <span className="bg-[rgba(255,255,255,0.7)] text-black font-bold rounded-md flex items-center justify-center w-fit px-1.5 sm:px-2 py-0.5 sm:py-1 shrink-0 gap-1 sm:gap-1.5 shadow-sm">
+                <img src="/images/favicon.png" alt="logo" className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 object-contain rounded-sm sm:rounded" />
+                <span className="text-[10px] sm:text-xs lg:text-sm whitespace-nowrap">Flat ₹{cashback} Cashback</span>
+              </span>
+            </div>
+
+            <div className="mt-1 sm:mt-auto w-fit">
+              <Button
+                as="a"
+                href={dealUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleDealClick}
+                variant="outline"
+                size="none"
+                className="border-none bg-white text-black text-[9px] sm:text-[11px] md:text-sm font-black uppercase tracking-widest px-3 sm:px-5 md:px-6 py-1.5 sm:py-2 md:py-3 shadow-lg"
+              >
+                <span className="hidden sm:inline">Grab Deal & Earn Cashback</span>
+                <span className="sm:hidden">Grab Deal</span>
+                <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-0.5" />
+              </Button>
+              <p className="text-[8.5px] sm:text-[10px] md:text-xs text-white/70 mt-1 sm:mt-2 md:mt-3 font-medium text-left">
+                *Redirects to store
+              </p>
+            </div>
+          </div>
+
+          {/* Right Area: Image */}
+          <div className="w-[50%] md:w-[45%] bg-white flex items-center justify-center overflow-hidden">
+            <img
+              src={deal.image}
+              alt={deal.title}
+              className="w-full h-full object-cover"
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+          </div>
+
         </div>
-
-      </div>
+      )}
 
       {/* Rules Section */}
       <div className="bg-white rounded-[2.5rem] p-8 sm:p-12 md:p-16 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 relative overflow-hidden">

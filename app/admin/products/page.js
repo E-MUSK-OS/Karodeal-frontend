@@ -24,6 +24,7 @@ export default function AdminProductsPage() {
   const [isBuilderModalOpen, setIsBuilderModalOpen] = useState(false);
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+  const [bulkResult, setBulkResult] = useState(null);
   const [toastMessage, setToastMessage] = useState('');
   const [dbStores, setDbStores] = useState([]);
   const [dbCategories, setDbCategories] = useState([]);
@@ -101,7 +102,7 @@ export default function AdminProductsPage() {
 
   const showToast = (msg) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(''), 3000);
+    setTimeout(() => setToastMessage(''), 5000);
   };
 
   const handleImageFileUpload = (e) => {
@@ -263,7 +264,7 @@ export default function AdminProductsPage() {
     <div className="space-y-6" onClick={() => setOpenDropdown(null)}>
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-20 right-8 z-50 bg-black text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-semibold animate-bounce">
+        <div className="fixed top-20 right-8 z-50 bg-black text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-semibold transition-all">
           <CheckCircle2 className="w-5 h-5 text-emerald-400" />
           <span>{toastMessage}</span>
         </div>
@@ -578,10 +579,45 @@ export default function AdminProductsPage() {
         <BulkImportModal
           isOpen={isBulkModalOpen}
           onClose={() => setIsBulkModalOpen(false)}
-          onSuccess={(count) => { setIsBulkModalOpen(false); loadProducts(); showToast(`Successfully added ${count} products!`); }}
+          onSuccess={(result) => { 
+            setIsBulkModalOpen(false); 
+            loadProducts(); 
+            setBulkResult(result);
+          }}
           dbStores={dbStores}
           dbCategories={dbCategories}
         />
+      )}
+
+      {/* Bulk Import Result Popup */}
+      {bulkResult && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-[2rem] p-6 sm:p-8 max-w-[400px] w-full shadow-2xl border border-neutral-200 text-center animate-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
+              <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+            </div>
+            <h3 className="text-xl sm:text-2xl font-black text-neutral-900 mb-2 tracking-tight">Import Complete!</h3>
+            <div className="text-sm font-medium text-neutral-600 mb-6 space-y-3 bg-neutral-50 p-4 rounded-2xl border border-neutral-100">
+              <p className="flex items-center justify-between">
+                <span>Successfully Added:</span>
+                <span className="font-black text-emerald-600 text-base">{bulkResult.count}</span>
+              </p>
+              {bulkResult.skippedCount > 0 && (
+                <p className="flex items-center justify-between border-t border-neutral-200 pt-3">
+                  <span>Duplicates Skipped:</span>
+                  <span className="font-black text-amber-500 text-base">{bulkResult.skippedCount}</span>
+                </p>
+              )}
+            </div>
+            <Button 
+              onClick={() => setBulkResult(null)} 
+              variant="primary" 
+              className="w-full rounded-xl py-3.5 text-sm font-bold shadow-md hover:shadow-lg transition-all"
+            >
+              Okay, Close
+            </Button>
+          </div>
+        </div>
       )}
 
       <ConfirmModal {...confirmModal} onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })} />

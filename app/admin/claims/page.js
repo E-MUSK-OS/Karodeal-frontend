@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShieldAlert, CheckCircle, XCircle, Search, Calendar, FileText, ArrowRight } from 'lucide-react';
+import { ShieldAlert, CheckCircle, XCircle, Search, Calendar, FileText, ArrowRight, Download } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
 import ConfirmModal from '@/components/common/ConfirmModal';
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
+import CustomSelect from '@/components/common/CustomSelect';
+import * as XLSX from 'xlsx';
 
 export default function AdminClaims() {
   const [claims, setClaims] = useState([]);
@@ -20,8 +22,47 @@ export default function AdminClaims() {
   const [adminNote, setAdminNote] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [storeFilter, setStoreFilter] = useState('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', confirmText: '', onConfirm: () => { }, isDestructive: false });
   const [lightboxImage, setLightboxImage] = useState(null);
+
+  const uniqueStores = ['ALL', ...new Set(claims.map(c => c.storeName).filter(Boolean))];
+
+  const filteredClaims = claims.filter(c => {
+    const matchesStatus = statusFilter === 'ALL' || c.status === statusFilter;
+    const matchesStore = storeFilter === 'ALL' || c.storeName === storeFilter;
+    const searchLower = searchQuery.toLowerCase();
+    const matchesSearch = !searchQuery || 
+                          c.product?.title?.toLowerCase().includes(searchLower);
+    return matchesStatus && matchesStore && matchesSearch;
+  });
+
+  const exportToExcel = () => {
+    if (filteredClaims.length === 0) {
+      alert("No data to export!");
+      return;
+    }
+
+    const data = filteredClaims.map(c => ({
+      'Claim ID': c.id,
+      'Date': new Date(c.createdAt).toLocaleDateString(),
+      'User Name': c.user?.name || 'Unknown',
+      'User Email': c.user?.email || '',
+      'Store': c.storeName,
+      'Product': c.product?.title || '',
+      'Order ID': c.orderId,
+      'Order Date': new Date(c.orderDate).toLocaleDateString(),
+      'Order Amount (₹)': c.orderAmount,
+      'Status': c.status,
+      'Cashback Awarded (₹)': c.awardedCashback || 0
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Claims");
+    XLSX.writeFile(workbook, `Cashback_Claims_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
 
   const router = useRouter();
 
@@ -362,21 +403,44 @@ export default function AdminClaims() {
         </div>
       ) : (
         <>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <h3 className="font-bold text-neutral-900">Manage Cashback Claims</h3>
-            <div className="flex bg-neutral-100 p-1 rounded-lg overflow-x-auto whitespace-nowrap hide-scrollbar max-w-full">
-              {['ALL', 'PENDING', 'APPROVED', 'REJECTED'].map(status => (
-                <Button variant="none" size="none"
-                  key={status}
-                  onClick={() => setStatusFilter(status)}
-                  className={`px-2 sm:px-4 py-1.5 sm:py-2 rounded-md text-[10px] sm:text-sm font-bold transition-all flex-1 text-center ${statusFilter === status
-                    ? 'bg-white text-black shadow-sm'
-                    : 'text-neutral-500 hover:text-[#f96b02] hover:bg-neutral-200/50'
-                    }`}
-                >
-                  {status}
-                </Button>
-              ))}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <h3 className="font-bold text-neutral-900 text-lg">Manage Cashback Claims</h3>
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                <input
+                  type="text"
+                  placeholder="Search product name..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2.5 bg-white border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
+                />
+              </div>
+              <div className="w-full sm:w-40">
+                <CustomSelect
+                  value={storeFilter}
+                  onChange={(val) => setStoreFilter(val)}
+                  options={uniqueStores.map(store => ({ id: store, name: store === 'ALL' ? 'All Stores' : store }))}
+                  placeholder="Select Store"
+                />
+              </div>
+              <div className="w-full sm:w-40">
+                <CustomSelect
+                  value={statusFilter}
+                  onChange={(val) => setStatusFilter(val)}
+                  options={[
+                    { id: 'ALL', name: 'All Claims' },
+                    { id: 'PENDING', name: 'Pending' },
+                    { id: 'APPROVED', name: 'Approved' },
+                    { id: 'REJECTED', name: 'Rejected' }
+                  ]}
+                  placeholder="Select Status"
+                />
+              </div>
+              <Button onClick={exportToExcel} variant="primary" size="none" className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 whitespace-nowrap shadow-sm hover:shadow-md">
+                <Download className="w-4 h-4" />
+                Export Excel
+              </Button>
             </div>
           </div>
 
@@ -397,7 +461,7 @@ export default function AdminClaims() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-neutral-100">
-                    {claims.filter(c => statusFilter === 'ALL' || c.status === statusFilter).map(claim => (
+                    {filteredClaims.map(claim => (
                       <tr
                         key={claim.id}
                         onClick={() => {

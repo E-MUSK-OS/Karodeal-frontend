@@ -7,12 +7,37 @@ export default function Newsletter() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (email) {
+    if (!email) return;
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/newsletter/subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Failed to subscribe");
+        return;
+      }
+
       setSubmitted(true);
       setEmail("");
       setTimeout(() => setSubmitted(false), 5000);
+    } catch (err) {
+      setError("Failed to connect to server");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -42,13 +67,20 @@ export default function Newsletter() {
             />
             <Button variant="none" size="none"
               type="submit"
-              className="bg-white text-black px-8 py-3 sm:py-4 font-bold uppercase tracking-widest text-sm border border-white hover:bg-neutral-200 cursor-pointer transition-colors"
+              disabled={isLoading}
+              className="bg-white text-black px-8 py-3 sm:py-4 font-bold uppercase tracking-widest text-sm border border-white hover:bg-neutral-200 cursor-pointer transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              Subscribe
+              {isLoading ? "Submitting..." : "Subscribe"}
             </Button>
           </form>
 
-          {submitted && (
+          {error && (
+            <div className="absolute -bottom-10 left-0 right-0 flex items-center justify-center text-red-400 font-bold text-xs uppercase tracking-widest animate-popup">
+              {error}
+            </div>
+          )}
+
+          {submitted && !error && (
             <div className="absolute -bottom-10 left-0 right-0 flex items-center justify-center gap-2 text-emerald-400 font-bold text-xs uppercase tracking-widest animate-popup">
               <CheckCircle2 className="w-4 h-4" />
               Subscribed Successfully

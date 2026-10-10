@@ -29,8 +29,8 @@ export default function EditProductModal({ product, onClose, onSuccess, dbStores
       const isCustom = product.originalPrice === 0 && product.salePrice === 0;
       setFormData({
         title: product.title || '',
-        store: product.store || '',
-        category: product.category || '',
+        store: product.storeId || '',
+        category: product.categoryId || '',
         originalPrice: product.originalPrice || '',
         salePrice: product.salePrice || '',
         discount: product.discount || '',

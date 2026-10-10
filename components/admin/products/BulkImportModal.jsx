@@ -7,6 +7,7 @@ import * as XLSX from 'xlsx';
 export default function BulkImportModal({ isOpen, onClose, onSuccess, dbStores, dbCategories }) {
   const [bulkProducts, setBulkProducts] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [resultMessage, setResultMessage] = useState(null);
 
   const handleExcelUpload = (e) => {
     const file = e.target.files?.[0];
@@ -37,7 +38,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess, dbStores, 
         setBulkProducts(mappedProducts);
       } catch (err) {
         console.error('Error parsing excel:', err);
-        alert('Failed to parse Excel file. Please check format.');
+        setResultMessage({ type: 'error', text: 'Failed to parse Excel file. Please check format.' });
       }
     };
     reader.readAsArrayBuffer(file);
@@ -46,12 +47,13 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess, dbStores, 
   const handleSaveAdd = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setResultMessage(null);
     try {
       const adminUserStr = localStorage.getItem('adminUser');
       const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
 
       if (bulkProducts.length === 0) {
-        alert('Please upload a valid Excel file with products.');
+        setResultMessage({ type: 'error', text: 'Please upload a valid Excel file with products.' });
         setIsSubmitting(false);
         return;
       }
@@ -66,9 +68,10 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess, dbStores, 
       
       if (res.ok) {
         const result = await res.json();
-        onSuccess(result.count);
+        onSuccess({ count: result.count, skippedCount: result.skippedCount });
       } else {
-        alert('Failed to bulk add products');
+        const errorData = await res.json().catch(() => null);
+        setResultMessage({ type: 'error', text: `Failed to import: ${errorData?.error || res.statusText}` });
       }
     } catch (err) {
       console.error(err);
@@ -90,6 +93,12 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess, dbStores, 
             <X className="w-5 h-5" />
           </Button>
         </div>
+
+        {resultMessage && (
+          <div className={`mb-4 p-3 rounded-lg text-sm font-semibold border ${resultMessage.type === 'error' ? 'bg-red-50 text-red-600 border-red-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200'}`}>
+            {resultMessage.text}
+          </div>
+        )}
 
         <form onSubmit={handleSaveAdd} className="space-y-4">
           <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">

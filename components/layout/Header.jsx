@@ -34,11 +34,14 @@ export default function Header() {
           headers: { 'Authorization': `Bearer ${userData.token}` }
         })
           .then(res => {
-            if (res.status === 401) {
+            if (res.status === 401 || res.status === 404) {
               localStorage.removeItem('user');
               setUser(null);
-              router.push('/login');
-              throw new Error('Token expired');
+              // Only redirect if not on an admin page
+              if (!window.location.pathname.startsWith('/admin')) {
+                router.push('/login');
+              }
+              throw new Error(res.status === 401 ? 'Token expired' : 'User not found');
             }
             return res.json();
           })

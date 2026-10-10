@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
@@ -16,6 +16,45 @@ export default function ForgotPassword() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
+  const otpRefs = useRef([]);
+
+  const handleOtpChange = (index, value) => {
+    if (!/^\d*$/.test(value)) return;
+
+    const newOtpValues = [...otpValues];
+    newOtpValues[index] = value;
+    setOtpValues(newOtpValues);
+    
+    setOtp(newOtpValues.join(''));
+
+    if (value && index < 5) {
+      otpRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !otpValues[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleOtpPaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').slice(0, 6).split('');
+    if (pastedData.some(char => !/^\d$/.test(char))) return;
+    
+    const newOtpValues = [...otpValues];
+    pastedData.forEach((char, i) => {
+      if (i < 6) newOtpValues[i] = char;
+    });
+    setOtpValues(newOtpValues);
+    setOtp(newOtpValues.join(''));
+    
+    const nextIndex = Math.min(pastedData.length, 5);
+    otpRefs.current[nextIndex]?.focus();
+  };
 
   const handleSendOtp = async (e) => {
     e.preventDefault();
@@ -36,6 +75,8 @@ export default function ForgotPassword() {
       }
 
       setMessage('A password reset code has been sent to your email.');
+      setOtpValues(['', '', '', '', '', '']);
+      setOtp('');
       setStep(2);
     } catch (err) {
       setError(err.message || 'Failed to connect to backend server');
@@ -127,7 +168,7 @@ export default function ForgotPassword() {
           </h2>
           <p className="mt-1.5 text-sm text-neutral-500">
             {step === 1 && "Enter your email address and we'll send you a verification code."}
-            {step === 2 && "Enter the 4-digit verification code sent to your email."}
+            {step === 2 && "Enter the 6-digit verification code sent to your email."}
             {step === 3 && "Securely set your new password."}
           </p>
         </div>
@@ -178,22 +219,24 @@ export default function ForgotPassword() {
             {message && <div className="text-green-600 text-sm mb-4 font-medium">{message}</div>}
 
             {/* OTP Input */}
-            <div className="relative mb-6">
-              <input
-                type="text"
-                id="otp"
-                className="block px-4 pb-3.5 pt-4 w-full  text-black bg-transparent rounded-lg border-2 border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
-                placeholder=" "
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                required
-              />
-              <label
-                htmlFor="otp"
-                className={`absolute text-[15px] duration-300 transform z-10 origin-[0] bg-neutral-50 px-1.5 left-3 peer-focus:text-black peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 ${otp ? 'top-2 -translate-y-4 scale-75 text-black' : 'top-1/2 -translate-y-1/2 scale-100 text-neutral-500'}`}
-              >
-                Verification Code
-              </label>
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-3 text-center">Enter 6-digit OTP</label>
+              <div className="flex justify-between gap-2" onPaste={handleOtpPaste}>
+                {otpValues.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={(el) => (otpRefs.current[index] = el)}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleOtpChange(index, e.target.value)}
+                    onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                    className="w-12 h-14 text-center text-xl font-bold text-black bg-transparent rounded-xl border-2 border-neutral-300 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
+                    required
+                  />
+                ))}
+              </div>
             </div>
 
             <div className="mt-auto">

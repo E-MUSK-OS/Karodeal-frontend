@@ -58,7 +58,7 @@ export default function Login() {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/google`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ credential: tokenResponse.access_token }),
+          body: JSON.stringify({ credential: tokenResponse.access_token, isSignup: false }),
         });
 
         const data = await res.json();

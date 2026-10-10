@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
@@ -16,7 +16,49 @@ export default function Signup() {
   const [inputCode, setInputCode] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [requireGoogleOtp, setRequireGoogleOtp] = useState(false);
+  const [verifyEmail, setVerifyEmail] = useState('');
+  const [verifyName, setVerifyName] = useState('');
   const router = useRouter();
+
+  const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
+  const otpRefs = useRef([]);
+
+  const handleOtpChange = (index, value) => {
+    if (!/^\d*$/.test(value)) return;
+
+    const newOtpValues = [...otpValues];
+    newOtpValues[index] = value;
+    setOtpValues(newOtpValues);
+    
+    setInputCode(newOtpValues.join(''));
+
+    if (value && index < 5) {
+      otpRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !otpValues[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleOtpPaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').slice(0, 6).split('');
+    if (pastedData.some(char => !/^\d$/.test(char))) return;
+    
+    const newOtpValues = [...otpValues];
+    pastedData.forEach((char, i) => {
+      if (i < 6) newOtpValues[i] = char;
+    });
+    setOtpValues(newOtpValues);
+    setInputCode(newOtpValues.join(''));
+    
+    const nextIndex = Math.min(pastedData.length, 5);
+    otpRefs.current[nextIndex]?.focus();
+  };
 
   const showError = (msg) => {
     setError(msg);
@@ -67,13 +109,20 @@ export default function Signup() {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/google`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ credential: tokenResponse.access_token }),
+          body: JSON.stringify({ credential: tokenResponse.access_token, isSignup: true }),
         });
 
         const data = await res.json();
 
         if (!res.ok) {
           showError(data.error || 'Google login failed');
+          return;
+        }
+
+        if (data.requireOtp) {
+          setVerifyEmail(data.email);
+          setVerifyName(data.name);
+          setRequireGoogleOtp(true);
           return;
         }
 
@@ -123,6 +172,83 @@ export default function Signup() {
     }
   };
 
+  const handleVerifyGoogleOtp = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/verify-google-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: verifyEmail, otp: inputCode, name: verifyName }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showError(data.error || 'Invalid OTP');
+        return;
+      }
+
+      localStorage.setItem('user', JSON.stringify({ ...data.user, token: data.token }));
+      window.dispatchEvent(new Event('auth-change'));
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const returnUrl = urlParams.get('returnUrl');
+      router.push(returnUrl || '/');
+    } catch (err) {
+      showError('Failed to connect to backend server');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (requireGoogleOtp) {
+    return (
+      <div className="bg-white flex flex-col justify-center py-12 relative font-sans ">
+        <div className="flex flex-col bg-neutral-50 sm:mx-auto sm:w-full sm:max-w-[400px] sm:h-auto sm:min-h-[450px] sm:rounded-2xl sm:shadow-sm sm:border sm:border-neutral-200 p-6 relative">
+          <div className="flex items-center mb-6">
+            <Button variant="none" size="none" onClick={() => { setRequireGoogleOtp(false); setInputCode(''); setOtpValues(['','','','','','']); }} className="p-1 -ml-1 text-black hover:bg-neutral-100 rounded-full transition-colors">
+              <ArrowLeft strokeWidth={2.5} className="w-5 h-5" />
+            </Button>
+          </div>
+          <div>
+            <h2 className="font-extrabold text-black tracking-tight leading-tight">Verify Google Account</h2>
+            <p className="mt-1.5 text-sm text-neutral-500">We sent a 6-digit OTP to {verifyEmail}</p>
+          </div>
+          <form className="mt-8 flex flex-col flex-1" onSubmit={handleVerifyGoogleOtp}>
+            {error && <div className="text-red-500 text-sm mb-4 font-medium">{error}</div>}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-3 text-center">Enter 6-digit OTP</label>
+              <div className="flex justify-between gap-2" onPaste={handleOtpPaste}>
+                {otpValues.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={(el) => (otpRefs.current[index] = el)}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleOtpChange(index, e.target.value)}
+                    onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                    className="w-12 h-14 text-center text-xl font-bold text-black bg-transparent rounded-xl border-2 border-neutral-300 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
+                    required
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="mt-auto">
+              <Button variant="none" size="none" type="submit" disabled={isLoading} className="w-full bg-black hover:bg-neutral-800 text-white font-medium py-3.5 px-4 rounded-xl transition-colors text-lg flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                {isLoading ? 'Verifying...' : 'Verify OTP'}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white flex flex-col justify-center py-12 relative font-sans ">
       {/* Toast Notification */}
@@ -148,6 +274,7 @@ export default function Signup() {
               if (step === 2) {
                 setStep(1);
                 setInputCode('');
+                setOtpValues(['','','','','','']);
                 setError('');
               } else {
                 router.back();
@@ -164,7 +291,7 @@ export default function Signup() {
             {step === 1 ? 'Sign up' : 'Verify Email'}
           </h2>
           <p className="mt-1.5 text-sm text-neutral-500">
-            {step === 1 ? 'Create an account to get started.' : `We've sent a 4-digit code to ${email}`}
+            {step === 1 ? 'Create an account to get started.' : `We've sent a 6-digit code to ${email}`}
           </p>
         </div>
 
@@ -285,24 +412,24 @@ export default function Signup() {
           <form className="mt-8 flex flex-col flex-1" onSubmit={handleVerify}>
 
             {/* OTP Input */}
-            <div className="relative mb-8">
-              <input
-                type="text"
-                id="code"
-                name="code"
-                maxLength={4}
-                className="block px-4 pb-3.5 pt-4 w-full text-center text-2xl tracking-[0.5em] text-black bg-transparent rounded-lg border-2 border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
-                placeholder=" "
-                value={inputCode}
-                onChange={(e) => setInputCode(e.target.value)}
-                required
-              />
-              <label
-                htmlFor="code"
-                className={`absolute text-[15px] duration-300 transform z-10 origin-[0] bg-neutral-50 px-1.5 left-3 peer-focus:text-black peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 ${inputCode ? 'top-2 -translate-y-4 scale-75 text-black' : 'top-1/2 -translate-y-1/2 scale-100 text-neutral-500'}`}
-              >
-                4-Digit Code
-              </label>
+            <div className="mb-8">
+              <label className="block text-sm font-medium text-gray-700 mb-4 text-center">Enter 6-digit OTP</label>
+              <div className="flex justify-between gap-2" onPaste={handleOtpPaste}>
+                {otpValues.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={(el) => (otpRefs.current[index] = el)}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleOtpChange(index, e.target.value)}
+                    onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                    className="w-12 h-14 text-center text-xl font-bold text-black bg-transparent rounded-xl border-2 border-neutral-300 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
+                    required
+                  />
+                ))}
+              </div>
             </div>
 
             <div className="flex-1"></div>
