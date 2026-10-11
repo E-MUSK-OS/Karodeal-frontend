@@ -25,7 +25,9 @@ export default function DealsPage() {
         ]);
 
         if (productsRes.ok) {
-          setAllDeals(await productsRes.json());
+          const data = await productsRes.json();
+          const now = new Date();
+          setAllDeals(data.filter(p => p.isActive !== false && (!p.expiresAt || new Date(p.expiresAt) > now)));
         }
 
         if (storesRes.ok) {

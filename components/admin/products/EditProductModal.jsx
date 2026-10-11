@@ -18,6 +18,7 @@ export default function EditProductModal({ product, onClose, onSuccess, dbStores
     affiliateUrl: '',
     isTrending: false,
     isActive: true,
+    expiresAt: '',
     cardType: 'builder',
   });
   const [imageInputType, setImageInputType] = useState('url');
@@ -39,6 +40,9 @@ export default function EditProductModal({ product, onClose, onSuccess, dbStores
         affiliateUrl: product.affiliateUrl || '',
         isTrending: product.isTrending || false,
         isActive: product.isActive ?? true,
+        expiresAt: product.expiresAt
+          ? new Date(new Date(product.expiresAt).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+          : '',
         cardType: isCustom ? 'custom' : 'builder',
       });
       setImageInputType(product.image?.startsWith('http') ? 'url' : 'file');
@@ -109,6 +113,9 @@ export default function EditProductModal({ product, onClose, onSuccess, dbStores
           affiliateUrl: formData.affiliateUrl.trim(),
           isTrending: formData.isTrending,
           isActive: formData.isActive,
+          expiresAt: formData.expiresAt && (!formData.isActive || new Date(formData.expiresAt) > new Date())
+            ? new Date(formData.expiresAt).toISOString()
+            : null,
         })
       });
 
@@ -262,6 +269,75 @@ export default function EditProductModal({ product, onClose, onSuccess, dbStores
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">Affiliate Link URL</label>
                 <input type="text" value={formData.affiliateUrl} onChange={(e) => setFormData({ ...formData, affiliateUrl: e.target.value })} className="w-full px-4 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-mono text-xs" />
+              </div>
+
+              {/* Active Status & Re-Post Section */}
+              <div className="bg-neutral-50 p-4 rounded-2xl border border-neutral-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-neutral-800 flex items-center gap-2">
+                    <span>Visibility Status:</span>
+                    <span className={formData.isActive ? "text-emerald-600 font-extrabold" : "text-neutral-500 font-bold"}>
+                      {formData.isActive ? "Active (Live on Website)" : "Deactivated (Hidden from Users)"}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-neutral-500 font-medium mt-0.5">
+                    {formData.isActive 
+                      ? "Publicly visible on categories, stores, and deal pages." 
+                      : "Hidden from user panel but safely kept in admin panel so you can re-post anytime."}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2.5 shrink-0">
+                  {(!formData.isActive || (formData.expiresAt && new Date(formData.expiresAt) <= new Date())) && (
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, isActive: true, expiresAt: '' })}
+                      className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors shadow-xs"
+                    >
+                      Re-Post Now
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, isActive: !formData.isActive })}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none transition-colors ${formData.isActive ? 'bg-emerald-500' : 'bg-neutral-300'}`}
+                    title={formData.isActive ? "Click to deactivate" : "Click to activate"}
+                  >
+                    <span className="sr-only">Toggle active</span>
+                    <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${formData.isActive ? 'translate-x-2.5' : '-translate-x-2.5'}`} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Auto Deactivate Date & Time Selection */}
+              <div className="bg-neutral-50 p-4 rounded-2xl border border-neutral-200/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-800 flex items-center gap-1.5">
+                    <span className="text-sm">⏰</span> Auto-Deactivate Date & Time <span className="text-neutral-400 font-normal lowercase">(optional)</span>
+                  </label>
+                  {formData.expiresAt && (
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, expiresAt: '' })}
+                      className="text-xs text-red-500 hover:text-red-700 font-bold transition-colors cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                {formData.expiresAt && new Date(formData.expiresAt) <= new Date() && (
+                  <div className="text-[11px] text-amber-600 font-bold bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                    ⚠️ This expiry schedule has already passed. Set a new future date & time or click Clear to keep the card active.
+                  </div>
+                )}
+                <input
+                  type="datetime-local"
+                  value={formData.expiresAt}
+                  onChange={(e) => setFormData({ ...formData, expiresAt: e.target.value })}
+                  className="w-full px-4 py-2.5 text-sm bg-white border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-semibold text-neutral-800"
+                />
+                <p className="text-[11px] text-neutral-500 font-medium">
+                  The card will automatically deactivate and be hidden from categories, stores, and home deals after this date and time.
+                </p>
               </div>
 
               <div className="pt-4 flex items-center justify-end gap-3">

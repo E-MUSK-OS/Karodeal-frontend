@@ -1,31 +1,180 @@
-import React from 'react';
+'use client';
+
+import React, { useRef, useState } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+
+const PROCESS_STEPS = [
+  {
+    stepNumber: '01',
+    title: 'SELECT STORE',
+    description: 'Browse from over 100+ verified partner stores including Amazon, Flipkart, and Myntra to start shopping.',
+  },
+  {
+    stepNumber: '02',
+    title: 'SELECT DEAL',
+    description: 'Explore exclusive promo vouchers, high-percentage cashback rates, and verified coupon codes updated daily.',
+  },
+  {
+    stepNumber: '03',
+    title: 'ORDER',
+    description: 'Click through our deal link and place your order directly on the store’s official website as you normally do.',
+  },
+  {
+    stepNumber: '04',
+    title: 'REVIEW',
+    description: 'Submit your order ID and invoice details in your dashboard to track and verify your purchase status swiftly.',
+  },
+  {
+    stepNumber: '05',
+    title: 'CLAIM CASH BACK',
+    description: 'Receive verified cash rewards credited directly to your KaroDeal wallet for instant withdrawal via Bank or UPI.',
+  },
+];
 
 export default function TheProcess() {
+  const swiperRef = useRef(null);
+  const [isBeginning, setIsBeginning] = useState(true);
+  const [isEnd, setIsEnd] = useState(false);
+
+  const handleSlideChange = (swiper) => {
+    setIsBeginning(swiper.isBeginning);
+    setIsEnd(swiper.isEnd);
+  };
+
   return (
-    <section className="mb-8 sm:mb-12 md:mb-20 border border-black p-6 sm:p-8 lg:p-12">
-      <div className="text-center mb-6 sm:mb-10 md:mb-12">
-        <h2 className="font-black text-black uppercase tracking-tighter">
-          The Process
-        </h2>
+    <section className="mb-8 sm:mb-12 md:mb-20 border border-black p-5 sm:p-7 lg:p-10 relative overflow-hidden bg-neutral-50/40">
+      {/* Header section with title and slider controls */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-6 sm:mb-8 md:mb-10 border-b border-black/10 pb-5">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-black text-white mb-2.5">
+            <span className="w-2 h-2 rounded-full bg-[#f96b02] animate-pulse" />
+            Simple 5-Step Guide
+          </div>
+          <h2 className="font-black text-black uppercase tracking-tighter text-2xl sm:text-3xl md:text-4xl leading-tight">
+            The Process
+          </h2>
+          <p className="text-xs sm:text-sm text-neutral-500 font-medium max-w-md mt-1">
+            Follow these 5 effortless steps from picking your store to getting real cash in your account.
+          </p>
+        </div>
+
+        {/* Slider Controls (Prev / Next Buttons) */}
+        <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+
+          <button
+            type="button"
+            onClick={() => swiperRef.current?.slidePrev()}
+            disabled={isBeginning}
+            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-black/20 flex items-center justify-center transition-all duration-200 cursor-pointer ${
+              isBeginning
+                ? 'opacity-30 cursor-not-allowed bg-transparent text-neutral-400'
+                : 'hover:bg-black hover:text-white hover:border-black text-black bg-white shadow-xs active:scale-95'
+            }`}
+            aria-label="Previous step"
+          >
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => swiperRef.current?.slideNext()}
+            disabled={isEnd}
+            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-black/20 flex items-center justify-center transition-all duration-200 cursor-pointer ${
+              isEnd
+                ? 'opacity-30 cursor-not-allowed bg-transparent text-neutral-400'
+                : 'hover:bg-[#f96b02] hover:text-white hover:border-[#f96b02] text-black bg-white shadow-xs active:scale-95'
+            }`}
+            aria-label="Next step"
+          >
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-4 lg:gap-8 divide-y md:divide-y-0 md:divide-x divide-black text-center">
-        <div className="flex flex-col items-center pb-8 md:pb-0 md:pr-4 lg:pr-8">
-          <span className="text-4xl sm:text-5xl md:text-6xl font-black text-neutral-200 mb-4 sm:mb-6">01</span>
-          <h4 className="text-black uppercase tracking-widest mb-3 sm:mb-4">Discover</h4>
-          <p className="text-sm lg:text-[15px] xl:text-base text-neutral-500  font-medium max-w-xs">Curated deals updated daily.</p>
-        </div>
-        <div className="flex flex-col items-center py-8 md:py-0 md:page-container">
-          <span className="text-4xl sm:text-5xl md:text-6xl font-black text-neutral-200 mb-4 sm:mb-6">02</span>
-          <h4 className="text-black uppercase tracking-widest mb-3 sm:mb-4">Compare</h4>
-          <p className="text-sm lg:text-[15px] xl:text-base text-neutral-500  font-medium max-w-xs">Evaluate prices instantly.</p>
-        </div>
-        <div className="flex flex-col items-center pt-8 md:pt-0 md:pl-4 lg:pl-8">
-          <span className="text-4xl sm:text-5xl md:text-6xl font-black text-neutral-200 mb-4 sm:mb-6">03</span>
-          <h4 className="text-black uppercase tracking-widest mb-3 sm:mb-4">Checkout</h4>
-          <p className="text-sm lg:text-[15px] xl:text-base text-neutral-500  font-medium max-w-xs">Shop directly via the merchant.</p>
-        </div>
+      {/* Process Slider: 3 items visible on desktop screen, remaining 2 slide into view */}
+      <div className="relative group/slider">
+        <Swiper
+          modules={[Navigation]}
+          onSwiper={(swiper) => {
+            swiperRef.current = swiper;
+            setIsBeginning(swiper.isBeginning);
+            setIsEnd(swiper.isEnd);
+          }}
+          onSlideChange={handleSlideChange}
+          slidesPerView={1}
+          spaceBetween={16}
+          breakpoints={{
+            0: {
+              slidesPerView: 1,
+              spaceBetween: 16,
+            },
+            640: {
+              slidesPerView: 2,
+              spaceBetween: 18,
+            },
+            1024: {
+              slidesPerView: 3,
+              spaceBetween: 22,
+            },
+          }}
+          className="!py-2 overflow-hidden"
+        >
+          {PROCESS_STEPS.map((step, idx) => (
+            <SwiperSlide key={step.stepNumber} className="!h-auto">
+              <div className="h-full flex flex-col justify-between bg-white border border-black/15 hover:border-black rounded-2xl p-5 sm:p-6 md:p-7 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group relative overflow-hidden select-none min-h-[250px] sm:min-h-[270px]">
+                {/* Subtle watermark step number */}
+                <span className="absolute -bottom-3 -right-2 font-black text-7xl sm:text-8xl text-neutral-900/[0.04] group-hover:text-neutral-900/[0.08] transition-colors pointer-events-none select-none">
+                  {step.stepNumber}
+                </span>
+
+                {/* Top Section: Step Badge */}
+                <div className="relative z-10 flex items-center justify-between mb-5">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-black text-white shadow-xs">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#f96b02]" />
+                    STEP {step.stepNumber}
+                  </span>
+                </div>
+
+                {/* Middle Section: Title & 1-2 lines of description */}
+                <div className="relative z-10 flex flex-col my-auto py-1">
+                  <h3 className="font-black text-black uppercase tracking-tight text-lg sm:text-xl group-hover:text-[#f96b02] transition-colors leading-snug">
+                    {step.title}
+                  </h3>
+                  <p className="text-xs sm:text-[13px] md:text-sm text-neutral-600 font-medium leading-relaxed mt-2.5">
+                    {step.description}
+                  </p>
+                </div>
+
+                {/* Bottom Section: Progress trail hint */}
+                <div className="relative z-10 mt-6 pt-3.5 border-t border-neutral-100 flex items-center justify-between text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                  <span>Step {idx + 1} of 5</span>
+                  {idx < PROCESS_STEPS.length - 1 ? (
+                    <button
+                      type="button"
+                      onClick={() => swiperRef.current?.slideNext()}
+                      className="flex items-center gap-1 group-hover:text-black transition-colors cursor-pointer"
+                    >
+                      Next Step <span className="text-xs">&rarr;</span>
+                    </button>
+                  ) : (
+                    <span className="text-emerald-600 font-black flex items-center gap-1">
+                      Ready to Earn &check;
+                    </span>
+                  )}
+                </div>
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
+
     </section>
   );
 }

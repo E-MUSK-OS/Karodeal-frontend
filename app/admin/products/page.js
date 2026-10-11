@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 
 import {
-  Search, Plus, Edit3, Trash2, CheckCircle2, ExternalLink, Tag, RefreshCw, X, Upload, ChevronUp, ChevronDown, ArrowUpDown, Loader2
+  Search, Plus, Edit3, Trash2, CheckCircle2, ExternalLink, Tag, RefreshCw, X, Upload, ChevronUp, ChevronDown, ArrowUpDown, Loader2, RotateCcw
 } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
@@ -19,6 +19,7 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStore, setSelectedStore] = useState('ALL');
+  const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL' | 'ACTIVE' | 'INACTIVE' | 'EXPIRED'
   const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
   const [editingProduct, setEditingProduct] = useState(null);
   const [isBuilderModalOpen, setIsBuilderModalOpen] = useState(false);
@@ -41,7 +42,7 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, selectedStore, sortConfig]);
+  }, [searchQuery, selectedStore, statusFilter, sortConfig]);
 
   // Form states for Add / Edit
   const [formData, setFormData] = useState({
@@ -183,8 +184,16 @@ export default function AdminProductsPage() {
   };
 
   const handleToggleActive = async (product) => {
+    const newActive = !product.isActive;
+    const isExpired = product.expiresAt && new Date(product.expiresAt) <= new Date();
+    const shouldClearExpiry = newActive && isExpired;
+
     // Optimistic UI update
-    setProducts(prev => prev.map(p => p.id === product.id ? { ...p, isActive: !p.isActive } : p));
+    setProducts(prev => prev.map(p => p.id === product.id ? { 
+      ...p, 
+      isActive: newActive,
+      ...(shouldClearExpiry ? { expiresAt: null } : {})
+    } : p));
 
     try {
       const adminUserStr = localStorage.getItem('adminUser');
@@ -196,30 +205,76 @@ export default function AdminProductsPage() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          isActive: !product.isActive
+          isActive: newActive,
+          ...(shouldClearExpiry ? { expiresAt: null } : {})
         })
       });
       if (res.ok) {
-        showToast(`Product ${product.isActive ? 'deactivated' : 'activated'} successfully!`);
+        showToast(newActive ? 'Card activated & published live to user site!' : 'Card deactivated (hidden from user site, kept in admin panel).');
       } else {
         // Revert on failure
-        setProducts(prev => prev.map(p => p.id === product.id ? { ...p, isActive: product.isActive } : p));
+        setProducts(prev => prev.map(p => p.id === product.id ? product : p));
         alert('Failed to toggle status');
       }
     } catch (err) {
       console.error(err);
       // Revert on failure
-      setProducts(prev => prev.map(p => p.id === product.id ? { ...p, isActive: product.isActive } : p));
+      setProducts(prev => prev.map(p => p.id === product.id ? product : p));
     }
   };
 
+  const handleRepost = async (product) => {
+    // Optimistic UI update: make active, clear past expiration, refresh timestamp
+    setProducts(prev => prev.map(p => p.id === product.id ? {
+      ...p,
+      isActive: true,
+      expiresAt: null,
+      createdAt: new Date().toISOString()
+    } : p));
+
+    try {
+      const adminUserStr = localStorage.getItem('adminUser');
+      const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${product.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          repost: true
+        })
+      });
+      if (res.ok) {
+        showToast(`Card re-posted! Now live at the top of the user panel.`);
+      } else {
+        setProducts(prev => prev.map(p => p.id === product.id ? product : p));
+        alert('Failed to re-post product card');
+      }
+    } catch (err) {
+      console.error(err);
+      setProducts(prev => prev.map(p => p.id === product.id ? product : p));
+      alert('Error re-posting product');
+    }
+  };
 
   const filteredProducts = products.filter((p) => {
     const matchesSearch =
       p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.slug?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStore = selectedStore === 'ALL' || String(p.storeId) === String(selectedStore);
-    return matchesSearch && matchesStore;
+
+    let matchesStatus = true;
+    const isExpired = p.expiresAt && new Date(p.expiresAt) <= new Date();
+    if (statusFilter === 'ACTIVE') {
+      matchesStatus = p.isActive && !isExpired;
+    } else if (statusFilter === 'INACTIVE') {
+      matchesStatus = !p.isActive;
+    } else if (statusFilter === 'EXPIRED') {
+      matchesStatus = isExpired;
+    }
+
+    return matchesSearch && matchesStore && matchesStatus;
   }).sort((a, b) => {
     let aVal = a[sortConfig.key];
     let bVal = b[sortConfig.key];
@@ -264,8 +319,8 @@ export default function AdminProductsPage() {
     <div className="space-y-6" onClick={() => setOpenDropdown(null)}>
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-20 right-8 z-50 bg-black text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-semibold transition-all">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+        <div className="fixed top-20 right-8 z-50 bg-white text-neutral-900 border border-neutral-200 px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-bold transition-all">
+          <CheckCircle2 className="w-5 h-5 text-emerald-500" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -339,19 +394,36 @@ export default function AdminProductsPage() {
           <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
         </div>
 
-        {/* Store Select Dropdown */}
-        <div className="w-full sm:w-auto relative">
-          <select
-            value={selectedStore}
-            onChange={(e) => setSelectedStore(e.target.value)}
-            className="w-full sm:w-48 px-4 py-2.5 pr-10 text-xs font-bold uppercase tracking-wider bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black cursor-pointer text-neutral-900 appearance-none"
-          >
-            <option value="ALL">All Stores</option>
-            {dbStores.map(store => (
-              <option key={store.id} value={store.id}>{store.name}</option>
-            ))}
-          </select>
-          <ChevronDown className="w-4 h-4 text-neutral-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+          {/* Status Select Dropdown */}
+          <div className="w-full sm:w-auto relative">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full sm:w-44 px-4 py-2.5 pr-10 text-xs font-bold uppercase tracking-wider bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black cursor-pointer text-neutral-900 appearance-none"
+            >
+              <option value="ALL">All Statuses</option>
+              <option value="ACTIVE">Active Deals</option>
+              <option value="INACTIVE">Deactivated</option>
+              <option value="EXPIRED">Expired Only</option>
+            </select>
+            <ChevronDown className="w-4 h-4 text-neutral-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
+          {/* Store Select Dropdown */}
+          <div className="w-full sm:w-auto relative">
+            <select
+              value={selectedStore}
+              onChange={(e) => setSelectedStore(e.target.value)}
+              className="w-full sm:w-48 px-4 py-2.5 pr-10 text-xs font-bold uppercase tracking-wider bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black cursor-pointer text-neutral-900 appearance-none"
+            >
+              <option value="ALL">All Stores</option>
+              {dbStores.map(store => (
+                <option key={store.id} value={store.id}>{store.name}</option>
+              ))}
+            </select>
+            <ChevronDown className="w-4 h-4 text-neutral-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
         </div>
       </div>
 
@@ -464,14 +536,39 @@ export default function AdminProductsPage() {
                       <button
                         onClick={() => handleToggleActive(p)}
                         className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none transition-colors ${p.isActive ? 'bg-emerald-500' : 'bg-neutral-300'}`}
-                        title={p.isActive ? 'Click to Deactivate' : 'Click to Activate'}
+                        title={p.isActive ? 'Live on User Site (Click to Deactivate)' : 'Deactivated / Hidden from Users (Click to Activate)'}
                       >
                         <span className="sr-only">Toggle active status</span>
                         <span aria-hidden="true" className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${p.isActive ? 'translate-x-2' : '-translate-x-2'}`} />
                       </button>
+                      {!p.isActive && (
+                        <div className="text-[10px] font-bold mt-0.5 text-neutral-400 uppercase tracking-wider">
+                          Inactive
+                        </div>
+                      )}
+                      {p.expiresAt && (
+                        <div className={`text-[10px] font-semibold mt-1 flex items-center justify-center gap-1 ${new Date(p.expiresAt) <= new Date() ? 'text-red-500' : 'text-amber-600'}`}>
+                          <span>⏰</span>
+                          <span>
+                            {new Date(p.expiresAt) <= new Date()
+                              ? 'Expired'
+                              : new Date(p.expiresAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                      )}
                     </td>
                     <td className="p-4 pr-6">
-                      <div className="flex items-center justify-end gap-1 whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
+                        {(!p.isActive || (p.expiresAt && new Date(p.expiresAt) <= new Date())) && (
+                          <button
+                            onClick={() => handleRepost(p)}
+                            className="px-2.5 py-1 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors flex items-center gap-1 shadow-xs cursor-pointer"
+                            title="Re-post this deal card live to the user panel"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                            Re-Post
+                          </button>
+                        )}
                         <Button variant="none" size="none"
                           onClick={() => handleOpenEdit(p)}
                           className="p-2 text-neutral-600 hover:text-[#f96b02] hover:bg-neutral-100 rounded-lg transition-colors"

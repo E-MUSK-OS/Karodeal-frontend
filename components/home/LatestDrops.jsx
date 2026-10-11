@@ -16,7 +16,9 @@ export default function LatestDrops() {
         const res = await fetch(`${apiUrl}/products`);
         if (res.ok) {
           const allProducts = await res.json();
-          setTopDeals(allProducts.slice(0, 6));
+          const now = new Date();
+          const activeDeals = allProducts.filter(p => p.isActive !== false && (!p.expiresAt || new Date(p.expiresAt) > now));
+          setTopDeals(activeDeals.slice(0, 6));
         }
       } catch (err) {
         console.error(err);

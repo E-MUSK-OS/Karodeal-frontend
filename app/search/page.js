@@ -22,7 +22,11 @@ function SearchContent() {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
         const res = await fetch(`${apiUrl}/products`);
-        if (res.ok) setProducts(await res.json());
+        if (res.ok) {
+          const data = await res.json();
+          const now = new Date();
+          setProducts(data.filter(p => p.isActive !== false && (!p.expiresAt || new Date(p.expiresAt) > now)));
+        }
       } catch (err) {
         console.error(err);
       }

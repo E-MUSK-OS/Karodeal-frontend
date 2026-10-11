@@ -6,7 +6,6 @@ import { Navigation, Autoplay } from 'swiper/modules';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
-import Button from '@/components/common/Button';
 
 export default function Slider({
   children,
@@ -34,8 +33,8 @@ export default function Slider({
           prevEl: `.${prevClass}`,
           nextEl: `.${nextClass}`,
         }}
-        autoplay={autoPlay ? { delay: autoPlayInterval, disableOnInteraction: false } : false}
-        className="!pt-5 !pb-5 px-1 sm:px-0 sm:mx-0"
+        autoplay={autoPlay ? { delay: autoPlayInterval, disableOnInteraction: false, pauseOnMouseEnter: true } : false}
+        className="!pt-6 !pb-6 px-1 sm:px-0 sm:mx-0 overflow-visible"
         loop={false}
         onInit={(swiper) => setIsLocked(swiper.isLocked)}
         onLock={() => setIsLocked(true)}
@@ -50,24 +49,26 @@ export default function Slider({
       </Swiper>
 
       {/* Left Navigation Button */}
-      <Button variant="none" size="none"
-        className={`${prevClass} absolute -left-1 sm:-left-2 md:-left-2 lg:-left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/90 backdrop-blur-sm rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.2)] items-center justify-center z-20 border border-white/20 hover:scale-110 hover:bg-[#f96b02] transition-all disabled:opacity-50 disabled:cursor-not-allowed ${isLocked ? 'hidden' : 'flex'}`}
+      <button
+        type="button"
+        className={`${prevClass} absolute -left-1 sm:-left-2 md:-left-3 lg:-left-4 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 bg-black text-white rounded-full shadow-[0_4px_16px_rgba(0,0,0,0.35)] items-center justify-center z-20 border border-neutral-800 hover:scale-110 hover:bg-[#f96b02] transition-all disabled:!opacity-0 disabled:!pointer-events-none [&.swiper-button-disabled]:!opacity-0 [&.swiper-button-disabled]:!pointer-events-none ${isLocked ? 'hidden' : 'flex'}`}
         aria-label="Scroll left"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="white" className="w-4 h-4">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5 sm:w-4 sm:h-4">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
-      </Button>
+      </button>
 
       {/* Right Navigation Button */}
-      <Button variant="none" size="none"
-        className={`${nextClass} absolute -right-1 sm:-right-2 md:-right-2 lg:-right-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/90 backdrop-blur-sm rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.2)] items-center justify-center z-20 border border-white/20 hover:scale-110 hover:bg-[#f96b02] transition-all disabled:opacity-50 disabled:cursor-not-allowed ${isLocked ? 'hidden' : 'flex'}`}
+      <button
+        type="button"
+        className={`${nextClass} absolute -right-1 sm:-right-2 md:-right-3 lg:-right-4 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 bg-black text-white rounded-full shadow-[0_4px_16px_rgba(0,0,0,0.35)] items-center justify-center z-20 border border-neutral-800 hover:scale-110 hover:bg-[#f96b02] transition-all disabled:!opacity-0 disabled:!pointer-events-none [&.swiper-button-disabled]:!opacity-0 [&.swiper-button-disabled]:!pointer-events-none ${isLocked ? 'hidden' : 'flex'}`}
         aria-label="Scroll right"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="white" className="w-4 h-4">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5 sm:w-4 sm:h-4">
           <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
         </svg>
-      </Button>
+      </button>
     </div>
   );
 }

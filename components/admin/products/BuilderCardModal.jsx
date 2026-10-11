@@ -18,6 +18,7 @@ export default function BuilderCardModal({ isOpen, onClose, onSuccess, dbStores,
     affiliateUrl: '',
     isTrending: false,
     isActive: true,
+    expiresAt: '',
   });
   const [imageInputType, setImageInputType] = useState('url');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -87,6 +88,7 @@ export default function BuilderCardModal({ isOpen, onClose, onSuccess, dbStores,
           affiliateUrl: formData.affiliateUrl.trim(),
           isTrending: formData.isTrending,
           isActive: formData.isActive,
+          expiresAt: formData.expiresAt ? new Date(formData.expiresAt).toISOString() : null,
           features: ['Best Seller', 'Verified Deal'],
         })
       });
@@ -217,6 +219,33 @@ export default function BuilderCardModal({ isOpen, onClose, onSuccess, dbStores,
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">Affiliate Link URL</label>
                 <input type="text" value={formData.affiliateUrl} onChange={(e) => setFormData({ ...formData, affiliateUrl: e.target.value })} placeholder="https://example.com/store/deal" className="w-full px-4 py-3 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-mono text-xs" />
+              </div>
+
+              {/* Auto Deactivate Date & Time Selection */}
+              <div className="bg-neutral-50 p-4 rounded-2xl border border-neutral-200/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-800 flex items-center gap-1.5">
+                    <span className="text-sm">⏰</span> Auto-Deactivate Date & Time <span className="text-neutral-400 font-normal lowercase">(optional)</span>
+                  </label>
+                  {formData.expiresAt && (
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, expiresAt: '' })}
+                      className="text-xs text-red-500 hover:text-red-700 font-bold transition-colors cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                <input
+                  type="datetime-local"
+                  value={formData.expiresAt}
+                  onChange={(e) => setFormData({ ...formData, expiresAt: e.target.value })}
+                  className="w-full px-4 py-2.5 text-sm bg-white border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-semibold text-neutral-800"
+                />
+                <p className="text-[11px] text-neutral-500 font-medium">
+                  The card will automatically deactivate and be hidden from categories, stores, and home deals after this date and time.
+                </p>
               </div>
 
 

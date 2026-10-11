@@ -74,7 +74,7 @@ export default async function Home() {
         <TopCategories categories={categories} />
 
 
-        <StoreQuickLinks stores={stores} />
+        <StoreQuickLinks stores={stores} products={products} />
 
         {/* Store-specific deal sections */}
         <div className="mb-8 md:mb-16">
@@ -88,7 +88,7 @@ export default async function Home() {
         </div>
 
         <section className="mb-10 md:mb-20">
-          <FeaturedBanners banners={banners} />
+          <FeaturedBanners banners={banners} stores={stores} products={products} />
         </section>
 
         {/* Today's Best Deals */}

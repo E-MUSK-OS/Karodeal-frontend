@@ -1,55 +1,126 @@
+'use client';
+
 import Link from 'next/link';
 
+const STORE_THEMES = {
+  amazon: {
+    headerBg: 'bg-gradient-to-br from-amber-100/80 via-orange-50 to-amber-100/40',
+    headerBorder: 'border-amber-200/60',
+  },
+  flipkart: {
+    headerBg: 'bg-gradient-to-br from-blue-100/80 via-sky-50 to-blue-100/40',
+    headerBorder: 'border-blue-200/60',
+  },
+  myntra: {
+    headerBg: 'bg-gradient-to-br from-pink-100/80 via-rose-50 to-orange-50/60',
+    headerBorder: 'border-pink-200/60',
+  },
+  ajio: {
+    headerBg: 'bg-gradient-to-br from-slate-200/80 via-slate-100 to-slate-200/50',
+    headerBorder: 'border-slate-300/60',
+  },
+  default: {
+    headerBg: 'bg-gradient-to-br from-neutral-100 via-neutral-50 to-neutral-100',
+    headerBorder: 'border-neutral-200/70',
+  },
+};
 
 export default function StoreCard({ store, products = [] }) {
-  const activeDeals = products.filter(p => p.store === store.id);
-  const activeCategories = [...new Set(activeDeals.map(p => p.categoryRel?.name || p.category))].filter(Boolean).slice(0, 3);
+  const storeKey = (store.slug || store.id || '').toLowerCase();
+  const theme = STORE_THEMES[storeKey] || STORE_THEMES.default;
+
+  const activeDeals = products.filter(
+    (p) => p.store === store.id || p.storeId === store.id || p.store === store.slug
+  );
+  const activeCategories = [
+    ...new Set(activeDeals.map((p) => p.categoryRel?.name || p.category)),
+  ]
+    .filter(Boolean)
+    .slice(0, 3);
 
   return (
     <Link
-      href={`/stores/${store.id}`}
-      className="group relative flex flex-col bg-neutral-50 rounded-2xl md:rounded-[32px] p-6 sm:p-8 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] border border-neutral-200 hover:border-black overflow-hidden h-full"
+      href={`/stores/${store.slug || store.id}`}
+      className="group relative flex flex-col justify-between bg-white rounded-2xl sm:rounded-3xl border border-neutral-200/90 hover:border-neutral-300 shadow-xs hover:shadow-xl active:shadow-md transition-all duration-300 overflow-hidden h-full hover:-translate-y-1.5 active:-translate-y-0.5 active:scale-[0.99] touch-manipulation select-none"
     >
-      {/* Subtle Color Accent Top Border */}
-      <div className={`absolute top-0 left-0 w-full h-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${store.color}`}></div>
+      {/* 1. Top Brand Header Bar */}
+      <div
+        className={`relative h-24 sm:h-28 w-full p-4 flex items-start justify-between ${theme.headerBg} border-b ${theme.headerBorder} transition-colors`}
+      >
+        {/* Verified Status Tag */}
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/90 backdrop-blur-xs text-neutral-800 shadow-2xs border border-white/50">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span>Verified Partner</span>
+        </span>
 
-      {/* Brand Header */}
-      <div className="flex items-start justify-between mb-8">
-        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white shadow-[0_4px_20px_-5px_rgba(0,0,0,0.1)] border border-neutral-100 flex items-center justify-center p-3 overflow-hidden group-hover:scale-105 transition-all duration-500">
+        {/* Live Deals Badge */}
+        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-neutral-900 text-white shadow-2xs group-hover:bg-[#f96b02] transition-colors">
+          {activeDeals.length} Deals
+        </span>
+      </div>
+
+      {/* 2. Floating Overlapping Logo Stage */}
+      <div className="px-5 sm:px-6 relative z-10">
+        <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-white shadow-md border border-neutral-100 p-2.5 -mt-9 sm:-mt-10 flex items-center justify-center group-hover:scale-105 group-hover:shadow-lg transition-all duration-300">
           <img
             src={store.logoUrl}
             alt={store.name}
-            className="w-full h-full object-contain"
+            className="max-w-full max-h-full object-contain filter"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              if (e.target.parentElement) {
+                e.target.parentElement.innerText = (store.name || '').substring(0, 2).toUpperCase();
+                e.target.parentElement.className =
+                  'w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-black text-white flex items-center justify-center font-black text-xl uppercase';
+              }
+            }}
           />
-        </div>
-        <div className="bg-neutral-100 text-neutral-600 text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-full tracking-widest uppercase group-hover:bg-black group-hover:text-white transition-colors duration-300">
-          {activeDeals.length} Deals
         </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-grow flex flex-col">
-        <h4 className="text-black tracking-tight mb-4 group-hover:translate-x-1 transition-transform duration-300">
+      {/* 3. Card Body: Store Title, Tagline & Category Pills */}
+      <div className="px-5 sm:px-6 pt-3 flex-grow flex flex-col">
+        <h4 className="font-black text-xl sm:text-2xl text-neutral-900 uppercase tracking-tight group-hover:text-[#f96b02] transition-colors leading-none mb-1.5">
           {store.name}
         </h4>
 
-        <div className="flex flex-wrap gap-2 mb-8 mt-auto">
-          {activeCategories.map(cat => (
-            <span key={cat} className="text-[10px] font-bold text-neutral-500 bg-neutral-50 px-3 py-1.5 rounded-lg border border-neutral-100 uppercase tracking-widest group-hover:border-neutral-200 group-hover:text-black transition-colors">
-              {cat}
+        <p className="text-xs sm:text-[13px] text-neutral-500 font-medium line-clamp-1 mb-4">
+          {store.description || 'Exclusive discounts & verified cashback offers'}
+        </p>
+
+        {/* Category Pills */}
+        {activeCategories.length > 0 ? (
+          <div className="flex flex-wrap gap-1.5 mt-auto mb-5">
+            {activeCategories.map((cat) => (
+              <span
+                key={cat}
+                className="px-2.5 py-1 rounded-lg text-[11px] font-semibold text-neutral-600 bg-neutral-100 group-hover:bg-neutral-200/70 transition-colors uppercase tracking-wider"
+              >
+                {cat}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-auto mb-5">
+            <span className="px-2.5 py-1 rounded-lg text-[11px] font-semibold text-neutral-400 bg-neutral-100 uppercase tracking-wider">
+              Trending Deals
             </span>
-          ))}
-        </div>
+          </div>
+        )}
       </div>
 
-      {/* Footer / CTA */}
-      <div className="mt-auto pt-6 border-t border-neutral-100 flex items-center justify-between group-hover:border-black transition-colors duration-300">
-        <span className="text-xs sm:text-sm font-bold text-black uppercase tracking-widest">
-          Explore Deals
-        </span>
-        <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center group-hover:bg-black transition-colors duration-300">
-          <svg className="w-5 h-5 text-black group-hover:text-white transition-all duration-300 transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+      {/* 4. Full-Width CTA Below */}
+      <div className="p-4 sm:p-5 pt-0 mt-auto">
+        <div className="w-full py-3 px-4 rounded-xl bg-neutral-900 group-hover:bg-[#f96b02] text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-300 shadow-xs group-hover:shadow-md">
+          <span>Explore Deals</span>
+          <svg
+            className="w-4 h-4 transform group-hover:translate-x-1.5 transition-transform duration-200"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2.5}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
           </svg>
         </div>
       </div>
