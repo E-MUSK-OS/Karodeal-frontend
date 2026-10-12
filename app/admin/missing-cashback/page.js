@@ -5,16 +5,26 @@ import { useRouter } from 'next/navigation';
 import { ShieldAlert, Search, CheckCircle, XCircle, Clock, Save, ArrowLeft, ArrowRight, Calendar, Paperclip, X } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
+import ConfirmModal from '@/components/common/ConfirmModal';
+import Lightbox from "yet-another-react-lightbox";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import "yet-another-react-lightbox/styles.css";
 
 export default function AdminMissingCashback() {
   const [tickets, setTickets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [userRole, setUserRole] = useState('ADMIN');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [lightboxImage, setLightboxImage] = useState(null);
 
   // Modal state
   const [status, setStatus] = useState('');
   const [adminNote, setAdminNote] = useState('');
+  const [awardedCashback, setAwardedCashback] = useState('');
+  const [formError, setFormError] = useState('');
+  const [formSuccess, setFormSuccess] = useState('');
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', confirmText: '', onConfirm: () => {}, isDestructive: false });
   const [isUpdating, setIsUpdating] = useState(false);
 
   const [chatMessage, setChatMessage] = useState('');
@@ -30,6 +40,7 @@ export default function AdminMissingCashback() {
       return;
     }
     const user = JSON.parse(userStr);
+    setUserRole(user.role || 'ADMIN');
 
     try {
       if (showLoading) setIsLoading(true);
@@ -65,30 +76,97 @@ export default function AdminMissingCashback() {
     return () => clearInterval(interval);
   }, [router]);
 
-  const handleUpdate = async (e) => {
-    e.preventDefault();
+  const initiateTicketUpdate = (targetStatus) => {
     if (!selectedTicket) return;
+    setFormError('');
+    setFormSuccess('');
+
+    if (targetStatus === 'REJECTED' && (!adminNote || !adminNote.trim())) {
+      setFormError("Admin note / rejection reason is compulsory when rejecting a ticket.");
+      return;
+    }
+
+    if (targetStatus === 'RESOLVED') {
+      if (awardedCashback && parseFloat(awardedCashback) > 0) {
+        setConfirmModal({
+          isOpen: true,
+          title: 'Confirm Ticket Resolution',
+          message: `Are you sure you want to resolve this ticket and credit ₹${awardedCashback} to ${selectedTicket.user?.name || 'the user'}?${adminNote.trim() ? ` Note: "${adminNote.trim()}".` : ''} Once resolved, this ticket CANNOT be modified or reopened.`,
+          confirmText: 'Yes, Resolve & Credit',
+          isDestructive: false,
+          onConfirm: () => executeTicketUpdate('RESOLVED')
+        });
+      } else {
+        setConfirmModal({
+          isOpen: true,
+          title: 'Confirm Ticket Resolution',
+          message: `Are you sure you want to mark this ticket as RESOLVED?${adminNote.trim() ? ` Note: "${adminNote.trim()}".` : ''} Once resolved, it CANNOT be modified or reopened.`,
+          confirmText: 'Yes, Mark Resolved',
+          isDestructive: false,
+          onConfirm: () => executeTicketUpdate('RESOLVED')
+        });
+      }
+    } else if (targetStatus === 'REJECTED') {
+      setConfirmModal({
+        isOpen: true,
+        title: 'Confirm Ticket Rejection',
+        message: `Are you sure you want to REJECT this ticket for ${selectedTicket.user?.name || 'the user'}? Rejection reason: "${adminNote.trim()}". Once rejected, it CANNOT be modified or reopened.`,
+        confirmText: 'Yes, Reject Ticket',
+        isDestructive: true,
+        onConfirm: () => executeTicketUpdate('REJECTED')
+      });
+    }
+  };
+
+  const executeTicketUpdate = async (targetStatus) => {
+    if (!selectedTicket?.id) {
+      setFormError('No ticket selected.');
+      return;
+    }
 
     const userStr = localStorage.getItem('adminUser');
+    if (!userStr) {
+      router.push('/admin/login');
+      return;
+    }
     const user = JSON.parse(userStr);
     setIsUpdating(true);
+    setFormError('');
+    setFormSuccess('');
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/missing-cashback/admin/${selectedTicket.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`
+          'Authorization': `Bearer ${user?.token || ''}`
         },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ 
+          status: targetStatus, 
+          adminNote: adminNote.trim() || undefined, 
+          awardedCashback: targetStatus === 'RESOLVED' && awardedCashback && parseFloat(awardedCashback) > 0 ? parseFloat(awardedCashback) : undefined 
+        })
       });
 
+      let data = {};
+      try {
+        data = await res.json();
+      } catch (e) {
+        // Fallback for non-JSON response
+      }
+
       if (res.ok) {
-        setSelectedTicket(null);
-        fetchTickets();
+        setFormSuccess(data.message || 'Ticket updated successfully');
+        setTimeout(() => {
+          setSelectedTicket(null);
+          fetchTickets();
+        }, 1200);
+      } else {
+        setFormError(data.error || 'Failed to update ticket');
       }
     } catch (error) {
-      console.error('Failed to update ticket');
+      console.error('Failed to update ticket', error);
+      setFormError('Failed to update ticket. Please check connection and try again.');
     } finally {
       setIsUpdating(false);
     }
@@ -137,8 +215,19 @@ export default function AdminMissingCashback() {
 
   const openUpdateModal = (ticket) => {
     setSelectedTicket(ticket);
-    setStatus(ticket.status);
+    setStatus(ticket.status === 'PENDING' ? 'RESOLVED' : ticket.status);
     setAdminNote(ticket.adminNote || '');
+
+    const prod = ticket.product || ticket.matchedClaim?.product;
+    let defaultCashback = '';
+    if (prod && prod.cashback !== undefined && prod.cashback !== null && prod.cashback !== '') {
+      defaultCashback = String(prod.cashback);
+    } else if (ticket.matchedClaim?.awardedCashback) {
+      defaultCashback = String(ticket.matchedClaim.awardedCashback);
+    }
+    setAwardedCashback(defaultCashback);
+    setFormError('');
+    setFormSuccess('');
 
     if (ticket.adminUnread) {
       const userStr = localStorage.getItem('adminUser');
@@ -167,8 +256,10 @@ export default function AdminMissingCashback() {
 
   const getImageUrl = (url) => {
     if (!url) return '';
-    if (url.startsWith('data:')) return url;
-    return `${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${url}`;
+    if (typeof url !== 'string') return '';
+    if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) return url;
+    const backendBase = (process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '');
+    return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 
   const filteredTickets = tickets.filter(t =>
@@ -181,7 +272,14 @@ export default function AdminMissingCashback() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h3 className="font-bold text-neutral-900 tracking-tight">Missing Cashback Claims</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="font-bold text-neutral-900 tracking-tight">Missing Cashback Claims</h3>
+            {userRole === 'SUB_ADMIN' && (
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                Your Cards Only
+              </span>
+            )}
+          </div>
           <p className="text-sm text-neutral-500 mt-1">Manage and resolve user cashback tickets</p>
         </div>
 
@@ -221,7 +319,7 @@ export default function AdminMissingCashback() {
                 <div className="flex items-center gap-2 text-sm font-medium text-neutral-500">
                   <Calendar className="w-4 h-4" /> Raised on {formatDate(selectedTicket.createdAt)}
                   <span className="mx-2">•</span>
-                  <span className="text-sm lg:text-[15px] xl:text-base font-mono bg-neutral-100 px-2 py-0.5 rounded text-neutral-600">#{selectedTicket.id.slice(-8).toUpperCase()}</span>
+                  <span className="text-sm lg:text-[15px] xl:text-base font-mono bg-neutral-100 px-2 py-0.5 rounded text-neutral-600">#{selectedTicket.ticketId || selectedTicket.id.slice(-6).toUpperCase()}</span>
                 </div>
               </div>
 
@@ -236,6 +334,12 @@ export default function AdminMissingCashback() {
                 <div>
                   <h3 className="font-bold text-neutral-400 uppercase tracking-wider mb-4">Order Details</h3>
                   <div className="bg-neutral-50 rounded-2xl p-5 border border-neutral-100 space-y-4">
+                    {selectedTicket.product && (
+                      <div>
+                        <p className="text-xs text-neutral-500 mb-1">Product / Deal</p>
+                        <p className="text-sm font-bold text-neutral-900">{selectedTicket.product.title}</p>
+                      </div>
+                    )}
                     <div>
                       <p className="text-xs text-neutral-500 mb-1">Order Amount</p>
                       <p className="text-lg font-black text-neutral-900">₹{selectedTicket.orderAmount}</p>
@@ -265,9 +369,14 @@ export default function AdminMissingCashback() {
                         <span className="block text-[10px] font-bold text-neutral-400 uppercase mb-2">Order Screenshots</span>
                         <div className="flex flex-wrap gap-2">
                           {selectedTicket.orderScreenshots.map((img, i) => (
-                            <a key={i} href={getImageUrl(img)} target="_blank" rel="noreferrer">
-                              <img src={getImageUrl(img)} alt={`Proof ${i + 1}`} className="w-16 h-16 object-cover rounded-lg border border-neutral-200 hover:opacity-80 transition-opacity" />
-                            </a>
+                            <button
+                              type="button"
+                              key={i}
+                              onClick={() => setLightboxImage(getImageUrl(img))}
+                              className="cursor-zoom-in relative group rounded-lg overflow-hidden border border-neutral-200 focus:outline-none"
+                            >
+                              <img src={getImageUrl(img)} alt={`Proof ${i + 1}`} className="w-16 h-16 object-cover group-hover:scale-105 transition-transform" />
+                            </button>
                           ))}
                         </div>
                       </div>
@@ -285,9 +394,13 @@ export default function AdminMissingCashback() {
                         </span>
                         <p className={`text-sm break-words ${msg.sender === 'USER' ? 'text-neutral-700' : 'text-amber-900'}`}>{msg.message}</p>
                         {msg.attachment && (
-                          <a href={getImageUrl(msg.attachment)} target="_blank" rel="noreferrer" className="block mt-2">
-                            <img src={getImageUrl(msg.attachment)} alt="Attachment" className="w-24 h-24 object-cover rounded-lg border border-neutral-200 hover:opacity-80 transition-opacity" />
-                          </a>
+                          <button
+                            type="button"
+                            onClick={() => setLightboxImage(getImageUrl(msg.attachment))}
+                            className="block mt-2 cursor-zoom-in relative group rounded-lg overflow-hidden border border-neutral-200 focus:outline-none"
+                          >
+                            <img src={getImageUrl(msg.attachment)} alt="Attachment" className="w-24 h-24 object-cover group-hover:scale-105 transition-transform" />
+                          </button>
                         )}
                       </div>
                     ))}
@@ -330,43 +443,237 @@ export default function AdminMissingCashback() {
 
               <div>
                 <h3 className="font-bold text-neutral-400 uppercase tracking-wider mb-4">Manage & Update</h3>
-                <form onSubmit={handleUpdate} className="bg-white rounded-2xl p-6 border border-neutral-200 shadow-sm space-y-5">
-                  <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-2">Update Status</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {['PENDING', 'RESOLVED', 'REJECTED'].map((opt) => (
-                        <Button variant="none" size="none"
-                          key={opt}
-                          type="button"
-                          onClick={() => setStatus(opt)}
-                          className={`py-2 text-xs font-bold rounded-lg transition-colors border ${status === opt
-                            ? (opt === 'RESOLVED' ? 'bg-green-100 text-green-700 border-green-200' :
-                              opt === 'REJECTED' ? 'bg-red-100 text-red-700 border-red-200' :
-                                'bg-amber-100 text-amber-700 border-amber-200')
-                            : 'bg-white text-neutral-500 border-neutral-200 hover:bg-neutral-50'
-                            }`}
-                        >
-                          {opt}
-                        </Button>
-                      ))}
-                    </div>
-                    {status === 'RESOLVED' && (
-                      <p className="text-[10px] text-amber-600 mt-2 font-medium bg-amber-50 p-2 rounded border border-amber-100">
-                        * Note: Setting status to RESOLVED does not automatically add money. You must add the cashback to the user&apos;s wallet manually.
-                      </p>
-                    )}
-                  </div>
+                {selectedTicket.status === 'PENDING' ? (
+                  <div className="bg-white rounded-2xl p-6 border border-neutral-200 shadow-sm space-y-5">
+                    
+                    {/* Linked Cashback Claim Banner if exists */}
+                    {selectedTicket.matchedClaim && (
+                      <div className="bg-amber-50/80 border border-amber-200 rounded-xl p-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                            <ShieldAlert className="w-4 h-4 text-amber-600" /> Linked Cashback Claim
+                          </span>
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide ${
+                            selectedTicket.matchedClaim.status === 'APPROVED' ? 'bg-green-100 text-green-700 border border-green-200' :
+                            selectedTicket.matchedClaim.status === 'REJECTED' ? 'bg-red-100 text-red-700 border border-red-200' :
+                            'bg-amber-100 text-amber-700 border border-amber-200'
+                          }`}>
+                            Claim {selectedTicket.matchedClaim.status}
+                          </span>
+                        </div>
+                        
+                        <div className="text-xs text-neutral-700 space-y-1">
+                          <p><span className="font-medium text-neutral-500">Claim ID:</span> #{selectedTicket.matchedClaim.ticketId || selectedTicket.matchedClaim.id.slice(-6).toUpperCase()}</p>
+                          {(selectedTicket.product?.title || selectedTicket.matchedClaim.product?.title) && (
+                            <p><span className="font-medium text-neutral-500">Product Name:</span> <span className="font-bold text-neutral-900">{selectedTicket.product?.title || selectedTicket.matchedClaim.product?.title}</span></p>
+                          )}
+                          <p>
+                            <span className="font-medium text-neutral-500">Product Cashback:</span>{' '}
+                            <span className="font-bold text-green-700">
+                              ₹{selectedTicket.product?.cashback ?? selectedTicket.matchedClaim.product?.cashback ?? selectedTicket.matchedClaim.awardedCashback ?? 0}
+                            </span>
+                          </p>
+                        </div>
 
-                  <div className="pt-2">
-                    <Button variant="none" size="none"
-                      type="submit"
-                      disabled={isUpdating}
-                      className="w-full bg-black hover:bg-[#f96b02] text-white px-5 py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-70 flex items-center justify-center gap-2 shadow-md"
-                    >
-                      <Save className="w-4 h-4" /> {isUpdating ? 'Saving...' : 'Save Changes'}
-                    </Button>
+                        {/* Submitted Proofs from Claim */}
+                        {(selectedTicket.matchedClaim.invoiceScreenshot || selectedTicket.matchedClaim.reviewScreenshot || selectedTicket.matchedClaim.noReturnScreenshot) && (
+                          <div className="pt-2 border-t border-amber-200/60">
+                            <span className="block text-[10px] font-bold text-neutral-500 uppercase mb-1.5">Submitted Proofs in Claim</span>
+                            <div className="flex gap-2">
+                              {selectedTicket.matchedClaim.invoiceScreenshot && (
+                                <button
+                                  type="button"
+                                  onClick={() => setLightboxImage(getImageUrl(selectedTicket.matchedClaim.invoiceScreenshot))}
+                                  className="cursor-zoom-in relative rounded-lg overflow-hidden border border-amber-200 w-14 h-14 bg-white hover:opacity-90 transition-opacity"
+                                  title="1. Invoice / Receipt"
+                                >
+                                  <img src={getImageUrl(selectedTicket.matchedClaim.invoiceScreenshot)} alt="Invoice" className="w-full h-full object-cover" />
+                                </button>
+                              )}
+                              {selectedTicket.matchedClaim.reviewScreenshot && (
+                                <button
+                                  type="button"
+                                  onClick={() => setLightboxImage(getImageUrl(selectedTicket.matchedClaim.reviewScreenshot))}
+                                  className="cursor-zoom-in relative rounded-lg overflow-hidden border border-amber-200 w-14 h-14 bg-white hover:opacity-90 transition-opacity"
+                                  title="2. Product Review"
+                                >
+                                  <img src={getImageUrl(selectedTicket.matchedClaim.reviewScreenshot)} alt="Review" className="w-full h-full object-cover" />
+                                </button>
+                              )}
+                              {selectedTicket.matchedClaim.noReturnScreenshot && (
+                                <button
+                                  type="button"
+                                  onClick={() => setLightboxImage(getImageUrl(selectedTicket.matchedClaim.noReturnScreenshot))}
+                                  className="cursor-zoom-in relative rounded-lg overflow-hidden border border-amber-200 w-14 h-14 bg-white hover:opacity-90 transition-opacity"
+                                  title="3. Non-Return Proof"
+                                >
+                                  <img src={getImageUrl(selectedTicket.matchedClaim.noReturnScreenshot)} alt="No Return" className="w-full h-full object-cover" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-xs font-bold text-neutral-700 mb-2">Update Status <span className="text-red-500">*</span></label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {['RESOLVED', 'REJECTED'].map((opt) => (
+                          <Button variant="none" size="none"
+                            key={opt}
+                            type="button"
+                            onClick={() => {
+                              setStatus(opt);
+                              if (formError) setFormError('');
+                            }}
+                            className={`py-2.5 text-xs font-bold rounded-xl transition-all border ${status === opt
+                              ? (opt === 'RESOLVED' ? 'bg-green-100 text-green-700 border-green-300 ring-2 ring-green-500/20 shadow-sm' :
+                                'bg-red-100 text-red-700 border-red-300 ring-2 ring-red-500/20 shadow-sm')
+                              : 'bg-white text-neutral-500 border-neutral-200 hover:bg-neutral-50 hover:text-black'
+                              }`}
+                          >
+                            {opt}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Direct Cashback Credit Option when RESOLVED is selected */}
+                    {status === 'RESOLVED' && (
+                      <div className="bg-green-50/70 border border-green-200 rounded-xl p-4 space-y-3 animate-in fade-in duration-200">
+                        <div className="flex items-center gap-2 text-green-900 font-bold text-xs uppercase tracking-wider">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <span>Award Cashback (Direct Wallet Credit)</span>
+                        </div>
+                        <p className="text-xs text-neutral-600">
+                          Enter the cashback amount to credit directly to the user&apos;s wallet.
+                          {selectedTicket.matchedClaim ? ' This will also automatically approve the linked claim.' : ''}
+                        </p>
+                        <div>
+                          <label className="block text-xs font-bold text-neutral-700 mb-1">
+                            Cashback Amount (₹) <span className="text-neutral-400 font-normal">(Leave empty if no wallet credit needed)</span>
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-2.5 text-neutral-400 font-bold text-sm">₹</span>
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={awardedCashback}
+                              onChange={(e) => {
+                                setAwardedCashback(e.target.value);
+                                if (formError) setFormError('');
+                              }}
+                              placeholder="e.g. 50"
+                              className="w-full pl-8 pr-4 py-2 bg-white border border-green-300 rounded-xl text-sm font-bold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-green-500"
+                            />
+                          </div>
+                          <p className="text-[10px] text-green-700 font-medium mt-1">
+                            * Pre-filled with product cashback.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-xs font-bold text-neutral-700 mb-1">
+                        Admin Note / Resolution Comment {status === 'REJECTED' ? (
+                          <span className="text-red-500 font-extrabold">* (Compulsory for Reject)</span>
+                        ) : (
+                          <span className="text-neutral-400 font-normal">(Optional)</span>
+                        )}
+                      </label>
+                      <textarea
+                        value={adminNote}
+                        onChange={(e) => {
+                          setAdminNote(e.target.value);
+                          if (formError) setFormError('');
+                        }}
+                        placeholder={status === 'REJECTED' ? "Add reason for rejection (Required)..." : "Add an optional note or explanation..."}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black resize-none"
+                      />
+                      <p className="text-[10px] text-neutral-500 mt-1">
+                        {status === 'REJECTED' ? '* Compulsory: You must specify a reason for rejecting.' : '* Optional when resolving.'}
+                      </p>
+                    </div>
+
+                    {formError && (
+                      <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-semibold">
+                        {formError}
+                      </div>
+                    )}
+
+                    {formSuccess && (
+                      <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-xs font-semibold">
+                        {formSuccess}
+                      </div>
+                    )}
+
+                    <div className="pt-2">
+                      <Button variant="none" size="none"
+                        type="button"
+                        onClick={() => initiateTicketUpdate(status)}
+                        disabled={isUpdating || !status}
+                        className={`w-full text-white px-5 py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-70 flex items-center justify-center gap-2 shadow-md ${
+                          status === 'RESOLVED' && awardedCashback && parseFloat(awardedCashback) > 0
+                            ? 'bg-green-600 hover:bg-green-700'
+                            : status === 'REJECTED'
+                              ? 'bg-red-600 hover:bg-red-700'
+                              : 'bg-black hover:bg-[#f96b02]'
+                        }`}
+                      >
+                        {status === 'RESOLVED' && awardedCashback && parseFloat(awardedCashback) > 0 ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            {isUpdating ? 'Processing...' : `Resolve & Credit ₹${awardedCashback}`}
+                          </>
+                        ) : status === 'RESOLVED' ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            {isUpdating ? 'Processing...' : 'Mark Resolved'}
+                          </>
+                        ) : status === 'REJECTED' ? (
+                          <>
+                            <XCircle className="w-4 h-4" />
+                            {isUpdating ? 'Processing...' : 'Reject Ticket'}
+                          </>
+                        ) : (
+                          <>
+                            <Save className="w-4 h-4" />
+                            {isUpdating ? 'Processing...' : 'Save Decision'}
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
-                </form>
+                ) : (
+                  <div className="bg-white rounded-2xl p-6 border border-neutral-200 shadow-sm space-y-4">
+                    <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
+                      <span className="text-xs font-bold text-neutral-500 uppercase">Ticket Status</span>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
+                        selectedTicket.status === 'RESOLVED' ? 'bg-green-100 text-green-700 border border-green-200' :
+                        'bg-red-100 text-red-700 border border-red-200'
+                      }`}>
+                        {selectedTicket.status}
+                      </span>
+                    </div>
+
+                    {selectedTicket.adminNote && (
+                      <div>
+                        <span className="block text-xs font-bold text-neutral-500 uppercase mb-1">Admin Resolution Note</span>
+                        <p className="text-sm font-medium text-neutral-800 bg-neutral-50 p-3 rounded-xl border border-neutral-200">
+                          {selectedTicket.adminNote}
+                        </p>
+                      </div>
+                    )}
+
+                    <p className="text-xs text-neutral-500 font-medium italic pt-2 border-t border-neutral-100">
+                      * This ticket has been finalized ({selectedTicket.status}) and cannot be modified or reopened.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -398,16 +705,23 @@ export default function AdminMissingCashback() {
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-semibold text-sm text-neutral-900">{ticket.user?.name || 'Unknown'}</span>
                           <span className="text-[10px] font-mono font-semibold bg-neutral-100 text-neutral-500 px-1.5 py-0.5 rounded">
-                            #{ticket.id.slice(-8).toUpperCase()}
+                            #{ticket.ticketId || ticket.id.slice(-6).toUpperCase()}
                           </span>
                           {ticket.adminUnread && (
                             <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse ml-1"></span>
                           )}
                         </div>
                         <div className="text-xs text-neutral-500 mb-1">{ticket.user?.email}</div>
-                        <span className="inline-block bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded border border-blue-100">
-                          {ticket.storeName}
-                        </span>
+                        <div className="flex flex-wrap gap-1.5 items-center">
+                          <span className="inline-block bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded border border-blue-100">
+                            {ticket.storeName}
+                          </span>
+                          {ticket.product && (
+                            <span className="inline-block bg-neutral-100 text-neutral-700 text-[10px] font-bold px-2 py-0.5 rounded border border-neutral-200 max-w-[170px] truncate" title={ticket.product.title}>
+                              📦 {ticket.product.title}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="py-4 px-4">
                         <div className="font-bold text-sm text-neutral-900">₹{ticket.orderAmount}</div>
@@ -445,6 +759,14 @@ export default function AdminMissingCashback() {
           )}
         </div>
       )}
+      <Lightbox
+        open={!!lightboxImage}
+        close={() => setLightboxImage(null)}
+        slides={[{ src: lightboxImage }]}
+        plugins={[Zoom]}
+        zoom={{ scrollToZoom: true, maxZoomPixelRatio: 5 }}
+      />
+      <ConfirmModal {...confirmModal} onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })} />
     </div>
   );
 }

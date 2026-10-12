@@ -21,6 +21,7 @@ export default function AdminProductsPage() {
   const [selectedStore, setSelectedStore] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL' | 'ACTIVE' | 'INACTIVE' | 'EXPIRED'
   const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
+  const [currentRole, setCurrentRole] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
   const [isBuilderModalOpen, setIsBuilderModalOpen] = useState(false);
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
@@ -68,7 +69,11 @@ export default function AdminProductsPage() {
     setIsReloading(true);
     try {
       const adminUserStr = localStorage.getItem('adminUser');
-      const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
+      const adminObj = adminUserStr ? JSON.parse(adminUserStr) : null;
+      const token = adminObj ? adminObj.token : null;
+      if (adminObj?.role) {
+        setCurrentRole(adminObj.role);
+      }
 
       let productsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/admin`, { headers: { 'Authorization': `Bearer ${token}` } });
       if (productsRes.status === 404) {
@@ -328,9 +333,18 @@ export default function AdminProductsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="font-extrabold text-neutral-900">Product & Deal Cards</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="font-extrabold text-neutral-900">Product & Deal Cards</h3>
+            {currentRole === 'SUB_ADMIN' && (
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
+                Your Cards Only
+              </span>
+            )}
+          </div>
           <p className="text-sm text-neutral-500">
-            Manage product cards shown across the website dynamically from the database.
+            {currentRole === 'SUB_ADMIN' 
+              ? 'Viewing and managing the cards created by your account.' 
+              : 'Manage product cards shown across the website dynamically from the database.'}
           </p>
         </div>
 
@@ -506,7 +520,14 @@ export default function AdminProductsPage() {
                           }}
                         />
                       </div>
-                      <div className="font-bold text-neutral-900 line-clamp-1 max-w-xs">{p.title}</div>
+                      <div className="min-w-0">
+                        <div className="font-bold text-neutral-900 line-clamp-1 max-w-xs">{p.title}</div>
+                        {currentRole === 'ADMIN' && p.createdBy && (
+                          <div className="text-[10px] text-neutral-400 font-medium">
+                            Added by: <span className="font-semibold text-neutral-600">{p.createdBy.name || p.createdBy.email}</span> {p.createdBy.role === 'SUB_ADMIN' ? '(Sub-Admin)' : ''}
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="p-4">
                       <span className="px-2.5 py-1 rounded-full text-xs font-bold uppercase bg-neutral-100 text-neutral-900 border border-neutral-200">
@@ -649,6 +670,7 @@ export default function AdminProductsPage() {
         onSuccess={() => { setEditingProduct(null); loadProducts(); showToast('Product card updated successfully!'); }}
         dbStores={dbStores}
         dbCategories={dbCategories}
+        existingProducts={products}
       />
 
       {/* Add Modals */}
@@ -659,6 +681,7 @@ export default function AdminProductsPage() {
           onSuccess={() => { setIsBuilderModalOpen(false); loadProducts(); showToast('New product card added!'); }}
           dbStores={dbStores}
           dbCategories={dbCategories}
+          existingProducts={products}
         />
       )}
 
@@ -669,6 +692,7 @@ export default function AdminProductsPage() {
           onSuccess={() => { setIsCustomModalOpen(false); loadProducts(); showToast('Custom product card added!'); }}
           dbStores={dbStores}
           dbCategories={dbCategories}
+          existingProducts={products}
         />
       )}
 

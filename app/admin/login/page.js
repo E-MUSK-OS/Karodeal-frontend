@@ -38,7 +38,7 @@ export default function AdminLoginPage() {
         throw new Error(data.error || 'Failed to login');
       }
 
-      if (data.user.role !== 'ADMIN') {
+      if (data.user.role !== 'ADMIN' && data.user.role !== 'SUB_ADMIN') {
         throw new Error('Access Denied: You do not have administrator privileges.');
       }
 

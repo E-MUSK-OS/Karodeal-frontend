@@ -10,7 +10,7 @@ const PROCESS_STEPS = [
   {
     stepNumber: '01',
     title: 'SELECT STORE',
-    description: 'Browse from over 100+ verified partner stores including Amazon, Flipkart, and Myntra to start shopping.',
+    description: 'Find and choose your favorite partner store or shopping brand on KaroDeal.',
   },
   {
     stepNumber: '02',

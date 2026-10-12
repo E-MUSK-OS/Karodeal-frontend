@@ -10,10 +10,15 @@ export default function AdminHeader({ onMenuClick }) {
   const router = useRouter();
 
   useEffect(() => {
-    const adminStr = localStorage.getItem('adminUser');
-    if (adminStr) {
-      setAdminUser(JSON.parse(adminStr));
-    }
+    const syncUser = () => {
+      const adminStr = localStorage.getItem('adminUser');
+      if (adminStr) {
+        setAdminUser(JSON.parse(adminStr));
+      }
+    };
+    syncUser();
+    window.addEventListener('admin-auth-change', syncUser);
+    return () => window.removeEventListener('admin-auth-change', syncUser);
   }, []);
 
   const handleLogout = () => {
@@ -21,6 +26,8 @@ export default function AdminHeader({ onMenuClick }) {
     window.dispatchEvent(new Event('admin-auth-change'));
     router.push('/admin/login');
   };
+
+  const isSubAdmin = adminUser?.role === 'SUB_ADMIN';
 
   return (
     <header className="h-16 bg-white border-b border-neutral-200 px-4 md:px-6 flex items-center justify-between sticky top-0 z-30 w-full">
@@ -47,19 +54,28 @@ export default function AdminHeader({ onMenuClick }) {
           View Live Store
         </Link>
 
-
-
         {/* Admin Badge */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-neutral-900 text-white flex items-center justify-center font-bold text-sm">
-            A
+          <div className={`w-9 h-9 rounded-full text-white flex items-center justify-center font-bold text-sm ${
+            isSubAdmin ? 'bg-amber-600' : 'bg-neutral-900'
+          }`}>
+            {adminUser?.name?.charAt(0)?.toUpperCase() || 'A'}
           </div>
           <div className="hidden md:block text-left">
-            <div className="text-xs font-bold text-neutral-900 leading-none mb-0.5">
-              {adminUser?.name || 'Admin Manager'}
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-neutral-900 leading-none">
+                {adminUser?.name || 'Administrator'}
+              </span>
+              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                isSubAdmin 
+                  ? 'bg-amber-100 text-amber-800 border border-amber-200' 
+                  : 'bg-neutral-100 text-neutral-800 border border-neutral-200'
+              }`}>
+                {isSubAdmin ? 'Sub-Admin' : 'Main Admin'}
+              </span>
             </div>
-            <div className="text-[10px] text-neutral-500 font-semibold leading-none">
-              {adminUser?.email || 'admin@tagdo.com'}
+            <div className="text-[10px] text-neutral-500 font-semibold leading-none mt-1">
+              {adminUser?.email || ''}
             </div>
           </div>
           <Button variant="none" size="none"

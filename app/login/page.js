@@ -183,7 +183,7 @@ export default function Login() {
           {/* Terms and Bottom Button */}
           <div className="mt-auto">
             <p className="text-[13px] text-neutral-500 mb-5 leading-relaxed">
-              By continuing, you agree to Tagdo's <Link href="/terms" className="text-sm lg:text-[15px] xl:text-base text-black font-medium hover:underline">terms & conditions</Link> and <Link href="/privacy-policy" className="text-sm lg:text-[15px] xl:text-base text-black font-medium hover:underline">privacy policy</Link>
+              By continuing, you agree to Karodeal's <Link href="/terms" className="text-sm lg:text-[15px] xl:text-base text-black font-medium hover:underline">terms & conditions</Link> and <Link href="/privacy-policy" className="text-sm lg:text-[15px] xl:text-base text-black font-medium hover:underline">privacy policy</Link>
             </p>
 
             <Button variant="none" size="none"

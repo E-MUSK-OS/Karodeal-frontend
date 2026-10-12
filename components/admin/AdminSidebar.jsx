@@ -1,14 +1,34 @@
 'use client';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Button from '@/components/common/Button';
 import { 
-  LayoutDashboard, ShoppingBag, FolderTree, Tag, Users, Settings, LogOut, Package, IndianRupee, Ticket, X, MousePointerClick, Mail, MessageSquare
+  LayoutDashboard, ShoppingBag, FolderTree, Tag, Users, Settings, LogOut, Package, IndianRupee, Ticket, X, MousePointerClick, Mail, MessageSquare, ShieldCheck, ShieldAlert
 } from 'lucide-react';
 
 export default function AdminSidebar({ isOpen, setIsOpen }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [role, setRole] = useState(null);
+
+  useEffect(() => {
+    const updateRole = () => {
+      try {
+        const adminStr = localStorage.getItem('adminUser');
+        if (adminStr) {
+          const user = JSON.parse(adminStr);
+          setRole(user.role || 'ADMIN');
+        }
+      } catch (e) {
+        setRole(null);
+      }
+    };
+
+    updateRole();
+    window.addEventListener('admin-auth-change', updateRole);
+    return () => window.removeEventListener('admin-auth-change', updateRole);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('adminUser');
@@ -16,7 +36,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
     router.push('/admin/login');
   };
 
-  const navItems = [
+  const allNavItems = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
     { name: 'Payout Requests', href: '/admin/payouts', icon: IndianRupee },
     { name: 'Products & Cards', href: '/admin/products', icon: Package },
@@ -30,6 +50,20 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
     { name: 'Messages', href: '/admin/messages', icon: MessageSquare },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
+
+  // Sub-admin can only see: Products & Cards, Cashback Claims, Missing Cashback, Click Tracking, Settings (plus Dashboard)
+  const subAdminAllowedHrefs = [
+    '/admin/dashboard',
+    '/admin/products',
+    '/admin/claims',
+    '/admin/missing-cashback',
+    '/admin/clicks',
+    '/admin/settings'
+  ];
+
+  const navItems = role === 'SUB_ADMIN'
+    ? allNavItems.filter((item) => subAdminAllowedHrefs.includes(item.href))
+    : allNavItems;
 
   return (
     <>
@@ -52,7 +86,13 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
           <div className="flex items-center gap-3">
             <img src="/images/logo.png" alt="KaroDeal Admin Logo" className="h-9 w-auto object-contain" />
             <div>
-              <span className="text-[10px] text-neutral-500 font-bold tracking-wider uppercase">Admin Control</span>
+              <span className={`text-[10px] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded ${
+                role === 'SUB_ADMIN' 
+                  ? 'bg-amber-100 text-amber-800' 
+                  : 'bg-neutral-100 text-neutral-700'
+              }`}>
+                {role === 'SUB_ADMIN' ? 'Sub-Admin' : 'Main Admin'}
+              </span>
             </div>
           </div>
           

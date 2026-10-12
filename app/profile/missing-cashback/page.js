@@ -2,15 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShieldAlert, Plus, X, Calendar, Search, ArrowRight, Edit2, Paperclip, ChevronDown, Loader2 } from 'lucide-react';
+import { ShieldAlert, Plus, X, Calendar, Search, ArrowRight, Edit2, Paperclip, ChevronDown, Loader2, Maximize2 } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
+import Lightbox from "yet-another-react-lightbox";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import "yet-another-react-lightbox/styles.css";
 
 export default function MissingCashback() {
   const [tickets, setTickets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [viewingTicket, setViewingTicket] = useState(null);
+  const [lightboxImage, setLightboxImage] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [availableStores, setAvailableStores] = useState([]);
 
@@ -20,6 +24,10 @@ export default function MissingCashback() {
   const [orderId, setOrderId] = useState('');
   const [orderAmount, setOrderAmount] = useState('');
   const [userNote, setUserNote] = useState('');
+  const [productId, setProductId] = useState('');
+  const [productSearch, setProductSearch] = useState('');
+  const [availableProducts, setAvailableProducts] = useState([]);
+  const [showProductDropdown, setShowProductDropdown] = useState(false);
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingTicketId, setEditingTicketId] = useState(null);
@@ -81,34 +89,68 @@ export default function MissingCashback() {
     }
   };
 
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/products`);
+      if (res.ok) {
+        const data = await res.json();
+        const prods = Array.isArray(data) ? data : data.products || [];
+        setAvailableProducts(prods);
+        return prods;
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+    return [];
+  };
+
   useEffect(() => {
     fetchTickets(true);
     fetchStores();
+
+    const initData = async () => {
+      const prods = await fetchProducts();
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('autoOpen') === 'true') {
+          setStoreName(params.get('storeName') || '');
+
+          try {
+            if (params.get('orderDate')) {
+              setOrderDate(new Date(params.get('orderDate')).toISOString().split('T')[0]);
+            }
+          } catch (e) { }
+
+          setOrderId(params.get('orderId') || '');
+          setOrderAmount(params.get('orderAmount') || '');
+          const pId = params.get('productId') || '';
+          setProductId(pId);
+          if (pId && prods) {
+            const found = prods.find(p => p.id === pId);
+            if (found) setProductSearch(found.title);
+          }
+          setUserNote('My manual cashback claim was rejected. Please review.');
+          setIsModalOpen(true);
+        }
+      }
+    };
+    initData();
 
     const interval = setInterval(() => {
       fetchTickets(false);
     }, 5000); // Polling every 5 seconds
 
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('autoOpen') === 'true') {
-        setStoreName(params.get('storeName') || '');
-
-        try {
-          if (params.get('orderDate')) {
-            setOrderDate(new Date(params.get('orderDate')).toISOString().split('T')[0]);
-          }
-        } catch (e) { }
-
-        setOrderId(params.get('orderId') || '');
-        setOrderAmount(params.get('orderAmount') || '');
-        setUserNote('My manual cashback claim was rejected. Please review.');
-        setIsModalOpen(true);
-      }
-    }
-
     return () => clearInterval(interval);
   }, [router]);
+
+  useEffect(() => {
+    if (productId && availableProducts.length > 0 && !productSearch) {
+      const matched = availableProducts.find(p => p.id === productId);
+      if (matched) {
+        setProductSearch(matched.title);
+      }
+    }
+  }, [productId, availableProducts, productSearch]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -140,11 +182,14 @@ export default function MissingCashback() {
         bodyData.append('orderId', orderId);
         bodyData.append('orderAmount', orderAmount);
         bodyData.append('userNote', userNote);
+        if (productId) {
+          bodyData.append('productId', productId);
+        }
         orderScreenshots.forEach(file => {
           bodyData.append('orderScreenshots', file);
         });
       } else {
-        bodyData = JSON.stringify({ storeName, orderDate, orderId, orderAmount, userNote });
+        bodyData = JSON.stringify({ storeName, orderDate, orderId, orderAmount, userNote, productId: productId || null });
         headersConfig['Content-Type'] = 'application/json';
       }
 
@@ -163,11 +208,21 @@ export default function MissingCashback() {
         setOrderId('');
         setOrderAmount('');
         setUserNote('');
+        setProductId('');
+        setProductSearch('');
         setEditingTicketId(null);
         setOrderScreenshots([]);
         if (viewingTicket) {
           // Update the viewing ticket as well
-          const updatedTicket = { ...viewingTicket, storeName, orderDate: new Date(orderDate).toISOString(), orderId, orderAmount: parseFloat(orderAmount), userNote };
+          const updatedTicket = { 
+            ...viewingTicket, 
+            storeName, 
+            orderDate: new Date(orderDate).toISOString(), 
+            orderId, 
+            orderAmount: parseFloat(orderAmount), 
+            userNote,
+            product: productId ? availableProducts.find(p => p.id === productId) || viewingTicket.product : null
+          };
           setViewingTicket(updatedTicket);
         }
         fetchTickets();
@@ -246,13 +301,17 @@ export default function MissingCashback() {
     setOrderId(ticket.orderId);
     setOrderAmount(ticket.orderAmount);
     setUserNote(ticket.userNote || '');
+    setProductId(ticket.productId || '');
+    setProductSearch(ticket.product?.title || '');
     setIsModalOpen(true);
   };
 
   const getImageUrl = (url) => {
     if (!url) return '';
-    if (url.startsWith('data:')) return url;
-    return `${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${url}`;
+    if (typeof url !== 'string') return '';
+    if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) return url;
+    const backendBase = (process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '');
+    return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 
   const openNewTicketModal = () => {
@@ -261,6 +320,8 @@ export default function MissingCashback() {
     setOrderDate('');
     setOrderId('');
     setOrderAmount('');
+    setProductId('');
+    setProductSearch('');
     setUserNote('');
     setFormError('');
     setIsModalOpen(true);
@@ -325,6 +386,12 @@ export default function MissingCashback() {
               <div>
                 <h5 className="font-bold text-neutral-400 uppercase tracking-wider mb-4">Order Details</h5>
                 <div className="space-y-4">
+                  {viewingTicket.product && (
+                    <div>
+                      <p className="text-xs text-neutral-500 mb-1">Product</p>
+                      <p className="text-sm font-bold text-neutral-900">{viewingTicket.product.title}</p>
+                    </div>
+                  )}
                   <div>
                     <p className="text-xs text-neutral-500 mb-1">Order Amount</p>
                     <p className="text-lg font-black text-neutral-900">₹{viewingTicket.orderAmount}</p>
@@ -354,9 +421,14 @@ export default function MissingCashback() {
                       <span className="block text-[10px] font-bold text-neutral-400 uppercase mb-2">Order Screenshots</span>
                       <div className="flex flex-wrap gap-2">
                         {viewingTicket.orderScreenshots.map((img, i) => (
-                          <a key={i} href={getImageUrl(img)} target="_blank" rel="noreferrer">
-                            <img src={getImageUrl(img)} alt={`Proof ${i + 1}`} className="w-16 h-16 object-cover rounded-lg border border-neutral-200 hover:opacity-80 transition-opacity" />
-                          </a>
+                          <button
+                            type="button"
+                            key={i}
+                            onClick={() => setLightboxImage(getImageUrl(img))}
+                            className="cursor-zoom-in relative group rounded-lg overflow-hidden border border-neutral-200 focus:outline-none"
+                          >
+                            <img src={getImageUrl(img)} alt={`Proof ${i + 1}`} className="w-16 h-16 object-cover group-hover:scale-105 transition-transform" />
+                          </button>
                         ))}
                       </div>
                     </div>
@@ -374,9 +446,13 @@ export default function MissingCashback() {
                       </span>
                       <p className={`text-sm break-words ${msg.sender === 'USER' ? 'text-neutral-700' : 'text-amber-900'}`}>{msg.message}</p>
                       {msg.attachment && (
-                        <a href={getImageUrl(msg.attachment)} target="_blank" rel="noreferrer" className="block mt-2">
-                          <img src={getImageUrl(msg.attachment)} alt="Attachment" className="w-24 h-24 object-cover rounded-lg border border-neutral-200 hover:opacity-80 transition-opacity" />
-                        </a>
+                        <button
+                          type="button"
+                          onClick={() => setLightboxImage(getImageUrl(msg.attachment))}
+                          className="block mt-2 cursor-zoom-in relative group rounded-lg overflow-hidden border border-neutral-200 focus:outline-none"
+                        >
+                          <img src={getImageUrl(msg.attachment)} alt="Attachment" className="w-24 h-24 object-cover group-hover:scale-105 transition-transform" />
+                        </button>
                       )}
                     </div>
                   ))}
@@ -512,6 +588,11 @@ export default function MissingCashback() {
                               <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse ml-1"></span>
                             )}
                           </div>
+                          {ticket.product && (
+                            <p className="text-xs text-neutral-600 truncate max-w-[220px] mb-1 font-medium">
+                              📦 {ticket.product.title}
+                            </p>
+                          )}
                           <div className="flex items-center gap-1.5 text-xs text-neutral-500 font-medium">
                             <Calendar className="w-3 h-3" /> Raised on {formatDate(ticket.createdAt)}
                           </div>
@@ -556,7 +637,7 @@ export default function MissingCashback() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="flex min-h-full items-center justify-center p-4">
-            <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 relative">
+            <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 relative">
               <div className="shrink-0 flex items-center justify-between p-6 border-b border-neutral-100 bg-neutral-50/50">
                 <h4 className="font-bold text-neutral-900">{editingTicketId ? 'Edit Ticket' : 'Raise Missing Cashback Ticket'}</h4>
                 <Button variant="none" size="none"
@@ -574,21 +655,84 @@ export default function MissingCashback() {
                   </div>
                 )}
 
-                <div>
-                  <label className="block text-xs font-bold text-neutral-700 mb-1.5">Store Name</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">Store Name</label>
+                    <div className="relative">
+                      <select
+                        value={storeName}
+                        onChange={(e) => setStoreName(e.target.value)}
+                        className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 pr-10 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-black transition-all appearance-none cursor-pointer"
+                        required
+                      >
+                        <option value="" disabled>Select a store</option>
+                        {availableStores.map(store => (
+                          <option key={store.id} value={store.name}>{store.name}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="w-4 h-4 text-neutral-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                  </div>
+
                   <div className="relative">
-                    <select
-                      value={storeName}
-                      onChange={(e) => setStoreName(e.target.value)}
-                      className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 pr-10 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-black transition-all appearance-none cursor-pointer"
-                      required
-                    >
-                      <option value="" disabled>Select a store</option>
-                      {availableStores.map(store => (
-                        <option key={store.id} value={store.name}>{store.name}</option>
-                      ))}
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-neutral-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">Product Name (Optional)</label>
+                    <input
+                      type="text"
+                      value={productSearch}
+                      onChange={(e) => {
+                        setProductSearch(e.target.value);
+                        setProductId('');
+                        setShowProductDropdown(true);
+                      }}
+                      onFocus={() => setShowProductDropdown(true)}
+                      onBlur={() => setTimeout(() => setShowProductDropdown(false), 200)}
+                      placeholder="Search or enter product..."
+                      className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-black transition-all"
+                    />
+                    {showProductDropdown && (
+                      <div className="absolute z-20 w-full mt-1 bg-white border border-neutral-200 rounded-xl shadow-xl max-h-48 overflow-y-auto">
+                        <div
+                          className="px-4 py-2 hover:bg-neutral-100 cursor-pointer text-xs font-bold text-neutral-500 border-b border-neutral-100"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            setProductId('');
+                            setProductSearch('');
+                            setShowProductDropdown(false);
+                          }}
+                        >
+                          Clear Selection
+                        </div>
+                        {availableProducts
+                          .filter(p => !productSearch || p.title.toLowerCase().includes(productSearch.toLowerCase()))
+                          .map(product => (
+                            <div
+                              key={product.id}
+                              className="px-4 py-2.5 hover:bg-neutral-50 cursor-pointer text-xs truncate flex items-center justify-between"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                setProductId(product.id);
+                                setProductSearch(product.title);
+                                setShowProductDropdown(false);
+
+                                if (product.storeRel && product.storeRel.name) {
+                                  setStoreName(product.storeRel.name);
+                                } else if (product.storeId) {
+                                  const store = availableStores.find(s => s.id === product.storeId);
+                                  if (store) setStoreName(store.name);
+                                }
+                              }}
+                            >
+                              <span className="truncate font-medium">{product.title}</span>
+                              {product.storeRel?.name && (
+                                <span className="text-[10px] text-neutral-400 font-normal ml-1 shrink-0">{product.storeRel.name}</span>
+                              )}
+                            </div>
+                          ))}
+                        {availableProducts.filter(p => !productSearch || p.title.toLowerCase().includes(productSearch.toLowerCase())).length === 0 && (
+                          <div className="px-4 py-3 text-xs text-neutral-500 text-center">No products found</div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -671,6 +815,13 @@ export default function MissingCashback() {
           </div>
         </div>
       )}
+      <Lightbox
+        open={!!lightboxImage}
+        close={() => setLightboxImage(null)}
+        slides={[{ src: lightboxImage }]}
+        plugins={[Zoom]}
+        zoom={{ scrollToZoom: true, maxZoomPixelRatio: 5 }}
+      />
     </div>
   );
 }

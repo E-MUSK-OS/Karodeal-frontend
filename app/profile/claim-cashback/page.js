@@ -2,15 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShieldAlert, Plus, X, Calendar, ArrowRight, CheckCircle, Clock, XCircle, Loader2 } from 'lucide-react';
+import { ShieldAlert, Plus, X, Calendar, ArrowRight, CheckCircle, Clock, XCircle, Loader2, Maximize2 } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
+import Lightbox from "yet-another-react-lightbox";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import "yet-another-react-lightbox/styles.css";
 
 export default function ClaimCashback() {
   const [claims, setClaims] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [viewingClaim, setViewingClaim] = useState(null);
+  const [lightboxImage, setLightboxImage] = useState(null);
 
   // Form State
   const [availableStores, setAvailableStores] = useState([]);
@@ -182,8 +186,10 @@ export default function ClaimCashback() {
 
   const getImageUrl = (url) => {
     if (!url) return '';
-    if (url.startsWith('data:')) return url;
-    return `${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '')}${url}`;
+    if (typeof url !== 'string') return '';
+    if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) return url;
+    const backendBase = (process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace('/api', '');
+    return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 
   return (
@@ -272,6 +278,7 @@ export default function ClaimCashback() {
                             orderDate: viewingClaim.orderDate ? viewingClaim.orderDate.split('T')[0] : '',
                             orderId: viewingClaim.orderId || '',
                             orderAmount: viewingClaim.orderAmount || '',
+                            productId: viewingClaim.productId || '',
                             autoOpen: 'true'
                           });
                           router.push(`/profile/missing-cashback?${params.toString()}`);
@@ -301,21 +308,48 @@ export default function ClaimCashback() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-neutral-700 mb-2">1. Invoice / Receipt</span>
-                  <a href={getImageUrl(viewingClaim.invoiceScreenshot)} target="_blank" rel="noreferrer" className="block aspect-square w-full relative group bg-neutral-100 rounded-xl overflow-hidden border border-neutral-200">
-                    <img src={getImageUrl(viewingClaim.invoiceScreenshot)} className="object-cover w-full h-full" alt="Invoice" />
-                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setLightboxImage(getImageUrl(viewingClaim.invoiceScreenshot))}
+                    className="block aspect-square w-full relative group bg-neutral-100 rounded-xl overflow-hidden border border-neutral-200 cursor-zoom-in hover:border-[#f96b02] transition-colors focus:outline-none"
+                  >
+                    <img src={getImageUrl(viewingClaim.invoiceScreenshot)} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300" alt="Invoice" />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                      <span className="p-2 bg-white/90 rounded-full text-neutral-700 shadow-sm">
+                        <Maximize2 className="w-4 h-4" />
+                      </span>
+                    </div>
+                  </button>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-neutral-700 mb-2">2. Product Review</span>
-                  <a href={getImageUrl(viewingClaim.reviewScreenshot)} target="_blank" rel="noreferrer" className="block aspect-square w-full relative group bg-neutral-100 rounded-xl overflow-hidden border border-neutral-200">
-                    <img src={getImageUrl(viewingClaim.reviewScreenshot)} className="object-cover w-full h-full" alt="Review" />
-                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setLightboxImage(getImageUrl(viewingClaim.reviewScreenshot))}
+                    className="block aspect-square w-full relative group bg-neutral-100 rounded-xl overflow-hidden border border-neutral-200 cursor-zoom-in hover:border-[#f96b02] transition-colors focus:outline-none"
+                  >
+                    <img src={getImageUrl(viewingClaim.reviewScreenshot)} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300" alt="Review" />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                      <span className="p-2 bg-white/90 rounded-full text-neutral-700 shadow-sm">
+                        <Maximize2 className="w-4 h-4" />
+                      </span>
+                    </div>
+                  </button>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-neutral-700 mb-2">3. Non-Return Proof</span>
-                  <a href={getImageUrl(viewingClaim.noReturnScreenshot)} target="_blank" rel="noreferrer" className="block aspect-square w-full relative group bg-neutral-100 rounded-xl overflow-hidden border border-neutral-200">
-                    <img src={getImageUrl(viewingClaim.noReturnScreenshot)} className="object-cover w-full h-full" alt="No Return" />
-                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setLightboxImage(getImageUrl(viewingClaim.noReturnScreenshot))}
+                    className="block aspect-square w-full relative group bg-neutral-100 rounded-xl overflow-hidden border border-neutral-200 cursor-zoom-in hover:border-[#f96b02] transition-colors focus:outline-none"
+                  >
+                    <img src={getImageUrl(viewingClaim.noReturnScreenshot)} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300" alt="No Return" />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                      <span className="p-2 bg-white/90 rounded-full text-neutral-700 shadow-sm">
+                        <Maximize2 className="w-4 h-4" />
+                      </span>
+                    </div>
+                  </button>
                 </div>
               </div>
             </div>
@@ -622,6 +656,13 @@ export default function ClaimCashback() {
           </div>
         </div>
       )}
+      <Lightbox
+        open={!!lightboxImage}
+        close={() => setLightboxImage(null)}
+        slides={[{ src: lightboxImage }]}
+        plugins={[Zoom]}
+        zoom={{ scrollToZoom: true, maxZoomPixelRatio: 5 }}
+      />
     </div>
   );
 }

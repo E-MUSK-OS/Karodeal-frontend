@@ -26,6 +26,28 @@ export default function AdminLayout({ children }) {
           });
 
           if (res.ok) {
+            const data = await res.json();
+            const currentRole = data.role || adminUser.role || 'ADMIN';
+            if (data.role && adminUser.role !== data.role) {
+              adminUser.role = data.role;
+              localStorage.setItem('adminUser', JSON.stringify(adminUser));
+            }
+
+            // Protect Main-Admin only pages from Sub-Admins
+            const restrictedForSubAdmin = [
+              '/admin/payouts',
+              '/admin/stores',
+              '/admin/categories',
+              '/admin/users',
+              '/admin/subscribers',
+              '/admin/messages'
+            ];
+
+            if (currentRole === 'SUB_ADMIN' && restrictedForSubAdmin.some((prefix) => pathname.startsWith(prefix))) {
+              router.replace('/admin/dashboard');
+              return;
+            }
+
             setIsAuthenticated(true);
           } else {
             // Token is invalid or user is no longer an admin

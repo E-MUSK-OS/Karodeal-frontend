@@ -1,11 +1,11 @@
 'use client';
 import { useState } from 'react';
-import { X, Upload } from 'lucide-react';
+import { X, Upload, AlertCircle } from 'lucide-react';
 import Button from '@/components/common/Button';
 import StoreOfferCard from '@/components/deals/StoreOfferCard';
 import CustomSelect from '@/components/common/CustomSelect';
 
-export default function BuilderCardModal({ isOpen, onClose, onSuccess, dbStores, dbCategories }) {
+export default function BuilderCardModal({ isOpen, onClose, onSuccess, dbStores, dbCategories, existingProducts = [] }) {
   const [formData, setFormData] = useState({
     title: '',
     store: dbStores.length > 0 ? dbStores[0].id : '',
@@ -24,9 +24,16 @@ export default function BuilderCardModal({ isOpen, onClose, onSuccess, dbStores,
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
+  const isDuplicateTitle = Boolean(
+    formData.title.trim() &&
+    existingProducts?.some(
+      (p) => p.title?.trim().toLowerCase() === formData.title.trim().toLowerCase()
+    )
+  );
+
   const showError = (msg) => {
     setErrorMsg(msg);
-    setTimeout(() => setErrorMsg(null), 3500);
+    setTimeout(() => setErrorMsg(null), 4500);
   };
 
   const handleImageFileUpload = (e) => {
@@ -34,7 +41,7 @@ export default function BuilderCardModal({ isOpen, onClose, onSuccess, dbStores,
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      alert('File size exceeds 5MB. Please choose a smaller image.');
+      showError('File size exceeds 5MB. Please choose a smaller image.');
       return;
     }
 
@@ -50,7 +57,11 @@ export default function BuilderCardModal({ isOpen, onClose, onSuccess, dbStores,
   const handleSaveAdd = async (e) => {
     e.preventDefault();
 
-    if (!formData.title.trim()) return showError("Please enter the Product Card Title!");
+    const actualTitle = formData.title.trim();
+    if (!actualTitle) return showError("Please enter the Product Card Title!");
+    if (isDuplicateTitle) {
+      return showError("A product card with this title already exists! Please choose a unique title.");
+    }
     if (!formData.store) return showError("Please select a Store!");
     if (!formData.category) return showError("Please select a Category!");
     if (!formData.originalPrice) return showError("Please enter the Original Price!");
@@ -65,7 +76,6 @@ export default function BuilderCardModal({ isOpen, onClose, onSuccess, dbStores,
       const adminUserStr = localStorage.getItem('adminUser');
       const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
 
-      const actualTitle = formData.title.trim();
       const slug = actualTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
         method: 'POST',
@@ -93,13 +103,15 @@ export default function BuilderCardModal({ isOpen, onClose, onSuccess, dbStores,
         })
       });
 
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         onSuccess('added');
       } else {
-        alert('Failed to add product');
+        showError(data.error || 'Failed to add product. Please check the details and try again.');
       }
     } catch (err) {
       console.error(err);
+      showError('Failed to connect to server. Please check your connection.');
     } finally {
       setIsSubmitting(false);
     }
@@ -122,12 +134,19 @@ export default function BuilderCardModal({ isOpen, onClose, onSuccess, dbStores,
             </div>
 
             {errorMsg && (
-              <div className="fixed top-24 right-8 z-[100] bg-white border-l-4 border-red-500 text-neutral-800 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-bold animate-bounce">
-                <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center shrink-0">
-                  <X className="w-4 h-4 text-red-600" />
+              <div className="fixed top-8 right-6 left-6 sm:left-auto sm:right-8 sm:max-w-md z-[100] bg-white border-2 border-red-500 text-neutral-900 px-5 py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.25)] flex items-start gap-3.5 text-sm font-bold animate-in fade-in slide-in-from-top-4 duration-200">
+                <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center shrink-0 text-red-600 mt-0.5">
+                  <AlertCircle className="w-5 h-5 text-red-600" />
                 </div>
-                <span>{errorMsg}</span>
-                <button onClick={() => setErrorMsg(null)} className="ml-2 text-neutral-400 hover:text-neutral-700 transition-colors">
+                <div className="flex-1">
+                  <p className="text-red-700 font-black text-xs uppercase tracking-wider mb-0.5">Error</p>
+                  <p className="text-neutral-800 font-semibold text-xs leading-snug">{errorMsg}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setErrorMsg(null)}
+                  className="text-neutral-400 hover:text-neutral-700 p-1 hover:bg-neutral-100 rounded-lg transition-colors cursor-pointer"
+                >
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -137,7 +156,23 @@ export default function BuilderCardModal({ isOpen, onClose, onSuccess, dbStores,
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">Product Card Title</label>
-                <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Philips Classic Clogs" className="w-full px-4 py-3 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-semibold" required />
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="e.g. Philips Classic Clogs"
+                  className={`w-full px-4 py-3 text-sm bg-neutral-50 border rounded-xl focus:outline-none focus:ring-2 font-semibold transition-colors ${
+                    isDuplicateTitle
+                      ? 'border-red-500 focus:border-red-500 focus:ring-red-200 bg-red-50/20'
+                      : 'border-neutral-200 focus:ring-black'
+                  }`}
+                  required
+                />
+                {isDuplicateTitle && (
+                  <p className="mt-1.5 text-xs text-red-600 font-bold flex items-center gap-1 animate-pulse">
+                    <span>⚠️</span> A product card with this title already exists. Please choose a different title.
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
