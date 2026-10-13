@@ -1,13 +1,166 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShieldAlert, Plus, X, Calendar, Search, ArrowRight, Edit2, Paperclip, ChevronDown, Loader2, Maximize2 } from 'lucide-react';
+import { 
+  ShieldAlert, Plus, X, Calendar, Search, ArrowRight, Edit2, Paperclip, 
+  ChevronDown, Loader2, Maximize2, ShoppingBag, Store, Hash, Eye, Trash2, 
+  UploadCloud, AlertCircle, Receipt 
+} from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
+
+function ProofUploadCard({
+  stepNumber,
+  title,
+  subtitle,
+  file,
+  preview,
+  onFileSelect,
+  onRemove,
+  onPreview,
+  badgeText,
+}) {
+  const [isDragging, setIsDragging] = useState(false);
+  const inputRef = useRef(null);
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const droppedFile = e.dataTransfer.files?.[0];
+    if (droppedFile) {
+      onFileSelect(droppedFile);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      onFileSelect(selectedFile);
+    }
+    e.target.value = '';
+  };
+
+  const formatFileSize = (bytes) => {
+    if (!bytes) return '';
+    if (bytes < 1024) return `${bytes} B`;
+    return `${(bytes / 1024).toFixed(0)} KB`;
+  };
+
+  return (
+    <div className="bg-neutral-50/70 rounded-xl p-2.5 sm:p-3 border border-neutral-200/80 transition-all hover:border-neutral-300 flex flex-col justify-between h-full">
+      <div className="flex items-center justify-between gap-1.5 mb-1.5">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="w-5 h-5 rounded-md bg-neutral-900 text-white text-[10px] font-black flex items-center justify-center shrink-0">
+            {stepNumber}
+          </span>
+          <h5 className="text-[11px] font-bold text-neutral-900 truncate">
+            {title}
+          </h5>
+        </div>
+        {badgeText && (
+          <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-orange-100 text-[#f96b02] shrink-0">
+            {badgeText}
+          </span>
+        )}
+      </div>
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleInputChange}
+        className="hidden"
+      />
+
+      {preview ? (
+        <div className="bg-white border border-emerald-300 rounded-lg p-2 shadow-2xs flex items-center gap-2">
+          <div
+            onClick={onPreview}
+            className="relative group w-11 h-11 rounded-md overflow-hidden border border-neutral-200 shrink-0 cursor-zoom-in bg-neutral-100"
+            title="Click to zoom preview"
+          >
+            <img
+              src={preview}
+              alt={title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+            />
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white">
+              <Eye className="w-3.5 h-3.5" />
+            </div>
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] font-bold text-neutral-800 truncate">{file?.name || 'Screenshot'}</p>
+            <p className="text-[10px] text-neutral-400">
+              {file?.size ? formatFileSize(file.size) : 'Ready'}
+            </p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <button
+                type="button"
+                onClick={onPreview}
+                className="text-[10px] font-bold text-neutral-600 hover:text-black cursor-pointer transition-colors"
+              >
+                View
+              </button>
+              <span className="text-[9px] text-neutral-300">•</span>
+              <button
+                type="button"
+                onClick={() => inputRef.current?.click()}
+                className="text-[10px] font-bold text-blue-600 hover:text-blue-700 cursor-pointer transition-colors"
+              >
+                Change
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onRemove}
+            className="p-1 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer shrink-0"
+            title="Remove screenshot"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      ) : (
+        <div
+          onClick={() => inputRef.current?.click()}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`cursor-pointer border-2 border-dashed rounded-lg p-2.5 sm:p-3 text-center transition-all flex flex-col items-center justify-center gap-1 group ${
+            isDragging
+              ? 'border-[#f96b02] bg-orange-50/70 scale-[1.01]'
+              : 'border-neutral-300 hover:border-neutral-400 bg-white hover:bg-neutral-50/80'
+          }`}
+        >
+          <div className="w-7 h-7 rounded-lg bg-neutral-100 group-hover:bg-orange-50 border border-neutral-200 group-hover:border-orange-200 flex items-center justify-center text-neutral-500 group-hover:text-[#f96b02] transition-colors">
+            <UploadCloud className="w-3.5 h-3.5" />
+          </div>
+          <div>
+            <p className="text-[11px] font-bold text-neutral-800 group-hover:text-black leading-tight">
+              Upload Image
+            </p>
+            <p className="text-[9px] text-neutral-400 mt-0.5">{subtitle || 'PNG, JPG, WebP'}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function MissingCashback() {
   const [tickets, setTickets] = useState([]);
@@ -20,6 +173,7 @@ export default function MissingCashback() {
 
   // Form State
   const [storeName, setStoreName] = useState('');
+  const [showStoreDropdown, setShowStoreDropdown] = useState(false);
   const [orderDate, setOrderDate] = useState('');
   const [orderId, setOrderId] = useState('');
   const [orderAmount, setOrderAmount] = useState('');
@@ -32,15 +186,82 @@ export default function MissingCashback() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingTicketId, setEditingTicketId] = useState(null);
 
+  // 3 Dedicated Proof Upload Slots
+  const [proof1, setProof1] = useState(null);
+  const [preview1, setPreview1] = useState(null);
+  const [proof2, setProof2] = useState(null);
+  const [preview2, setPreview2] = useState(null);
+  const [proof3, setProof3] = useState(null);
+  const [preview3, setPreview3] = useState(null);
+
   const [chatMessage, setChatMessage] = useState('');
   const [isSendingMsg, setIsSendingMsg] = useState(false);
   const [chatAttachment, setChatAttachment] = useState(null);
-  const [orderScreenshots, setOrderScreenshots] = useState([]);
 
-  const handleFileChange = (e) => {
-    if (e.target.files) {
-      setOrderScreenshots(Array.from(e.target.files).slice(0, 3));
+  const processProof = (file, slotIndex) => {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setFormError(`Image ${slotIndex} must be less than 5MB.`);
+      return;
     }
+    if (file.type && !file.type.startsWith('image/')) {
+      setFormError('Please upload a valid image file (PNG, JPG, WebP).');
+      return;
+    }
+    setFormError('');
+    if (slotIndex === 1) {
+      setProof1(file);
+      if (preview1) URL.revokeObjectURL(preview1);
+      setPreview1(URL.createObjectURL(file));
+    } else if (slotIndex === 2) {
+      setProof2(file);
+      if (preview2) URL.revokeObjectURL(preview2);
+      setPreview2(URL.createObjectURL(file));
+    } else if (slotIndex === 3) {
+      setProof3(file);
+      if (preview3) URL.revokeObjectURL(preview3);
+      setPreview3(URL.createObjectURL(file));
+    }
+  };
+
+  const removeProof = (slotIndex) => {
+    if (slotIndex === 1) {
+      if (preview1) URL.revokeObjectURL(preview1);
+      setProof1(null);
+      setPreview1(null);
+    } else if (slotIndex === 2) {
+      if (preview2) URL.revokeObjectURL(preview2);
+      setProof2(null);
+      setPreview2(null);
+    } else if (slotIndex === 3) {
+      if (preview3) URL.revokeObjectURL(preview3);
+      setProof3(null);
+      setPreview3(null);
+    }
+  };
+
+  const resetModalState = () => {
+    setIsModalOpen(false);
+    setEditingTicketId(null);
+    setStoreName('');
+    setOrderDate('');
+    setOrderId('');
+    setOrderAmount('');
+    setUserNote('');
+    setProductId('');
+    setProductSearch('');
+    setFormError('');
+    setShowProductDropdown(false);
+    setShowStoreDropdown(false);
+    if (preview1) URL.revokeObjectURL(preview1);
+    if (preview2) URL.revokeObjectURL(preview2);
+    if (preview3) URL.revokeObjectURL(preview3);
+    setProof1(null);
+    setPreview1(null);
+    setProof2(null);
+    setPreview2(null);
+    setProof3(null);
+    setPreview3(null);
   };
 
   const router = useRouter();
@@ -156,14 +377,16 @@ export default function MissingCashback() {
     e.preventDefault();
     setFormError('');
 
-    if (!storeName || !orderDate || !orderId || !orderAmount) {
-      setFormError('All fields are required');
+    if (!storeName || !orderId || !orderAmount) {
+      setFormError('All required fields must be filled');
       return;
     }
 
     const userStr = localStorage.getItem('user');
     const user = JSON.parse(userStr);
     setIsSubmitting(true);
+
+    const submitOrderDate = orderDate || new Date().toISOString();
 
     try {
       const url = editingTicketId
@@ -178,18 +401,19 @@ export default function MissingCashback() {
       if (!editingTicketId) {
         bodyData = new FormData();
         bodyData.append('storeName', storeName);
-        bodyData.append('orderDate', orderDate);
+        bodyData.append('orderDate', submitOrderDate);
         bodyData.append('orderId', orderId);
         bodyData.append('orderAmount', orderAmount);
         bodyData.append('userNote', userNote);
         if (productId) {
           bodyData.append('productId', productId);
         }
-        orderScreenshots.forEach(file => {
+        const filesToUpload = [proof1, proof2, proof3].filter(Boolean);
+        filesToUpload.forEach(file => {
           bodyData.append('orderScreenshots', file);
         });
       } else {
-        bodyData = JSON.stringify({ storeName, orderDate, orderId, orderAmount, userNote, productId: productId || null });
+        bodyData = JSON.stringify({ storeName, orderDate: submitOrderDate, orderId, orderAmount, userNote, productId: productId || null });
         headersConfig['Content-Type'] = 'application/json';
       }
 
@@ -202,22 +426,13 @@ export default function MissingCashback() {
       const data = await res.json();
 
       if (res.ok) {
-        setIsModalOpen(false);
-        setStoreName('');
-        setOrderDate('');
-        setOrderId('');
-        setOrderAmount('');
-        setUserNote('');
-        setProductId('');
-        setProductSearch('');
-        setEditingTicketId(null);
-        setOrderScreenshots([]);
+        resetModalState();
         if (viewingTicket) {
           // Update the viewing ticket as well
           const updatedTicket = { 
             ...viewingTicket, 
             storeName, 
-            orderDate: new Date(orderDate).toISOString(), 
+            orderDate: new Date(submitOrderDate).toISOString(), 
             orderId, 
             orderAmount: parseFloat(orderAmount), 
             userNote,
@@ -295,6 +510,7 @@ export default function MissingCashback() {
   };
 
   const handleEditClick = (ticket) => {
+    resetModalState();
     setEditingTicketId(ticket.id);
     setStoreName(ticket.storeName);
     setOrderDate(new Date(ticket.orderDate).toISOString().split('T')[0]);
@@ -315,15 +531,7 @@ export default function MissingCashback() {
   };
 
   const openNewTicketModal = () => {
-    setEditingTicketId(null);
-    setStoreName('');
-    setOrderDate('');
-    setOrderId('');
-    setOrderAmount('');
-    setProductId('');
-    setProductSearch('');
-    setUserNote('');
-    setFormError('');
+    resetModalState();
     setIsModalOpen(true);
   };
 
@@ -636,46 +844,56 @@ export default function MissingCashback() {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="flex min-h-full items-center justify-center p-4">
-            <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 relative">
-              <div className="shrink-0 flex items-center justify-between p-6 border-b border-neutral-100 bg-neutral-50/50">
-                <h4 className="font-bold text-neutral-900">{editingTicketId ? 'Edit Ticket' : 'Raise Missing Cashback Ticket'}</h4>
-                <Button variant="none" size="none"
-                  onClick={() => setIsModalOpen(false)}
-                  className="p-2 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full transition-colors"
+          <div className="flex min-h-full items-center justify-center p-3 sm:p-4">
+            <div className="bg-white rounded-3xl w-full max-w-2xl lg:max-w-3xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 relative border border-neutral-100">
+              
+              {/* Modal Header */}
+              <div className="shrink-0 flex items-center justify-between px-5 sm:px-6 py-4 border-b border-neutral-100 bg-neutral-50/70">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#f96b02]/10 border border-[#f96b02]/20 flex items-center justify-center text-[#f96b02]">
+                    <ShieldAlert className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold text-neutral-900 text-base sm:text-lg leading-tight">
+                      {editingTicketId ? 'Edit Missing Cashback Ticket' : 'Raise Missing Cashback Ticket'}
+                    </h4>
+                    <p className="text-[11px] text-neutral-500 font-medium">Verify purchase details and upload proof screenshots</p>
+                  </div>
+                </div>
+                <Button 
+                  variant="none" 
+                  size="none" 
+                  onClick={resetModalState} 
+                  className="p-2 text-neutral-400 hover:text-black hover:bg-neutral-200/60 rounded-full transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </Button>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              {/* Modal Scrollable Body */}
+              <form onSubmit={handleSubmit} className="overflow-y-auto p-4 sm:p-6 space-y-4 flex-1">
                 {formError && (
-                  <div className="bg-red-50 text-red-600 p-3 rounded-xl text-xs font-medium border border-red-100 text-center">
-                    {formError}
+                  <div className="bg-red-50 text-red-700 p-3 rounded-2xl text-xs font-semibold border border-red-200 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                    <span>{formError}</span>
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">Store Name</label>
-                    <div className="relative">
-                      <select
-                        value={storeName}
-                        onChange={(e) => setStoreName(e.target.value)}
-                        className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 pr-10 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-black transition-all appearance-none cursor-pointer"
-                        required
-                      >
-                        <option value="" disabled>Select a store</option>
-                        {availableStores.map(store => (
-                          <option key={store.id} value={store.name}>{store.name}</option>
-                        ))}
-                      </select>
-                      <ChevronDown className="w-4 h-4 text-neutral-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    </div>
-                  </div>
-
+                {/* 1. Product (First) & Store (Second - Auto Selected) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {/* Product / Deal (FIRST) */}
                   <div className="relative">
-                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">Product Name (Optional)</label>
+                    <label className="block text-xs font-bold text-neutral-900 mb-1.5 flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <ShoppingBag className="w-3.5 h-3.5 text-neutral-500" />
+                        Product / Deal <span className="text-neutral-400 font-normal">(Select First)</span>
+                      </span>
+                      {productId && (
+                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                          ✓ Linked
+                        </span>
+                      )}
+                    </label>
                     <input
                       type="text"
                       value={productSearch}
@@ -686,13 +904,13 @@ export default function MissingCashback() {
                       }}
                       onFocus={() => setShowProductDropdown(true)}
                       onBlur={() => setTimeout(() => setShowProductDropdown(false), 200)}
-                      placeholder="Search or enter product..."
-                      className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-black transition-all"
+                      placeholder="Search or pick product..."
+                      className="w-full bg-white border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all"
                     />
                     {showProductDropdown && (
-                      <div className="absolute z-20 w-full mt-1 bg-white border border-neutral-200 rounded-xl shadow-xl max-h-48 overflow-y-auto">
+                      <div className="absolute z-30 w-full mt-1.5 bg-white border border-neutral-200 rounded-xl shadow-xl max-h-48 overflow-y-auto py-1">
                         <div
-                          className="px-4 py-2 hover:bg-neutral-100 cursor-pointer text-xs font-bold text-neutral-500 border-b border-neutral-100"
+                          className="px-4 py-2 hover:bg-neutral-50 cursor-pointer text-xs font-bold text-neutral-400 border-b border-neutral-100 flex items-center justify-between"
                           onMouseDown={(e) => {
                             e.preventDefault();
                             setProductId('');
@@ -700,104 +918,203 @@ export default function MissingCashback() {
                             setShowProductDropdown(false);
                           }}
                         >
-                          Clear Selection
+                          <span>✕ Clear Selection (Custom Product)</span>
                         </div>
                         {availableProducts
                           .filter(p => !productSearch || p.title.toLowerCase().includes(productSearch.toLowerCase()))
                           .map(product => (
                             <div
                               key={product.id}
-                              className="px-4 py-2.5 hover:bg-neutral-50 cursor-pointer text-xs truncate flex items-center justify-between"
+                              className="px-4 py-2.5 hover:bg-neutral-50 cursor-pointer text-sm font-medium text-neutral-800 flex items-center justify-between gap-2"
                               onMouseDown={(e) => {
                                 e.preventDefault();
                                 setProductId(product.id);
                                 setProductSearch(product.title);
                                 setShowProductDropdown(false);
 
+                                // Auto-select store from product
                                 if (product.storeRel && product.storeRel.name) {
                                   setStoreName(product.storeRel.name);
                                 } else if (product.storeId) {
-                                  const store = availableStores.find(s => s.id === product.storeId);
-                                  if (store) setStoreName(store.name);
+                                  const matchedStore = availableStores.find(s => s.id === product.storeId);
+                                  if (matchedStore) setStoreName(matchedStore.name);
+                                } else if (product.store) {
+                                  setStoreName(typeof product.store === 'string' ? product.store : (product.store.name || ''));
                                 }
                               }}
                             >
-                              <span className="truncate font-medium">{product.title}</span>
+                              <span className="truncate">{product.title}</span>
                               {product.storeRel?.name && (
-                                <span className="text-[10px] text-neutral-400 font-normal ml-1 shrink-0">{product.storeRel.name}</span>
+                                <span className="text-[10px] text-neutral-400 font-semibold px-1.5 py-0.5 rounded bg-neutral-100 shrink-0">
+                                  {product.storeRel.name}
+                                </span>
                               )}
                             </div>
                           ))}
                         {availableProducts.filter(p => !productSearch || p.title.toLowerCase().includes(productSearch.toLowerCase())).length === 0 && (
-                          <div className="px-4 py-3 text-xs text-neutral-500 text-center">No products found</div>
+                          <div className="px-4 py-2.5 text-xs text-neutral-500 text-center italic">No products found</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Store Name (SECOND - Auto Selected) */}
+                  <div className="relative">
+                    <label className="block text-xs font-bold text-neutral-900 mb-1.5 flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <Store className="w-3.5 h-3.5 text-neutral-500" />
+                        Store Name <span className="text-red-500">*</span>
+                      </span>
+                      {productId && storeName && (
+                        <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                          Auto-Selected
+                        </span>
+                      )}
+                    </label>
+                    <input
+                      type="text"
+                      value={storeName}
+                      onChange={(e) => {
+                        setStoreName(e.target.value);
+                        setShowStoreDropdown(true);
+                      }}
+                      onFocus={() => setShowStoreDropdown(true)}
+                      onBlur={() => setTimeout(() => setShowStoreDropdown(false), 200)}
+                      placeholder="Store name (e.g. Amazon, Flipkart)..."
+                      className="w-full bg-white border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all"
+                      required
+                    />
+                    {showStoreDropdown && (
+                      <div className="absolute z-30 w-full mt-1.5 bg-white border border-neutral-200 rounded-xl shadow-xl max-h-48 overflow-y-auto py-1">
+                        {availableStores.filter(s => !storeName || s.name.toLowerCase().includes(storeName.toLowerCase())).map(store => (
+                          <div
+                            key={store.id}
+                            className="px-4 py-2 hover:bg-neutral-50 cursor-pointer text-sm font-medium text-neutral-800 flex items-center justify-between"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setStoreName(store.name);
+                              setShowStoreDropdown(false);
+                            }}
+                          >
+                            <span>{store.name}</span>
+                            <span className="text-[10px] text-neutral-400 font-bold uppercase">Store</span>
+                          </div>
+                        ))}
+                        {availableStores.filter(s => !storeName || s.name.toLowerCase().includes(storeName.toLowerCase())).length === 0 && (
+                          <div className="px-4 py-2.5 text-xs text-neutral-500 text-center italic">
+                            Press Enter or continue typing for custom store: "{storeName}"
+                          </div>
                         )}
                       </div>
                     )}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                {/* 2. Order Details: 2-column Grid (Order ID, Amount) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">Order Date</label>
+                    <label className="block text-xs font-bold text-neutral-900 mb-1.5 flex items-center gap-1.5">
+                      <Hash className="w-3.5 h-3.5 text-neutral-500" />
+                      Order ID <span className="text-red-500">*</span>
+                    </label>
                     <input
-                      type="date"
-                      value={orderDate}
-                      onChange={(e) => setOrderDate(e.target.value)}
-                      className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-black transition-all"
+                      type="text"
+                      value={orderId}
+                      onChange={(e) => setOrderId(e.target.value)}
+                      placeholder="e.g. 402-1234567"
+                      className="w-full bg-white border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all font-mono"
                       required
                     />
                   </div>
+
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">Order Amount (₹)</label>
+                    <label className="block text-xs font-bold text-neutral-900 mb-1.5 flex items-center gap-1.5">
+                      <span className="text-xs font-bold text-neutral-500">₹</span>
+                      Order Amount (₹) <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="number"
+                      min="0"
+                      onKeyDown={(e) => {
+                        if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') {
+                          e.preventDefault();
+                        }
+                      }}
                       value={orderAmount}
-                      onChange={(e) => setOrderAmount(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9.]/g, '');
+                        setOrderAmount(val);
+                      }}
                       placeholder="e.g. 1499"
-                      className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-black transition-all"
+                      className="w-full bg-white border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all"
                       required
                     />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-neutral-700 mb-1.5">Order ID / Receipt No.</label>
-                  <input
-                    type="text"
-                    value={orderId}
-                    onChange={(e) => setOrderId(e.target.value)}
-                    placeholder="Enter exact Order ID from store"
-                    className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-black transition-all font-mono"
-                    required
-                  />
-                </div>
+                {/* 3. Upload Proofs (3 Dedicated Cards - Optional) */}
+                {!editingTicketId && (
+                  <div className="pt-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-xs sm:text-sm font-black text-neutral-900">
+                          Proof Screenshots
+                        </h4>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 border border-neutral-200">
+                          Optional (Max 3)
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-neutral-400 font-medium">
+                        Click thumbnail to zoom
+                      </span>
+                    </div>
 
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                      <ProofUploadCard
+                        stepNumber={1}
+                        title="Proof 1"
+                        subtitle="Optional"
+                        file={proof1}
+                        preview={preview1}
+                        onFileSelect={(f) => processProof(f, 1)}
+                        onRemove={() => removeProof(1)}
+                        onPreview={() => preview1 && setLightboxImage(preview1)}
+                      />
+                      <ProofUploadCard
+                        stepNumber={2}
+                        title="Proof 2"
+                        subtitle="Optional"
+                        file={proof2}
+                        preview={preview2}
+                        onFileSelect={(f) => processProof(f, 2)}
+                        onRemove={() => removeProof(2)}
+                        onPreview={() => preview2 && setLightboxImage(preview2)}
+                      />
+                      <ProofUploadCard
+                        stepNumber={3}
+                        title="Proof 3"
+                        subtitle="Optional"
+                        file={proof3}
+                        preview={preview3}
+                        onFileSelect={(f) => processProof(f, 3)}
+                        onRemove={() => removeProof(3)}
+                        onPreview={() => preview3 && setLightboxImage(preview3)}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* 4. User Note / Remarks */}
                 <div>
                   <label className="block text-xs font-bold text-neutral-700 mb-1.5">User Note / Remarks (Optional)</label>
                   <textarea
                     value={userNote}
                     onChange={(e) => setUserNote(e.target.value)}
                     rows="2"
-                    placeholder="Any additional details..."
-                    className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-black transition-all resize-none"
+                    placeholder="Any additional details or message for support..."
+                    className="w-full bg-white border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-black transition-all resize-none"
                   />
                 </div>
-
-                {!editingTicketId && (
-                  <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">Order Receipt / Screenshot (Optional, max 3)</label>
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-2 text-sm text-neutral-900 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-neutral-100 file:text-neutral-700 hover:file:bg-neutral-200"
-                    />
-                    {orderScreenshots.length > 0 && (
-                      <p className="text-[10px] text-green-600 font-bold mt-2">{orderScreenshots.length} image(s) selected</p>
-                    )}
-                  </div>
-                )}
 
                 <div className="pt-2">
                   <Button
@@ -805,9 +1122,9 @@ export default function MissingCashback() {
                     variant="primary"
                     fullWidth={true}
                     isLoading={isSubmitting}
-                    className="py-3.5 rounded-xl normal-case tracking-normal shadow-md"
+                    className="py-3.5 rounded-xl normal-case tracking-normal shadow-md font-bold text-sm"
                   >
-                    {isSubmitting ? 'Saving...' : (editingTicketId ? 'Save Changes' : 'Submit Ticket')}
+                    {isSubmitting ? 'Submitting Ticket...' : (editingTicketId ? 'Save Changes' : 'Submit Ticket')}
                   </Button>
                 </div>
               </form>

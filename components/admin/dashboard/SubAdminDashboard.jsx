@@ -1,8 +1,8 @@
 'use client';
 import Link from 'next/link';
 import { 
-  Sparkles, Plus, Package, MousePointerClick, Ticket, ShieldAlert, 
-  AlertCircle, CheckCircle2, TrendingUp, Clock, ArrowUpRight, ShoppingBag, Tag 
+  Package, MousePointerClick, 
+  CheckCircle2, TrendingUp, ArrowUpRight, ShoppingBag, Tag
 } from 'lucide-react';
 
 export default function SubAdminDashboard({ stats = {}, latestDeals = [] }) {
@@ -12,12 +12,12 @@ export default function SubAdminDashboard({ stats = {}, latestDeals = [] }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-black text-neutral-900">Admin</h2>
-          <p className="text-sm text-neutral-500 mt-0.5">Manage your deals, monitor shopper clicks, and handle user claim tickets.</p>
+          <p className="text-sm text-neutral-500 mt-0.5">Manage your deals and monitor shopper clicks in real-time.</p>
         </div>
       </div>
 
       {/* Sub-Admin Stat Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {/* 1. My Live Products */}
         <Link href="/admin/products" className="block group">
           <div className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between group-hover:border-neutral-900 transition-all">
@@ -51,40 +51,6 @@ export default function SubAdminDashboard({ stats = {}, latestDeals = [] }) {
             </div>
           </div>
         </Link>
-
-        {/* 3. Pending Claims for My Deals (Calculated in Rs) */}
-        <Link href="/admin/claims" className="block group">
-          <div className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between group-hover:border-amber-400 transition-all">
-            <div>
-              <div className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Pending Claims</div>
-              <div className="text-2xl font-black text-neutral-900 mt-1">₹{Number(stats.myPendingClaimsAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-              <div className="text-xs text-amber-600 font-bold flex items-center gap-1 mt-2">
-                <Clock className="w-3.5 h-3.5" />
-                {stats.myPendingClaimsCount ?? 0} claims awaiting review
-              </div>
-            </div>
-            <div className="w-13 h-13 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Ticket className="w-6 h-6" />
-            </div>
-          </div>
-        </Link>
-
-        {/* 4. Missing Tickets */}
-        <Link href="/admin/missing-cashback" className="block group">
-          <div className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between group-hover:border-rose-400 transition-all">
-            <div>
-              <div className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Missing Tickets</div>
-              <div className="text-2xl font-black text-neutral-900 mt-1">{stats.myPendingTicketsCount ?? 0}</div>
-              <div className="text-xs text-rose-600 font-bold flex items-center gap-1 mt-2">
-                <ShieldAlert className="w-3.5 h-3.5" />
-                Open support tickets
-              </div>
-            </div>
-            <div className="w-13 h-13 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <AlertCircle className="w-6 h-6" />
-            </div>
-          </div>
-        </Link>
       </div>
 
       {/* Sub-Admin Activity & Actions Section */}
@@ -112,7 +78,7 @@ export default function SubAdminDashboard({ stats = {}, latestDeals = [] }) {
                     <th className="pb-3 font-bold">Product Name</th>
                     <th className="pb-3 font-bold">Store</th>
                     <th className="pb-3 font-bold">Category</th>
-                    <th className="pb-3 font-bold text-right">Price & Cashback</th>
+                    <th className="pb-3 font-bold text-right">Price</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-100">
@@ -135,9 +101,6 @@ export default function SubAdminDashboard({ stats = {}, latestDeals = [] }) {
                       </td>
                       <td className="py-3.5 text-right">
                         <div className="font-bold text-neutral-900 text-sm">₹{deal.salePrice}</div>
-                        {deal.cashback ? (
-                          <div className="text-[11px] font-bold text-emerald-600">+₹{deal.cashback} Cashback</div>
-                        ) : null}
                       </td>
                     </tr>
                   ))}
@@ -175,34 +138,6 @@ export default function SubAdminDashboard({ stats = {}, latestDeals = [] }) {
                   <div>
                     <div className="text-sm font-bold text-neutral-900">Manage My Deals</div>
                     <div className="text-xs text-neutral-500">Add, edit, or remove your deals</div>
-                  </div>
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />
-              </Link>
-
-              <Link
-                href="/admin/claims"
-                className="p-4 rounded-xl border border-neutral-200 hover:border-black hover:bg-neutral-50 transition-all flex items-center justify-between group"
-              >
-                <div className="flex items-center gap-3">
-                  <Ticket className="w-5 h-5 text-neutral-700 group-hover:text-black" />
-                  <div>
-                    <div className="text-sm font-bold text-neutral-900">Cashback Claims</div>
-                    <div className="text-xs text-neutral-500">Approve or reject customer claims</div>
-                  </div>
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />
-              </Link>
-
-              <Link
-                href="/admin/missing-cashback"
-                className="p-4 rounded-xl border border-neutral-200 hover:border-black hover:bg-neutral-50 transition-all flex items-center justify-between group"
-              >
-                <div className="flex items-center gap-3">
-                  <ShieldAlert className="w-5 h-5 text-neutral-700 group-hover:text-black" />
-                  <div>
-                    <div className="text-sm font-bold text-neutral-900">Missing Cashback Tickets</div>
-                    <div className="text-xs text-neutral-500">Resolve disputed transactions</div>
                   </div>
                 </div>
                 <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />

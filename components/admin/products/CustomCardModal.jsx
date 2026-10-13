@@ -1,17 +1,20 @@
 'use client';
 import { useState } from 'react';
-import { X, Upload, AlertCircle } from 'lucide-react';
+import { X, Upload, AlertCircle, Lock } from 'lucide-react';
 import Button from '@/components/common/Button';
 import StoreOfferCard from '@/components/deals/StoreOfferCard';
 import CustomSelect from '@/components/common/CustomSelect';
+import { calculateCashback } from '@/lib/cashbackCalculator';
 
-export default function CustomCardModal({ isOpen, onClose, onSuccess, dbStores, dbCategories, existingProducts = [] }) {
+export default function CustomCardModal({ isOpen, onClose, onSuccess, dbStores, dbCategories, existingProducts = [], currentRole }) {
   const [formData, setFormData] = useState({
     title: '',
     store: dbStores.length > 0 ? dbStores[0].id : '',
     category: dbCategories.length > 0 ? dbCategories[0].id : '',
     discount: '',
-    cashback: '',
+    salePrice: '',
+    cashbackWithoutReview: 0,
+    cashbackWithReview: 0,
     image: '',
     affiliateUrl: '',
     isTrending: false,
@@ -52,6 +55,12 @@ export default function CustomCardModal({ isOpen, onClose, onSuccess, dbStores, 
     reader.readAsDataURL(file);
   };
 
+  const preventNegativeKeys = (e) => {
+    if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') {
+      e.preventDefault();
+    }
+  };
+
   const handleSaveAdd = async (e) => {
     e.preventDefault();
     
@@ -63,9 +72,16 @@ export default function CustomCardModal({ isOpen, onClose, onSuccess, dbStores, 
     if (!formData.store) return showError("Please select a Store!");
     if (!formData.category) return showError("Please select a Category!");
     if (!formData.discount) return showError("Please enter the Discount!");
-    if (!formData.cashback) return showError("Please enter the Cashback!");
+    if (!formData.salePrice) return showError("Please enter the Sale Price!");
+    if (Number(formData.discount) < 0) return showError("Discount cannot be negative!");
+    if (Number(formData.salePrice) < 0) return showError("Sale Price cannot be negative!");
+    if (Number(formData.cashbackWithoutReview) < 0) return showError("Cashback cannot be negative!");
+    if (Number(formData.cashbackWithReview) < 0) return showError("Cashback cannot be negative!");
     if (!formData.image.trim()) return showError("Please upload or provide a Product Image!");
     if (!formData.affiliateUrl.trim()) return showError("Please provide the Affiliate Link URL!");
+
+    const salePriceNum = Math.max(0, Number(formData.salePrice) || 0);
+    const { withoutReview, withReview } = calculateCashback(salePriceNum);
 
     setIsSubmitting(true);
     try {
@@ -85,9 +101,11 @@ export default function CustomCardModal({ isOpen, onClose, onSuccess, dbStores, 
           store: formData.store,
           category: formData.category,
           originalPrice: 0,
-          salePrice: 0,
+          salePrice: salePriceNum,
           discount: Number(formData.discount) || 0,
-          cashback: formData.cashback !== '' ? Number(formData.cashback) : 0,
+          cashback: withReview,
+          cashbackWithoutReview: withoutReview,
+          cashbackWithReview: withReview,
           rating: '4.5',
           reviews: 120,
           image: formData.image.trim(),
@@ -213,14 +231,131 @@ export default function CustomCardModal({ isOpen, onClose, onSuccess, dbStores, 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">Discount (%)</label>
-                  <input type="number" value={formData.discount} onChange={(e) => setFormData({ ...formData, discount: e.target.value })} placeholder="e.g. 62" className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-amber-700" />
+                  <input
+                    type="number"
+                    min="0"
+                    onKeyDown={preventNegativeKeys}
+                    value={formData.discount}
+                    onChange={(e) => {
+                      const clean = e.target.value.replace(/[^0-9]/g, '');
+                      setFormData(prev => ({ ...prev, discount: clean }));
+                    }}
+                    placeholder="e.g. 62"
+                    className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-amber-700"
+                  />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">Cashback (₹)</label>
-                  <input type="number" step="0.1" value={formData.cashback} onChange={(e) => setFormData({ ...formData, cashback: e.target.value })} placeholder="e.g. 5" className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold text-emerald-700" />
+                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">Sale Price (₹)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    onKeyDown={preventNegativeKeys}
+                    value={formData.salePrice}
+                    onChange={(e) => {
+                      const clean = e.target.value.replace(/[^0-9]/g, '');
+                      if (clean === '') {
+                        setFormData(prev => ({
+                          ...prev,
+                          salePrice: '',
+                          cashbackWithoutReview: 0,
+                          cashbackWithReview: 0
+                        }));
+                      } else {
+                        const slabs = calculateCashback(Number(clean) || 0);
+                        setFormData(prev => ({
+                          ...prev,
+                          salePrice: clean,
+                          cashbackWithoutReview: slabs.withoutReview,
+                          cashbackWithReview: slabs.withReview
+                        }));
+                      }
+                    }}
+                    placeholder="e.g. 499"
+                    className="w-full px-3 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-bold"
+                    required
+                  />
                 </div>
               </div>
+
+              {/* Auto Cashback Slab Display (Only visible to Main Admin - Strictly Auto-Calculated) */}
+              {currentRole !== 'SUB_ADMIN' ? (
+                <div className="bg-neutral-50/80 p-2.5 sm:p-3 rounded-xl border border-neutral-200/80 space-y-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-700 flex items-center gap-1">
+                        <Lock className="w-3 h-3 text-neutral-400" />
+                        Cashback Tiers
+                      </span>
+                      <span className="text-[10px] text-neutral-400 font-medium">
+                        {formData.salePrice 
+                          ? `(Auto for ₹${formData.salePrice} • Locked)` 
+                          : '(Auto-calculated by slab)'}
+                      </span>
+                    </div>
+                    {formData.salePrice ? (
+                      <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-1.5 py-0.5 rounded flex items-center gap-1 w-fit">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Smart Slab
+                      </span>
+                    ) : (
+                      <span className="text-[9px] font-bold text-neutral-500 bg-neutral-100 border border-neutral-200 px-1.5 py-0.5 rounded w-fit">
+                        Default (₹0)
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {/* Tier 1: Without Review */}
+                    <div className="bg-white px-3 py-2 rounded-lg border border-neutral-200 shadow-2xs flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-1 mb-0.5">
+                          <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+                            Without Review
+                          </span>
+                          <span className="text-[9px] text-neutral-400 font-medium bg-neutral-100 px-1 rounded">
+                            Std
+                          </span>
+                        </div>
+                        <div className="flex items-baseline gap-0.5 text-neutral-900">
+                          <span className="text-xs font-semibold text-neutral-400">₹</span>
+                          <span className="text-base font-bold text-neutral-900">
+                            {formData.cashbackWithoutReview ?? 0}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-[9px] font-semibold text-neutral-400 bg-neutral-50 border border-neutral-200 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                        <Lock className="w-2.5 h-2.5 text-neutral-400" />
+                        Auto
+                      </span>
+                    </div>
+
+                    {/* Tier 2: With Review */}
+                    <div className="bg-emerald-50/30 px-3 py-2 rounded-lg border border-emerald-200/80 shadow-2xs flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-1 mb-0.5">
+                          <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">
+                            With Review
+                          </span>
+                          <span className="text-[8px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 px-1 rounded">
+                            Bonus
+                          </span>
+                        </div>
+                        <div className="flex items-baseline gap-0.5 text-emerald-700">
+                          <span className="text-xs font-semibold text-emerald-600">₹</span>
+                          <span className="text-base font-bold text-emerald-700">
+                            {formData.cashbackWithReview ?? 0}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-[9px] font-semibold text-emerald-700 bg-emerald-100/60 border border-emerald-200 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                        <Lock className="w-2.5 h-2.5 text-emerald-500" />
+                        Auto
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">Affiliate Link URL</label>
@@ -272,14 +407,17 @@ export default function CustomCardModal({ isOpen, onClose, onSuccess, dbStores, 
                   title: formData.title || 'Product Title',
                   discount: formData.discount || 0,
                   originalPrice: 0,
-                  salePrice: 0,
-                  cashback: formData.cashback,
+                  salePrice: formData.salePrice || 0,
+                  cashback: currentRole === 'SUB_ADMIN' ? 0 : (Number(formData.cashbackWithReview) || 0),
+                  cashbackWithoutReview: currentRole === 'SUB_ADMIN' ? 0 : (Number(formData.cashbackWithoutReview) || 0),
+                  cashbackWithReview: currentRole === 'SUB_ADMIN' ? 0 : (Number(formData.cashbackWithReview) || 0),
                   image: formData.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop',
                   affiliateUrl: formData.affiliateUrl || '#'
                 }}
                 store={dbStores.find(s => s.id === formData.store) || { name: 'Store', logoUrl: '' }}
                 fullWidth={true}
                 isPreview={true}
+                hideCashback={currentRole === 'SUB_ADMIN'}
               />
             </div>
           </div>

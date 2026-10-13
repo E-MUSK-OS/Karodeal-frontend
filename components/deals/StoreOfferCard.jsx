@@ -1,11 +1,11 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Button from '@/components/common/Button';
 
-export default function StoreOfferCard({ deal, product, store: propStore, fullWidth = false, isPreview = false }) {
-  const router = useRouter();
+import { calculateCashback } from '@/lib/cashbackCalculator';
+
+export default function StoreOfferCard({ deal, product, store: propStore, fullWidth = false, isPreview = false, hideCashback = false }) {
 
   // Backwards compatibility if called with product instead of deal
   const currentDeal = deal || product;
@@ -33,7 +33,15 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
   const logoText = store.logoText || store.name;
 
   const getCashback = (p) => {
-    if (p.cashback !== undefined && p.cashback !== '') return Number(p.cashback);
+    if (p.cashbackWithReview !== undefined && p.cashbackWithReview !== null && p.cashbackWithReview !== '') {
+      return Number(p.cashbackWithReview);
+    }
+    if (p.cashback !== undefined && p.cashback !== null && p.cashback !== '') {
+      return Number(p.cashback);
+    }
+    if (p.salePrice) {
+      return calculateCashback(p.salePrice).withReview;
+    }
     const charCode = p.id ? p.id.charCodeAt(p.id.length - 1) : 0;
     return (charCode % 5) + 2 + (charCode % 2 === 0 ? 0.5 : 0);
   };
@@ -62,7 +70,7 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
   const wrapperProps = isPreview ? {} : { href: offerPageUrl };
 
   // IF IT'S A CUSTOM IMAGE CARD
-  if (currentDeal.originalPrice === 0 && currentDeal.salePrice === 0) {
+  if (Number(currentDeal.originalPrice) === 0) {
     return (
       <Wrapper
         {...wrapperProps}
@@ -126,10 +134,12 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
             Upto {currentDeal.discount}% Off
           </h3>
 
-          <span className="bg-[rgba(255,255,255,0.7)] text-black font-bold rounded-md flex items-center justify-center w-fit mb-3 sm:mb-4 md:mb-5 lg:mb-6 px-1.5 sm:px-2 shrink-0 gap-1 sm:gap-1.5">
-            <img src="/images/favicon.png" alt="logo" className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 object-contain rounded" />
-            <span className="text-[12px] md:text-xs lg:text-sm whitespace-nowrap">Flat ₹{cashback} {cashbackType}</span>
-          </span>
+          {!hideCashback && (
+            <span className="bg-white/95 text-neutral-900 font-extrabold rounded-lg flex items-center justify-center w-fit mb-3 sm:mb-4 md:mb-5 lg:mb-6 px-2 py-1 shrink-0 gap-1.5 shadow-xs border border-white/80">
+              <img src="/images/favicon.png" alt="logo" className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 object-contain rounded" />
+              <span className="text-[11px] sm:text-xs md:text-sm whitespace-nowrap tracking-tight font-black">Upto ₹{cashback} {cashbackType}</span>
+            </span>
+          )}
 
           {/* Button */}
           <div className="shrink-0">

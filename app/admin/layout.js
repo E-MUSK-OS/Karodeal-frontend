@@ -40,7 +40,9 @@ export default function AdminLayout({ children }) {
               '/admin/categories',
               '/admin/users',
               '/admin/subscribers',
-              '/admin/messages'
+              '/admin/messages',
+              '/admin/claims',
+              '/admin/missing-cashback'
             ];
 
             if (currentRole === 'SUB_ADMIN' && restrictedForSubAdmin.some((prefix) => pathname.startsWith(prefix))) {

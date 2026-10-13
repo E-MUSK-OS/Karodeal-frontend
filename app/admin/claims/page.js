@@ -1,21 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShieldAlert, CheckCircle, XCircle, Search, Calendar, FileText, ArrowRight, Download } from 'lucide-react';
+import { CheckCircle, XCircle, Search, Calendar, ArrowRight, Download, ChevronDown, Check, Store, Tag, X, RotateCcw } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
 import ConfirmModal from '@/components/common/ConfirmModal';
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
-import CustomSelect from '@/components/common/CustomSelect';
 import * as XLSX from 'xlsx';
+import { calculateCashback } from '@/lib/cashbackCalculator';
 
 export default function AdminClaims() {
   const [claims, setClaims] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [userRole, setUserRole] = useState('ADMIN');
   const [viewingClaim, setViewingClaim] = useState(null);
 
   // Status Update State
@@ -29,14 +28,36 @@ export default function AdminClaims() {
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', confirmText: '', onConfirm: () => { }, isDestructive: false });
   const [lightboxImage, setLightboxImage] = useState(null);
 
-  const uniqueStores = ['ALL', ...new Set(claims.map(c => c.storeName).filter(Boolean))];
+  // Custom Dropdown & Filter States
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [storeSearchText, setStoreSearchText] = useState('');
+  const filterBarRef = useRef(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (filterBarRef.current && !filterBarRef.current.contains(e.target)) {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
+
+  const uniqueStoreList = Array.from(new Set(claims.map(c => c.storeName).filter(Boolean))).sort();
+  const filteredStoreList = uniqueStoreList.filter(s =>
+    !storeSearchText || s.toLowerCase().includes(storeSearchText.toLowerCase())
+  );
 
   const filteredClaims = claims.filter(c => {
     const matchesStatus = statusFilter === 'ALL' || c.status === statusFilter;
     const matchesStore = storeFilter === 'ALL' || c.storeName === storeFilter;
-    const searchLower = searchQuery.toLowerCase();
-    const matchesSearch = !searchQuery || 
-                          c.product?.title?.toLowerCase().includes(searchLower);
+    const searchLower = searchQuery.toLowerCase().trim();
+    const matchesSearch = !searchLower || 
+                          c.product?.title?.toLowerCase().includes(searchLower) ||
+                          c.storeName?.toLowerCase().includes(searchLower) ||
+                          c.orderId?.toLowerCase().includes(searchLower) ||
+                          c.user?.name?.toLowerCase().includes(searchLower) ||
+                          c.user?.email?.toLowerCase().includes(searchLower);
     return matchesStatus && matchesStore && matchesSearch;
   });
 
@@ -53,6 +74,7 @@ export default function AdminClaims() {
       'User Email': c.user?.email || '',
       'Store': c.storeName,
       'Product': c.product?.title || '',
+      'Claim Type': c.claimType === 'WITHOUT_REVIEW' ? 'Without Review' : 'With Review',
       'Order ID': c.orderId,
       'Order Date': new Date(c.orderDate).toLocaleDateString(),
       'Order Amount (₹)': c.orderAmount,
@@ -75,9 +97,13 @@ export default function AdminClaims() {
       return;
     }
     const user = JSON.parse(userStr);
-    setUserRole(user.role || 'ADMIN');
 
-    if (user.role !== 'ADMIN' && user.role !== 'SUB_ADMIN') {
+    if (user.role === 'SUB_ADMIN') {
+      router.replace('/admin/dashboard');
+      return;
+    }
+
+    if (user.role !== 'ADMIN') {
       router.push('/admin/login');
       return;
     }
@@ -196,7 +222,7 @@ export default function AdminClaims() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 relative">
+    <div className="space-y-6 animate-in fade-in duration-500 relative" onClick={() => setOpenDropdown(null)}>
       {viewingClaim ? (
         <div className="animate-in slide-in-from-right-4 duration-300">
           <Button variant="none" size="none"
@@ -209,13 +235,16 @@ export default function AdminClaims() {
           <div className="bg-white rounded-3xl border border-neutral-100 shadow-sm overflow-hidden p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-neutral-100 pb-6">
               <div>
-                <div className="flex items-center gap-3 mb-2">
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
                   <h2 className="font-black text-neutral-900">Review Claim: {viewingClaim.user?.name}</h2>
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide ${viewingClaim.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
                     viewingClaim.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
                       'bg-amber-100 text-amber-700'
                     }`}>
                     {viewingClaim.status}
+                  </span>
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide ${viewingClaim.claimType === 'WITHOUT_REVIEW' ? 'bg-neutral-100 text-neutral-600 border border-neutral-200' : 'bg-orange-50 text-[#f96b02] border border-orange-200'}`}>
+                    {viewingClaim.claimType === 'WITHOUT_REVIEW' ? '⚡ Without Review Claim' : '🌟 With Review Claim'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-sm font-medium text-neutral-500">
@@ -238,6 +267,12 @@ export default function AdminClaims() {
                     {!viewingClaim.product && (
                       <p className="text-sm font-semibold text-neutral-400 mt-1">No Product Selected</p>
                     )}
+                  </div>
+                  <div>
+                    <p className="text-xs text-neutral-500 mb-1">Claim Option</p>
+                    <p className="text-sm font-bold text-neutral-800">
+                      {viewingClaim.claimType === 'WITHOUT_REVIEW' ? 'Without Review (Standard Cashback)' : 'With Review (Higher Cashback)'}
+                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-neutral-500 mb-1">Order Amount</p>
@@ -270,17 +305,20 @@ export default function AdminClaims() {
                         <p className="text-xs text-neutral-500">Original</p>
                         <p className="text-sm lg:text-[15px] xl:text-base font-semibold text-neutral-400 line-through">₹{viewingClaim.product.originalPrice}</p>
                       </div>
-                      <div className="col-span-2 pt-2 mt-2 border-t border-neutral-200">
-                        <div>
-                          <p className="text-xs text-neutral-500">Expected Cashback</p>
-                          <p className="text-sm lg:text-[15px] xl:text-base font-black text-blue-600">₹{
-                            (() => {
-                              const p = viewingClaim.product;
-                              if (p.cashback !== undefined && p.cashback !== null && p.cashback !== '') return Number(p.cashback);
-                              const charCode = p.id ? p.id.charCodeAt(p.id.length - 1) : 0;
-                              return (charCode % 5) + 2 + (charCode % 2 === 0 ? 0.5 : 0);
-                            })()
-                          }</p>
+                      <div className="col-span-2 pt-2 mt-2 border-t border-neutral-200 space-y-1.5">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-neutral-500 font-medium">With Review:</span>
+                          <span className={`font-bold ${viewingClaim.claimType !== 'WITHOUT_REVIEW' ? 'text-green-600 font-black' : 'text-neutral-700'}`}>
+                            ₹{viewingClaim.product.cashbackWithReview || calculateCashback(viewingClaim.product.salePrice).withReview}
+                            {viewingClaim.claimType !== 'WITHOUT_REVIEW' && ' (Selected)'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-neutral-500 font-medium">Without Review:</span>
+                          <span className={`font-bold ${viewingClaim.claimType === 'WITHOUT_REVIEW' ? 'text-orange-600 font-black' : 'text-neutral-700'}`}>
+                            ₹{viewingClaim.product.cashbackWithoutReview || calculateCashback(viewingClaim.product.salePrice).withoutReview}
+                            {viewingClaim.claimType === 'WITHOUT_REVIEW' && ' (Selected)'}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -371,76 +409,251 @@ export default function AdminClaims() {
 
             <div>
               <h3 className="font-bold text-neutral-400 uppercase tracking-wider mb-4">Submitted Proofs</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className={`grid grid-cols-1 ${viewingClaim.claimType === 'WITHOUT_REVIEW' && !viewingClaim.reviewScreenshot ? 'sm:grid-cols-2' : 'sm:grid-cols-3'} gap-6`}>
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-neutral-700 mb-3">1. Invoice / Receipt</span>
                   <button onClick={() => setLightboxImage(getImageUrl(viewingClaim.invoiceScreenshot))} className="block aspect-square w-full relative group bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 hover:border-[#f96b02] transition-colors focus:outline-none">
                     <img src={getImageUrl(viewingClaim.invoiceScreenshot)} className="object-cover w-full h-full" alt="Invoice" />
                   </button>
                 </div>
+                {viewingClaim.reviewScreenshot && (
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold text-neutral-700 mb-3">2. Product Review</span>
+                    <button onClick={() => setLightboxImage(getImageUrl(viewingClaim.reviewScreenshot))} className="block aspect-square w-full relative group bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 hover:border-[#f96b02] transition-colors focus:outline-none">
+                      <img src={getImageUrl(viewingClaim.reviewScreenshot)} className="object-cover w-full h-full" alt="Review" />
+                    </button>
+                  </div>
+                )}
                 <div className="flex flex-col">
-                  <span className="text-sm font-bold text-neutral-700 mb-3">2. Product Review</span>
-                  <button onClick={() => setLightboxImage(getImageUrl(viewingClaim.reviewScreenshot))} className="block aspect-square w-full relative group bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 hover:border-[#f96b02] transition-colors focus:outline-none">
-                    <img src={getImageUrl(viewingClaim.reviewScreenshot)} className="object-cover w-full h-full" alt="Review" />
-                  </button>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-sm font-bold text-neutral-700 mb-3">3. Non-Return Proof</span>
+                  <span className="text-sm font-bold text-neutral-700 mb-3">
+                    {viewingClaim.reviewScreenshot ? '3. Non-Return Proof' : '2. Non-Return Proof'}
+                  </span>
                   <button onClick={() => setLightboxImage(getImageUrl(viewingClaim.noReturnScreenshot))} className="block aspect-square w-full relative group bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 hover:border-[#f96b02] transition-colors focus:outline-none">
                     <img src={getImageUrl(viewingClaim.noReturnScreenshot)} className="object-cover w-full h-full" alt="No Return" />
                   </button>
                 </div>
               </div>
+              {viewingClaim.claimType === 'WITHOUT_REVIEW' && !viewingClaim.reviewScreenshot && (
+                <p className="text-xs text-neutral-500 mt-3 italic bg-neutral-50 p-2.5 rounded-xl border border-neutral-200">
+                  ⚡ User submitted this claim without a product review. Review screenshot was not required.
+                </p>
+              )}
             </div>
           </div>
         </div>
       ) : (
         <>
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-3">
-              <h3 className="font-bold text-neutral-900 text-lg">Manage Cashback Claims</h3>
-              {userRole === 'SUB_ADMIN' && (
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                  Your Cards Only
-                </span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
+            <div>
+              <h3 className="font-extrabold text-neutral-900 text-lg">Manage Cashback Claims</h3>
+              <p className="text-sm text-neutral-500">Review, verify, and approve user cashback submissions.</p>
+            </div>
+            <Button
+              onClick={exportToExcel}
+              variant="none"
+              size="none"
+              className="px-4 py-2.5 bg-black hover:bg-[#f96b02] text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm self-start sm:self-auto cursor-pointer"
+            >
+              <Download className="w-4 h-4" />
+              Export to Excel
+            </Button>
+          </div>
+
+          {/* Search & Modern Filter Dropdowns Bar */}
+          <div
+            ref={filterBarRef}
+            className="bg-white p-3.5 sm:p-4 rounded-2xl border border-neutral-200 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 relative z-30 mb-6"
+          >
+            {/* Search Input */}
+            <div className="relative flex-1 min-w-[240px]">
+              <input
+                type="text"
+                placeholder="Search product, store, order ID, or user email..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-2.5 pl-10 pr-9 text-xs sm:text-sm bg-neutral-50 hover:bg-neutral-100/60 focus:bg-white border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black transition-all"
+              />
+              <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-black p-0.5 rounded cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
               )}
             </div>
-            <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-              <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                <input
-                  type="text"
-                  placeholder="Search product name..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2.5 bg-white border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
-                />
+
+            {/* Filter Dropdowns Row */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* Status Custom Dropdown */}
+              <div className="relative flex-1 sm:flex-initial">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenDropdown(openDropdown === 'status' ? null : 'status');
+                  }}
+                  className={`w-full sm:w-auto px-3.5 py-2.5 text-xs font-bold rounded-xl border transition-all flex items-center justify-between gap-2.5 cursor-pointer shadow-2xs ${
+                    statusFilter !== 'ALL'
+                      ? 'bg-orange-50 border-[#f96b02] text-[#f96b02] ring-2 ring-orange-100'
+                      : 'bg-neutral-50 hover:bg-neutral-100/80 border-neutral-200 text-neutral-800'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Tag className="w-3.5 h-3.5 text-neutral-500" />
+                    <span className="truncate max-w-[130px]">
+                      {statusFilter === 'ALL'
+                        ? 'All Statuses'
+                        : statusFilter === 'PENDING'
+                        ? 'Pending Claims'
+                        : statusFilter === 'APPROVED'
+                        ? 'Approved'
+                        : 'Rejected'}
+                    </span>
+                  </div>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === 'status' ? 'rotate-180 text-black' : 'text-neutral-400'}`} />
+                </button>
+
+                {openDropdown === 'status' && (
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className="absolute right-0 top-full mt-1.5 z-40 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[200px] animate-in fade-in zoom-in-95 duration-150"
+                  >
+                    <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1">
+                      Filter by Status
+                    </div>
+                    {[
+                      { id: 'ALL', label: 'All Statuses', dot: 'bg-neutral-400' },
+                      { id: 'PENDING', label: 'Pending Claims', dot: 'bg-amber-500' },
+                      { id: 'APPROVED', label: 'Approved', dot: 'bg-emerald-500' },
+                      { id: 'REJECTED', label: 'Rejected', dot: 'bg-rose-500' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => {
+                          setStatusFilter(opt.id);
+                          setOpenDropdown(null);
+                        }}
+                        className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer text-left ${
+                          statusFilter === opt.id
+                            ? 'bg-orange-50 font-bold text-[#f96b02]'
+                            : 'hover:bg-neutral-50 text-neutral-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className={`w-2 h-2 rounded-full ${opt.dot} shrink-0`}></span>
+                          <span className="truncate">{opt.label}</span>
+                        </div>
+                        {statusFilter === opt.id && <Check className="w-3.5 h-3.5 text-[#f96b02] shrink-0" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-              <div className="w-full sm:w-40">
-                <CustomSelect
-                  value={storeFilter}
-                  onChange={(val) => setStoreFilter(val)}
-                  options={uniqueStores.map(store => ({ id: store, name: store === 'ALL' ? 'All Stores' : store }))}
-                  placeholder="Select Store"
-                />
+
+              {/* Store Custom Dropdown */}
+              <div className="relative flex-1 sm:flex-initial">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenDropdown(openDropdown === 'store' ? null : 'store');
+                  }}
+                  className={`w-full sm:w-auto px-3.5 py-2.5 text-xs font-bold rounded-xl border transition-all flex items-center justify-between gap-2.5 cursor-pointer shadow-2xs ${
+                    storeFilter !== 'ALL'
+                      ? 'bg-orange-50 border-[#f96b02] text-[#f96b02] ring-2 ring-orange-100'
+                      : 'bg-neutral-50 hover:bg-neutral-100/80 border-neutral-200 text-neutral-800'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Store className="w-3.5 h-3.5 text-neutral-500" />
+                    <span className="truncate max-w-[130px]">
+                      {storeFilter === 'ALL' ? 'All Stores' : storeFilter}
+                    </span>
+                  </div>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === 'store' ? 'rotate-180 text-black' : 'text-neutral-400'}`} />
+                </button>
+
+                {openDropdown === 'store' && (
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className="absolute right-0 top-full mt-1.5 z-40 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[210px] max-w-xs animate-in fade-in zoom-in-95 duration-150"
+                  >
+                    <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1">
+                      Filter by Store
+                    </div>
+                    {uniqueStoreList.length > 5 && (
+                      <div className="p-2 border-b border-neutral-100">
+                        <input
+                          type="text"
+                          value={storeSearchText}
+                          onChange={(e) => setStoreSearchText(e.target.value)}
+                          placeholder="Search stores..."
+                          className="w-full px-2.5 py-1.5 text-xs bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black"
+                        />
+                      </div>
+                    )}
+                    <div className="max-h-56 overflow-y-auto">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setStoreFilter('ALL');
+                          setOpenDropdown(null);
+                          setStoreSearchText('');
+                        }}
+                        className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer text-left ${
+                          storeFilter === 'ALL'
+                            ? 'bg-orange-50 font-bold text-[#f96b02]'
+                            : 'hover:bg-neutral-50 text-neutral-700'
+                        }`}
+                      >
+                        <span>All Stores</span>
+                        {storeFilter === 'ALL' && <Check className="w-3.5 h-3.5 text-[#f96b02] shrink-0" />}
+                      </button>
+                      {filteredStoreList.map((store) => (
+                        <button
+                          key={store}
+                          type="button"
+                          onClick={() => {
+                            setStoreFilter(store);
+                            setOpenDropdown(null);
+                            setStoreSearchText('');
+                          }}
+                          className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer text-left ${
+                            storeFilter === store
+                              ? 'bg-orange-50 font-bold text-[#f96b02]'
+                              : 'hover:bg-neutral-50 text-neutral-700'
+                          }`}
+                        >
+                          <span className="truncate">{store}</span>
+                          {storeFilter === store && <Check className="w-3.5 h-3.5 text-[#f96b02] shrink-0" />}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="w-full sm:w-40">
-                <CustomSelect
-                  value={statusFilter}
-                  onChange={(val) => setStatusFilter(val)}
-                  options={[
-                    { id: 'ALL', name: 'All Claims' },
-                    { id: 'PENDING', name: 'Pending' },
-                    { id: 'APPROVED', name: 'Approved' },
-                    { id: 'REJECTED', name: 'Rejected' }
-                  ]}
-                  placeholder="Select Status"
-                />
-              </div>
-              <Button onClick={exportToExcel} variant="primary" size="none" className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 whitespace-nowrap shadow-sm hover:shadow-md">
-                <Download className="w-4 h-4" />
-                Export Excel
-              </Button>
+
+              {/* Reset Filter Button */}
+              {(searchQuery || storeFilter !== 'ALL' || statusFilter !== 'ALL') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setStoreFilter('ALL');
+                    setStatusFilter('ALL');
+                    setStoreSearchText('');
+                  }}
+                  className="text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-2.5 rounded-xl transition-colors flex items-center gap-1.5 shrink-0 border border-red-200 cursor-pointer shadow-2xs"
+                  title="Reset all filters"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Reset</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -453,7 +666,7 @@ export default function AdminClaims() {
                   <thead className="bg-neutral-50 border-b border-neutral-200">
                     <tr>
                       <th className="px-6 py-4 text-xs font-bold text-neutral-500 uppercase">User</th>
-                      <th className="px-6 py-4 text-xs font-bold text-neutral-500 uppercase">Store</th>
+                      <th className="px-6 py-4 text-xs font-bold text-neutral-500 uppercase">Store & Claim</th>
                       <th className="px-6 py-4 text-xs font-bold text-neutral-500 uppercase">Amount</th>
                       <th className="px-6 py-4 text-xs font-bold text-neutral-500 uppercase">Status</th>
                       <th className="px-6 py-4 text-xs font-bold text-neutral-500 uppercase">Date</th>
@@ -469,12 +682,16 @@ export default function AdminClaims() {
 
                           let defaultCashback = claim.awardedCashback || '';
                           if (!defaultCashback && claim.product) {
-                            const p = claim.product;
-                            if (p.cashback !== undefined && p.cashback !== null && p.cashback !== '') {
-                              defaultCashback = Number(p.cashback);
+                            const isWithoutReview = claim.claimType === 'WITHOUT_REVIEW';
+                            if (isWithoutReview && claim.product.cashbackWithoutReview) {
+                              defaultCashback = Number(claim.product.cashbackWithoutReview);
+                            } else if (!isWithoutReview && claim.product.cashbackWithReview) {
+                              defaultCashback = Number(claim.product.cashbackWithReview);
+                            } else if (claim.product.cashback) {
+                              defaultCashback = Number(claim.product.cashback);
                             } else {
-                              const charCode = p.id ? p.id.charCodeAt(p.id.length - 1) : 0;
-                              defaultCashback = (charCode % 5) + 2 + (charCode % 2 === 0 ? 0.5 : 0);
+                              const calc = calculateCashback(claim.product.salePrice || 0);
+                              defaultCashback = isWithoutReview ? calc.withoutReview : calc.withReview;
                             }
                           }
 
@@ -498,8 +715,11 @@ export default function AdminClaims() {
                         <td className="px-6 py-4">
                           <p className="font-bold text-sm text-neutral-900">{claim.storeName}</p>
                           {claim.product && (
-                            <p className="text-xs text-blue-500 font-semibold truncate max-w-[200px]">{claim.product.title}</p>
+                            <p className="text-xs text-blue-500 font-semibold truncate max-w-[200px] mb-1">{claim.product.title}</p>
                           )}
+                          <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full ${claim.claimType === 'WITHOUT_REVIEW' ? 'bg-neutral-100 text-neutral-600 border border-neutral-200' : 'bg-orange-50 text-[#f96b02] border border-orange-200'}`}>
+                            {claim.claimType === 'WITHOUT_REVIEW' ? '⚡ W/O Review' : '🌟 With Review'}
+                          </span>
                         </td>
                         <td className="px-6 py-4 text-sm font-bold">₹{claim.orderAmount}</td>
                         <td className="px-6 py-4">
@@ -516,10 +736,10 @@ export default function AdminClaims() {
                         </td>
                       </tr>
                     ))}
-                    {claims.filter(c => statusFilter === 'ALL' || c.status === statusFilter).length === 0 && (
+                    {filteredClaims.length === 0 && (
                       <tr>
-                        <td colSpan="6" className="px-6 py-8 text-center text-neutral-500">
-                          No claims found.
+                        <td colSpan="6" className="px-6 py-8 text-center text-neutral-500 font-medium">
+                          No claims found matching your filters.
                         </td>
                       </tr>
                     )}

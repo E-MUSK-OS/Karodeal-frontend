@@ -17,7 +17,7 @@ const ROLES = [
   {
     key: 'SUB_ADMIN',
     label: 'Sub-Admin',
-    description: 'Manage products, claims & clicks',
+    description: 'Manage products & clicks',
     badgeClass: 'bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-300 shadow-xs',
     icon: ShieldCheck,
     iconColor: 'text-amber-600',

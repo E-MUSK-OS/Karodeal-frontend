@@ -1,13 +1,33 @@
 'use client';
 import { useState } from 'react';
-import { X, Upload } from 'lucide-react';
+import { X, Upload, Download } from 'lucide-react';
 import Button from '@/components/common/Button';
 import * as XLSX from 'xlsx';
+import { calculateCashback } from '@/lib/cashbackCalculator';
 
-export default function BulkImportModal({ isOpen, onClose, onSuccess, dbStores, dbCategories }) {
+export default function BulkImportModal({ isOpen, onClose, onSuccess, dbStores, dbCategories, currentRole }) {
   const [bulkProducts, setBulkProducts] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [resultMessage, setResultMessage] = useState(null);
+
+  const handleDownloadSample = () => {
+    const sampleData = [
+      {
+        Title: 'Sample Deal Title',
+        Store: dbStores[0]?.name || 'Amazon',
+        Category: dbCategories[0]?.name || 'Electronics',
+        OriginalPrice: 1999,
+        SalePrice: 599,
+        Discount: 70,
+        Image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30',
+        AffiliateUrl: 'https://amazon.in/dp/sample',
+      }
+    ];
+    const ws = XLSX.utils.json_to_sheet(sampleData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Products');
+    XLSX.writeFile(wb, 'products_import_sample.xlsx');
+  };
 
   const handleExcelUpload = (e) => {
     const file = e.target.files?.[0];
@@ -22,18 +42,26 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess, dbStores, 
         const worksheet = workbook.Sheets[sheetName];
         const json = XLSX.utils.sheet_to_json(worksheet);
         
-        const mappedProducts = json.map(row => ({
-          title: row['Title'] || row['title'] || '',
-          store: dbStores.find(s => s.name.toLowerCase() === String(row['Store'] || row['store'] || '').toLowerCase())?.id || dbStores[0]?.id || '',
-          category: dbCategories.find(c => c.name.toLowerCase() === String(row['Category'] || row['category'] || '').toLowerCase())?.id || dbCategories[0]?.id || '',
-          originalPrice: row['OriginalPrice'] || row['originalPrice'] || 0,
-          salePrice: row['SalePrice'] || row['salePrice'] || 0,
-          discount: row['Discount'] || row['discount'] || 0,
-          cashback: row['Cashback'] || row['cashback'] || 0,
-          image: row['Image'] || row['image'] || '',
-          affiliateUrl: row['AffiliateUrl'] || row['affiliateUrl'] || '',
-          isActive: true
-        })).filter(p => p.title || p.image);
+        const mappedProducts = json.map(row => {
+          const originalPrice = Math.max(0, parseFloat(row['OriginalPrice'] || row['originalPrice'] || row['Original Price'] || 0));
+          const salePrice = Math.max(0, parseFloat(row['SalePrice'] || row['salePrice'] || row['Sale Price'] || 0));
+          const discount = Math.max(0, parseFloat(row['Discount'] || row['discount'] || 0));
+          const { withoutReview, withReview } = calculateCashback(salePrice);
+          return {
+            title: row['Title'] || row['title'] || '',
+            store: dbStores.find(s => s.name.toLowerCase() === String(row['Store'] || row['store'] || '').toLowerCase())?.id || dbStores[0]?.id || '',
+            category: dbCategories.find(c => c.name.toLowerCase() === String(row['Category'] || row['category'] || '').toLowerCase())?.id || dbCategories[0]?.id || '',
+            originalPrice,
+            salePrice,
+            discount,
+            cashback: withReview,
+            cashbackWithoutReview: withoutReview,
+            cashbackWithReview: withReview,
+            image: row['Image'] || row['image'] || '',
+            affiliateUrl: row['AffiliateUrl'] || row['affiliateUrl'] || row['Affiliate Url'] || '',
+            isActive: true
+          };
+        }).filter(p => p.title || p.image);
 
         setBulkProducts(mappedProducts);
       } catch (err) {
@@ -101,9 +129,26 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess, dbStores, 
         )}
 
         <form onSubmit={handleSaveAdd} className="space-y-4">
-          <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-            <p className="text-sm font-semibold text-blue-800 mb-2">Excel Format Requirements:</p>
-            <p className="text-xs text-blue-600">Include columns: Title, Store, Category, OriginalPrice, SalePrice, Discount, Cashback, Image, AffiliateUrl</p>
+          <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-blue-900">Excel Format Requirements:</p>
+              <button
+                type="button"
+                onClick={handleDownloadSample}
+                className="text-xs font-bold text-blue-700 hover:text-blue-900 underline flex items-center gap-1 cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download Sample Template</span>
+              </button>
+            </div>
+            <p className="text-xs text-blue-700">
+              Columns: <span className="font-semibold text-blue-950">Title, Store, Category, OriginalPrice, SalePrice, Discount, Image, AffiliateUrl</span>
+            </p>
+            {currentRole !== 'SUB_ADMIN' && (
+              <p className="text-[11px] text-blue-600 font-medium">
+                Note: Cashback amounts are automatically calculated based on Sale Price.
+              </p>
+            )}
           </div>
           <div className="border-2 border-dashed border-neutral-300 hover:border-[#f96b02] rounded-2xl p-6 text-center transition-colors cursor-pointer relative bg-neutral-50 flex flex-col items-center justify-center gap-2">
             <input type="file" accept=".xlsx, .xls, .csv" onChange={handleExcelUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />

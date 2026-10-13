@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Button from '@/components/common/Button';
 import { 
-  LayoutDashboard, ShoppingBag, FolderTree, Tag, Users, Settings, LogOut, Package, IndianRupee, Ticket, X, MousePointerClick, Mail, MessageSquare, ShieldCheck, ShieldAlert
+  LayoutDashboard, ShoppingBag, FolderTree, Users, LogOut, Package, IndianRupee, Ticket, X, MousePointerClick, Mail, MessageSquare
 } from 'lucide-react';
 
 export default function AdminSidebar({ isOpen, setIsOpen }) {
@@ -48,17 +48,13 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
     { name: 'Click Tracking', href: '/admin/clicks', icon: MousePointerClick },
     { name: 'Subscribers', href: '/admin/subscribers', icon: Mail },
     { name: 'Messages', href: '/admin/messages', icon: MessageSquare },
-    { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
 
-  // Sub-admin can only see: Products & Cards, Cashback Claims, Missing Cashback, Click Tracking, Settings (plus Dashboard)
+  // Sub-admin can only see: Products & Cards, Click Tracking (plus Dashboard)
   const subAdminAllowedHrefs = [
     '/admin/dashboard',
     '/admin/products',
-    '/admin/claims',
-    '/admin/missing-cashback',
-    '/admin/clicks',
-    '/admin/settings'
+    '/admin/clicks'
   ];
 
   const navItems = role === 'SUB_ADMIN'

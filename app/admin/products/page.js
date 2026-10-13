@@ -1,25 +1,28 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import {
-  Search, Plus, Edit3, Trash2, CheckCircle2, ExternalLink, Tag, RefreshCw, X, Upload, ChevronUp, ChevronDown, ArrowUpDown, Loader2, RotateCcw
+  Search, Plus, Edit3, Trash2, CheckCircle2, ExternalLink, Tag, RefreshCw, X, ChevronUp, ChevronDown, ArrowUpDown, RotateCcw, Store, ShieldCheck, Check, Users
 } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
 import ConfirmModal from '@/components/common/ConfirmModal';
-import StoreOfferCard from '@/components/deals/StoreOfferCard';
 import * as XLSX from 'xlsx';
 import BuilderCardModal from '@/components/admin/products/BuilderCardModal';
 import CustomCardModal from '@/components/admin/products/CustomCardModal';
 import BulkImportModal from '@/components/admin/products/BulkImportModal';
 import EditProductModal from '@/components/admin/products/EditProductModal';
 import CustomSelect from '@/components/common/CustomSelect';
+import { calculateCashback } from '@/lib/cashbackCalculator';
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStore, setSelectedStore] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL' | 'ACTIVE' | 'INACTIVE' | 'EXPIRED'
+  const [selectedAdmin, setSelectedAdmin] = useState('ALL'); // 'ALL' | 'ROLE_ADMIN' | 'ROLE_SUB_ADMIN' | creatorId
+  const [adminUsersList, setAdminUsersList] = useState([]);
+  const [storeSearchText, setStoreSearchText] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
   const [currentRole, setCurrentRole] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -30,36 +33,39 @@ export default function AdminProductsPage() {
   const [toastMessage, setToastMessage] = useState('');
   const [dbStores, setDbStores] = useState([]);
   const [dbCategories, setDbCategories] = useState([]);
-  const [imageInputType, setImageInputType] = useState('url'); // 'url' | 'file'
   const [isReloading, setIsReloading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 25;
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', confirmText: '', onConfirm: () => { }, isDestructive: true });
   const [addMenuOpen, setAddMenuOpen] = useState(false);
 
   const [openDropdown, setOpenDropdown] = useState(null);
+  const filterBarRef = useRef(null);
+
+  useEffect(() => {
+    const adminUserStr = localStorage.getItem('adminUser');
+    if (adminUserStr) {
+      try {
+        const adminObj = JSON.parse(adminUserStr);
+        if (adminObj?.role) setCurrentRole(adminObj.role);
+      } catch (e) {}
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (filterBarRef.current && !filterBarRef.current.contains(e.target)) {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, selectedStore, statusFilter, sortConfig]);
-
-  // Form states for Add / Edit
-  const [formData, setFormData] = useState({
-    title: '',
-    store: '',
-    category: '',
-    originalPrice: '',
-    salePrice: '',
-    discount: '',
-    cashback: '',
-    image: '',
-    affiliateUrl: '',
-    isTrending: false,
-    isActive: true,
-    cardType: 'builder',
-  });
+  }, [searchQuery, selectedStore, statusFilter, selectedAdmin, sortConfig]);
 
   useEffect(() => {
     loadProducts();
@@ -75,15 +81,16 @@ export default function AdminProductsPage() {
         setCurrentRole(adminObj.role);
       }
 
-      let productsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/admin`, { headers: { 'Authorization': `Bearer ${token}` } });
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      let productsRes = await fetch(`${apiUrl}/products/admin`, { headers: { 'Authorization': `Bearer ${token}` } });
       if (productsRes.status === 404) {
         // Fallback for when backend is not yet updated on Vercel
-        productsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`);
+        productsRes = await fetch(`${apiUrl}/products`);
       }
 
       const [storesRes, categoriesRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/meta/stores`),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/meta/categories`)
+        fetch(`${apiUrl}/meta/stores`),
+        fetch(`${apiUrl}/meta/categories`)
       ]);
 
       if (productsRes.ok) {
@@ -98,6 +105,21 @@ export default function AdminProductsPage() {
         const data = await categoriesRes.json();
         setDbCategories(data);
       }
+
+      // If Main Admin, fetch admin & sub-admin users list from /auth to populate filter options
+      if (adminObj?.role === 'ADMIN') {
+        try {
+          const usersRes = await fetch(`${apiUrl}/auth`, { headers: { 'Authorization': `Bearer ${token}` } });
+          if (usersRes.ok) {
+            const uData = await usersRes.json();
+            const allUsers = Array.isArray(uData) ? uData : uData.users || [];
+            const adminUsers = allUsers.filter(u => u.role === 'ADMIN' || u.role === 'SUB_ADMIN');
+            setAdminUsersList(adminUsers);
+          }
+        } catch (err) {
+          console.error('Failed to load admin users', err);
+        }
+      }
     } catch (err) {
       console.error('Failed to load data', err);
     } finally {
@@ -111,50 +133,8 @@ export default function AdminProductsPage() {
     setTimeout(() => setToastMessage(''), 5000);
   };
 
-  const handleImageFileUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      alert('File size exceeds 5MB. Please choose a smaller image.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setFormData((prev) => ({
-          ...prev,
-          image: event.target.result,
-        }));
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-
-
-
-
   const handleOpenEdit = (product) => {
     setEditingProduct(product);
-    const img = product.image || '';
-    setImageInputType(img.startsWith('data:') ? 'file' : 'url');
-    const isCustom = product.salePrice === 0 && product.discount === 0;
-    setFormData({
-      title: product.title || '',
-      store: product.storeId || '',
-      category: product.categoryId || '',
-      originalPrice: product.originalPrice || '',
-      salePrice: product.salePrice || '',
-      discount: product.discount || '',
-      cashback: product.cashback !== undefined ? product.cashback : '',
-      image: img,
-      affiliateUrl: product.affiliateUrl || '',
-      isTrending: product.isTrending || false,
-      isActive: product.isActive !== undefined ? product.isActive : true,
-      cardType: isCustom ? 'custom' : 'builder',
-    });
   };
 
 
@@ -263,6 +243,61 @@ export default function AdminProductsPage() {
     }
   };
 
+  const allCreators = (() => {
+    const map = new Map();
+
+    // 1. Seed currently logged-in user from localStorage if admin/sub-admin
+    try {
+      const adminStr = typeof window !== 'undefined' ? localStorage.getItem('adminUser') : null;
+      if (adminStr) {
+        const currentAdmin = JSON.parse(adminStr);
+        if (currentAdmin?.id && (currentAdmin.role === 'ADMIN' || currentAdmin.role === 'SUB_ADMIN')) {
+          map.set(currentAdmin.id, {
+            id: currentAdmin.id,
+            name: currentAdmin.name || currentAdmin.email || (currentAdmin.role === 'ADMIN' ? 'Main Admin' : 'Sub-Admin'),
+            email: currentAdmin.email,
+            role: currentAdmin.role
+          });
+        }
+      }
+    } catch (e) {}
+
+    // 2. Add fetched admin & sub-admin users from backend (/auth)
+    adminUsersList.forEach(u => {
+      map.set(u.id, {
+        id: u.id,
+        name: u.name || u.email || (u.role === 'ADMIN' ? 'Main Admin' : 'Sub-Admin'),
+        email: u.email,
+        role: u.role
+      });
+    });
+
+    // 3. Add creators present on existing products
+    products.forEach(p => {
+      if (p.createdById && p.createdBy) {
+        if (!map.has(p.createdById)) {
+          map.set(p.createdById, {
+            id: p.createdById,
+            name: p.createdBy.name || p.createdBy.email || (p.createdBy.role === 'SUB_ADMIN' ? 'Sub-Admin' : 'Main Admin'),
+            email: p.createdBy.email,
+            role: p.createdBy.role || 'ADMIN'
+          });
+        }
+      }
+    });
+
+    // 4. Sort: Main Admins first, then Sub-Admins, then alphabetically by name
+    return Array.from(map.values()).sort((a, b) => {
+      if (a.role === 'ADMIN' && b.role !== 'ADMIN') return -1;
+      if (a.role !== 'ADMIN' && b.role === 'ADMIN') return 1;
+      return (a.name || '').localeCompare(b.name || '');
+    });
+  })();
+
+  const filteredStoreList = dbStores.filter(store => 
+    !storeSearchText || store.name.toLowerCase().includes(storeSearchText.toLowerCase())
+  );
+
   const filteredProducts = products.filter((p) => {
     const matchesSearch =
       p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -279,7 +314,12 @@ export default function AdminProductsPage() {
       matchesStatus = isExpired;
     }
 
-    return matchesSearch && matchesStore && matchesStatus;
+    let matchesAdmin = true;
+    if (currentRole === 'ADMIN' && selectedAdmin !== 'ALL') {
+      matchesAdmin = String(p.createdById) === String(selectedAdmin);
+    }
+
+    return matchesSearch && matchesStore && matchesStatus && matchesAdmin;
   }).sort((a, b) => {
     let aVal = a[sortConfig.key];
     let bVal = b[sortConfig.key];
@@ -317,8 +357,6 @@ export default function AdminProductsPage() {
     if (sortConfig.key !== columnKey) return <ArrowUpDown className="w-3 h-3 ml-1.5 opacity-30 group-hover:opacity-100 transition-opacity" />;
     return sortConfig.direction === 'asc' ? <ChevronUp className="w-3.5 h-3.5 ml-1.5 text-black" /> : <ChevronDown className="w-3.5 h-3.5 ml-1.5 text-black" />;
   };
-
-
 
   return (
     <div className="space-y-6" onClick={() => setOpenDropdown(null)}>
@@ -395,49 +433,285 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {/* Search & Store Filters */}
-      <div className="bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="relative w-full sm:w-80">
+      {/* Search & Modern Filter Dropdowns Bar */}
+      <div 
+        ref={filterBarRef}
+        className="bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5 relative z-30"
+      >
+        {/* Search Input */}
+        <div className="relative flex-1 min-w-[240px]">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search product card title..."
-            className="w-full px-4 py-2.5 pl-10 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
+            className="w-full px-4 py-2.5 pl-10 pr-9 text-xs sm:text-sm bg-neutral-50 hover:bg-neutral-100/60 focus:bg-white border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black transition-all"
           />
-          <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
+          <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-black p-0.5 rounded cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-          {/* Status Select Dropdown */}
-          <div className="w-full sm:w-auto relative">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full sm:w-44 px-4 py-2.5 pr-10 text-xs font-bold uppercase tracking-wider bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black cursor-pointer text-neutral-900 appearance-none"
+        {/* Filter Dropdowns Row */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Status Custom Dropdown */}
+          <div className="relative flex-1 sm:flex-initial">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenDropdown(openDropdown === 'status' ? null : 'status');
+              }}
+              className={`w-full sm:w-auto px-3.5 py-2.5 text-xs font-bold rounded-xl border transition-all flex items-center justify-between gap-2.5 cursor-pointer shadow-2xs ${
+                statusFilter !== 'ALL'
+                  ? 'bg-orange-50 border-[#f96b02] text-[#f96b02] ring-2 ring-orange-100'
+                  : 'bg-neutral-50 hover:bg-neutral-100/80 border-neutral-200 text-neutral-800'
+              }`}
             >
-              <option value="ALL">All Statuses</option>
-              <option value="ACTIVE">Active Deals</option>
-              <option value="INACTIVE">Deactivated</option>
-              <option value="EXPIRED">Expired Only</option>
-            </select>
-            <ChevronDown className="w-4 h-4 text-neutral-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <div className="flex items-center gap-2">
+                <Tag className="w-3.5 h-3.5 text-neutral-500" />
+                <span className="truncate max-w-[120px]">
+                  {statusFilter === 'ALL' ? 'All Statuses' : statusFilter === 'ACTIVE' ? 'Active Deals' : statusFilter === 'INACTIVE' ? 'Deactivated' : 'Expired Only'}
+                </span>
+              </div>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === 'status' ? 'rotate-180 text-black' : 'text-neutral-400'}`} />
+            </button>
+
+            {openDropdown === 'status' && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="absolute right-0 top-full mt-1.5 z-40 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[200px] animate-in fade-in zoom-in-95 duration-150"
+              >
+                <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1">
+                  Filter by Status
+                </div>
+                {[
+                  { id: 'ALL', label: 'All Statuses', dot: 'bg-neutral-400' },
+                  { id: 'ACTIVE', label: 'Active Deals', dot: 'bg-emerald-500' },
+                  { id: 'INACTIVE', label: 'Deactivated', dot: 'bg-neutral-300' },
+                  { id: 'EXPIRED', label: 'Expired Only', dot: 'bg-amber-500' }
+                ].map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => {
+                      setStatusFilter(opt.id);
+                      setOpenDropdown(null);
+                    }}
+                    className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer text-left ${
+                      statusFilter === opt.id
+                        ? 'bg-orange-50 font-bold text-[#f96b02]'
+                        : 'hover:bg-neutral-50 text-neutral-700'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className={`w-2 h-2 rounded-full ${opt.dot} shrink-0`}></span>
+                      <span className="truncate">{opt.label}</span>
+                    </div>
+                    {statusFilter === opt.id && <Check className="w-3.5 h-3.5 text-[#f96b02] shrink-0" />}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Store Select Dropdown */}
-          <div className="w-full sm:w-auto relative">
-            <select
-              value={selectedStore}
-              onChange={(e) => setSelectedStore(e.target.value)}
-              className="w-full sm:w-48 px-4 py-2.5 pr-10 text-xs font-bold uppercase tracking-wider bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black cursor-pointer text-neutral-900 appearance-none"
+          {/* Store Custom Dropdown */}
+          <div className="relative flex-1 sm:flex-initial">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenDropdown(openDropdown === 'store' ? null : 'store');
+              }}
+              className={`w-full sm:w-auto px-3.5 py-2.5 text-xs font-bold rounded-xl border transition-all flex items-center justify-between gap-2.5 cursor-pointer shadow-2xs ${
+                selectedStore !== 'ALL'
+                  ? 'bg-orange-50 border-[#f96b02] text-[#f96b02] ring-2 ring-orange-100'
+                  : 'bg-neutral-50 hover:bg-neutral-100/80 border-neutral-200 text-neutral-800'
+              }`}
             >
-              <option value="ALL">All Stores</option>
-              {dbStores.map(store => (
-                <option key={store.id} value={store.id}>{store.name}</option>
-              ))}
-            </select>
-            <ChevronDown className="w-4 h-4 text-neutral-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <div className="flex items-center gap-2">
+                <Store className="w-3.5 h-3.5 text-neutral-500" />
+                <span className="truncate max-w-[130px]">
+                  {selectedStore === 'ALL' ? 'All Stores' : (dbStores.find(s => String(s.id) === String(selectedStore))?.name || 'Selected Store')}
+                </span>
+              </div>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === 'store' ? 'rotate-180 text-black' : 'text-neutral-400'}`} />
+            </button>
+
+            {openDropdown === 'store' && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="absolute right-0 top-full mt-1.5 z-40 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[200px] max-w-xs animate-in fade-in zoom-in-95 duration-150"
+              >
+                <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1">
+                  Filter by Store
+                </div>
+                {dbStores.length > 5 && (
+                  <div className="p-2 border-b border-neutral-100">
+                    <input
+                      type="text"
+                      value={storeSearchText}
+                      onChange={(e) => setStoreSearchText(e.target.value)}
+                      placeholder="Search stores..."
+                      className="w-full px-2.5 py-1.5 text-xs bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black"
+                    />
+                  </div>
+                )}
+                <div className="max-h-56 overflow-y-auto">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedStore('ALL');
+                      setOpenDropdown(null);
+                      setStoreSearchText('');
+                    }}
+                    className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer text-left ${
+                      selectedStore === 'ALL'
+                        ? 'bg-orange-50 font-bold text-[#f96b02]'
+                        : 'hover:bg-neutral-50 text-neutral-700'
+                    }`}
+                  >
+                    <span>All Stores</span>
+                    {selectedStore === 'ALL' && <Check className="w-3.5 h-3.5 text-[#f96b02]" />}
+                  </button>
+                  {filteredStoreList.map((store) => (
+                    <button
+                      key={store.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedStore(store.id);
+                        setOpenDropdown(null);
+                        setStoreSearchText('');
+                      }}
+                      className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer text-left ${
+                        String(selectedStore) === String(store.id)
+                          ? 'bg-orange-50 font-bold text-[#f96b02]'
+                          : 'hover:bg-neutral-50 text-neutral-700'
+                      }`}
+                    >
+                      <span className="truncate">{store.name}</span>
+                      {String(selectedStore) === String(store.id) && <Check className="w-3.5 h-3.5 text-[#f96b02]" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* Admin / Sub-Admin Filter Dropdown (MAIN ADMIN ONLY) */}
+          {currentRole === 'ADMIN' && (
+            <div className="relative flex-1 sm:flex-initial">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenDropdown(openDropdown === 'admin' ? null : 'admin');
+                }}
+                className={`w-full sm:w-auto px-3.5 py-2.5 text-xs font-bold rounded-xl border transition-all flex items-center justify-between gap-2.5 cursor-pointer shadow-2xs ${
+                  selectedAdmin !== 'ALL'
+                    ? 'bg-orange-50 border-[#f96b02] text-[#f96b02] ring-2 ring-orange-100'
+                    : 'bg-neutral-50 hover:bg-neutral-100/80 border-neutral-200 text-neutral-800'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-3.5 h-3.5 text-neutral-500" />
+                  <span className="truncate max-w-[140px]">
+                    {selectedAdmin === 'ALL'
+                      ? 'All Admins'
+                      : (allCreators.find(c => String(c.id) === String(selectedAdmin))?.name || 'Selected Admin')}
+                  </span>
+                </div>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === 'admin' ? 'rotate-180 text-black' : 'text-neutral-400'}`} />
+              </button>
+
+              {openDropdown === 'admin' && (
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="absolute right-0 top-full mt-1.5 z-40 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[220px] max-w-sm animate-in fade-in zoom-in-95 duration-150"
+                >
+                  <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1 flex items-center justify-between">
+                    <span>Admin / Sub-Admin</span>
+                  </div>
+
+                  <div className="max-h-64 overflow-y-auto">
+                    {/* All Option */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedAdmin('ALL');
+                        setOpenDropdown(null);
+                      }}
+                      className={`w-full px-3.5 py-2.5 text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer text-left ${
+                        selectedAdmin === 'ALL'
+                          ? 'bg-orange-50 font-bold text-[#f96b02]'
+                          : 'hover:bg-neutral-50 text-neutral-700'
+                      }`}
+                    >
+                      <span className="font-bold">All Admins & Sub-Admins</span>
+                      {selectedAdmin === 'ALL' && <Check className="w-3.5 h-3.5 text-[#f96b02] shrink-0" />}
+                    </button>
+
+                    {/* Only the Admin & Sub-Admin Names */}
+                    {allCreators.map((creator) => (
+                      <button
+                        key={creator.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedAdmin(creator.id);
+                          setOpenDropdown(null);
+                        }}
+                        className={`w-full px-3.5 py-2.5 text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer text-left ${
+                          String(selectedAdmin) === String(creator.id)
+                            ? 'bg-orange-50 font-bold text-[#f96b02]'
+                            : 'hover:bg-neutral-50 text-neutral-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="truncate font-semibold">{creator.name}</span>
+                          <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase shrink-0 ${
+                            creator.role === 'ADMIN' ? 'bg-neutral-900 text-white' : 'bg-amber-100 text-amber-800'
+                          }`}>
+                            {creator.role === 'ADMIN' ? 'Main Admin' : 'Sub-Admin'}
+                          </span>
+                        </div>
+                        {String(selectedAdmin) === String(creator.id) && (
+                          <Check className="w-3.5 h-3.5 text-[#f96b02] shrink-0" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Reset All Filters Button */}
+          {(searchQuery || selectedStore !== 'ALL' || statusFilter !== 'ALL' || selectedAdmin !== 'ALL') && (
+            <Button
+              variant="none"
+              size="none"
+              type="button"
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedStore('ALL');
+                setStatusFilter('ALL');
+                setSelectedAdmin('ALL');
+                setStoreSearchText('');
+              }}
+              className="text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-2.5 rounded-xl transition-colors flex items-center gap-1.5 shrink-0 border border-red-200 cursor-pointer shadow-2xs"
+              title="Reset all filters to default"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset</span>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -476,9 +750,11 @@ export default function AdminProductsPage() {
                 <th className="p-4 cursor-pointer hover:bg-neutral-200 transition-colors group select-none" onClick={() => handleSort('discount')}>
                   <div className="flex items-center">Discount <SortIcon columnKey="discount" /></div>
                 </th>
-                <th className="p-4 cursor-pointer hover:bg-neutral-200 transition-colors group select-none" onClick={() => handleSort('cashback')}>
-                  <div className="flex items-center">Cashback <SortIcon columnKey="cashback" /></div>
-                </th>
+                {currentRole !== 'SUB_ADMIN' && (
+                  <th className="p-4 cursor-pointer hover:bg-neutral-200 transition-colors group select-none" onClick={() => handleSort('cashback')}>
+                    <div className="flex items-center">Cashback <SortIcon columnKey="cashback" /></div>
+                  </th>
+                )}
                 <th className="p-4 cursor-pointer hover:bg-neutral-200 transition-colors group select-none" onClick={() => handleSort('salePrice')}>
                   <div className="flex items-center">Price <SortIcon columnKey="salePrice" /></div>
                 </th>
@@ -489,18 +765,17 @@ export default function AdminProductsPage() {
             <tbody className="divide-y divide-neutral-100">
               {(initialLoading || isReloading) ? (
                 <tr>
-                  <td colSpan="9" className="p-8">
+                  <td colSpan={currentRole !== 'SUB_ADMIN' ? 9 : 8} className="p-8">
                     <PageLoader />
                   </td>
                 </tr>
               ) : paginatedProducts.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="p-8 text-center text-neutral-500 font-medium">No product cards found.</td>
+                  <td colSpan={currentRole !== 'SUB_ADMIN' ? 9 : 8} className="p-8 text-center text-neutral-500 font-medium">No product cards found.</td>
                 </tr>
               ) : paginatedProducts.map((p, index) => {
-                const displayCashback = p.cashback !== undefined && p.cashback !== ''
-                  ? p.cashback
-                  : (((p.id ? p.id.charCodeAt(p.id.length - 1) : 0) % 5) + 2 + ((p.id ? p.id.charCodeAt(p.id.length - 1) : 0) % 2 === 0 ? 0.5 : 0));
+                const wReview = p.cashbackWithReview ?? calculateCashback(p.salePrice).withReview;
+                const woReview = p.cashbackWithoutReview ?? calculateCashback(p.salePrice).withoutReview;
 
                 const globalIndex = (currentPage - 1) * itemsPerPage + index + 1;
 
@@ -542,11 +817,25 @@ export default function AdminProductsPage() {
                         {p.discount}% OFF
                       </span>
                     </td>
-                    <td className="p-4">
-                      <span className="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 whitespace-nowrap">
-                        Flat ₹{displayCashback} Cashback
-                      </span>
-                    </td>
+                    {currentRole !== 'SUB_ADMIN' && (
+                      <td className="p-4">
+                        <div className="flex flex-col gap-1 whitespace-nowrap">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-black text-emerald-700">₹{wReview}</span>
+                            <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-1.5 py-0.5 rounded flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                              With Review
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-bold text-neutral-800">₹{woReview}</span>
+                            <span className="text-[10px] font-medium text-neutral-500 bg-neutral-100 border border-neutral-200/60 px-1.5 py-0.5 rounded">
+                              Without Review
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                    )}
                     <td className="p-4">
                       <div className="font-bold text-neutral-900">₹{p.salePrice}</div>
                       {p.originalPrice > 0 && (
@@ -671,6 +960,7 @@ export default function AdminProductsPage() {
         dbStores={dbStores}
         dbCategories={dbCategories}
         existingProducts={products}
+        currentRole={currentRole}
       />
 
       {/* Add Modals */}
@@ -682,6 +972,7 @@ export default function AdminProductsPage() {
           dbStores={dbStores}
           dbCategories={dbCategories}
           existingProducts={products}
+          currentRole={currentRole}
         />
       )}
 
@@ -693,6 +984,7 @@ export default function AdminProductsPage() {
           dbStores={dbStores}
           dbCategories={dbCategories}
           existingProducts={products}
+          currentRole={currentRole}
         />
       )}
 
@@ -707,6 +999,7 @@ export default function AdminProductsPage() {
           }}
           dbStores={dbStores}
           dbCategories={dbCategories}
+          currentRole={currentRole}
         />
       )}
 

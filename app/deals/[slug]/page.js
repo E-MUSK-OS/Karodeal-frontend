@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PageLoader from '@/components/common/PageLoader';
 import Link from 'next/link';
-import { CheckCircle, Star, Clock, Banknote, ArrowRight, Calendar, ShieldCheck } from 'lucide-react';
+import { CheckCircle, ArrowRight } from 'lucide-react';
 import Button from '@/components/common/Button';
+import { calculateCashback } from '@/lib/cashbackCalculator';
 
 export default function OfferDetailsPage({ params }) {
   const router = useRouter();
@@ -96,14 +97,11 @@ export default function OfferDetailsPage({ params }) {
   const storeIdStr = store.slug || store.id || '';
   const dealUrl = deal.affiliateUrl || `https://www.${storeIdStr}.com`;
 
-  const getCashback = (p) => {
-    if (p.cashback !== undefined && p.cashback !== '') return Number(p.cashback);
-    const charCode = p.id ? p.id.charCodeAt(p.id.length - 1) : 0;
-    return (charCode % 5) + 2 + (charCode % 2 === 0 ? 0.5 : 0);
-  };
-  const cashback = getCashback(deal);
+  const withoutReviewCashback = deal.cashbackWithoutReview ?? calculateCashback(deal.salePrice).withoutReview;
+  const withReviewCashback = deal.cashbackWithReview ?? deal.cashback ?? calculateCashback(deal.salePrice).withReview;
+  const cashback = withReviewCashback;
 
-  const isCustom = deal.originalPrice === 0 && deal.salePrice === 0;
+  const isCustom = Number(deal.originalPrice) === 0;
 
   let bgClass = "bg-neutral-900";
   let tagClass = "bg-blue-500";
@@ -187,10 +185,13 @@ export default function OfferDetailsPage({ params }) {
               Upto {deal.discount}% Off
             </h2>
 
-            <div className="mb-3 sm:mb-6 md:mb-8">
-              <span className="bg-[rgba(255,255,255,0.7)] text-black font-bold rounded-md flex items-center justify-center w-fit px-1.5 sm:px-2 py-0.5 sm:py-1 shrink-0 gap-1 sm:gap-1.5 shadow-sm">
-                <img src="/images/favicon.png" alt="logo" className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 object-contain rounded-sm sm:rounded" />
-                <span className="text-[10px] sm:text-xs lg:text-sm whitespace-nowrap">Flat ₹{cashback} Cashback</span>
+            <div className="mb-3 sm:mb-6 md:mb-8 flex flex-wrap gap-2">
+              <span className="bg-white/90 backdrop-blur-xs text-black font-extrabold rounded-lg flex items-center justify-center w-fit px-2 sm:px-3 py-1 shrink-0 gap-1.5 shadow-sm text-[10px] sm:text-xs lg:text-sm">
+                <img src="/images/favicon.png" alt="logo" className="w-4 h-4 sm:w-5 sm:h-5 object-contain rounded" />
+                <span>₹{withReviewCashback} With Review</span>
+              </span>
+              <span className="bg-black/25 backdrop-blur-xs text-white border border-white/30 font-semibold rounded-lg flex items-center justify-center w-fit px-2 sm:px-3 py-1 shrink-0 gap-1 text-[10px] sm:text-xs">
+                <span>₹{withoutReviewCashback} W/O Review</span>
               </span>
             </div>
 
@@ -264,9 +265,9 @@ export default function OfferDetailsPage({ params }) {
               <Star className="w-6 h-6 md:w-7 md:h-7" />
             </div>
             <div>
-              <h4 className="font-black mb-3 text-black">3. Positive Review is Mandatory</h4>
+              <h4 className="font-black mb-3 text-black">3. Review for Higher Cashback (Optional)</h4>
               <p className="text-neutral-500 text-sm md:text-base leading-relaxed font-medium">
-                Once you receive the product, you must leave a positive review on the store's platform (e.g. Amazon/Flipkart). Upload a screenshot of your live positive review in our dashboard. Your cashback will be rejected without this proof.
+                Leave a positive review on the store's platform (e.g. Amazon/Flipkart) and upload a screenshot to earn higher cashback (₹{withReviewCashback}), or choose to claim without a review to earn standard cashback (₹{withoutReviewCashback}).
               </p>
             </div>
           </div>

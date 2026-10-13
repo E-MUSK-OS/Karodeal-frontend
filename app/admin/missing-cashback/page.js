@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShieldAlert, Search, CheckCircle, XCircle, Clock, Save, ArrowLeft, ArrowRight, Calendar, Paperclip, X } from 'lucide-react';
+import { 
+  ShieldAlert, Search, CheckCircle, XCircle, Clock, ArrowRight, ArrowLeft, 
+  X, Calendar, Paperclip, Save 
+} from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
 import ConfirmModal from '@/components/common/ConfirmModal';
@@ -13,7 +16,6 @@ import "yet-another-react-lightbox/styles.css";
 export default function AdminMissingCashback() {
   const [tickets, setTickets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [userRole, setUserRole] = useState('ADMIN');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [lightboxImage, setLightboxImage] = useState(null);
@@ -40,7 +42,16 @@ export default function AdminMissingCashback() {
       return;
     }
     const user = JSON.parse(userStr);
-    setUserRole(user.role || 'ADMIN');
+
+    if (user.role === 'SUB_ADMIN') {
+      router.replace('/admin/dashboard');
+      return;
+    }
+
+    if (user.role !== 'ADMIN') {
+      router.push('/admin/login');
+      return;
+    }
 
     try {
       if (showLoading) setIsLoading(true);
@@ -274,11 +285,6 @@ export default function AdminMissingCashback() {
         <div>
           <div className="flex items-center gap-3">
             <h3 className="font-bold text-neutral-900 tracking-tight">Missing Cashback Claims</h3>
-            {userRole === 'SUB_ADMIN' && (
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                Your Cards Only
-              </span>
-            )}
           </div>
           <p className="text-sm text-neutral-500 mt-1">Manage and resolve user cashback tickets</p>
         </div>
@@ -409,35 +415,41 @@ export default function AdminMissingCashback() {
                     )}
                   </div>
 
-                  <form onSubmit={handleSendMessage} className="shrink-0 flex gap-2 items-center">
-                    <label className="cursor-pointer text-neutral-400 hover:text-[#f96b02] transition-colors p-2 bg-neutral-50 rounded-xl border border-neutral-200">
-                      <Paperclip className="w-5 h-5" />
-                      <input type="file" className="hidden" accept="image/*" onChange={(e) => setChatAttachment(e.target.files[0])} />
-                    </label>
+                  {selectedTicket.status === 'PENDING' ? (
+                    <form onSubmit={handleSendMessage} className="shrink-0 flex gap-2 items-center">
+                      <label className="cursor-pointer text-neutral-400 hover:text-[#f96b02] transition-colors p-2 bg-neutral-50 rounded-xl border border-neutral-200">
+                        <Paperclip className="w-5 h-5" />
+                        <input type="file" className="hidden" accept="image/*" onChange={(e) => setChatAttachment(e.target.files[0])} />
+                      </label>
 
-                    <div className="flex-1 flex flex-col gap-1">
-                      {chatAttachment && (
-                        <div className="flex items-center gap-1 text-[10px] bg-neutral-100 text-neutral-600 px-2 py-1 rounded w-fit">
-                          <span className="truncate max-w-[100px]">{chatAttachment.name}</span>
-                          <Button variant="none" size="none" type="button" onClick={() => setChatAttachment(null)} className="hover:text-red-500"><X className="w-3 h-3" /></Button>
-                        </div>
-                      )}
-                      <input
-                        type="text"
-                        value={chatMessage}
-                        onChange={(e) => setChatMessage(e.target.value)}
-                        placeholder="Type a message to the user..."
-                        className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-black"
-                      />
+                      <div className="flex-1 flex flex-col gap-1">
+                        {chatAttachment && (
+                          <div className="flex items-center gap-1 text-[10px] bg-neutral-100 text-neutral-600 px-2 py-1 rounded w-fit">
+                            <span className="truncate max-w-[100px]">{chatAttachment.name}</span>
+                            <Button variant="none" size="none" type="button" onClick={() => setChatAttachment(null)} className="hover:text-red-500"><X className="w-3 h-3" /></Button>
+                          </div>
+                        )}
+                        <input
+                          type="text"
+                          value={chatMessage}
+                          onChange={(e) => setChatMessage(e.target.value)}
+                          placeholder="Type a message to the user..."
+                          className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                        />
+                      </div>
+                      <Button variant="none" size="none"
+                        type="submit"
+                        disabled={isSendingMsg || (!chatMessage.trim() && !chatAttachment)}
+                        className="bg-black text-white px-4 py-2.5 rounded-xl text-sm font-bold disabled:opacity-50 transition-opacity self-end cursor-pointer"
+                      >
+                        {isSendingMsg ? '...' : 'Send'}
+                      </Button>
+                    </form>
+                  ) : (
+                    <div className="shrink-0 bg-neutral-50 p-3 rounded-xl border border-neutral-200 text-center text-xs text-neutral-500 font-medium">
+                      This ticket is {selectedTicket.status.toLowerCase()} and closed for new messages.
                     </div>
-                    <Button variant="none" size="none"
-                      type="submit"
-                      disabled={isSendingMsg || (!chatMessage.trim() && !chatAttachment)}
-                      className="bg-black text-white px-4 py-2.5 rounded-xl text-sm font-bold disabled:opacity-50 transition-opacity self-end"
-                    >
-                      {isSendingMsg ? '...' : 'Send'}
-                    </Button>
-                  </form>
+                  )}
                 </div>
               </div>
 
