@@ -10,12 +10,12 @@ const PROCESS_STEPS = [
   {
     stepNumber: '01',
     title: 'SELECT STORE',
-    description: 'Find and choose your favorite partner store or shopping brand on KaroDeal.',
+    description: 'Discover trusted stores and brands across all your favorite shopping categories.',
   },
   {
     stepNumber: '02',
     title: 'SELECT DEAL',
-    description: 'Explore exclusive promo vouchers, high-percentage cashback rates, and verified coupon codes updated daily.',
+    description: 'Browse trending deals and the highest cashback offers updated daily.',
   },
   {
     stepNumber: '03',
@@ -25,12 +25,12 @@ const PROCESS_STEPS = [
   {
     stepNumber: '04',
     title: 'REVIEW',
-    description: 'Submit your order ID and invoice details in your dashboard to track and verify your purchase status swiftly.',
+    description: 'Submit your order details in your dashboard to track and verify your cashback swiftly.',
   },
   {
     stepNumber: '05',
     title: 'CLAIM CASH BACK',
-    description: 'Receive verified cash rewards credited directly to your KaroDeal wallet for instant withdrawal via Bank or UPI.',
+    description: 'Receive verified cash rewards credited directly to your KaroDeal wallet for withdrawal via Bank or UPI.',
   },
 ];
 
@@ -45,7 +45,7 @@ export default function TheProcess() {
   };
 
   return (
-    <section className="mb-8 sm:mb-12 md:mb-20 border border-black p-5 sm:p-7 lg:p-10 relative overflow-hidden bg-neutral-50/40">
+    <section className="mb-8 sm:mb-12 md:mb-20 border border-black/10 rounded-2xl sm:rounded-3xl p-5 sm:p-7 lg:p-10 relative overflow-hidden bg-neutral-50/40">
       {/* Header section with title and slider controls */}
       <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-6 sm:mb-8 md:mb-10 border-b border-black/10 pb-5">
         <div>

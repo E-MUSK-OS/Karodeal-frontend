@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PageLoader from '@/components/common/PageLoader';
 import Link from 'next/link';
-import { CheckCircle, ArrowRight } from 'lucide-react';
+import { CheckCircle, ArrowRight, Calendar, Star, ShieldCheck, Clock, Banknote } from 'lucide-react';
 import Button from '@/components/common/Button';
 import { calculateCashback } from '@/lib/cashbackCalculator';
 
@@ -128,8 +128,13 @@ export default function OfferDetailsPage({ params }) {
 
       {/* Product Highlight Section */}
       {isCustom ? (
-        <div className="rounded-[1.25rem] sm:rounded-[1.5rem] md:rounded-[2rem] shadow-xl overflow-hidden mb-8 sm:mb-12 relative flex flex-col max-w-3xl mx-auto bg-neutral-100 group">
-          <img src={deal.image} alt={deal.title} className="w-full h-auto object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+        <div className="rounded-[1.25rem] sm:rounded-[1.5rem] md:rounded-[2rem] shadow-xl overflow-hidden mb-8 sm:mb-12 relative w-full max-w-3xl mx-auto bg-neutral-100 group aspect-[16/10]">
+          <img
+            src={deal.image}
+            alt={deal.title}
+            className="w-full h-full object-cover"
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
 
           <div className="absolute top-3 left-3 sm:top-6 sm:left-6 md:top-8 md:left-8 z-20 pointer-events-none">
             <div className="bg-white rounded-sm sm:rounded-xl md:rounded-2xl w-6 h-6 sm:w-10 sm:h-10 md:w-14 md:h-14 flex items-center justify-center shadow-md shrink-0 p-1 sm:p-1.5 md:p-2">
@@ -217,11 +222,11 @@ export default function OfferDetailsPage({ params }) {
           </div>
 
           {/* Right Area: Image */}
-          <div className="w-[50%] md:w-[45%] bg-white flex items-center justify-center overflow-hidden">
+          <div className="w-[50%] md:w-[45%] bg-white relative overflow-hidden self-stretch aspect-square md:aspect-[2.2/3]">
             <img
               src={deal.image}
               alt={deal.title}
-              className="w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-contain"
               onError={(e) => { e.target.style.display = 'none'; }}
             />
           </div>

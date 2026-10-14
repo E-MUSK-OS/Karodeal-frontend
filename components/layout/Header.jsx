@@ -5,13 +5,21 @@ import { Search, Menu, X, User, Wallet } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Button from '../common/Button';
 import ProfileMenu from './ProfileMenu';
+import HeaderSearch from './HeaderSearch';
+
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    // Close mobile drawers on navigation
+    setIsMobileMenuOpen(false);
+    setIsMobileSearchOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -73,16 +81,6 @@ export default function Header() {
     return null;
   }
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery('');
-    }
-  };
-
-
-
   return (
     <header
       className={`sticky page-container top-0 z-50 w-full bg-white border-b border-neutral-200 transition-all duration-300 ${isScrolled ? 'shadow-md' : ''
@@ -106,20 +104,9 @@ export default function Header() {
             <Link href="/categories" className={`text-[11px] lg:text-sm font-bold uppercase tracking-widest transition-colors ${pathname?.startsWith('/categories') ? 'text-black' : 'text-neutral-500 hover:text-black'}`}>Categories</Link>
           </nav>
 
-          {/* Search Bar (Desktop) */}
-          <div className="hidden md:flex flex-1 max-w-sm ml-4 lg:ml-8 mr-3 lg:mr-4">
-            <form onSubmit={handleSearchSubmit} className="relative w-full">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-neutral-400" strokeWidth={2} />
-              </div>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 lg:py-2.5 border border-neutral-200 text-xs lg:text-sm leading-5 bg-white placeholder-neutral-400 focus:outline-none focus:border-black transition-colors"
-                placeholder="Search..."
-              />
-            </form>
+          {/* Search Bar (Desktop) with Live Autocomplete */}
+          <div className="hidden md:flex flex-1 max-w-sm lg:max-w-md ml-4 lg:ml-8 mr-3 lg:mr-4">
+            <HeaderSearch />
           </div>
 
           {/* Actions */}
@@ -140,14 +127,30 @@ export default function Header() {
             )}
           </div>
 
-          {/* Mobile menu button */}
-          <div className="flex md:hidden items-center gap-4">
-            <Link href="/search" className="text-black focus:outline-none">
-              <Search className="h-5 w-5" strokeWidth={2} />
-            </Link>
+          {/* Mobile menu button & search toggle */}
+          <div className="flex md:hidden items-center gap-2">
+            <button
+              onClick={() => {
+                setIsMobileSearchOpen(!isMobileSearchOpen);
+                if (isMobileMenuOpen) setIsMobileMenuOpen(false);
+              }}
+              className={`p-2 rounded-full transition-colors focus:outline-none ${
+                isMobileSearchOpen ? 'bg-black text-white' : 'text-black hover:bg-neutral-100'
+              }`}
+              aria-label="Toggle Search"
+            >
+              {isMobileSearchOpen ? (
+                <X className="h-5 w-5" strokeWidth={2.2} />
+              ) : (
+                <Search className="h-5 w-5" strokeWidth={2.2} />
+              )}
+            </button>
             <Button variant="none" size="none"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-black focus:outline-none"
+              onClick={() => {
+                setIsMobileMenuOpen(!isMobileMenuOpen);
+                if (isMobileSearchOpen) setIsMobileSearchOpen(false);
+              }}
+              className="text-black focus:outline-none p-1.5"
             >
               {isMobileMenuOpen ? (
                 <X className="h-6 w-6" strokeWidth={2} />
@@ -157,6 +160,13 @@ export default function Header() {
             </Button>
           </div>
         </div>
+
+        {/* Mobile Search Bar Dropdown */}
+        {isMobileSearchOpen && (
+          <div className="md:hidden pb-4 pt-1 px-1 border-t border-neutral-100 animate-in fade-in slide-in-from-top-1">
+            <HeaderSearch autoFocus onClose={() => setIsMobileSearchOpen(false)} />
+          </div>
+        )}
       </div>
 
       {/* Mobile Menu */}

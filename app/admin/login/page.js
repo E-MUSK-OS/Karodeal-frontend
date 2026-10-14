@@ -18,7 +18,12 @@ export default function AdminLoginPage() {
     const adminStr = localStorage.getItem('adminUser');
     if (adminStr) {
       router.push('/admin');
+      return;
     }
+
+    // Pre-warm backend and Neon database on page load so cold start doesn't cause "Failed to fetch"
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
+    fetch(`${apiUrl}/health`).catch(() => {});
   }, [router]);
 
   const handleAdminLogin = async (e) => {
@@ -26,38 +31,61 @@ export default function AdminLoginPage() {
     setError('');
     setIsLoading(true);
 
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
+    let attempts = 0;
+    const maxAttempts = 2;
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to login');
+    while (attempts < maxAttempts) {
+      attempts++;
+      try {
+        const res = await fetch(`${apiUrl}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Failed to login');
+        }
+
+        if (data.user.role !== 'ADMIN' && data.user.role !== 'SUB_ADMIN') {
+          throw new Error('Access Denied: You do not have administrator privileges.');
+        }
+
+        const adminUser = {
+          id: data.user.id,
+          email: data.user.email,
+          name: data.user.name,
+          role: data.user.role,
+          token: data.token,
+          loginTime: new Date().toISOString(),
+        };
+
+        localStorage.setItem('adminUser', JSON.stringify(adminUser));
+        window.dispatchEvent(new Event('admin-auth-change'));
+        router.push('/admin');
+        return;
+      } catch (err) {
+        // If it's a cold-start network failure ("Failed to fetch") and we have a retry attempt left
+        const isNetworkError = err.message?.includes('Failed to fetch') || err.name === 'TypeError';
+        if (isNetworkError && attempts < maxAttempts) {
+          // Wait 1.5 seconds while server/DB wakes up and retry automatically
+          await new Promise((r) => setTimeout(r, 1500));
+          continue;
+        }
+
+        if (isNetworkError) {
+          setError('Server is waking up from sleep mode. Please try clicking Sign In again in a few seconds.');
+        } else {
+          setError(err.message || 'Invalid admin email or password.');
+        }
+        break;
+      } finally {
+        if (attempts >= maxAttempts) {
+          setIsLoading(false);
+        }
       }
-
-      if (data.user.role !== 'ADMIN' && data.user.role !== 'SUB_ADMIN') {
-        throw new Error('Access Denied: You do not have administrator privileges.');
-      }
-
-      const adminUser = {
-        id: data.user.id,
-        email: data.user.email,
-        name: data.user.name,
-        role: data.user.role,
-        token: data.token,
-        loginTime: new Date().toISOString(),
-      };
-
-      localStorage.setItem('adminUser', JSON.stringify(adminUser));
-      window.dispatchEvent(new Event('admin-auth-change'));
-      router.push('/admin');
-    } catch (err) {
-      setError(err.message || 'Invalid admin email or password.');
-    } finally {
-      setIsLoading(false);
     }
   };
 

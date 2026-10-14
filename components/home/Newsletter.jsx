@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, AlertCircle, Check, ArrowRight } from "lucide-react";
+import { CheckCircle2, AlertCircle, Check, ArrowRight, Mail } from "lucide-react";
 
 export default function Newsletter() {
   const [email, setEmail] = useState("");
@@ -44,173 +44,95 @@ export default function Newsletter() {
   };
 
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 sm:mb-16 md:mb-24">
-      {/* 1. SIMPLE, CLEAN & COMPACT MOBILE VIEW (< md) */}
-      <div className="block md:hidden">
-        <div className="bg-white border-2 border-black rounded-2xl p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          {/* Header */}
-          <div className="flex items-center mb-2.5">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-black text-white text-[10px] font-black uppercase tracking-wider rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#f96b02]" />
+    <section className="w-full">
+      <div className="w-full bg-black text-white border border-neutral-900 rounded-2xl sm:rounded-3xl p-6 sm:p-10 lg:p-14 relative overflow-hidden shadow-sm">
+        {/* Ambient background glow */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#f96b02]/10 blur-3xl pointer-events-none rounded-full" />
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10 w-full">
+          {/* Left Column: Heading, Perks & Info */}
+          <div className="lg:col-span-7">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 text-[11px] font-black uppercase tracking-wider text-neutral-300 mb-3.5 sm:mb-4">
+              <span className="w-2 h-2 rounded-full bg-[#f96b02] animate-pulse" />
               Never Miss A Deal
-            </span>
-          </div>
-
-          <h3 className="text-lg font-black text-black uppercase tracking-tight leading-snug">
-            Deals Drop Fast. <span className="text-[#f96b02]">Get Them Faster.</span>
-          </h3>
-          <p className="text-xs text-neutral-600 font-medium mt-1 leading-normal">
-            Handpicked price drops, promo codes, and cashback alerts in your inbox.
-          </p>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="mt-4 space-y-2.5">
-            <div>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email address"
-                required
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border-2 border-black rounded-xl text-black placeholder-neutral-400 text-xs font-semibold focus:outline-none focus:bg-white focus:border-[#f96b02] transition-colors"
-              />
             </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-2.5 px-4 bg-black hover:bg-[#f96b02] text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-xs active:translate-y-0.5 disabled:opacity-60 flex items-center justify-center gap-2"
-            >
-              <span>{isLoading ? "Submitting..." : "Subscribe Now"}</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-
-            {/* Status Feedback */}
-            {error && (
-              <div className="p-2.5 rounded-lg bg-red-50 border border-red-200 flex items-center gap-2 text-red-600 text-xs font-bold">
-                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
-
-            {submitted && !error && (
-              <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center gap-2 text-emerald-700 text-xs font-bold">
-                <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                <span>Subscribed successfully! Welcome to KaroDeal.</span>
-              </div>
-            )}
-          </form>
-
-          {/* Simple Trust Points */}
-          <div className="mt-3.5 pt-3 border-t border-neutral-100 flex items-center justify-around text-[10px] font-bold text-neutral-500 uppercase tracking-wide">
-            <span className="flex items-center gap-1">
-              <Check className="w-3 h-3 text-black stroke-[3]" /> Daily Drops
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className="flex items-center gap-1">
-              <Check className="w-3 h-3 text-black stroke-[3]" /> Zero Spam
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className="flex items-center gap-1">
-              <Check className="w-3 h-3 text-black stroke-[3]" /> Free Forever
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. TABLET & DESKTOP VIEW (>= md): Editorial 2-Column Neo-Brutalist Layout */}
-      <div className="hidden md:flex bg-neutral-100/80 border-2 border-black rounded-3xl py-12 lg:py-20 px-8 lg:px-14 min-h-[440px] lg:min-h-[500px] items-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
-        {/* Subtle background graphic badge */}
-        <div className="absolute -bottom-8 -right-8 text-neutral-200/50 font-black text-8xl sm:text-9xl uppercase tracking-tighter pointer-events-none select-none">
-          DEALS
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-14 items-center relative z-10 w-full">
-          {/* Left Column: Heading, Subtitle & Perks */}
-          <div className="md:col-span-7">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-black text-white text-[11px] font-black uppercase tracking-wider rounded-full mb-4 sm:mb-5 shadow-xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#f96b02]" />
-              Never Miss A Deal
-            </span>
-
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-black uppercase tracking-tighter leading-[1.08] mb-4 sm:mb-5">
-              Deals Drop Fast. <br className="hidden sm:inline" />
-              <span className="text-[#f96b02]">Get Them Faster.</span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black uppercase tracking-tight text-white leading-tight mb-3">
+              Deals Drop Fast. <span className="text-[#f96b02]">Get Them Faster.</span>
             </h2>
 
-            <p className="text-neutral-600 text-sm sm:text-base font-medium max-w-lg leading-relaxed mb-8">
-              Subscribe to get handpicked price drops, verified promo codes, and flash cashback alerts from 100+ partner stores delivered directly to your inbox.
+            <p className="text-neutral-400 text-xs sm:text-sm md:text-base leading-relaxed max-w-xl mb-6">
+              Subscribe to receive handpicked price drops, verified promo codes, and flash cashback alerts from 100+ partner stores delivered directly to your inbox.
             </p>
 
-            {/* Checklist Perks */}
-            <div className="flex flex-wrap items-center gap-y-3 gap-x-6 text-xs sm:text-sm font-bold text-neutral-800">
+            {/* 3 Trust Perks */}
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2.5 text-xs sm:text-sm font-semibold text-neutral-300">
               <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-black text-white flex items-center justify-center shrink-0">
-                  <Check className="w-3 h-3 stroke-[3]" />
-                </span>
+                <Check className="w-4 h-4 text-[#f96b02] stroke-[3]" />
                 <span>Curated Daily Drops</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-black text-white flex items-center justify-center shrink-0">
-                  <Check className="w-3 h-3 stroke-[3]" />
-                </span>
+                <Check className="w-4 h-4 text-[#f96b02] stroke-[3]" />
                 <span>Zero Spam Policy</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-black text-white flex items-center justify-center shrink-0">
-                  <Check className="w-3 h-3 stroke-[3]" />
-                </span>
+                <Check className="w-4 h-4 text-[#f96b02] stroke-[3]" />
                 <span>100% Free Forever</span>
               </div>
             </div>
           </div>
 
-          {/* Right Column: High-Contrast Subscription Box */}
-          <div className="md:col-span-5">
-            <div className="bg-white border-2 border-black rounded-2xl p-7 sm:p-9 lg:p-10 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <h3 className="font-black text-black uppercase tracking-tight text-lg sm:text-xl mb-1.5">
+          {/* Right Column: Modern Subscription Box */}
+          <div className="lg:col-span-5">
+            <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-5 sm:p-7 backdrop-blur-xs">
+              <h3 className="font-bold text-white text-base sm:text-lg mb-1">
                 Join Smart Shoppers
               </h3>
-              <p className="text-xs sm:text-[13px] text-neutral-500 font-medium mb-6">
-                Enter your email to receive today’s top verified discounts.
+              <p className="text-xs text-neutral-400 mb-4">
+                Enter your email to get today&apos;s highest cashback discounts.
               </p>
 
-              <form onSubmit={handleSubmit} className="space-y-3.5">
-                <div>
+              <form onSubmit={handleSubmit} className="space-y-3">
+                <div className="relative flex items-center">
+                  <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 pointer-events-none" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email address"
                     required
-                    className="w-full px-4 py-4 bg-neutral-50 border-2 border-black rounded-xl text-black placeholder-neutral-400 text-sm font-medium focus:outline-none focus:bg-white focus:border-[#f96b02] transition-colors"
+                    className="w-full pl-10 pr-4 py-3 bg-black/60 border border-neutral-700 focus:border-[#f96b02] rounded-xl text-white placeholder-neutral-500 text-xs sm:text-sm font-medium focus:outline-none transition-colors"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-4 px-6 bg-black hover:bg-[#f96b02] text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-xl transition-all duration-200 cursor-pointer shadow-xs active:translate-y-0.5 disabled:opacity-60 flex items-center justify-center gap-2 group"
+                  className="w-full py-3 px-5 bg-[#f96b02] hover:bg-[#e05f00] text-white font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl transition-all duration-200 cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2 shadow-sm"
                 >
-                  <span>{isLoading ? "Submitting..." : "Subscribe Now"}</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <span>{isLoading ? "Subscribing..." : "Subscribe Now"}</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
+
+                {/* Error / Success Feedback */}
+                {error && (
+                  <div className="p-2.5 rounded-lg bg-red-950/60 border border-red-800 text-red-300 text-xs font-semibold flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+                    <span>{error}</span>
+                  </div>
+                )}
+
+                {submitted && !error && (
+                  <div className="p-2.5 rounded-lg bg-emerald-950/60 border border-emerald-800 text-emerald-300 text-xs font-semibold flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                    <span>Subscribed successfully! Welcome to KaroDeal.</span>
+                  </div>
+                )}
               </form>
 
-              {/* Status Feedback */}
-              {error && (
-                <div className="mt-3.5 p-3 rounded-lg bg-red-50 border border-red-200 flex items-center gap-2 text-red-600 text-xs font-bold">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{error}</span>
-                </div>
-              )}
-
-              {submitted && !error && (
-                <div className="mt-3.5 p-3 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center gap-2 text-emerald-700 text-xs font-bold">
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>Subscribed successfully! Welcome to KaroDeal.</span>
-                </div>
-              )}
+              <p className="text-[11px] text-neutral-500 text-center mt-3">
+                We respect your privacy. Unsubscribe at any time.
+              </p>
             </div>
           </div>
         </div>
