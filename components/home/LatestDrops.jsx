@@ -17,7 +17,7 @@ export default function LatestDrops() {
         const allProducts = await res.json();
         const now = new Date();
         const activeDeals = allProducts.filter(p => p.isActive !== false && (!p.expiresAt || new Date(p.expiresAt) > now));
-        setTopDeals(activeDeals.slice(0, 8));
+        setTopDeals(activeDeals.slice(0, 9));
       }
     } catch (err) {
       console.error(err);

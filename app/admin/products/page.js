@@ -78,17 +78,27 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     const socket = getSocket();
-    if (!socket) return;
 
     const handleProductsChange = () => {
       if (isReordering) return;
       loadProducts();
     };
 
-    socket.on('products:changed', handleProductsChange);
+    if (socket) {
+      socket.on('products:changed', handleProductsChange);
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('karodeal:products_changed', handleProductsChange);
+    }
 
     return () => {
-      socket.off('products:changed', handleProductsChange);
+      if (socket) {
+        socket.off('products:changed', handleProductsChange);
+      }
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('karodeal:products_changed', handleProductsChange);
+      }
     };
   }, [isReordering]);
 
