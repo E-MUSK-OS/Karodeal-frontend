@@ -5,6 +5,7 @@ import DealGrid from '@/components/deals/DealGrid';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
 import { getSocket } from '@/lib/socket';
+import { getSessionSeed } from '@/lib/sessionSeed';
 
 export default function DealsPage() {
   const [allDeals, setAllDeals] = useState([]);
@@ -16,10 +17,11 @@ export default function DealsPage() {
   const fetchData = async () => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
+      const seed = getSessionSeed();
 
       // Fetch products and stores in parallel
       const [productsRes, storesRes] = await Promise.all([
-        fetch(`${apiUrl}/products?_t=${Date.now()}`, { cache: 'no-store' }),
+        fetch(`${apiUrl}/products?seed=${seed}&_t=${Date.now()}`, { cache: 'no-store' }),
         fetch(`${apiUrl}/meta/stores`)
       ]);
 

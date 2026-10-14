@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Button from '@/components/common/Button';
 import DealGrid from '@/components/deals/DealGrid';
 import { getSocket } from '@/lib/socket';
+import { getSessionSeed } from '@/lib/sessionSeed';
 
 export default function LatestDrops() {
   const [topDeals, setTopDeals] = useState([]);
@@ -12,7 +13,8 @@ export default function LatestDrops() {
   const fetchProducts = async () => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
-      const res = await fetch(`${apiUrl}/products?_t=${Date.now()}`, { cache: 'no-store' });
+      const seed = getSessionSeed();
+      const res = await fetch(`${apiUrl}/products?seed=${seed}&_t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
         const allProducts = await res.json();
         const now = new Date();

@@ -116,7 +116,7 @@ export default function AdminProductsPage() {
       let productsRes = await fetch(`${apiUrl}/products/admin`, { headers: { 'Authorization': `Bearer ${token}` } });
       if (productsRes.status === 404) {
         // Fallback for when backend is not yet updated on Vercel
-        productsRes = await fetch(`${apiUrl}/products`);
+        productsRes = await fetch(`${apiUrl}/products?raw=true`);
       }
 
       const [storesRes, categoriesRes] = await Promise.all([
