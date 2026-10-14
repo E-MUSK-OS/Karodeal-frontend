@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 import {
-  Search, Plus, Edit3, Trash2, CheckCircle2, ExternalLink, Tag, RefreshCw, X, ChevronUp, ChevronDown, ArrowUpDown, RotateCcw, Store, ShieldCheck, Check, Users, GripVertical
+  Search, Plus, Edit3, Trash2, CheckCircle2, ExternalLink, Tag, RefreshCw, X, ChevronUp, ChevronDown, ArrowUpDown, RotateCcw, Store, ShieldCheck, Check, Users, GripVertical, Star
 } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
@@ -368,7 +368,52 @@ export default function AdminProductsPage() {
     } catch (err) {
       console.error(err);
       setProducts(prev => prev.map(p => p.id === product.id ? product : p));
-      alert('Error re-posting product');
+      showToast('Error re-posting product');
+    }
+  };
+
+  const handleTogglePin = async (product) => {
+    if (currentRole !== 'ADMIN') return;
+
+    const previousStatus = !!product.isPinned;
+    const nextStatus = !previousStatus;
+
+    // Optimistic UI update
+    setProducts(prev =>
+      prev.map(p => (p.id === product.id ? { ...p, isPinned: nextStatus } : p))
+    );
+
+    try {
+      const adminUserStr = localStorage.getItem('adminUser');
+      const adminObj = adminUserStr ? JSON.parse(adminUserStr) : null;
+      const token = adminObj?.token;
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${apiUrl}/products/${product.id}/pin`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ isPinned: nextStatus })
+      });
+
+      if (!res.ok) {
+        // Revert on error
+        setProducts(prev =>
+          prev.map(p => (p.id === product.id ? { ...p, isPinned: previousStatus } : p))
+        );
+        const data = await res.json().catch(() => ({}));
+        showToast(`Failed: ${data.error || 'Could not update star pin'}`);
+      } else {
+        showToast(nextStatus ? `⭐ Locked to Rank #${product.sortOrder} for ALL users!` : 'Unlocked from fixed rank.');
+      }
+    } catch (err) {
+      console.error(err);
+      setProducts(prev =>
+        prev.map(p => (p.id === product.id ? { ...p, isPinned: previousStatus } : p))
+      );
+      showToast('Error updating star status');
     }
   };
 
@@ -977,6 +1022,29 @@ export default function AdminProductsPage() {
                         >
                           #{currentRank}
                         </button>
+
+                        {/* Star / Fixed Rank Toggle */}
+                        {currentRole === 'ADMIN' && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTogglePin(p);
+                            }}
+                            className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                              p.isPinned
+                                ? 'text-amber-500 bg-amber-50 hover:bg-amber-100 border border-amber-300 shadow-2xs ring-2 ring-amber-100'
+                                : 'text-neutral-300 hover:text-amber-500 hover:bg-neutral-100 border border-transparent'
+                            }`}
+                            title={
+                              p.isPinned
+                                ? `⭐ LOCKED to Rank #${currentRank} for ALL users (Click to unlock)`
+                                : `☆ Click to LOCK to Rank #${currentRank} for ALL users`
+                            }
+                          >
+                            <Star className={`w-3.5 h-3.5 transition-transform active:scale-125 ${p.isPinned ? 'fill-amber-400 text-amber-500' : ''}`} />
+                          </button>
+                        )}
                       </div>
                     </td>
                     <td className="p-4 flex items-center gap-3">
