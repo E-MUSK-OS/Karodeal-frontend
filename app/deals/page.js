@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import DealGrid from '@/components/deals/DealGrid';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
+import { getSocket } from '@/lib/socket';
 
 export default function DealsPage() {
   const [allDeals, setAllDeals] = useState([]);
@@ -12,39 +13,52 @@ export default function DealsPage() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
+  const fetchData = async () => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
 
-        // Fetch products and stores in parallel
-        const [productsRes, storesRes] = await Promise.all([
-          fetch(`${apiUrl}/products`),
-          fetch(`${apiUrl}/meta/stores`)
-        ]);
+      // Fetch products and stores in parallel
+      const [productsRes, storesRes] = await Promise.all([
+        fetch(`${apiUrl}/products?_t=${Date.now()}`, { cache: 'no-store' }),
+        fetch(`${apiUrl}/meta/stores`)
+      ]);
 
-        if (productsRes.ok) {
-          const data = await productsRes.json();
-          const now = new Date();
-          setAllDeals(data.filter(p => p.isActive !== false && (!p.expiresAt || new Date(p.expiresAt) > now)));
-        }
-
-        if (storesRes.ok) {
-          const storesData = await storesRes.json();
-          const dynamicFilters = storesData.map(store => ({
-            id: store.slug,
-            label: store.name || store.slug
-          }));
-          setFilters([{ id: 'all', label: 'All Deals' }, ...dynamicFilters]);
-        }
-      } catch (err) {
-        console.error('Error fetching data:', err);
-      } finally {
-        setLoading(false);
+      if (productsRes.ok) {
+        const data = await productsRes.json();
+        const now = new Date();
+        setAllDeals(data.filter(p => p.isActive !== false && (!p.expiresAt || new Date(p.expiresAt) > now)));
       }
-    };
+
+      if (storesRes.ok) {
+        const storesData = await storesRes.json();
+        const dynamicFilters = storesData.map(store => ({
+          id: store.slug,
+          label: store.name || store.slug
+        }));
+        setFilters([{ id: 'all', label: 'All Deals' }, ...dynamicFilters]);
+      }
+    } catch (err) {
+      console.error('Error fetching data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
+
+    const socket = getSocket();
+    if (socket) {
+      socket.on('products:changed', fetchData);
+    }
+
+    const handleWindowChange = () => fetchData();
+    window.addEventListener('karodeal:products_changed', handleWindowChange);
+
+    return () => {
+      if (socket) socket.off('products:changed', fetchData);
+      window.removeEventListener('karodeal:products_changed', handleWindowChange);
+    };
   }, []);
 
   const filteredDeals = activeFilter === 'all'

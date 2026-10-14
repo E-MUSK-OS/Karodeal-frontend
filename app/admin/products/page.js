@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 import {
-  Search, Plus, Edit3, Trash2, CheckCircle2, ExternalLink, Tag, RefreshCw, X, ChevronUp, ChevronDown, ArrowUpDown, RotateCcw, Store, ShieldCheck, Check, Users
+  Search, Plus, Edit3, Trash2, CheckCircle2, ExternalLink, Tag, RefreshCw, X, ChevronUp, ChevronDown, ArrowUpDown, RotateCcw, Store, ShieldCheck, Check, Users, GripVertical
 } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
@@ -14,6 +14,7 @@ import BulkImportModal from '@/components/admin/products/BulkImportModal';
 import EditProductModal from '@/components/admin/products/EditProductModal';
 import CustomSelect from '@/components/common/CustomSelect';
 import { calculateCashback } from '@/lib/cashbackCalculator';
+import { getSocket } from '@/lib/socket';
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
@@ -23,9 +24,13 @@ export default function AdminProductsPage() {
   const [selectedAdmin, setSelectedAdmin] = useState('ALL'); // 'ALL' | 'ROLE_ADMIN' | 'ROLE_SUB_ADMIN' | creatorId
   const [adminUsersList, setAdminUsersList] = useState([]);
   const [storeSearchText, setStoreSearchText] = useState('');
-  const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
+  const [sortConfig, setSortConfig] = useState({ key: 'sortOrder', direction: 'asc' });
   const [currentRole, setCurrentRole] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [draggedProductId, setDraggedProductId] = useState(null);
+  const [dragOverProductId, setDragOverProductId] = useState(null);
+  const [isReordering, setIsReordering] = useState(false);
+  const [moveRankModal, setMoveRankModal] = useState({ isOpen: false, product: null, targetRank: '' });
   const [isBuilderModalOpen, setIsBuilderModalOpen] = useState(false);
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
@@ -70,6 +75,22 @@ export default function AdminProductsPage() {
   useEffect(() => {
     loadProducts();
   }, []);
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    const handleProductsChange = () => {
+      if (isReordering) return;
+      loadProducts();
+    };
+
+    socket.on('products:changed', handleProductsChange);
+
+    return () => {
+      socket.off('products:changed', handleProductsChange);
+    };
+  }, [isReordering]);
 
   const loadProducts = async () => {
     setIsReloading(true);
@@ -135,6 +156,104 @@ export default function AdminProductsPage() {
 
   const handleOpenEdit = (product) => {
     setEditingProduct(product);
+  };
+
+  const handleDragStart = (e, product) => {
+    if (currentRole !== 'ADMIN') return;
+    setDraggedProductId(product.id);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', product.id);
+  };
+
+  const handleDragOver = (e, product) => {
+    e.preventDefault();
+    if (currentRole !== 'ADMIN' || !draggedProductId || draggedProductId === product.id) return;
+    setDragOverProductId(product.id);
+  };
+
+  const handleDrop = async (e, targetProduct) => {
+    e.preventDefault();
+    setDragOverProductId(null);
+    if (!draggedProductId || draggedProductId === targetProduct.id) {
+      setDraggedProductId(null);
+      return;
+    }
+
+    const draggedProd = products.find(p => p.id === draggedProductId);
+    if (!draggedProd) {
+      setDraggedProductId(null);
+      return;
+    }
+
+    const targetRank = targetProduct.sortOrder;
+    setDraggedProductId(null);
+
+    await executeMoveRank(draggedProd, targetRank);
+  };
+
+  const executeMoveRank = async (product, targetRank) => {
+    const target = Math.max(1, parseInt(targetRank, 10));
+    if (isNaN(target) || product.sortOrder === target) {
+      setMoveRankModal({ isOpen: false, product: null, targetRank: '' });
+      return;
+    }
+
+    setIsReordering(true);
+    setMoveRankModal({ isOpen: false, product: null, targetRank: '' });
+
+    // Optimistic UI update
+    const oldRank = product.sortOrder;
+    setProducts(prev => {
+      const updated = prev.map(p => {
+        if (p.id === product.id) {
+          return { ...p, sortOrder: target };
+        }
+        if (target < oldRank) {
+          if (p.sortOrder >= target && p.sortOrder < oldRank) {
+            return { ...p, sortOrder: p.sortOrder + 1 };
+          }
+        } else {
+          if (p.sortOrder > oldRank && p.sortOrder <= target) {
+            return { ...p, sortOrder: p.sortOrder - 1 };
+          }
+        }
+        return p;
+      });
+      return updated.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+    });
+
+    try {
+      const adminUserStr = localStorage.getItem('adminUser');
+      const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
+      const res = await fetch(`${apiUrl}/products/reorder`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          productId: product.id,
+          targetRank: target
+        })
+      });
+
+      if (res.ok) {
+        showToast(`Moved "${product.title.slice(0, 25)}..." to Rank #${target}`);
+        loadProducts();
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to reorder product');
+        loadProducts();
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to reorder product');
+      loadProducts();
+    } finally {
+      setIsReordering(false);
+    }
   };
 
 
@@ -321,6 +440,12 @@ export default function AdminProductsPage() {
 
     return matchesSearch && matchesStore && matchesStatus && matchesAdmin;
   }).sort((a, b) => {
+    if (sortConfig.key === 'sortOrder') {
+      const aRank = a.sortOrder !== undefined && a.sortOrder !== null ? a.sortOrder : 999999;
+      const bRank = b.sortOrder !== undefined && b.sortOrder !== null ? b.sortOrder : 999999;
+      return sortConfig.direction === 'asc' ? aRank - bRank : bRank - aRank;
+    }
+
     let aVal = a[sortConfig.key];
     let bVal = b[sortConfig.key];
 
@@ -717,14 +842,22 @@ export default function AdminProductsPage() {
 
       {/* Products Table */}
       <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-neutral-100 flex items-center justify-between">
-          <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">
-            Showing {filteredProducts.length} Product Cards
-          </span>
+        <div className="px-6 py-4 border-b border-neutral-100 flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+              Showing {filteredProducts.length} Product Cards
+            </span>
+            {currentRole === 'ADMIN' && (
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-neutral-500 bg-neutral-100 px-2.5 py-0.5 rounded-full border border-neutral-200">
+                <GripVertical className="w-3 h-3 text-neutral-400" />
+                Drag ⠿ handle to reorder, or click any #Rank to jump
+              </span>
+            )}
+          </div>
           <Button variant="none" size="none"
             onClick={loadProducts}
             disabled={isReloading}
-            className="text-xs font-semibold text-neutral-600 hover:text-[#f96b02] flex items-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-xs font-semibold text-neutral-600 hover:text-[#f96b02] flex items-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isReloading ? 'animate-spin text-black' : ''}`} />
             {isReloading ? 'Reloading...' : 'Reload'}
@@ -735,8 +868,14 @@ export default function AdminProductsPage() {
           <table className="w-full text-left border-collapse text-sm min-w-[1000px]">
             <thead className="sticky top-0 z-20">
               <tr className="bg-neutral-50 text-neutral-500 text-xs font-bold uppercase tracking-wider shadow-[0_1px_0_0_#e5e5e5]">
-                <th className="p-4 pl-6 cursor-pointer hover:bg-neutral-200 transition-colors group select-none w-24">
-                  <div className="flex items-center">SR NO.</div>
+                <th 
+                  className="p-4 pl-6 cursor-pointer hover:bg-neutral-200 transition-colors group select-none w-32"
+                  onClick={() => handleSort('sortOrder')}
+                >
+                  <div className="flex items-center gap-1">
+                    <span>RANK / SR.</span>
+                    <SortIcon columnKey="sortOrder" />
+                  </div>
                 </th>
                 <th className="p-4 cursor-pointer hover:bg-neutral-200 transition-colors group select-none" onClick={() => handleSort('createdAt')}>
                   <div className="flex items-center">Product <SortIcon columnKey="createdAt" /></div>
@@ -778,11 +917,57 @@ export default function AdminProductsPage() {
                 const woReview = p.cashbackWithoutReview ?? calculateCashback(p.salePrice).withoutReview;
 
                 const globalIndex = (currentPage - 1) * itemsPerPage + index + 1;
+                const currentRank = p.sortOrder !== undefined && p.sortOrder !== null ? p.sortOrder : globalIndex;
+                const isDragDropEnabled = currentRole === 'ADMIN' && sortConfig.key === 'sortOrder';
 
                 return (
-                  <tr key={p.id} className="hover:bg-neutral-50/70 transition-colors">
-                    <td className="p-4 pl-6 font-mono text-sm text-neutral-500 font-bold">
-                      {globalIndex}
+                  <tr 
+                    key={p.id}
+                    draggable={isDragDropEnabled}
+                    onDragStart={(e) => handleDragStart(e, p)}
+                    onDragOver={(e) => handleDragOver(e, p)}
+                    onDrop={(e) => handleDrop(e, p)}
+                    className={`transition-colors ${
+                      draggedProductId === p.id 
+                        ? 'opacity-30 bg-orange-100' 
+                        : dragOverProductId === p.id 
+                        ? 'border-t-2 border-[#f96b02] bg-orange-50/50' 
+                        : 'hover:bg-neutral-50/70'
+                    }`}
+                  >
+                    <td className="p-4 pl-6 font-mono text-sm">
+                      <div className="flex items-center gap-1.5">
+                        {currentRole === 'ADMIN' && (
+                          <div 
+                            className="cursor-grab active:cursor-grabbing text-neutral-400 hover:text-black p-1 -ml-2 rounded hover:bg-neutral-200/60 transition-colors"
+                            title="Drag to rearrange position"
+                          >
+                            <GripVertical className="w-4 h-4" />
+                          </div>
+                        )}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (currentRole === 'ADMIN') {
+                              setMoveRankModal({
+                                isOpen: true,
+                                product: p,
+                                targetRank: String(currentRank)
+                              });
+                            }
+                          }}
+                          disabled={currentRole !== 'ADMIN'}
+                          className={`font-mono text-xs font-bold px-2 py-1 rounded-lg transition-all ${
+                            currentRole === 'ADMIN'
+                              ? 'bg-neutral-100 hover:bg-orange-50 text-neutral-800 hover:text-[#f96b02] border border-neutral-200 hover:border-orange-300 cursor-pointer shadow-2xs'
+                              : 'bg-neutral-100 text-neutral-500 border border-neutral-200'
+                          }`}
+                          title={currentRole === 'ADMIN' ? 'Click to change rank / jump position' : `Rank #${currentRank}`}
+                        >
+                          #{currentRank}
+                        </button>
+                      </div>
                     </td>
                     <td className="p-4 flex items-center gap-3">
                       <div className="w-12 h-12 rounded-xl bg-neutral-100 border border-neutral-200 shrink-0 overflow-hidden p-1 flex items-center justify-center">
@@ -1035,6 +1220,139 @@ export default function AdminProductsPage() {
       )}
 
       <ConfirmModal {...confirmModal} onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })} />
+
+      {/* Change Card Rank / Move Position Modal */}
+      {moveRankModal.isOpen && moveRankModal.product && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-in fade-in duration-200"
+          onClick={() => setMoveRankModal({ isOpen: false, product: null, targetRank: '' })}
+        >
+          <div 
+            className="bg-white rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl border border-neutral-200 animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-neutral-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-orange-50 border border-orange-200 flex items-center justify-center text-[#f96b02]">
+                  <ArrowUpDown className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-black text-neutral-900 text-base leading-tight">Change Card Rank</h3>
+                  <p className="text-[11px] text-neutral-500">Set position in user listing & homepage</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMoveRankModal({ isOpen: false, product: null, targetRank: '' })}
+                className="text-neutral-400 hover:text-black p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Product Summary */}
+            <div className="flex items-center gap-3 p-3 bg-neutral-50 rounded-2xl border border-neutral-100 mb-5">
+              <div className="w-12 h-12 rounded-xl bg-white border border-neutral-200 shrink-0 overflow-hidden p-1 flex items-center justify-center">
+                <img
+                  src={moveRankModal.product.image}
+                  alt={moveRankModal.product.title}
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="font-bold text-xs text-neutral-900 line-clamp-1">{moveRankModal.product.title}</div>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-[11px] text-neutral-500">Current Position:</span>
+                  <span className="text-xs font-mono font-black text-[#f96b02] bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-md">
+                    #{moveRankModal.product.sortOrder}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                executeMoveRank(moveRankModal.product, moveRankModal.targetRank);
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                  Target Position (1 to {products.length}):
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono font-bold text-neutral-400">#</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max={products.length}
+                    autoFocus
+                    value={moveRankModal.targetRank}
+                    onChange={(e) => setMoveRankModal({ ...moveRankModal, targetRank: e.target.value })}
+                    placeholder={`e.g. 2 or 3 (Current is ${moveRankModal.product.sortOrder})`}
+                    className="w-full pl-8 pr-4 py-2.5 text-sm font-bold bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-black"
+                  />
+                </div>
+                <p className="text-[11px] text-neutral-500 mt-1.5">
+                  Cards between current and target position will automatically shift up or down.
+                </p>
+              </div>
+
+              {/* Quick Presets */}
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block mb-1.5">Quick Presets:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { label: 'Top (#1)', val: 1 },
+                    { label: 'Rank #2', val: 2 },
+                    { label: 'Rank #3', val: 3 },
+                    { label: 'Rank #5', val: 5 },
+                    { label: 'Rank #8 (Home)', val: 8 },
+                    { label: 'Rank #10', val: 10 },
+                    { label: `Last (#${products.length})`, val: products.length },
+                  ].map((preset) => (
+                    <button
+                      key={preset.val}
+                      type="button"
+                      onClick={() => setMoveRankModal({ ...moveRankModal, targetRank: String(preset.val) })}
+                      className={`text-xs px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                        String(moveRankModal.targetRank) === String(preset.val)
+                          ? 'bg-black text-white'
+                          : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="none"
+                  size="none"
+                  onClick={() => setMoveRankModal({ isOpen: false, product: null, targetRank: '' })}
+                  className="flex-1 py-2.5 text-xs font-bold rounded-xl border border-neutral-200 text-neutral-700 hover:bg-neutral-50 cursor-pointer"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="none"
+                  size="none"
+                  disabled={!moveRankModal.targetRank || Number(moveRankModal.targetRank) < 1 || isReordering}
+                  className="flex-1 py-2.5 text-xs font-bold rounded-xl bg-black hover:bg-[#f96b02] text-white shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  {isReordering ? 'Moving...' : `Move to Position #${moveRankModal.targetRank || ''}`}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

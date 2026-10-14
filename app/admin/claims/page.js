@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckCircle, XCircle, Search, Calendar, ArrowRight, Download, ChevronDown, Check, Store, Tag, X, RotateCcw } from 'lucide-react';
+import { CheckCircle, XCircle, Search, Calendar, ArrowRight, Download, ChevronDown, Check, Store, Tag, X, RotateCcw, ShieldCheck } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
 import ConfirmModal from '@/components/common/ConfirmModal';
@@ -24,6 +24,8 @@ export default function AdminClaims() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [storeFilter, setStoreFilter] = useState('ALL');
+  const [selectedAdmin, setSelectedAdmin] = useState('ALL');
+  const [adminUsersList, setAdminUsersList] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', confirmText: '', onConfirm: () => { }, isDestructive: false });
   const [lightboxImage, setLightboxImage] = useState(null);
@@ -48,9 +50,62 @@ export default function AdminClaims() {
     !storeSearchText || s.toLowerCase().includes(storeSearchText.toLowerCase())
   );
 
+  const allCreators = (() => {
+    const map = new Map();
+
+    // 1. Seed currently logged-in user from localStorage if admin/sub-admin
+    try {
+      const adminStr = typeof window !== 'undefined' ? localStorage.getItem('adminUser') : null;
+      if (adminStr) {
+        const currentAdmin = JSON.parse(adminStr);
+        if (currentAdmin?.id && (currentAdmin.role === 'ADMIN' || currentAdmin.role === 'SUB_ADMIN')) {
+          map.set(currentAdmin.id, {
+            id: currentAdmin.id,
+            name: currentAdmin.name || currentAdmin.email || (currentAdmin.role === 'ADMIN' ? 'Main Admin' : 'Sub-Admin'),
+            email: currentAdmin.email,
+            role: currentAdmin.role
+          });
+        }
+      }
+    } catch (e) {}
+
+    // 2. Add fetched admin & sub-admin users from backend (/auth)
+    adminUsersList.forEach(u => {
+      map.set(u.id, {
+        id: u.id,
+        name: u.name || u.email || (u.role === 'ADMIN' ? 'Main Admin' : 'Sub-Admin'),
+        email: u.email,
+        role: u.role
+      });
+    });
+
+    // 3. Add creators present on existing claims products
+    claims.forEach(c => {
+      if (c.product?.createdById) {
+        if (!map.has(c.product.createdById)) {
+          const creator = c.product.createdBy;
+          map.set(c.product.createdById, {
+            id: c.product.createdById,
+            name: creator?.name || creator?.email || (creator?.role === 'SUB_ADMIN' ? 'Sub-Admin' : 'Main Admin'),
+            email: creator?.email,
+            role: creator?.role || 'ADMIN'
+          });
+        }
+      }
+    });
+
+    // 4. Sort: Main Admins first, then Sub-Admins, then alphabetically
+    return Array.from(map.values()).sort((a, b) => {
+      if (a.role === 'ADMIN' && b.role !== 'ADMIN') return -1;
+      if (a.role !== 'ADMIN' && b.role === 'ADMIN') return 1;
+      return (a.name || '').localeCompare(b.name || '');
+    });
+  })();
+
   const filteredClaims = claims.filter(c => {
     const matchesStatus = statusFilter === 'ALL' || c.status === statusFilter;
     const matchesStore = storeFilter === 'ALL' || c.storeName === storeFilter;
+    const matchesAdmin = selectedAdmin === 'ALL' || String(c.product?.createdById) === String(selectedAdmin);
     const searchLower = searchQuery.toLowerCase().trim();
     const matchesSearch = !searchLower || 
                           c.product?.title?.toLowerCase().includes(searchLower) ||
@@ -58,7 +113,7 @@ export default function AdminClaims() {
                           c.orderId?.toLowerCase().includes(searchLower) ||
                           c.user?.name?.toLowerCase().includes(searchLower) ||
                           c.user?.email?.toLowerCase().includes(searchLower);
-    return matchesStatus && matchesStore && matchesSearch;
+    return matchesStatus && matchesStore && matchesAdmin && matchesSearch;
   });
 
   const exportToExcel = () => {
@@ -74,6 +129,7 @@ export default function AdminClaims() {
       'User Email': c.user?.email || '',
       'Store': c.storeName,
       'Product': c.product?.title || '',
+      'Product Added By': c.product?.createdBy?.name || c.product?.createdBy?.email || 'N/A',
       'Claim Type': c.claimType === 'WITHOUT_REVIEW' ? 'Without Review' : 'With Review',
       'Order ID': c.orderId,
       'Order Date': new Date(c.orderDate).toLocaleDateString(),
@@ -117,6 +173,21 @@ export default function AdminClaims() {
       if (res.ok) {
         const data = await res.json();
         setClaims(data.claims || []);
+      }
+
+      // Fetch admin & sub-admin users list from /auth to populate filter options
+      try {
+        const usersRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth`, {
+          headers: { 'Authorization': `Bearer ${user.token}` }
+        });
+        if (usersRes.ok) {
+          const uData = await usersRes.json();
+          const allUsers = Array.isArray(uData) ? uData : uData.users || [];
+          const adminUsers = allUsers.filter(u => u.role === 'ADMIN' || u.role === 'SUB_ADMIN');
+          setAdminUsersList(adminUsers);
+        }
+      } catch (err) {
+        console.error('Failed to load admin users', err);
       }
     } catch (error) {
       console.error('Error fetching claims:', error);
@@ -637,14 +708,100 @@ export default function AdminClaims() {
                 )}
               </div>
 
+              {/* Admin / Sub-Admin Filter Dropdown */}
+              <div className="relative flex-1 sm:flex-initial">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenDropdown(openDropdown === 'admin' ? null : 'admin');
+                  }}
+                  className={`w-full sm:w-auto px-3.5 py-2.5 text-xs font-bold rounded-xl border transition-all flex items-center justify-between gap-2.5 cursor-pointer shadow-2xs ${
+                    selectedAdmin !== 'ALL'
+                      ? 'bg-orange-50 border-[#f96b02] text-[#f96b02] ring-2 ring-orange-100'
+                      : 'bg-neutral-50 hover:bg-neutral-100/80 border-neutral-200 text-neutral-800'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-3.5 h-3.5 text-neutral-500" />
+                    <span className="truncate max-w-[140px]">
+                      {selectedAdmin === 'ALL'
+                        ? 'All Admins'
+                        : (allCreators.find(c => String(c.id) === String(selectedAdmin))?.name || 'Selected Admin')}
+                    </span>
+                  </div>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === 'admin' ? 'rotate-180 text-black' : 'text-neutral-400'}`} />
+                </button>
+
+                {openDropdown === 'admin' && (
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className="absolute right-0 top-full mt-1.5 z-40 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[220px] max-w-sm animate-in fade-in zoom-in-95 duration-150"
+                  >
+                    <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1 flex items-center justify-between">
+                      <span>Admin / Sub-Admin</span>
+                    </div>
+
+                    <div className="max-h-64 overflow-y-auto">
+                      {/* All Option */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedAdmin('ALL');
+                          setOpenDropdown(null);
+                        }}
+                        className={`w-full px-3.5 py-2.5 text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer text-left ${
+                          selectedAdmin === 'ALL'
+                            ? 'bg-orange-50 font-bold text-[#f96b02]'
+                            : 'hover:bg-neutral-50 text-neutral-700'
+                        }`}
+                      >
+                        <span className="font-bold">All Admins & Sub-Admins</span>
+                        {selectedAdmin === 'ALL' && <Check className="w-3.5 h-3.5 text-[#f96b02] shrink-0" />}
+                      </button>
+
+                      {/* Only the Admin & Sub-Admin Names */}
+                      {allCreators.map((creator) => (
+                        <button
+                          key={creator.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedAdmin(creator.id);
+                            setOpenDropdown(null);
+                          }}
+                          className={`w-full px-3.5 py-2.5 text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer text-left ${
+                            String(selectedAdmin) === String(creator.id)
+                              ? 'bg-orange-50 font-bold text-[#f96b02]'
+                              : 'hover:bg-neutral-50 text-neutral-700'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="truncate font-semibold">{creator.name}</span>
+                            <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase shrink-0 ${
+                              creator.role === 'ADMIN' ? 'bg-neutral-900 text-white' : 'bg-amber-100 text-amber-800'
+                            }`}>
+                              {creator.role === 'ADMIN' ? 'Main Admin' : 'Sub-Admin'}
+                            </span>
+                          </div>
+                          {String(selectedAdmin) === String(creator.id) && (
+                            <Check className="w-3.5 h-3.5 text-[#f96b02] shrink-0" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Reset Filter Button */}
-              {(searchQuery || storeFilter !== 'ALL' || statusFilter !== 'ALL') && (
+              {(searchQuery || storeFilter !== 'ALL' || statusFilter !== 'ALL' || selectedAdmin !== 'ALL') && (
                 <button
                   type="button"
                   onClick={() => {
                     setSearchQuery('');
                     setStoreFilter('ALL');
                     setStatusFilter('ALL');
+                    setSelectedAdmin('ALL');
                     setStoreSearchText('');
                   }}
                   className="text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-2.5 rounded-xl transition-colors flex items-center gap-1.5 shrink-0 border border-red-200 cursor-pointer shadow-2xs"
@@ -715,7 +872,14 @@ export default function AdminClaims() {
                         <td className="px-6 py-4">
                           <p className="font-bold text-sm text-neutral-900">{claim.storeName}</p>
                           {claim.product && (
-                            <p className="text-xs text-blue-500 font-semibold truncate max-w-[200px] mb-1">{claim.product.title}</p>
+                            <>
+                              <p className="text-xs text-blue-500 font-semibold truncate max-w-[200px] mb-0.5">{claim.product.title}</p>
+                              {claim.product.createdBy && (
+                                <p className="text-[10px] text-neutral-400 font-medium mb-1">
+                                  Added by: <span className="font-semibold text-neutral-600">{claim.product.createdBy.name || claim.product.createdBy.email}</span>
+                                </p>
+                              )}
+                            </>
                           )}
                           <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full ${claim.claimType === 'WITHOUT_REVIEW' ? 'bg-neutral-100 text-neutral-600 border border-neutral-200' : 'bg-orange-50 text-[#f96b02] border border-orange-200'}`}>
                             {claim.claimType === 'WITHOUT_REVIEW' ? '⚡ W/O Review' : '🌟 With Review'}

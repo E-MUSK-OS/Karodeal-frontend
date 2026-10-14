@@ -66,10 +66,13 @@ export const metadata = {
   },
 };
 
+import RealtimeProductsListener from '@/components/common/RealtimeProductsListener';
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="flex flex-col min-h-screen pb-16 md:pb-0">
+        <RealtimeProductsListener />
         <GoogleAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
           <NextTopLoader
             color="#000000"

@@ -4,27 +4,41 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Button from '@/components/common/Button';
 import DealGrid from '@/components/deals/DealGrid';
-
+import { getSocket } from '@/lib/socket';
 
 export default function LatestDrops() {
   const [topDeals, setTopDeals] = useState([]);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
-        const res = await fetch(`${apiUrl}/products`);
-        if (res.ok) {
-          const allProducts = await res.json();
-          const now = new Date();
-          const activeDeals = allProducts.filter(p => p.isActive !== false && (!p.expiresAt || new Date(p.expiresAt) > now));
-          setTopDeals(activeDeals.slice(0, 6));
-        }
-      } catch (err) {
-        console.error(err);
+  const fetchProducts = async () => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
+      const res = await fetch(`${apiUrl}/products?_t=${Date.now()}`, { cache: 'no-store' });
+      if (res.ok) {
+        const allProducts = await res.json();
+        const now = new Date();
+        const activeDeals = allProducts.filter(p => p.isActive !== false && (!p.expiresAt || new Date(p.expiresAt) > now));
+        setTopDeals(activeDeals.slice(0, 8));
       }
-    };
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
     fetchProducts();
+
+    const socket = getSocket();
+    if (socket) {
+      socket.on('products:changed', fetchProducts);
+    }
+
+    const handleWindowChange = () => fetchProducts();
+    window.addEventListener('karodeal:products_changed', handleWindowChange);
+
+    return () => {
+      if (socket) socket.off('products:changed', fetchProducts);
+      window.removeEventListener('karodeal:products_changed', handleWindowChange);
+    };
   }, []);
 
   return (

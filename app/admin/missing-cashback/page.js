@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   ShieldAlert, Search, CheckCircle, XCircle, Clock, ArrowRight, ArrowLeft, 
-  X, Calendar, Paperclip, Save 
+  X, Calendar, Paperclip, Save, ChevronDown, Check, Tag, RotateCcw, ShieldCheck 
 } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
@@ -20,6 +20,13 @@ export default function AdminMissingCashback() {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [lightboxImage, setLightboxImage] = useState(null);
 
+  // Filter Dropdowns State
+  const [selectedAdmin, setSelectedAdmin] = useState('ALL');
+  const [adminUsersList, setAdminUsersList] = useState([]);
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const filterBarRef = useRef(null);
+
   // Modal state
   const [status, setStatus] = useState('');
   const [adminNote, setAdminNote] = useState('');
@@ -34,6 +41,16 @@ export default function AdminMissingCashback() {
   const [chatAttachment, setChatAttachment] = useState(null);
 
   const router = useRouter();
+
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (filterBarRef.current && !filterBarRef.current.contains(e.target)) {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
 
   const fetchTickets = async (showLoading = true) => {
     const userStr = localStorage.getItem('adminUser');
@@ -69,6 +86,21 @@ export default function AdminMissingCashback() {
           const updated = (data.tickets || []).find(t => t.id === prev.id);
           return updated || prev;
         });
+      }
+
+      // Fetch admin & sub-admin users list from /auth to populate filter options
+      try {
+        const usersRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth`, {
+          headers: { 'Authorization': `Bearer ${user.token}` }
+        });
+        if (usersRes.ok) {
+          const uData = await usersRes.json();
+          const allUsers = Array.isArray(uData) ? uData : uData.users || [];
+          const adminUsers = allUsers.filter(u => u.role === 'ADMIN' || u.role === 'SUB_ADMIN');
+          setAdminUsersList(adminUsers);
+        }
+      } catch (err) {
+        console.error('Failed to load admin users', err);
       }
     } catch (error) {
       console.error('Error fetching tickets:', error);
@@ -273,34 +305,71 @@ export default function AdminMissingCashback() {
     return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 
-  const filteredTickets = tickets.filter(t =>
-    t.storeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.user?.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const allCreators = (() => {
+    const map = new Map();
+
+    try {
+      const adminStr = typeof window !== 'undefined' ? localStorage.getItem('adminUser') : null;
+      if (adminStr) {
+        const currentAdmin = JSON.parse(adminStr);
+        if (currentAdmin?.id && (currentAdmin.role === 'ADMIN' || currentAdmin.role === 'SUB_ADMIN')) {
+          map.set(currentAdmin.id, {
+            id: currentAdmin.id,
+            name: currentAdmin.name || currentAdmin.email || (currentAdmin.role === 'ADMIN' ? 'Main Admin' : 'Sub-Admin'),
+            email: currentAdmin.email,
+            role: currentAdmin.role
+          });
+        }
+      }
+    } catch (e) {}
+
+    adminUsersList.forEach(u => {
+      map.set(u.id, {
+        id: u.id,
+        name: u.name || u.email || (u.role === 'ADMIN' ? 'Main Admin' : 'Sub-Admin'),
+        email: u.email,
+        role: u.role
+      });
+    });
+
+    tickets.forEach(t => {
+      const prod = t.product || t.matchedClaim?.product;
+      if (prod?.createdById) {
+        if (!map.has(prod.createdById)) {
+          const creator = prod.createdBy;
+          map.set(prod.createdById, {
+            id: prod.createdById,
+            name: creator?.name || creator?.email || (creator?.role === 'SUB_ADMIN' ? 'Sub-Admin' : 'Main Admin'),
+            email: creator?.email,
+            role: creator?.role || 'ADMIN'
+          });
+        }
+      }
+    });
+
+    return Array.from(map.values()).sort((a, b) => {
+      if (a.role === 'ADMIN' && b.role !== 'ADMIN') return -1;
+      if (a.role !== 'ADMIN' && b.role === 'ADMIN') return 1;
+      return (a.name || '').localeCompare(b.name || '');
+    });
+  })();
+
+  const filteredTickets = tickets.filter(t => {
+    const prod = t.product || t.matchedClaim?.product;
+    const matchesAdmin = selectedAdmin === 'ALL' || String(prod?.createdById) === String(selectedAdmin);
+    const matchesStatus = statusFilter === 'ALL' || t.status === statusFilter;
+    const searchLower = searchQuery.toLowerCase().trim();
+    const matchesSearch = !searchLower ||
+      t.storeName.toLowerCase().includes(searchLower) ||
+      t.orderId.toLowerCase().includes(searchLower) ||
+      t.user?.email?.toLowerCase().includes(searchLower) ||
+      t.user?.name?.toLowerCase().includes(searchLower) ||
+      prod?.title?.toLowerCase().includes(searchLower);
+    return matchesAdmin && matchesStatus && matchesSearch;
+  });
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <h3 className="font-bold text-neutral-900 tracking-tight">Missing Cashback Claims</h3>
-          </div>
-          <p className="text-sm text-neutral-500 mt-1">Manage and resolve user cashback tickets</p>
-        </div>
-
-        <div className="relative w-full sm:w-72">
-          <input
-            type="text"
-            placeholder="Search email, store, or Order ID..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
-          />
-          <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-2.5" />
-        </div>
-      </div>
-
       {selectedTicket ? (
         <div className="animate-in slide-in-from-right-4 duration-300">
           <Button variant="none" size="none"
@@ -691,85 +760,301 @@ export default function AdminMissingCashback() {
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden">
-          {isLoading ? (
-            <PageLoader />
-          ) : filteredTickets.length > 0 ? (
-            <div className="overflow-x-auto w-full">
-              <table className="w-full text-left border-collapse min-w-[800px]">
-                <thead>
-                  <tr className="bg-neutral-50 border-b border-neutral-200">
-                    <th className="py-3 px-4 text-xs font-semibold text-neutral-500 uppercase">User & Store</th>
-                    <th className="py-3 px-4 text-xs font-semibold text-neutral-500 uppercase">Order Details</th>
-                    <th className="py-3 px-4 text-xs font-semibold text-neutral-500 uppercase">Dates</th>
-                    <th className="py-3 px-4 text-xs font-semibold text-neutral-500 uppercase">Status</th>
-                    <th className="py-3 px-4 text-xs font-semibold text-neutral-500 uppercase text-right"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-100">
-                  {filteredTickets.map((ticket) => (
-                    <tr
-                      key={ticket.id}
-                      onClick={() => openUpdateModal(ticket)}
-                      className="hover:bg-neutral-50/80 transition-colors cursor-pointer group"
-                    >
-                      <td className="py-4 px-4">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold text-sm text-neutral-900">{ticket.user?.name || 'Unknown'}</span>
-                          <span className="text-[10px] font-mono font-semibold bg-neutral-100 text-neutral-500 px-1.5 py-0.5 rounded">
-                            #{ticket.ticketId || ticket.id.slice(-6).toUpperCase()}
-                          </span>
-                          {ticket.adminUnread && (
-                            <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse ml-1"></span>
-                          )}
+        <>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
+            <div>
+              <h3 className="font-extrabold text-neutral-900 text-lg">Missing Cashback Claims</h3>
+              <p className="text-sm text-neutral-500">Manage and resolve user missing cashback tickets.</p>
+            </div>
+          </div>
+
+          {/* Search & Modern Filter Dropdowns Bar */}
+          <div
+            ref={filterBarRef}
+            className="bg-white p-3.5 sm:p-4 rounded-2xl border border-neutral-200 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 relative z-30 mb-6"
+          >
+            {/* Search Input */}
+            <div className="relative flex-1 min-w-[240px]">
+              <input
+                type="text"
+                placeholder="Search email, store, order ID, or product..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-2.5 pl-10 pr-9 text-xs sm:text-sm bg-neutral-50 hover:bg-neutral-100/60 focus:bg-white border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black transition-all"
+              />
+              <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-black p-0.5 rounded cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Filter Dropdowns Row */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* Status Custom Dropdown */}
+              <div className="relative flex-1 sm:flex-initial">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenDropdown(openDropdown === 'status' ? null : 'status');
+                  }}
+                  className={`w-full sm:w-auto px-3.5 py-2.5 text-xs font-bold rounded-xl border transition-all flex items-center justify-between gap-2.5 cursor-pointer shadow-2xs ${
+                    statusFilter !== 'ALL'
+                      ? 'bg-orange-50 border-[#f96b02] text-[#f96b02] ring-2 ring-orange-100'
+                      : 'bg-neutral-50 hover:bg-neutral-100/80 border-neutral-200 text-neutral-800'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Tag className="w-3.5 h-3.5 text-neutral-500" />
+                    <span className="truncate max-w-[130px]">
+                      {statusFilter === 'ALL'
+                        ? 'All Statuses'
+                        : statusFilter === 'PENDING'
+                        ? 'Pending'
+                        : statusFilter === 'RESOLVED'
+                        ? 'Resolved'
+                        : 'Rejected'}
+                    </span>
+                  </div>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === 'status' ? 'rotate-180 text-black' : 'text-neutral-400'}`} />
+                </button>
+
+                {openDropdown === 'status' && (
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className="absolute right-0 top-full mt-1.5 z-40 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[200px] animate-in fade-in zoom-in-95 duration-150"
+                  >
+                    <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1">
+                      Filter by Status
+                    </div>
+                    {[
+                      { id: 'ALL', label: 'All Statuses', dot: 'bg-neutral-400' },
+                      { id: 'PENDING', label: 'Pending Tickets', dot: 'bg-amber-500' },
+                      { id: 'RESOLVED', label: 'Resolved', dot: 'bg-emerald-500' },
+                      { id: 'REJECTED', label: 'Rejected', dot: 'bg-rose-500' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => {
+                          setStatusFilter(opt.id);
+                          setOpenDropdown(null);
+                        }}
+                        className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer text-left ${
+                          statusFilter === opt.id
+                            ? 'bg-orange-50 font-bold text-[#f96b02]'
+                            : 'hover:bg-neutral-50 text-neutral-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className={`w-2 h-2 rounded-full ${opt.dot} shrink-0`}></span>
+                          <span className="truncate">{opt.label}</span>
                         </div>
-                        <div className="text-xs text-neutral-500 mb-1">{ticket.user?.email}</div>
-                        <div className="flex flex-wrap gap-1.5 items-center">
-                          <span className="inline-block bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded border border-blue-100">
-                            {ticket.storeName}
-                          </span>
-                          {ticket.product && (
-                            <span className="inline-block bg-neutral-100 text-neutral-700 text-[10px] font-bold px-2 py-0.5 rounded border border-neutral-200 max-w-[170px] truncate" title={ticket.product.title}>
-                              📦 {ticket.product.title}
+                        {statusFilter === opt.id && <Check className="w-3.5 h-3.5 text-[#f96b02] shrink-0" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Admin / Sub-Admin Filter Dropdown */}
+              <div className="relative flex-1 sm:flex-initial">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenDropdown(openDropdown === 'admin' ? null : 'admin');
+                  }}
+                  className={`w-full sm:w-auto px-3.5 py-2.5 text-xs font-bold rounded-xl border transition-all flex items-center justify-between gap-2.5 cursor-pointer shadow-2xs ${
+                    selectedAdmin !== 'ALL'
+                      ? 'bg-orange-50 border-[#f96b02] text-[#f96b02] ring-2 ring-orange-100'
+                      : 'bg-neutral-50 hover:bg-neutral-100/80 border-neutral-200 text-neutral-800'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-3.5 h-3.5 text-neutral-500" />
+                    <span className="truncate max-w-[140px]">
+                      {selectedAdmin === 'ALL'
+                        ? 'All Admins'
+                        : (allCreators.find(c => String(c.id) === String(selectedAdmin))?.name || 'Selected Admin')}
+                    </span>
+                  </div>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === 'admin' ? 'rotate-180 text-black' : 'text-neutral-400'}`} />
+                </button>
+
+                {openDropdown === 'admin' && (
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className="absolute right-0 top-full mt-1.5 z-40 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[220px] max-w-sm animate-in fade-in zoom-in-95 duration-150"
+                  >
+                    <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1 flex items-center justify-between">
+                      <span>Admin / Sub-Admin</span>
+                    </div>
+
+                    <div className="max-h-64 overflow-y-auto">
+                      {/* All Option */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedAdmin('ALL');
+                          setOpenDropdown(null);
+                        }}
+                        className={`w-full px-3.5 py-2.5 text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer text-left ${
+                          selectedAdmin === 'ALL'
+                            ? 'bg-orange-50 font-bold text-[#f96b02]'
+                            : 'hover:bg-neutral-50 text-neutral-700'
+                        }`}
+                      >
+                        <span className="font-bold">All Admins & Sub-Admins</span>
+                        {selectedAdmin === 'ALL' && <Check className="w-3.5 h-3.5 text-[#f96b02] shrink-0" />}
+                      </button>
+
+                      {/* Only the Admin & Sub-Admin Names */}
+                      {allCreators.map((creator) => (
+                        <button
+                          key={creator.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedAdmin(creator.id);
+                            setOpenDropdown(null);
+                          }}
+                          className={`w-full px-3.5 py-2.5 text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer text-left ${
+                            String(selectedAdmin) === String(creator.id)
+                              ? 'bg-orange-50 font-bold text-[#f96b02]'
+                              : 'hover:bg-neutral-50 text-neutral-700'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="truncate font-semibold">{creator.name}</span>
+                            <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase shrink-0 ${
+                              creator.role === 'ADMIN' ? 'bg-neutral-900 text-white' : 'bg-amber-100 text-amber-800'
+                            }`}>
+                              {creator.role === 'ADMIN' ? 'Main Admin' : 'Sub-Admin'}
                             </span>
+                          </div>
+                          {String(selectedAdmin) === String(creator.id) && (
+                            <Check className="w-3.5 h-3.5 text-[#f96b02] shrink-0" />
                           )}
-                        </div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="font-bold text-sm text-neutral-900">₹{ticket.orderAmount}</div>
-                        <div className="text-xs font-mono text-neutral-500">ID: {ticket.orderId}</div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="text-xs text-neutral-500"><span className="text-sm lg:text-[15px] xl:text-base font-medium">Ordered:</span> {formatDate(ticket.orderDate)}</div>
-                        <div className="text-xs text-neutral-500"><span className="text-sm lg:text-[15px] xl:text-base font-medium">Raised:</span> {formatDate(ticket.createdAt)}</div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase ${ticket.status === 'RESOLVED' ? 'bg-green-100 text-green-700 border border-green-200' :
-                          ticket.status === 'REJECTED' ? 'bg-red-100 text-red-700 border border-red-200' :
-                            'bg-amber-100 text-amber-700 border border-amber-200'
-                          }`}>
-                          {ticket.status === 'PENDING' && <Clock className="w-3 h-3" />}
-                          {ticket.status === 'RESOLVED' && <CheckCircle className="w-3 h-3" />}
-                          {ticket.status === 'REJECTED' && <XCircle className="w-3 h-3" />}
-                          {ticket.status}
-                        </span>
-                      </td>
-                      <td className="py-4 px-4 text-right">
-                        <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-[#f96b02] transition-colors transform group-hover:translate-x-1 inline-block" />
-                      </td>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Reset Filter Button */}
+              {(searchQuery || statusFilter !== 'ALL' || selectedAdmin !== 'ALL') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setStatusFilter('ALL');
+                    setSelectedAdmin('ALL');
+                  }}
+                  className="text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-2.5 rounded-xl transition-colors flex items-center gap-1.5 shrink-0 border border-red-200 cursor-pointer shadow-2xs"
+                  title="Reset all filters"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Reset</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden">
+            {isLoading ? (
+              <PageLoader />
+            ) : filteredTickets.length > 0 ? (
+              <div className="overflow-x-auto w-full">
+                <table className="w-full text-left border-collapse min-w-[800px]">
+                  <thead>
+                    <tr className="bg-neutral-50 border-b border-neutral-200">
+                      <th className="py-3 px-4 text-xs font-semibold text-neutral-500 uppercase">User & Store</th>
+                      <th className="py-3 px-4 text-xs font-semibold text-neutral-500 uppercase">Order Details</th>
+                      <th className="py-3 px-4 text-xs font-semibold text-neutral-500 uppercase">Dates</th>
+                      <th className="py-3 px-4 text-xs font-semibold text-neutral-500 uppercase">Status</th>
+                      <th className="py-3 px-4 text-xs font-semibold text-neutral-500 uppercase text-right"></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="p-12 text-center flex flex-col items-center">
-              <ShieldAlert className="w-12 h-12 text-neutral-300 mb-3" />
-              <h3 className="font-bold text-neutral-900 mb-1">No claims found</h3>
-              <p className="text-sm text-neutral-500">There are no missing cashback tickets matching your criteria.</p>
-            </div>
-          )}
-        </div>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-100">
+                    {filteredTickets.map((ticket) => {
+                      const prod = ticket.product || ticket.matchedClaim?.product;
+                      return (
+                        <tr
+                          key={ticket.id}
+                          onClick={() => openUpdateModal(ticket)}
+                          className="hover:bg-neutral-50/80 transition-colors cursor-pointer group"
+                        >
+                          <td className="py-4 px-4">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-semibold text-sm text-neutral-900">{ticket.user?.name || 'Unknown'}</span>
+                              <span className="text-[10px] font-mono font-semibold bg-neutral-100 text-neutral-500 px-1.5 py-0.5 rounded">
+                                #{ticket.ticketId || ticket.id.slice(-6).toUpperCase()}
+                              </span>
+                              {ticket.adminUnread && (
+                                <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse ml-1"></span>
+                              )}
+                            </div>
+                            <div className="text-xs text-neutral-500 mb-1">{ticket.user?.email}</div>
+                            <div className="flex flex-wrap gap-1.5 items-center">
+                              <span className="inline-block bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded border border-blue-100">
+                                {ticket.storeName}
+                              </span>
+                              {prod && (
+                                <span className="inline-block bg-neutral-100 text-neutral-700 text-[10px] font-bold px-2 py-0.5 rounded border border-neutral-200 max-w-[170px] truncate" title={prod.title}>
+                                  📦 {prod.title}
+                                </span>
+                              )}
+                            </div>
+                            {prod?.createdBy && (
+                              <div className="text-[10px] text-neutral-400 mt-1">
+                                Added by: <span className="font-semibold text-neutral-600">{prod.createdBy.name || prod.createdBy.email}</span>
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-4 px-4">
+                            <div className="font-bold text-sm text-neutral-900">₹{ticket.orderAmount}</div>
+                            <div className="text-xs font-mono text-neutral-500">ID: {ticket.orderId}</div>
+                          </td>
+                          <td className="py-4 px-4">
+                            <div className="text-xs text-neutral-500"><span className="text-sm lg:text-[15px] xl:text-base font-medium">Ordered:</span> {formatDate(ticket.orderDate)}</div>
+                            <div className="text-xs text-neutral-500"><span className="text-sm lg:text-[15px] xl:text-base font-medium">Raised:</span> {formatDate(ticket.createdAt)}</div>
+                          </td>
+                          <td className="py-4 px-4">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase ${ticket.status === 'RESOLVED' ? 'bg-green-100 text-green-700 border border-green-200' :
+                              ticket.status === 'REJECTED' ? 'bg-red-100 text-red-700 border border-red-200' :
+                                'bg-amber-100 text-amber-700 border border-amber-200'
+                              }`}>
+                              {ticket.status === 'PENDING' && <Clock className="w-3 h-3" />}
+                              {ticket.status === 'RESOLVED' && <CheckCircle className="w-3 h-3" />}
+                              {ticket.status === 'REJECTED' && <XCircle className="w-3 h-3" />}
+                              {ticket.status}
+                            </span>
+                          </td>
+                          <td className="py-4 px-4 text-right">
+                            <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-[#f96b02] transition-colors transform group-hover:translate-x-1 inline-block" />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="p-12 text-center flex flex-col items-center">
+                <ShieldAlert className="w-12 h-12 text-neutral-300 mb-3" />
+                <h3 className="font-bold text-neutral-900 mb-1">No claims found</h3>
+                <p className="text-sm text-neutral-500">There are no missing cashback tickets matching your criteria.</p>
+              </div>
+            )}
+          </div>
+        </>
       )}
       <Lightbox
         open={!!lightboxImage}
