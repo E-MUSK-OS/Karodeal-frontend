@@ -2,7 +2,19 @@ import { getCategories, getProducts } from '@/lib/fetchProducts';
 import CategoryCard from '@/components/categories/CategoryCard';
 
 export const metadata = {
-  title: 'All Categories | KaroDeal',
+  title: 'Browse Deals by Category | KaroDeal',
+  description: 'Explore top offers and discounts categorized for your convenience. Shop Electronics, Fashion, Home, Beauty, and Groceries with real cashback on KaroDeal.',
+  keywords: ['Deals by Category', 'Fashion Discounts', 'Electronics Cashback', 'Home Appliances Deals', 'KaroDeal Categories'],
+  alternates: {
+    canonical: 'https://karodeal.in/categories',
+  },
+  openGraph: {
+    title: 'Browse Deals by Category | KaroDeal',
+    description: 'Explore top offers and discounts categorized for your convenience with real cashback on KaroDeal.',
+    url: 'https://karodeal.in/categories',
+    siteName: 'KaroDeal',
+    images: [{ url: 'https://karodeal.in/icon-512.png', width: 512, height: 512, alt: 'KaroDeal Categories' }],
+  },
 };
 
 export default async function CategoriesPage() {

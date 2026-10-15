@@ -6,28 +6,70 @@ import Link from 'next/link';
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const categories = await getCategories();
-  const category = categories.find(c => c.id === slug);
-  if (!category) return { title: 'Category Not Found' };
+  const category = categories.find((c) => c.id === slug || c.slug === slug);
+  if (!category) {
+    return {
+      title: 'Category Not Found | KaroDeal',
+      robots: { index: false, follow: true },
+    };
+  }
+
+  const title = `${category.name} Deals, Discounts & Offers | KaroDeal`;
+  const description = `Shop the latest ${category.name} deals and trending offers with verified cashback from India's top online stores on KaroDeal.`;
+  const url = `https://karodeal.in/categories/${slug}`;
 
   return {
-    title: `${category.name} Deals | KaroDeal`,
+    title,
+    description,
+    keywords: [`${category.name} Deals`, `${category.name} Offers`, `${category.name} Cashback`, 'KaroDeal'],
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: 'KaroDeal',
+      images: [{ url: 'https://karodeal.in/icon-512.png', alt: `${category.name} Deals on KaroDeal` }],
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+      images: ['https://karodeal.in/icon-512.png'],
+    },
   };
 }
 
 export default async function CategoryDetailsPage({ params }) {
   const { slug } = await params;
   const categories = await getCategories();
-  const category = categories.find(c => c.id === slug);
+  const category = categories.find((c) => c.id === slug || c.slug === slug);
 
   if (!category) {
     notFound();
   }
 
   const products = await getProducts();
-  const categoryProducts = products.filter(p => p.category === category.id);
+  const categoryProducts = products.filter((p) => p.category === category.id || p.category === category.slug);
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://karodeal.in' },
+      { '@type': 'ListItem', position: 2, name: 'Categories', item: 'https://karodeal.in/categories' },
+      { '@type': 'ListItem', position: 3, name: category.name, item: `https://karodeal.in/categories/${slug}` },
+    ],
+  };
 
   return (
-    <div className="py-8 md:py-12 lg:py-20 mb-10 md:mb-20 page-container overflow-hidden">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <div className="py-8 md:py-12 lg:py-20 mb-10 md:mb-20 page-container overflow-hidden">
       <div className="mb-6 md:mb-8">
         <Link 
           href="/categories" 
@@ -54,5 +96,6 @@ export default async function CategoryDetailsPage({ params }) {
         <DealGrid deals={categoryProducts} cardType="storeOffer" mobileGrid={true} />
       </section>
     </div>
+    </>
   );
 }

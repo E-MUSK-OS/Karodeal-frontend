@@ -1,8 +1,35 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Star, Search, Check, X } from 'lucide-react';
+import { Star, Search, Check, X, ChevronDown, TrendingUp, Sparkles, RotateCcw, Package } from 'lucide-react';
 import Button from '@/components/common/Button';
+
+const REQUEST_TYPE_OPTIONS = [
+  {
+    id: 'Order Increase',
+    label: 'Order Increase',
+    subLabel: 'Request promotion to increase order volume',
+    icon: TrendingUp,
+    color: 'text-blue-600',
+    bg: 'bg-blue-50 border border-blue-200'
+  },
+  {
+    id: 'Order + Reviews Increase',
+    label: 'Order + Reviews Increase',
+    subLabel: 'Request order boost along with product reviews',
+    icon: Star,
+    color: 'text-amber-600',
+    bg: 'bg-amber-50 border border-amber-200'
+  },
+  {
+    id: 'OTHER',
+    label: 'Other',
+    subLabel: 'Enter custom request type',
+    icon: Sparkles,
+    color: 'text-purple-600',
+    bg: 'bg-purple-50 border border-purple-200'
+  }
+];
 
 export default function NewRequestModal({
   isOpen,
@@ -17,28 +44,55 @@ export default function NewRequestModal({
   const [newRequestNote, setNewRequestNote] = useState('');
   const [productSearchTerm, setProductSearchTerm] = useState('');
   const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false);
+
+  // Request Type & QTY state
+  const [requestType, setRequestType] = useState('Order Increase');
+  const [isOtherSelected, setIsOtherSelected] = useState(false);
+  const [customRequestType, setCustomRequestType] = useState('');
+  const [orderQty, setOrderQty] = useState('');
+  const [reviewQty, setReviewQty] = useState('');
+  const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
+  const typeDropdownRef = useRef(null);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Close dropdown on outside click
+  // Close dropdowns on outside click
   useEffect(() => {
     const handleOutsideClick = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setIsProductDropdownOpen(false);
+      }
+      if (typeDropdownRef.current && !typeDropdownRef.current.contains(e.target)) {
+        setIsTypeDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleOutsideClick);
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
 
-  // Fetch only this Sub-Admin's created products when modal opens
-  useEffect(() => {
-    if (!isOpen) return;
-
+  const resetForm = () => {
     setSelectedProductId('');
     setNewRequestNote('');
     setProductSearchTerm('');
     setIsProductDropdownOpen(false);
+    setRequestType('Order Increase');
+    setIsOtherSelected(false);
+    setCustomRequestType('');
+    setOrderQty('');
+    setReviewQty('');
+    setIsTypeDropdownOpen(false);
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
+  // Fetch only this Sub-Admin's created products when modal opens
+  useEffect(() => {
+    if (!isOpen) return;
+    let isMounted = true;
 
     const fetchAvailableProducts = async () => {
       setLoadingProducts(true);
@@ -97,6 +151,28 @@ export default function NewRequestModal({
     );
   }, [availableProducts, productSearchTerm, selectedProductId, selectedProductObj]);
 
+  const selectedTypeObj = useMemo(() => {
+    return REQUEST_TYPE_OPTIONS.find(opt => opt.id === requestType) || REQUEST_TYPE_OPTIONS[0];
+  }, [requestType]);
+
+  const handleSelectOption = (optId) => {
+    if (optId === 'OTHER') {
+      setIsOtherSelected(true);
+      setRequestType('OTHER');
+      setCustomRequestType('');
+    } else {
+      setIsOtherSelected(false);
+      setRequestType(optId);
+    }
+    setIsTypeDropdownOpen(false);
+  };
+
+  const handleSwitchBackToDropdown = () => {
+    setIsOtherSelected(false);
+    setRequestType('Order Increase');
+    setCustomRequestType('');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     let finalProductId = selectedProductId;
@@ -111,6 +187,30 @@ export default function NewRequestModal({
       showToast('Please select a product from the dropdown list');
       return;
     }
+
+    const finalRequestType = isOtherSelected ? customRequestType.trim() : requestType;
+
+    if (isOtherSelected && !customRequestType.trim()) {
+      showToast('Please enter your custom request type');
+      return;
+    }
+
+    if (!isOtherSelected && requestType === 'Order Increase' && !orderQty) {
+      showToast('Please enter QTY of order');
+      return;
+    }
+
+    if (!isOtherSelected && requestType === 'Order + Reviews Increase') {
+      if (!orderQty) {
+        showToast('Please enter QTY of order');
+        return;
+      }
+      if (!reviewQty) {
+        showToast('Please enter QTY of reviews');
+        return;
+      }
+    }
+
     if (!newRequestNote.trim()) {
       showToast('Please enter notes');
       return;
@@ -130,6 +230,9 @@ export default function NewRequestModal({
         },
         body: JSON.stringify({
           productId: finalProductId,
+          requestType: finalRequestType,
+          orderQty: orderQty ? parseInt(orderQty) : null,
+          reviewQty: reviewQty ? parseInt(reviewQty) : null,
           note: newRequestNote.trim(),
           suggestedRank: 1
         })
@@ -138,7 +241,7 @@ export default function NewRequestModal({
       const data = await res.json();
       if (res.ok) {
         showToast('Review request submitted successfully to Main Admin!');
-        onClose();
+        handleClose();
         onSuccess?.();
       } else {
         showToast(`Failed: ${data.error || 'Could not submit request'}`);
@@ -173,7 +276,7 @@ export default function NewRequestModal({
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="p-1.5 text-neutral-400 hover:text-neutral-700 rounded-lg cursor-pointer"
           >
             <X className="w-5 h-5" />
@@ -281,6 +384,181 @@ export default function NewRequestModal({
             </div>
           </div>
 
+          {/* Request Type Custom Dropdown OR Text Input for Other */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-bold text-neutral-700">
+                Request Type <span className="text-red-500">*</span>
+              </label>
+              {isOtherSelected && (
+                <button
+                  type="button"
+                  onClick={handleSwitchBackToDropdown}
+                  className="text-[11px] font-bold text-[#f96b02] hover:underline flex items-center gap-1 cursor-pointer"
+                  title="Switch back to dropdown list"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>Choose from list</span>
+                </button>
+              )}
+            </div>
+
+            {isOtherSelected ? (
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Enter custom request type..."
+                  value={customRequestType}
+                  onChange={(e) => setCustomRequestType(e.target.value)}
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-black"
+                  autoFocus
+                />
+              </div>
+            ) : (
+              <div ref={typeDropdownRef} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsTypeDropdownOpen(!isTypeDropdownOpen)}
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold bg-neutral-50 hover:bg-neutral-100/80 border border-neutral-200 rounded-xl flex items-center justify-between gap-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black cursor-pointer transition-all"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`p-1 rounded-lg shrink-0 ${selectedTypeObj?.bg || 'bg-neutral-100'}`}>
+                      {selectedTypeObj?.icon ? (
+                        <selectedTypeObj.icon className={`w-3.5 h-3.5 ${selectedTypeObj.color}`} />
+                      ) : (
+                        <Package className="w-3.5 h-3.5 text-neutral-500" />
+                      )}
+                    </div>
+                    <span className="font-bold text-neutral-900 truncate">
+                      {selectedTypeObj?.label || 'Select request type...'}
+                    </span>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform duration-200 shrink-0 ${isTypeDropdownOpen ? 'rotate-180 text-black' : ''}`} />
+                </button>
+
+                {isTypeDropdownOpen && (
+                  <div className="absolute left-0 right-0 top-full mt-1.5 z-40 bg-white border border-neutral-200 rounded-xl shadow-xl py-1 divide-y divide-neutral-100 animate-in fade-in zoom-in-95 duration-100">
+                    {REQUEST_TYPE_OPTIONS.map((opt) => {
+                      const isSelected = requestType === opt.id;
+                      const Icon = opt.icon;
+                      return (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => handleSelectOption(opt.id)}
+                          className={`w-full text-left px-3.5 py-2.5 text-xs flex items-center justify-between gap-3 cursor-pointer transition-colors ${
+                            isSelected 
+                              ? 'bg-orange-50 text-[#f96b02]' 
+                              : 'hover:bg-neutral-50 text-neutral-800'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className={`p-1.5 rounded-lg shrink-0 ${opt.bg}`}>
+                              <Icon className={`w-4 h-4 ${opt.color}`} />
+                            </div>
+                            <div>
+                              <div className="font-bold text-xs text-neutral-900">
+                                {opt.label}
+                              </div>
+                              <div className="text-[10px] text-neutral-500 font-normal">
+                                {opt.subLabel}
+                              </div>
+                            </div>
+                          </div>
+                          {isSelected && (
+                            <Check className="w-4 h-4 text-[#f96b02] shrink-0" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* QTY of Order / QTY of Reviews Inputs */}
+          {requestType === 'Order Increase' && !isOtherSelected && (
+            <div>
+              <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                QTY of Order <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                min="1"
+                required
+                placeholder="Enter order quantity (e.g. 50)"
+                value={orderQty}
+                onChange={(e) => setOrderQty(e.target.value)}
+                className="w-full px-3.5 py-2.5 text-xs font-semibold bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-black"
+              />
+            </div>
+          )}
+
+          {requestType === 'Order + Reviews Increase' && !isOtherSelected && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                  QTY of Order <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  required
+                  placeholder="Enter order QTY (e.g. 50)"
+                  value={orderQty}
+                  onChange={(e) => setOrderQty(e.target.value)}
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-black"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                  QTY of Reviews <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  required
+                  placeholder="Enter reviews QTY (e.g. 20)"
+                  value={reviewQty}
+                  onChange={(e) => setReviewQty(e.target.value)}
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-black"
+                />
+              </div>
+            </div>
+          )}
+
+          {isOtherSelected && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                  QTY of Order <span className="text-neutral-400 font-normal">(Optional)</span>
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="Order QTY (optional, e.g. 50)"
+                  value={orderQty}
+                  onChange={(e) => setOrderQty(e.target.value)}
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-black"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                  QTY of Reviews <span className="text-neutral-400 font-normal">(Optional)</span>
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="Review QTY (optional, e.g. 20)"
+                  value={reviewQty}
+                  onChange={(e) => setReviewQty(e.target.value)}
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-black"
+                />
+              </div>
+            </div>
+          )}
+
           {/* Notes */}
           <div>
             <label className="block text-xs font-bold text-neutral-700 mb-1.5">
@@ -289,6 +567,7 @@ export default function NewRequestModal({
             <textarea
               rows="3"
               required
+              placeholder="Provide marketing reasoning or context for Main Admin..."
               value={newRequestNote}
               onChange={(e) => setNewRequestNote(e.target.value)}
               className="w-full p-3 text-xs bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-black"
@@ -301,7 +580,7 @@ export default function NewRequestModal({
               variant="none"
               size="none"
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               className="px-4 py-2.5 text-xs font-bold rounded-xl border border-neutral-200 text-neutral-600 hover:bg-neutral-50 cursor-pointer"
             >
               Cancel
@@ -310,7 +589,14 @@ export default function NewRequestModal({
               variant="none"
               size="none"
               type="submit"
-              disabled={isSubmitting || (!selectedProductId && !productSearchTerm.trim()) || !newRequestNote.trim()}
+              disabled={
+                isSubmitting ||
+                (!selectedProductId && !productSearchTerm.trim()) ||
+                (isOtherSelected && !customRequestType.trim()) ||
+                (!isOtherSelected && requestType === 'Order Increase' && !orderQty) ||
+                (!isOtherSelected && requestType === 'Order + Reviews Increase' && (!orderQty || !reviewQty)) ||
+                !newRequestNote.trim()
+              }
               className="px-5 py-2.5 bg-black hover:bg-[#f96b02] text-white font-bold text-xs rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
             >
               {isSubmitting ? 'Submitting...' : 'Submit Request'}

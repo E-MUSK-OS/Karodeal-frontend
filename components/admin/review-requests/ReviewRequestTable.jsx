@@ -2,7 +2,8 @@
 
 import { 
   Star, CheckCircle2, XCircle, Clock, Store, 
-  MessageSquare, Check, X, ChevronLeft, ChevronRight 
+  MessageSquare, Check, X, ChevronLeft, ChevronRight,
+  TrendingUp, Sparkles
 } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
@@ -141,6 +142,46 @@ export default function ReviewRequestTable({
                   </div>
                 )}
 
+                {/* Target / QTY Requested Section (Mobile) */}
+                {(req.requestType || req.orderQty != null || req.reviewQty != null) && (
+                  <div className="bg-amber-50/50 border border-amber-200/80 rounded-xl p-3">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-amber-900">
+                        Requested Target
+                      </span>
+                      {req.requestType && (
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-white text-amber-900 border border-amber-200 shadow-2xs">
+                          {req.requestType}
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      {req.orderQty != null ? (
+                        <div className="bg-white p-2 rounded-lg border border-blue-100 flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-neutral-500 uppercase">Order:</span>
+                          <span className="font-mono font-black text-blue-700">{req.orderQty} QTY</span>
+                        </div>
+                      ) : (
+                        <div className="bg-white p-2 rounded-lg border border-neutral-100 flex items-center justify-between opacity-50">
+                          <span className="text-[10px] font-bold text-neutral-400 uppercase">Order:</span>
+                          <span className="text-xs text-neutral-400">-</span>
+                        </div>
+                      )}
+                      {req.reviewQty != null ? (
+                        <div className="bg-white p-2 rounded-lg border border-purple-100 flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-neutral-500 uppercase">Reviews:</span>
+                          <span className="font-mono font-black text-purple-700">{req.reviewQty} QTY</span>
+                        </div>
+                      ) : (
+                        <div className="bg-white p-2 rounded-lg border border-neutral-100 flex items-center justify-between opacity-50">
+                          <span className="text-[10px] font-bold text-neutral-400 uppercase">Reviews:</span>
+                          <span className="text-xs text-neutral-400">-</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* Notes */}
                 <div className="text-xs text-neutral-800 bg-neutral-50 p-3 rounded-xl border border-neutral-200">
                   <div className="flex items-start gap-1.5">
@@ -200,7 +241,7 @@ export default function ReviewRequestTable({
 
       {/* DESKTOP TABLE VIEW (visible on screen widths >= 768px) */}
       <div className="hidden md:block overflow-x-auto overflow-y-auto max-h-[70vh] w-full">
-        <table className={`w-full text-left border-collapse text-sm ${isMainAdmin ? 'min-w-[950px]' : 'min-w-[650px]'}`}>
+        <table className={`w-full text-left border-collapse text-sm ${isMainAdmin ? 'min-w-[1050px]' : 'min-w-[750px]'}`}>
           <thead className="sticky top-0 z-20">
             <tr className="bg-neutral-50 text-neutral-500 text-xs font-bold uppercase tracking-wider shadow-[0_1px_0_0_#e5e5e5]">
               <th className="p-4 pl-6 w-20">SR. NO.</th>
@@ -208,6 +249,7 @@ export default function ReviewRequestTable({
               <th className="p-4">STORE</th>
               {isMainAdmin && <th className="p-4">CURRENT RANK</th>}
               {isMainAdmin && <th className="p-4">REQUESTED BY</th>}
+              <th className="p-4">TARGET QTY</th>
               <th className="p-4">NOTES</th>
               <th className="p-4 text-center">STATUS</th>
               {isMainAdmin && <th className="p-4 pr-6 text-right">ACTIONS</th>}
@@ -216,14 +258,14 @@ export default function ReviewRequestTable({
           <tbody className="divide-y divide-neutral-100">
             {isReloading ? (
               <tr>
-                <td colSpan={isMainAdmin ? 8 : 5} className="p-12 text-center">
+                <td colSpan={isMainAdmin ? 9 : 6} className="p-12 text-center">
                   <PageLoader />
                   <p className="text-xs text-neutral-500 font-semibold mt-2">Refreshing requests...</p>
                 </td>
               </tr>
             ) : requests.length === 0 ? (
               <tr>
-                <td colSpan={isMainAdmin ? 8 : 5} className="p-12 text-center text-neutral-500">
+                <td colSpan={isMainAdmin ? 9 : 6} className="p-12 text-center text-neutral-500">
                   <Star className="w-8 h-8 stroke-[1.5] mx-auto mb-2 text-neutral-300" />
                   <p className="font-bold text-neutral-700">No review requests found</p>
                   <p className="text-xs text-neutral-400 mt-0.5">
@@ -308,6 +350,52 @@ export default function ReviewRequestTable({
                         </div>
                       </td>
                     )}
+
+                    {/* Target QTY Requested (Main Admin & Sub-Admin view) */}
+                    <td className="p-4 whitespace-nowrap min-w-[190px]">
+                      {req.requestType || req.orderQty != null || req.reviewQty != null ? (
+                        <div className="space-y-1.5">
+                          {req.requestType && (
+                            <div>
+                              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
+                                req.requestType === 'Order + Reviews Increase'
+                                  ? 'bg-[#fffbeb] text-[#92400e] border-[#fde047]'
+                                  : req.requestType === 'Order Increase'
+                                  ? 'bg-blue-50 text-blue-900 border-blue-200'
+                                  : 'bg-purple-50 text-purple-900 border-purple-200'
+                              }`}>
+                                {req.requestType === 'Order + Reviews Increase' ? (
+                                  <Star className="w-3.5 h-3.5 fill-[#f59e0b] text-[#f59e0b] shrink-0" />
+                                ) : req.requestType === 'Order Increase' ? (
+                                  <TrendingUp className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                                ) : (
+                                  <Sparkles className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                                )}
+                                <span>{req.requestType}</span>
+                              </span>
+                            </div>
+                          )}
+                          {(req.orderQty != null || req.reviewQty != null) ? (
+                            <div className="flex items-center gap-1.5 pt-0.5">
+                              {req.orderQty != null && (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold border border-neutral-200">
+                                  <span className="text-neutral-500 text-[10px] font-bold uppercase tracking-wide">ORDER:</span>
+                                  <span className="font-mono font-black text-neutral-900">{req.orderQty}</span>
+                                </span>
+                              )}
+                              {req.reviewQty != null && (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold border border-neutral-200">
+                                  <span className="text-neutral-500 text-[10px] font-bold uppercase tracking-wide">REVIEWS:</span>
+                                  <span className="font-mono font-black text-neutral-900">{req.reviewQty}</span>
+                                </span>
+                              )}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : (
+                        <span className="text-neutral-300 text-xs font-medium pl-1">—</span>
+                      )}
+                    </td>
 
                     {/* Notes */}
                     <td className="p-4 max-w-sm min-w-[200px]">

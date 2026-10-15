@@ -2,7 +2,19 @@ import { getStores, getProducts } from '@/lib/fetchProducts';
 import StoreCard from '@/components/stores/StoreCard';
 
 export const metadata = {
-  title: 'Top Shopping Stores | KaroDeal',
+  title: 'Top Shopping Stores & Partner Brands | KaroDeal',
+  description: 'Shop through verified partner stores on KaroDeal. Earn guaranteed cashback and discover exclusive deals from Amazon, Flipkart, Myntra, Ajio, and top brands.',
+  keywords: ['Online Stores India', 'Amazon Offers', 'Flipkart Cashback', 'Myntra Deals', 'Ajio Coupons', 'KaroDeal Stores'],
+  alternates: {
+    canonical: 'https://karodeal.in/stores',
+  },
+  openGraph: {
+    title: 'Top Shopping Stores & Partner Brands | KaroDeal',
+    description: 'Shop through verified partner stores on KaroDeal. Earn guaranteed cashback on top Indian e-commerce platforms.',
+    url: 'https://karodeal.in/stores',
+    siteName: 'KaroDeal',
+    images: [{ url: 'https://karodeal.in/icon-512.png', width: 512, height: 512, alt: 'KaroDeal Stores' }],
+  },
 };
 
 export default async function StoresPage() {

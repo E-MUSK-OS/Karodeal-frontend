@@ -1,6 +1,6 @@
 'use client';
 
-import { Sparkles, Star, Check, X } from 'lucide-react';
+import { Sparkles, Star, Check, X, TrendingUp } from 'lucide-react';
 import Button from '@/components/common/Button';
 
 export default function ApproveRequestModal({
@@ -68,6 +68,70 @@ export default function ApproveRequestModal({
             </div>
           </div>
         </div>
+
+        {/* Sub-Admin Requested Target Details */}
+        {(request.requestType || request.orderQty != null || request.reviewQty != null || request.note) && (
+          <div className="p-3.5 bg-neutral-50 rounded-2xl border border-neutral-200 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-black uppercase tracking-wider text-neutral-500">
+                Requested Target
+              </span>
+              {request.requestType && (
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
+                  request.requestType === 'Order + Reviews Increase'
+                    ? 'bg-[#fffbeb] text-[#92400e] border-[#fde047]'
+                    : request.requestType === 'Order Increase'
+                    ? 'bg-blue-50 text-blue-900 border-blue-200'
+                    : 'bg-purple-50 text-purple-900 border-purple-200'
+                }`}>
+                  {request.requestType === 'Order + Reviews Increase' ? (
+                    <Star className="w-3.5 h-3.5 fill-[#f59e0b] text-[#f59e0b]" />
+                  ) : request.requestType === 'Order Increase' ? (
+                    <TrendingUp className="w-3.5 h-3.5 text-blue-600" />
+                  ) : (
+                    <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                  )}
+                  <span>{request.requestType}</span>
+                </span>
+              )}
+            </div>
+
+            {(request.orderQty != null || request.reviewQty != null) && (
+              <div className="grid grid-cols-2 gap-2.5 text-xs">
+                <div className="p-2.5 bg-white rounded-xl border border-neutral-200/80 shadow-2xs flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider block">Target Orders</span>
+                    <span className="text-sm font-black text-neutral-900 font-mono mt-0.5 block">
+                      {request.orderQty != null ? `${request.orderQty} QTY` : '—'}
+                    </span>
+                  </div>
+                  <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center font-bold text-[10px]">
+                    QTY
+                  </div>
+                </div>
+
+                <div className="p-2.5 bg-white rounded-xl border border-neutral-200/80 shadow-2xs flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider block">Target Reviews</span>
+                    <span className="text-sm font-black text-neutral-900 font-mono mt-0.5 block">
+                      {request.reviewQty != null ? `${request.reviewQty} QTY` : '—'}
+                    </span>
+                  </div>
+                  <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center font-bold text-[10px]">
+                    QTY
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {request.note && (
+              <div className="pt-2 border-t border-neutral-200/80 text-xs flex items-start gap-1.5">
+                <span className="font-bold text-neutral-700 shrink-0">Sub-Admin Note:</span>
+                <span className="text-neutral-600 italic break-words">{request.note}</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Target Rank Selection */}
         <div className="space-y-3">

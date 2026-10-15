@@ -15,6 +15,16 @@ import {
 export const metadata = {
   title: 'About Us | KaroDeal',
   description: 'Learn about KaroDeal, our mission to redefine smart shopping, and how we bring verified cashback and discounts to Indian shoppers.',
+  alternates: {
+    canonical: 'https://karodeal.in/about',
+  },
+  openGraph: {
+    title: 'About Us | KaroDeal',
+    description: 'Learn about KaroDeal, our mission to redefine smart shopping, and how we bring verified cashback and discounts to Indian shoppers.',
+    url: 'https://karodeal.in/about',
+    siteName: 'KaroDeal',
+    images: [{ url: 'https://karodeal.in/icon-512.png', width: 512, height: 512, alt: 'About KaroDeal' }],
+  },
 };
 
 export default function AboutPage() {

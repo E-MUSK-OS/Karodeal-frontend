@@ -27,9 +27,39 @@ export default function DeclineRequestModal({
           </div>
         </div>
 
-        <p className="text-xs text-neutral-700">
-          Decline review request for <strong>{request.product?.title}</strong>?
-        </p>
+        <div className="p-3.5 bg-neutral-50 rounded-xl border border-neutral-200 text-xs space-y-2.5">
+          <p className="text-xs text-neutral-800">
+            Decline review request for <strong>{request.product?.title}</strong>?
+          </p>
+          {(request.requestType || request.orderQty != null || request.reviewQty != null) && (
+            <div className="space-y-2 pt-1.5 border-t border-neutral-200/70">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase tracking-wider text-neutral-500">
+                  Target Requested
+                </span>
+                {request.requestType && (
+                  <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 text-amber-900 border border-amber-200">
+                    {request.requestType}
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-2 bg-white rounded-lg border border-neutral-200 flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-neutral-400 uppercase">Orders:</span>
+                  <span className="font-mono font-bold text-neutral-800">
+                    {request.orderQty != null ? `${request.orderQty} QTY` : '—'}
+                  </span>
+                </div>
+                <div className="p-2 bg-white rounded-lg border border-neutral-200 flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-neutral-400 uppercase">Reviews:</span>
+                  <span className="font-mono font-bold text-neutral-800">
+                    {request.reviewQty != null ? `${request.reviewQty} QTY` : '—'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
 
         <div>
           <label className="block text-xs font-bold text-neutral-700 mb-1.5">

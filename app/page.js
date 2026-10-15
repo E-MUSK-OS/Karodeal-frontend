@@ -66,8 +66,29 @@ export default async function Home() {
   ]);
   console.log('Live Backend Status:', backendStatus.message);
 
+  const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'KaroDeal',
+    url: 'https://karodeal.in',
+    description: "Discover the latest discounts, offers, coupons, and trending products from India's top shopping platforms like Amazon, Flipkart, Myntra, and more.",
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: 'https://karodeal.in/search?q={search_term_string}',
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
   return (
-    <div className="flex flex-col page-container ">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
+      <div className="flex flex-col page-container ">
       <Hero />
 
       <div className="w-full mt-8 sm:mt-12">
@@ -102,5 +123,6 @@ export default async function Home() {
       {/* Edge-to-edge Newsletter */}
       <Newsletter />
     </div>
+    </>
   );
 }

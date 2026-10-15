@@ -1,5 +1,9 @@
 export const metadata = {
   title: 'Terms & Conditions | KaroDeal',
+  description: 'Review the Terms & Conditions governing your use of KaroDeal, including cashback claim verification, wallet withdrawals, and user rights.',
+  alternates: {
+    canonical: 'https://karodeal.in/terms',
+  },
 };
 
 export default function TermsPage() {

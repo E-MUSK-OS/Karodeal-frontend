@@ -1,5 +1,9 @@
 export const metadata = {
   title: 'Privacy Policy | KaroDeal',
+  description: 'Read KaroDeal’s Privacy Policy to understand how we collect, store, and safeguard your data while processing your cashback claims and discount offers.',
+  alternates: {
+    canonical: 'https://karodeal.in/privacy-policy',
+  },
 };
 
 export default function PrivacyPolicyPage() {
