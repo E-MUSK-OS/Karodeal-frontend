@@ -77,55 +77,6 @@ export default function ContactPage() {
 
             {/* 4 Clean Minimal Cards */}
             <div className="space-y-3">
-              
-              {/* Phone */}
-              <a
-                href="tel:+918200705348"
-                className="flex items-center justify-between p-4 rounded-2xl border border-neutral-200 hover:border-black bg-white transition-all duration-200 group shadow-2xs hover:-translate-y-0.5"
-                title="Call Support"
-              >
-                <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-neutral-100 group-hover:bg-black group-hover:text-white text-black flex items-center justify-center transition-colors">
-                    <Phone className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-neutral-400 uppercase tracking-widest text-[11px]">
-                      Call Us
-                    </div>
-                    <div className="font-bold text-black">
-                      +91 82007 05348
-                    </div>
-                  </div>
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />
-              </a>
-
-              {/* WhatsApp */}
-              <a
-                href="https://wa.me/918200705348?text=Hello%20KaroDeal%2C%20I%20have%20an%20inquiry."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between p-4 rounded-2xl border border-neutral-200 hover:border-black bg-white transition-all duration-200 group shadow-2xs hover:-translate-y-0.5"
-                title="Chat on WhatsApp"
-              >
-                <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-neutral-100 group-hover:bg-black group-hover:text-white text-black flex items-center justify-center transition-colors">
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                      <path d="M20.52 3.449A11.916 11.916 0 0012.077 0C5.495 0 .144 5.354.141 11.938c0 2.105.549 4.16 1.594 5.972L0 24l6.303-1.654a11.907 11.907 0 005.768 1.487h.005c6.58 0 11.933-5.355 11.936-11.94 0-3.19-.1.24-6.22-3.444zM12.077 21.82a9.88 9.88 0 01-5.04-1.378l-.362-.215-3.746.982 1-3.652-.236-.375a9.888 9.888 0 01-1.517-5.244C2.18 6.478 6.62 2.039 12.081 2.039c2.645 0 5.132 1.03 7.001 2.899a9.843 9.843 0 012.9 7.006c-.004 5.46-4.445 9.876-9.905 9.876zm5.428-7.41c-.298-.149-1.761-.869-2.034-.968-.273-.099-.472-.149-.67.15-.199.298-.769.968-.943 1.166-.174.199-.348.223-.646.074-.298-.149-1.258-.464-2.396-1.48-.887-.791-1.486-1.769-1.66-2.067-.174-.298-.019-.459.13-.608.134-.134.298-.348.447-.522.149-.174.199-.298.298-.497.099-.199.05-.373-.025-.522-.075-.149-.67-1.616-.919-2.212-.242-.581-.487-.502-.67-.512-.174-.009-.373-.01-.572-.01-.199 0-.522.075-.795.373-.273.298-1.043 1.019-1.043 2.485 0 1.467 1.068 2.884 1.217 3.083.149.199 2.102 3.21 5.093 4.5 1.543.666 2.196.71 3.01.59.888-.131 1.761-.72 2.01-1.416.248-.696.248-1.292.174-1.416-.075-.124-.273-.199-.571-.348z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="font-bold text-neutral-400 uppercase tracking-widest text-[11px]">
-                      WhatsApp
-                    </div>
-                    <div className="font-bold text-black">
-                      +91 82007 05348
-                    </div>
-                  </div>
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />
-              </a>
-
               {/* Email */}
               <a
                 href="mailto:support@karodeal.in?subject=KaroDeal%20Support%20Inquiry&body=Hello%20KaroDeal%20Team%2C%0A%0A"

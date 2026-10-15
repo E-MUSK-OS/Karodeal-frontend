@@ -4,13 +4,15 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Button from '@/components/common/Button';
 import { 
-  LayoutDashboard, ShoppingBag, FolderTree, Users, LogOut, Package, IndianRupee, Ticket, X, MousePointerClick, Mail, MessageSquare
+  LayoutDashboard, ShoppingBag, FolderTree, Users, LogOut, Package, IndianRupee, Ticket, X, MousePointerClick, Mail, MessageSquare, Star, Receipt
 } from 'lucide-react';
+import { getSocket } from '@/lib/socket';
 
 export default function AdminSidebar({ isOpen, setIsOpen }) {
   const pathname = usePathname();
   const router = useRouter();
   const [role, setRole] = useState(null);
+  const [pendingStarCount, setPendingStarCount] = useState(0);
 
   useEffect(() => {
     const updateRole = () => {
@@ -30,6 +32,42 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
     return () => window.removeEventListener('admin-auth-change', updateRole);
   }, []);
 
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      try {
+        const adminStr = localStorage.getItem('adminUser');
+        if (!adminStr) return;
+        const user = JSON.parse(adminStr);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        const res = await fetch(`${apiUrl}/review-requests?status=PENDING`, {
+          headers: { Authorization: `Bearer ${user.token}` },
+          cache: 'no-store'
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setPendingStarCount(data?.counts?.pending || 0);
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    fetchPendingCount();
+
+    const socket = getSocket();
+    if (socket) {
+      socket.on('star_requests:changed', fetchPendingCount);
+    }
+
+    const handleCustomChange = () => fetchPendingCount();
+    window.addEventListener('karodeal:star_requests_changed', handleCustomChange);
+
+    return () => {
+      if (socket) socket.off('star_requests:changed', fetchPendingCount);
+      window.removeEventListener('karodeal:star_requests_changed', handleCustomChange);
+    };
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem('adminUser');
     window.dispatchEvent(new Event('admin-auth-change'));
@@ -40,6 +78,8 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
     { name: 'Payout Requests', href: '/admin/payouts', icon: IndianRupee },
     { name: 'Products & Cards', href: '/admin/products', icon: Package },
+    { name: 'Billing', href: '/admin/billing', icon: Receipt },
+    { name: 'Review Requests', href: '/admin/review-requests', icon: Star },
     { name: 'Stores', href: '/admin/stores', icon: ShoppingBag },
     { name: 'Categories', href: '/admin/categories', icon: FolderTree },
     { name: 'Users', href: '/admin/users', icon: Users },
@@ -50,10 +90,13 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
     { name: 'Messages', href: '/admin/messages', icon: MessageSquare },
   ];
 
-  // Sub-admin can only see: Products & Cards, Click Tracking (plus Dashboard)
+  // Sub-admin can see: Products & Cards, Billing, Cashback Claims, Review Requests, Click Tracking (plus Dashboard)
   const subAdminAllowedHrefs = [
     '/admin/dashboard',
     '/admin/products',
+    '/admin/billing',
+    '/admin/claims',
+    '/admin/review-requests',
     '/admin/clicks'
   ];
 
@@ -120,7 +163,12 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
               }`}
             >
               <Icon className={`w-5 h-5 ${isActive ? 'text-black' : 'text-neutral-400'}`} />
-              <span>{item.name}</span>
+              <span className="flex-1">{item.name}</span>
+              {item.href === '/admin/review-requests' && pendingStarCount > 0 && (
+                <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-500 text-white rounded-full">
+                  {pendingStarCount}
+                </span>
+              )}
             </Link>
           );
         })}

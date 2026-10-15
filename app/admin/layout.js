@@ -1,8 +1,8 @@
 'use client';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import AdminSidebar from '@/components/admin/AdminSidebar';
-import AdminHeader from '@/components/admin/AdminHeader';
+import AdminSidebar from '@/components/admin/layout/AdminSidebar';
+import AdminHeader from '@/components/admin/layout/AdminHeader';
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -41,7 +41,6 @@ export default function AdminLayout({ children }) {
               '/admin/users',
               '/admin/subscribers',
               '/admin/messages',
-              '/admin/claims',
               '/admin/missing-cashback'
             ];
 
@@ -100,9 +99,9 @@ export default function AdminLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-100 flex font-sans relative">
+    <div className="h-screen bg-neutral-100 flex font-sans relative overflow-hidden">
       <AdminSidebar isOpen={isMobileMenuOpen} setIsOpen={setIsMobileMenuOpen} />
-      <div className="flex-1 flex flex-col min-w-0 w-full">
+      <div className="flex-1 flex flex-col min-w-0 w-full h-screen overflow-hidden">
         <AdminHeader onMenuClick={() => setIsMobileMenuOpen(true)} />
         <main className="flex-1 p-4 md:p-8 overflow-y-auto overflow-x-hidden w-full">
           {children}

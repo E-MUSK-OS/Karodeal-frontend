@@ -30,7 +30,7 @@ export default function AdminHeader({ onMenuClick }) {
   const isSubAdmin = adminUser?.role === 'SUB_ADMIN';
 
   return (
-    <header className="h-16 bg-white border-b border-neutral-200 px-4 md:px-6 flex items-center justify-between sticky top-0 z-30 w-full">
+    <header className="h-16 shrink-0 bg-white border-b border-neutral-200 px-4 md:px-6 flex items-center justify-between sticky top-0 z-40 w-full">
       <div className="flex items-center md:hidden">
         <Button variant="none" size="none" 
           onClick={onMenuClick}

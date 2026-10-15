@@ -4,7 +4,7 @@ import { Plus, Trash2, Edit2, Loader2, X, Check } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
 import ConfirmModal from '@/components/common/ConfirmModal';
-import ImageCropper from '@/components/admin/ImageCropper';
+import ImageCropper from '@/components/admin/common/ImageCropper';
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState([]);

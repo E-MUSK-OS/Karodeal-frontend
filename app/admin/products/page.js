@@ -616,7 +616,7 @@ export default function AdminProductsPage() {
       {/* Search & Modern Filter Dropdowns Bar */}
       <div 
         ref={filterBarRef}
-        className="bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5 relative z-30"
+        className="bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5 relative z-20"
       >
         {/* Search Input */}
         <div className="relative flex-1 min-w-[240px]">
@@ -924,12 +924,12 @@ export default function AdminProductsPage() {
             <thead className="sticky top-0 z-20">
               <tr className="bg-neutral-50 text-neutral-500 text-xs font-bold uppercase tracking-wider shadow-[0_1px_0_0_#e5e5e5]">
                 <th 
-                  className="p-4 pl-6 cursor-pointer hover:bg-neutral-200 transition-colors group select-none w-32"
-                  onClick={() => handleSort('sortOrder')}
+                  className={`p-4 pl-6 ${currentRole === 'ADMIN' ? 'cursor-pointer hover:bg-neutral-200' : ''} transition-colors group select-none ${currentRole === 'ADMIN' ? 'w-32' : 'w-24'}`}
+                  onClick={() => currentRole === 'ADMIN' && handleSort('sortOrder')}
                 >
                   <div className="flex items-center gap-1">
-                    <span>RANK / SR.</span>
-                    <SortIcon columnKey="sortOrder" />
+                    <span>{currentRole === 'ADMIN' ? 'RANK / SR.' : 'SR. NO.'}</span>
+                    {currentRole === 'ADMIN' && <SortIcon columnKey="sortOrder" />}
                   </div>
                 </th>
                 <th className="p-4 cursor-pointer hover:bg-neutral-200 transition-colors group select-none" onClick={() => handleSort('createdAt')}>
@@ -992,58 +992,57 @@ export default function AdminProductsPage() {
                   >
                     <td className="p-4 pl-6 font-mono text-sm">
                       <div className="flex items-center gap-1.5">
-                        {currentRole === 'ADMIN' && (
-                          <div 
-                            className="cursor-grab active:cursor-grabbing text-neutral-400 hover:text-black p-1 -ml-2 rounded hover:bg-neutral-200/60 transition-colors"
-                            title="Drag to rearrange position"
-                          >
-                            <GripVertical className="w-4 h-4" />
-                          </div>
-                        )}
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (currentRole === 'ADMIN') {
-                              setMoveRankModal({
-                                isOpen: true,
-                                product: p,
-                                targetRank: String(currentRank)
-                              });
-                            }
-                          }}
-                          disabled={currentRole !== 'ADMIN'}
-                          className={`font-mono text-xs font-bold px-2 py-1 rounded-lg transition-all ${
-                            currentRole === 'ADMIN'
-                              ? 'bg-neutral-100 hover:bg-orange-50 text-neutral-800 hover:text-[#f96b02] border border-neutral-200 hover:border-orange-300 cursor-pointer shadow-2xs'
-                              : 'bg-neutral-100 text-neutral-500 border border-neutral-200'
-                          }`}
-                          title={currentRole === 'ADMIN' ? 'Click to change rank / jump position' : `Rank #${currentRank}`}
-                        >
-                          #{currentRank}
-                        </button>
+                        {currentRole === 'ADMIN' ? (
+                          <>
+                            <div 
+                              className="cursor-grab active:cursor-grabbing text-neutral-400 hover:text-black p-1 -ml-2 rounded hover:bg-neutral-200/60 transition-colors"
+                              title="Drag to rearrange position"
+                            >
+                              <GripVertical className="w-4 h-4" />
+                            </div>
 
-                        {/* Star / Fixed Rank Toggle */}
-                        {currentRole === 'ADMIN' && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleTogglePin(p);
-                            }}
-                            className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                              p.isPinned
-                                ? 'text-amber-500 bg-amber-50 hover:bg-amber-100 border border-amber-300 shadow-2xs ring-2 ring-amber-100'
-                                : 'text-neutral-300 hover:text-amber-500 hover:bg-neutral-100 border border-transparent'
-                            }`}
-                            title={
-                              p.isPinned
-                                ? `⭐ LOCKED to Rank #${currentRank} for ALL users (Click to unlock)`
-                                : `☆ Click to LOCK to Rank #${currentRank} for ALL users`
-                            }
-                          >
-                            <Star className={`w-3.5 h-3.5 transition-transform active:scale-125 ${p.isPinned ? 'fill-amber-400 text-amber-500' : ''}`} />
-                          </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setMoveRankModal({
+                                  isOpen: true,
+                                  product: p,
+                                  targetRank: String(currentRank)
+                                });
+                              }}
+                              className="font-mono text-xs font-bold px-2 py-1 rounded-lg transition-all bg-neutral-100 hover:bg-orange-50 text-neutral-800 hover:text-[#f96b02] border border-neutral-200 hover:border-orange-300 cursor-pointer shadow-2xs"
+                              title="Click to change rank / jump position"
+                            >
+                              #{currentRank}
+                            </button>
+
+                            {/* Star / Fixed Rank Toggle for Main Admin */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTogglePin(p);
+                              }}
+                              className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                                p.isPinned
+                                  ? 'text-amber-500 bg-amber-50 hover:bg-amber-100 border border-amber-300 shadow-2xs ring-2 ring-amber-100'
+                                  : 'text-neutral-300 hover:text-amber-500 hover:bg-neutral-100 border border-transparent'
+                              }`}
+                              title={
+                                p.isPinned
+                                  ? `⭐ LOCKED to Rank #${currentRank} for ALL users (Click to unlock)`
+                                  : `☆ Click to LOCK to Rank #${currentRank} for ALL users`
+                              }
+                            >
+                              <Star className={`w-3.5 h-3.5 transition-transform active:scale-125 ${p.isPinned ? 'fill-amber-400 text-amber-500' : ''}`} />
+                            </button>
+                          </>
+                        ) : (
+                          /* Sub-Admin: ONLY simple sequential serial number 1, 2, 3... in series */
+                          <span className="font-mono text-xs font-bold text-neutral-500 pl-1">
+                            {globalIndex}
+                          </span>
                         )}
                       </div>
                     </td>

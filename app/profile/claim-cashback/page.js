@@ -560,7 +560,7 @@ export default function ClaimCashback() {
 
             <div>
               <h5 className="font-bold text-neutral-400 uppercase tracking-wider mb-4">Submitted Proofs</h5>
-              <div className={`grid grid-cols-1 ${viewingClaim.claimType === 'WITHOUT_REVIEW' && !viewingClaim.reviewScreenshot ? 'sm:grid-cols-2' : 'sm:grid-cols-3'} gap-4`}>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-neutral-700 mb-2">1. Invoice / Receipt</span>
                   <button
