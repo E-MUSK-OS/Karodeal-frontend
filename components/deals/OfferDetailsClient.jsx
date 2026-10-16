@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { CheckCircle, ArrowRight, Calendar, Star, ShieldCheck, Clock, Banknote } from 'lucide-react';
 import Button from '@/components/common/Button';
 import { calculateCashback } from '@/lib/cashbackCalculator';
+import { openStoreDeal } from '@/lib/deepLink';
 
 export default function OfferDetailsClient({ initialDeal = null, dealId = null, params }) {
   const router = useRouter();
@@ -58,33 +59,45 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
   }, [id, deal]);
 
   const handleDealClick = (e) => {
-    // We let the link open in new tab normally, but track click first.
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
-
-      let token = null;
-      if (typeof window !== 'undefined') {
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-          try {
-            const user = JSON.parse(userStr);
-            token = user.token;
-          } catch (e) {}
-        }
-      }
-
-      fetch(`${apiUrl}/products/${deal?.id}/click`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      }).catch(() => {
-        // Silently catch the error. Adblockers frequently block URLs containing "/click".
-      });
-    } catch (error) {
-      // Ignore synchronous errors
+    if (e && e.preventDefault) {
+      e.preventDefault();
     }
+
+    const trackClick = () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
+
+        let token = null;
+        if (typeof window !== 'undefined') {
+          const userStr = localStorage.getItem('user');
+          if (userStr) {
+            try {
+              const user = JSON.parse(userStr);
+              token = user.token;
+            } catch (err) {}
+          }
+        }
+
+        fetch(`${apiUrl}/products/${deal?.id}/click`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          keepalive: true,
+        }).catch(() => {
+          // Silently catch the error. Adblockers frequently block URLs containing "/click".
+        });
+      } catch (error) {
+        // Ignore synchronous errors
+      }
+    };
+
+    openStoreDeal({
+      url: dealUrl,
+      store: storeIdStr,
+      onTrackClick: trackClick,
+    });
   };
 
   if (loading) return <PageLoader />;
@@ -227,7 +240,7 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
                 <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-0.5" />
               </Button>
               <p className="text-[8.5px] sm:text-[10px] md:text-xs text-white/70 mt-1 sm:mt-2 md:mt-3 font-medium text-left">
-                *Redirects to store
+                *Opens {store.name ? `${store.name} app or website` : 'store'}
               </p>
             </div>
           </div>

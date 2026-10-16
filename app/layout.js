@@ -79,6 +79,7 @@ import RealtimeProductsListener from '@/components/common/RealtimeProductsListen
 import FaviconLoader from '@/components/common/FaviconLoader';
 import WebsiteLoader from '@/components/common/WebsiteLoader';
 import ToastContainer from '@/components/common/ToastContainer';
+import FacebookPixel from '@/components/common/FacebookPixel';
 import { Suspense } from 'react';
 
 export default function RootLayout({ children }) {
@@ -104,6 +105,9 @@ export default function RootLayout({ children }) {
         <WebsiteLoader />
         <Suspense fallback={null}>
           <FaviconLoader />
+        </Suspense>
+        <Suspense fallback={null}>
+          <FacebookPixel />
         </Suspense>
         <RealtimeProductsListener />
         <GoogleAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
