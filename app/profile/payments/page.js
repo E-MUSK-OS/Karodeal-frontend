@@ -5,6 +5,7 @@ import { IndianRupee, Landmark, Smartphone, AlertCircle, ArrowRight, BadgeCheck,
 import Link from 'next/link';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
+import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
 
 export default function Payments() {
   const [balance, setBalance] = useState(0);
@@ -64,17 +65,17 @@ export default function Payments() {
 
     const numAmount = parseFloat(amount);
     if (!numAmount || numAmount < 1000) {
-      setError('Minimum withdrawal amount is ₹1000');
+      showErrorToast('Minimum withdrawal amount is ₹1000');
       return;
     }
     if (numAmount > balance) {
-      setError('Insufficient available balance');
+      showErrorToast('Insufficient available balance');
       return;
     }
     const finalDetails = details;
 
     if (!details.trim()) {
-      setError('Please provide your UPI ID');
+      showErrorToast('Please provide your UPI ID');
       return;
     }
 
@@ -93,16 +94,27 @@ export default function Payments() {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'Failed to submit request');
+        const userMsg = handleAppError(data.error || 'Failed to submit request', {
+          context: 'Withdrawal Request',
+          title: 'Withdrawal Failed',
+          fallback: 'Could not submit your withdrawal request. Please check your balance and details.'
+        });
+        setError(userMsg);
         return;
       }
 
       setSuccess('Withdrawal request submitted successfully!');
+      showSuccessToast('Withdrawal request submitted successfully!');
       setBalance(prev => prev - numAmount);
       setAmount('');
       setDetails('');
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      const userMsg = handleAppError(err, {
+        context: 'Withdrawal Network',
+        title: 'Connection Error',
+        fallback: 'Unable to connect to the server. Please try again.'
+      });
+      setError(userMsg);
     }
   };
 
@@ -130,13 +142,6 @@ export default function Payments() {
 
       <div className="bg-white rounded-xl border border-neutral-200 p-5 shadow-sm">
         <h5 className="font-bold text-neutral-900 mb-4">Payment Details</h5>
-
-        {error && (
-          <div className="mb-4 bg-red-50 text-red-600 p-3 rounded-lg flex items-start gap-2 border border-red-100">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-            <p className="text-xs font-medium">{error}</p>
-          </div>
-        )}
 
         {success && (
           <div className="mb-4 bg-green-50 text-green-700 p-3 rounded-lg flex items-start gap-2 border border-green-100">

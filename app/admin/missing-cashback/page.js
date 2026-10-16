@@ -11,6 +11,7 @@ import "yet-another-react-lightbox/styles.css";
 import MissingCashbackFilterBar from '@/components/admin/missing-cashback/MissingCashbackFilterBar';
 import MissingCashbackTable from '@/components/admin/missing-cashback/MissingCashbackTable';
 import MissingCashbackDetailView from '@/components/admin/missing-cashback/MissingCashbackDetailView';
+import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
 
 function AdminMissingCashbackContent() {
   const router = useRouter();
@@ -293,7 +294,7 @@ function AdminMissingCashbackContent() {
     setFormSuccess('');
 
     if (targetStatus === 'REJECTED' && (!adminNote || !adminNote.trim())) {
-      setFormError("Admin note / rejection reason is compulsory when rejecting a ticket.");
+      showErrorToast("Admin note / rejection reason is compulsory when rejecting a ticket.");
       return;
     }
 
@@ -368,17 +369,23 @@ function AdminMissingCashbackContent() {
       }
 
       if (res.ok) {
-        setFormSuccess(data.message || 'Ticket updated successfully');
+        showSuccessToast(data.message || 'Ticket updated successfully');
         setTimeout(() => {
           handleBackToList();
           fetchTickets();
-        }, 1200);
+        }, 1000);
       } else {
-        setFormError(data.error || 'Failed to update ticket');
+        handleAppError(data.error || 'Failed to update ticket', {
+          context: 'Admin / Update Ticket',
+          title: 'Update Failed'
+        });
       }
     } catch (error) {
-      console.error('Failed to update ticket', error);
-      setFormError('Failed to update ticket. Please check connection and try again.');
+      handleAppError(error, {
+        context: 'Admin / Update Ticket Network',
+        title: 'Update Error',
+        fallback: 'Failed to update ticket. Please try again.'
+      });
     } finally {
       setIsUpdating(false);
     }

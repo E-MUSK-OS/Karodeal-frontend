@@ -99,7 +99,7 @@ export default function NewRequestModal({
       try {
         const adminStr = localStorage.getItem('adminUser');
         const user = adminStr ? JSON.parse(adminStr) : null;
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
 
         let res = await fetch(`${apiUrl}/products/admin?limit=250`, {
           headers: { Authorization: `Bearer ${user?.token}` },
@@ -184,35 +184,35 @@ export default function NewRequestModal({
     }
 
     if (!finalProductId) {
-      showToast('Please select a product from the dropdown list');
+      showToast('Please select a product from the dropdown list', true);
       return;
     }
 
     const finalRequestType = isOtherSelected ? customRequestType.trim() : requestType;
 
     if (isOtherSelected && !customRequestType.trim()) {
-      showToast('Please enter your custom request type');
+      showToast('Please enter your custom request type', true);
       return;
     }
 
     if (!isOtherSelected && requestType === 'Order Increase' && !orderQty) {
-      showToast('Please enter QTY of order');
+      showToast('Please enter QTY of order', true);
       return;
     }
 
     if (!isOtherSelected && requestType === 'Order + Reviews Increase') {
       if (!orderQty) {
-        showToast('Please enter QTY of order');
+        showToast('Please enter QTY of order', true);
         return;
       }
       if (!reviewQty) {
-        showToast('Please enter QTY of reviews');
+        showToast('Please enter QTY of reviews', true);
         return;
       }
     }
 
     if (!newRequestNote.trim()) {
-      showToast('Please enter notes');
+      showToast('Please enter notes', true);
       return;
     }
 
@@ -220,7 +220,7 @@ export default function NewRequestModal({
     try {
       const adminStr = localStorage.getItem('adminUser');
       const user = adminStr ? JSON.parse(adminStr) : null;
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
 
       const res = await fetch(`${apiUrl}/review-requests`, {
         method: 'POST',
@@ -244,11 +244,10 @@ export default function NewRequestModal({
         handleClose();
         onSuccess?.();
       } else {
-        showToast(`Failed: ${data.error || 'Could not submit request'}`);
+        showToast(data.error || 'Could not submit request', true);
       }
     } catch (err) {
-      console.error(err);
-      showToast('Error submitting review request');
+      showToast(err, true);
     } finally {
       setIsSubmitting(false);
     }

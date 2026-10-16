@@ -7,6 +7,7 @@ import PageLoader from '@/components/common/PageLoader';
 import ConfirmModal from '@/components/common/ConfirmModal';
 import * as XLSX from 'xlsx';
 import PayoutFilterBar from '@/components/admin/payouts/PayoutFilterBar';
+import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
 
 export default function AdminPayouts() {
   const [payouts, setPayouts] = useState([]);
@@ -64,12 +65,19 @@ export default function AdminPayouts() {
         if (res.ok) {
           // Update local state
           setPayouts(payouts.map(p => p.id === id ? { ...p, status, adminNote } : p));
+          showSuccessToast(`Payout marked as ${status}.`);
         } else {
-          const data = await res.json();
-          alert(data.error || 'Failed to process payout');
+          const data = await res.json().catch(() => ({}));
+          handleAppError(data.error || 'Failed to process payout', {
+            context: 'Admin Payouts / Process',
+            title: 'Payout Update Failed'
+          });
         }
       } catch (err) {
-        alert('An error occurred');
+        handleAppError(err, {
+          context: 'Admin Payouts / Process Network',
+          title: 'Connection Error'
+        });
       } finally {
         setProcessingId(null);
       }
@@ -126,7 +134,7 @@ export default function AdminPayouts() {
 
   const handleExportToExcel = () => {
     if (filteredPayouts.length === 0) {
-      alert("No data to export!");
+      showErrorToast("No data to export!", "Export Failed");
       return;
     }
 

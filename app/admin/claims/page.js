@@ -9,6 +9,7 @@ import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
 import * as XLSX from 'xlsx';
 import { calculateCashback } from '@/lib/cashbackCalculator';
+import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
 
 import ClaimsFilterBar from '@/components/admin/claims/ClaimsFilterBar';
 import ClaimsTable from '@/components/admin/claims/ClaimsTable';
@@ -365,7 +366,7 @@ function AdminClaimsContent() {
   // Export to Excel Handler
   const handleExportToExcel = () => {
     if (filteredClaims.length === 0) {
-      alert("No data to export!");
+      showErrorToast("No data to export!", "Export Failed");
       return;
     }
 
@@ -416,13 +417,13 @@ function AdminClaimsContent() {
 
     if (status === 'APPROVED') {
       if (!awardedCashback || parseFloat(awardedCashback) <= 0) {
-        setActionError("Please enter a valid positive cashback amount to approve.");
+        showErrorToast("Please enter a valid positive cashback amount to approve.");
         return;
       }
     }
 
     if (status === 'REJECTED' && (!adminNote || !adminNote.trim())) {
-      setActionError("Admin Note / Rejection reason is compulsory when rejecting a claim.");
+      showErrorToast("Admin Note / Rejection reason is compulsory when rejecting a claim.");
       return;
     }
 
@@ -474,12 +475,20 @@ function AdminClaimsContent() {
         setAdminNote('');
         setActionError('');
         fetchClaims();
+        showSuccessToast(status === 'APPROVED' ? 'Claim approved and cashback credited!' : 'Claim rejected successfully.');
       } else {
-        const data = await res.json();
-        setActionError(data.error || 'Failed to update claim');
+        const data = await res.json().catch(() => ({}));
+        handleAppError(data.error || 'Failed to update claim', {
+          context: 'Admin Claims / Update',
+          title: 'Update Failed'
+        });
       }
     } catch (error) {
-      setActionError('An error occurred. Please try again.');
+      handleAppError(error, {
+        context: 'Admin Claims / Update Network',
+        title: 'Connection Error',
+        fallback: 'Failed to update claim. Please try again.'
+      });
     } finally {
       setIsUpdating(false);
     }

@@ -4,6 +4,7 @@ import { Users, Search, CheckCircle2, Mail, Phone, Trash2, ShieldCheck, ShieldAl
 import PageLoader from '@/components/common/PageLoader';
 import Button from '@/components/common/Button';
 import ConfirmModal from '@/components/common/ConfirmModal';
+import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
 
 const ROLES = [
   {
@@ -99,28 +100,27 @@ export default function AdminUsersPage() {
             }
           });
           
-          const data = await res.json();
+          const data = await res.json().catch(() => ({}));
           if (res.ok) {
             setUsers(users.filter(u => u.id !== userId && u._id !== userId));
+            showSuccessToast('User deleted successfully.');
           } else {
-            alert(data.error || 'Failed to delete user');
+            handleAppError(data.error || 'Failed to delete user', {
+              context: 'Admin Users / Delete',
+              title: 'Delete Failed'
+            });
           }
         } catch (err) {
-          console.error('Failed to delete user', err);
-          alert('Failed to delete user. Please try again.');
+          handleAppError(err, {
+            context: 'Admin Users / Delete Network',
+            title: 'Delete Error'
+          });
         }
       }
     });
   };
 
-  const [successToast, setSuccessToast] = useState('');
 
-  useEffect(() => {
-    if (successToast) {
-      const timer = setTimeout(() => setSuccessToast(''), 3500);
-      return () => clearTimeout(timer);
-    }
-  }, [successToast]);
 
   const executeRoleChange = async (userId, newRole) => {
     setUpdatingUserId(userId);
@@ -145,13 +145,18 @@ export default function AdminUsersPage() {
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.success) {
         setUsers(prev => prev.map(u => (u.id === userId || u._id === userId) ? { ...u, role: newRole } : u));
-        setSuccessToast(`User role successfully changed to ${newRole === 'SUB_ADMIN' ? 'Sub-Admin' : newRole === 'ADMIN' ? 'Main Admin' : 'User'}!`);
+        showSuccessToast(`User role successfully changed to ${newRole === 'SUB_ADMIN' ? 'Sub-Admin' : newRole === 'ADMIN' ? 'Main Admin' : 'User'}!`);
       } else {
-        alert(data.error || 'Failed to update user role');
+        handleAppError(data.error || 'Failed to update user role', {
+          context: 'Admin Users / Role Change',
+          title: 'Role Update Failed'
+        });
       }
     } catch (err) {
-      console.error('Failed to change user role', err);
-      alert('Unable to connect to backend server. Please verify backend is running on port 5000 and try again.');
+      handleAppError(err, {
+        context: 'Admin Users / Role Change Network',
+        title: 'Connection Error'
+      });
     } finally {
       setUpdatingUserId(null);
     }
@@ -168,7 +173,7 @@ export default function AdminUsersPage() {
         const currentId = currentAdmin.id || currentAdmin._id;
         const targetId = user.id || user._id;
         if ((currentId === targetId || currentAdmin.email === user.email) && newRole !== 'ADMIN') {
-          alert('You cannot change your own role from Main Admin to prevent losing access to the admin dashboard.');
+          showErrorToast('You cannot change your own role from Main Admin to prevent losing access to the admin dashboard.', 'Role Protection');
           return;
         }
       }
@@ -204,13 +209,6 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
-      {/* Toast Notification */}
-      {successToast && (
-        <div className="fixed top-20 right-8 z-50 bg-neutral-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-sm font-bold border border-neutral-700 animate-popup">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-          <span>{successToast}</span>
-        </div>
-      )}
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

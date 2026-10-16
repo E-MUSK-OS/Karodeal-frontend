@@ -1,10 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Lock, CheckCircle2, Eye, EyeOff, LogIn, User } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, Lock, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import Button from '@/components/common/Button';
+import { handleAppError, showSuccessToast } from '@/lib/errorHandler';
 
 export default function ChangePassword() {
+  const router = useRouter();
   const [user, setUser] = useState(() => {
     if (typeof window === 'undefined') return null;
     try {
@@ -13,6 +16,16 @@ export default function ChangePassword() {
       return null;
     }
   });
+
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     const handleAuthChange = () => {
@@ -29,12 +42,16 @@ export default function ChangePassword() {
     setErrorMessage('');
 
     if (newPassword.length < 8) {
-      setErrorMessage('New password must be at least 8 characters long.');
+      const msg = 'New password must be at least 8 characters long.';
+      setErrorMessage(msg);
+      handleAppError(msg, { context: 'Change Password Validation', title: 'Invalid Password' });
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setErrorMessage('New password and confirm password do not match.');
+      const msg = 'New password and confirm password do not match.';
+      setErrorMessage(msg);
+      handleAppError(msg, { context: 'Change Password Validation', title: 'Password Mismatch' });
       return;
     }
 
@@ -57,11 +74,17 @@ export default function ChangePassword() {
       }
 
       setSuccessMessage('Password updated successfully!');
+      showSuccessToast('Password updated successfully!');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (err) {
-      setErrorMessage(err.message || 'Failed to update password. Please try again.');
+      const userMsg = handleAppError(err, {
+        context: 'Change Password Action',
+        title: 'Update Failed',
+        fallback: 'Failed to update password. Please check your current password.'
+      });
+      setErrorMessage(userMsg);
     } finally {
       setIsUpdating(false);
     }
@@ -89,38 +112,14 @@ export default function ChangePassword() {
         </p>
       </div>
 
-      {!user ? (
-        <div className="text-center py-10 px-4 bg-neutral-50 rounded-xl border border-neutral-100">
-          <div className="w-14 h-14 bg-white border border-neutral-200 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
-            <User className="w-7 h-7 text-neutral-400" />
-          </div>
-          <h5 className="font-bold text-neutral-900 mb-1">Please log in to change password</h5>
-          <p className="text-sm text-neutral-500 max-w-sm mx-auto mb-5">
-            You must be logged in to update your security credentials.
-          </p>
-          <div className="flex justify-center gap-3">
-            <Link href="/login" className="inline-flex items-center gap-2 px-6 py-2.5 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors">
-              <LogIn className="w-4 h-4" />
-              <span>Login to Account</span>
-            </Link>
-          </div>
+      {successMessage && (
+        <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-800 text-sm font-medium">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+          <span>{successMessage}</span>
         </div>
-      ) : (
-        <>
-          {successMessage && (
-            <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-800 text-sm font-medium">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-              <span>{successMessage}</span>
-            </div>
-          )}
+      )}
 
-          {errorMessage && (
-            <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
-              {errorMessage}
-            </div>
-          )}
-
-          <form onSubmit={handleChangePassword} className="space-y-5 max-w-md">
+      <form onSubmit={handleChangePassword} className="space-y-5 max-w-md">
         <div>
           <label htmlFor="currentPassword" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
             Current Password
@@ -191,17 +190,16 @@ export default function ChangePassword() {
         </div>
 
         <div className="pt-2">
-          <Button variant="none" size="none"
+          <Button
+            variant="primary"
+            size="md"
             type="submit"
-            disabled={isUpdating}
-            className="w-full sm:w-auto px-6 py-3 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors shadow-sm disabled:opacity-50"
+            isLoading={isUpdating}
           >
-            {isUpdating ? 'Updating...' : 'Update Password'}
+            Update Password
           </Button>
         </div>
       </form>
-        </>
-      )}
     </div>
   );
 }

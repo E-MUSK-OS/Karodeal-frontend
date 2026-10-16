@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CheckCircle2, AlertCircle, Check, ArrowRight, Mail } from "lucide-react";
+import { handleAppError, showSuccessToast } from "@/lib/errorHandler";
 
 export default function Newsletter() {
   const [email, setEmail] = useState("");
@@ -18,7 +19,7 @@ export default function Newsletter() {
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/newsletter/subscribe`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/newsletter/subscribe`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -29,15 +30,26 @@ export default function Newsletter() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Failed to subscribe");
+        const userMsg = handleAppError(data.error || "Failed to subscribe", {
+          context: "Newsletter Subscribe",
+          title: "Subscription Failed",
+          fallback: "Could not subscribe to newsletter. Please check your email."
+        });
+        setError(userMsg);
         return;
       }
 
       setSubmitted(true);
+      showSuccessToast("Subscribed! You will now receive our exclusive deals directly.");
       setEmail("");
       setTimeout(() => setSubmitted(false), 5000);
     } catch (err) {
-      setError("Failed to connect to server");
+      const userMsg = handleAppError(err, {
+        context: "Newsletter Network",
+        title: "Connection Error",
+        fallback: "Unable to connect to the server. Please try again."
+      });
+      setError(userMsg);
     } finally {
       setIsLoading(false);
     }
@@ -113,14 +125,6 @@ export default function Newsletter() {
                   <span>{isLoading ? "Subscribing..." : "Subscribe Now"}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
-
-                {/* Error / Success Feedback */}
-                {error && (
-                  <div className="p-2.5 rounded-lg bg-red-950/60 border border-red-800 text-red-300 text-xs font-semibold flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
-                    <span>{error}</span>
-                  </div>
-                )}
 
                 {submitted && !error && (
                   <div className="p-2.5 rounded-lg bg-emerald-950/60 border border-emerald-800 text-emerald-300 text-xs font-semibold flex items-center gap-2">

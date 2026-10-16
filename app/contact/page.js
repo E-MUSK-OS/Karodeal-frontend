@@ -9,6 +9,7 @@ import {
   Phone, 
   ArrowUpRight 
 } from 'lucide-react';
+import { handleAppError, showSuccessToast } from '@/lib/errorHandler';
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -25,7 +26,7 @@ export default function ContactPage() {
     const message = e.target.message.value;
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/contact`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, message })
@@ -35,11 +36,22 @@ export default function ContactPage() {
 
       if (res.ok) {
         setSubmitted(true);
+        showSuccessToast('Message sent! Our support team will get back to you soon.');
       } else {
-        setError(data.error || 'Failed to send message');
+        const userMsg = handleAppError(data.error || 'Failed to send message', {
+          context: 'Contact Form',
+          title: 'Message Not Sent',
+          fallback: 'Could not send your message. Please verify your details and try again.'
+        });
+        setError(userMsg);
       }
     } catch (err) {
-      setError('Failed to connect to the server');
+      const userMsg = handleAppError(err, {
+        context: 'Contact Form Network',
+        title: 'Connection Error',
+        fallback: 'Unable to connect to the server. Please try again.'
+      });
+      setError(userMsg);
     } finally {
       setIsLoading(false);
     }
@@ -208,12 +220,6 @@ export default function ContactPage() {
                       placeholder="How can we help you?"
                     />
                   </div>
-
-                  {error && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 font-medium text-sm">
-                      {error}
-                    </div>
-                  )}
 
                   <div className="pt-2">
                     <Button 

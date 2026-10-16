@@ -8,7 +8,8 @@ function TopCategoryCard({ category }) {
 
   let imageUrl = category.image || 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=800&auto=format&fit=crop';
   if (imageUrl && imageUrl.startsWith('/')) {
-    imageUrl = `http://localhost:5000${imageUrl}`;
+    const backendBase = (process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace(/\/api\/?$/, '');
+    imageUrl = `${backendBase}${imageUrl}`;
   }
 
   return (

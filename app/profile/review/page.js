@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import Button from '@/components/common/Button';
+import { showErrorToast, showSuccessToast } from '@/lib/errorHandler';
 
 function ReviewPageContent() {
   const searchParams = useSearchParams();
@@ -47,9 +48,9 @@ function ReviewPageContent() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!user) return alert('Please log in to submit a review.');
-    if (rating === 0) return alert('Please select a star rating.');
-    if (!comment.trim()) return alert('Please write a comment.');
+    if (!user) return showErrorToast('Please sign in to submit a review.', 'Authentication Required');
+    if (rating === 0) return showErrorToast('Please select a star rating.', 'Rating Required');
+    if (!comment.trim()) return showErrorToast('Please write a comment.', 'Feedback Required');
 
     const newReview = {
       id: Date.now(),
@@ -63,6 +64,7 @@ function ReviewPageContent() {
     setReviews(updatedReviews);
     localStorage.setItem('karodeal_reviews', JSON.stringify(updatedReviews));
 
+    showSuccessToast('Thank you for your feedback! Your review has been saved.');
     // Reset form
     setRating(0);
     setComment('');

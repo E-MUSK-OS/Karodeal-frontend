@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import Button from '@/components/common/Button';
+import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
 
 export default function ForgotPassword() {
   const [step, setStep] = useState(1);
@@ -86,10 +87,11 @@ export default function ForgotPassword() {
     setIsLoading(true);
 
     try {
+      const normalizedEmail = email.trim().toLowerCase();
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/send-reset-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: normalizedEmail }),
       });
       const data = await res.json();
 
@@ -98,11 +100,17 @@ export default function ForgotPassword() {
       }
 
       setMessage('A password reset code has been sent to your email.');
+      showSuccessToast('Reset code sent to your email.');
       setOtpValues(['', '', '', '', '', '']);
       setOtp('');
       setStep(2);
     } catch (err) {
-      setError(err.message || 'Failed to connect to backend server');
+      const userMsg = handleAppError(err, {
+        context: 'Forgot Password / Send OTP',
+        title: 'Reset Code Error',
+        fallback: 'Unable to send verification code. Please check your email address.'
+      });
+      setError(userMsg);
     } finally {
       setIsLoading(false);
     }
@@ -110,15 +118,22 @@ export default function ForgotPassword() {
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
+    const finalOtp = (otp || otpValues.join('')).trim();
+    if (finalOtp.length < 6) {
+      showErrorToast('Please enter all 6 digits of the OTP');
+      return;
+    }
+
     setError('');
     setMessage('');
     setIsLoading(true);
 
     try {
+      const normalizedEmail = email.trim().toLowerCase();
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/verify-reset-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp }),
+        body: JSON.stringify({ email: normalizedEmail, otp: finalOtp }),
       });
       const data = await res.json();
 
@@ -128,9 +143,15 @@ export default function ForgotPassword() {
 
       setResetToken(data.resetToken);
       setMessage('Code verified! Please enter your new password.');
+      showSuccessToast('Code verified successfully.');
       setStep(3);
     } catch (err) {
-      setError(err.message || 'Failed to connect to backend server');
+      const userMsg = handleAppError(err, {
+        context: 'Forgot Password / Verify OTP',
+        title: 'Verification Error',
+        fallback: 'Invalid or expired OTP code. Please try again.'
+      });
+      setError(userMsg);
     } finally {
       setIsLoading(false);
     }
@@ -161,11 +182,17 @@ export default function ForgotPassword() {
       }
 
       setMessage('Password reset successfully! Redirecting to login...');
+      showSuccessToast('Password reset successfully! You can now log in.');
       setTimeout(() => {
         router.push('/login');
       }, 2000);
     } catch (err) {
-      setError(err.message || 'Failed to connect to backend server');
+      const userMsg = handleAppError(err, {
+        context: 'Forgot Password / Reset Action',
+        title: 'Reset Failed',
+        fallback: 'Could not reset password. Please try again.'
+      });
+      setError(userMsg);
     } finally {
       setIsLoading(false);
     }
@@ -199,7 +226,6 @@ export default function ForgotPassword() {
         {step === 1 ? (
           <form className="mt-8 flex flex-col flex-1" onSubmit={handleSendOtp}>
 
-            {error && <div className="text-red-500 text-sm mb-4 font-medium">{error}</div>}
             {message && <div className="text-green-600 text-sm mb-4 font-medium">{message}</div>}
 
             {/* Floating Label Input - Email */}
@@ -240,7 +266,6 @@ export default function ForgotPassword() {
         ) : step === 2 ? (
           <form className="mt-8 flex flex-col flex-1" onSubmit={handleVerifyOtp}>
 
-            {error && <div className="text-red-500 text-sm mb-4 font-medium">{error}</div>}
             {message && <div className="text-green-600 text-sm mb-4 font-medium">{message}</div>}
 
             {/* OTP Input */}
@@ -283,7 +308,6 @@ export default function ForgotPassword() {
         ) : (
           <form className="mt-8 flex flex-col flex-1" onSubmit={handleResetPassword}>
 
-            {error && <div className="text-red-500 text-sm mb-4 font-medium">{error}</div>}
             {message && <div className="text-green-600 text-sm mb-4 font-medium">{message}</div>}
 
             {/* New Password Input */}

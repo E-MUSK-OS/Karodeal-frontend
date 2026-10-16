@@ -5,6 +5,8 @@ import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
 import ConfirmModal from '@/components/common/ConfirmModal';
 import ImageCropper from '@/components/admin/common/ImageCropper';
+import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
+import { processImageUpload } from '@/lib/imageProcessor';
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState([]);
@@ -23,15 +25,20 @@ export default function AdminCategoriesPage() {
   const [cropImageSrc, setCropImageSrc] = useState(null);
   const [cropTarget, setCropTarget] = useState(null); // 'add' or 'edit'
 
-  const handleFileChange = (e, target) => {
+  const handleFileChange = async (e, target) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setCropImageSrc(event.target.result);
-        setCropTarget(target);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const processed = await processImageUpload(file, { maxSizeMB: 5.0 });
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setCropImageSrc(event.target.result);
+          setCropTarget(target);
+        };
+        reader.readAsDataURL(processed?.file || file);
+      } catch (err) {
+        showErrorToast(err.message || 'Failed to process image');
+      }
       e.target.value = ''; // Reset input
     }
   };
@@ -109,12 +116,21 @@ export default function AdminCategoriesPage() {
         setCategories([...categories, data]);
         setName('');
         setImageFile(null);
+        showSuccessToast('Category created successfully!');
       } else {
-        alert('Failed to create category');
+        const data = await res.json().catch(() => ({}));
+        handleAppError(data.error || 'Failed to create category', {
+          context: 'Admin Categories / Create',
+          title: 'Category Creation Failed',
+          fallback: 'Could not create category. Please try again.'
+        });
       }
     } catch (error) {
-      console.error('Error creating category:', error);
-      alert('Failed to create category');
+      handleAppError(error, {
+        context: 'Admin Categories / Create Network',
+        title: 'Connection Error',
+        fallback: 'Unable to connect to server. Please try again.'
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -138,12 +154,20 @@ export default function AdminCategoriesPage() {
           });
           if (res.ok) {
             setCategories(categories.filter((c) => c.id !== id));
+            showSuccessToast('Category deleted successfully.');
           } else {
-            alert('Failed to delete category');
+            const data = await res.json().catch(() => ({}));
+            handleAppError(data.error || 'Failed to delete category', {
+              context: 'Admin Categories / Delete',
+              title: 'Delete Failed',
+              fallback: 'Could not delete category.'
+            });
           }
         } catch (error) {
-          console.error('Error deleting category:', error);
-          alert('Failed to delete category');
+          handleAppError(error, {
+            context: 'Admin Categories / Delete Network',
+            title: 'Delete Error'
+          });
         }
       }
     });
@@ -183,12 +207,19 @@ export default function AdminCategoriesPage() {
         const updated = await res.json();
         setCategories(categories.map(c => c.id === id ? { ...c, ...updated } : c));
         setEditingId(null);
+        showSuccessToast('Category updated successfully!');
       } else {
-        alert('Failed to update category');
+        const data = await res.json().catch(() => ({}));
+        handleAppError(data.error || 'Failed to update category', {
+          context: 'Admin Categories / Update',
+          title: 'Update Failed'
+        });
       }
     } catch (error) {
-      console.error('Error updating category:', error);
-      alert('Failed to update category');
+      handleAppError(error, {
+        context: 'Admin Categories / Update Network',
+        title: 'Update Error'
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -222,7 +253,7 @@ export default function AdminCategoriesPage() {
               <label className="block text-xs font-bold uppercase text-neutral-700 mb-1">Image (Optional)</label>
               <input
                 type="file"
-                accept="image/*"
+                accept="image/*,.heic,.heif"
                 onChange={(e) => handleFileChange(e, 'add')}
                 className="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
               />
@@ -262,7 +293,7 @@ export default function AdminCategoriesPage() {
                   <div className="flex items-center gap-4 flex-1">
                     {cat.image ? (
                       <img
-                        src={cat.image.startsWith('/') ? `http://localhost:5000${cat.image}` : cat.image}
+                        src={cat.image.startsWith('/') ? `${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace(/\/api\/?$/, '')}${cat.image}` : cat.image}
                         alt={cat.name}
                         className="w-12 h-12 rounded-full object-cover border border-neutral-200"
                       />
@@ -329,7 +360,7 @@ export default function AdminCategoriesPage() {
                 <label className="block text-xs font-bold uppercase text-neutral-700 mb-1">Update Image (Optional)</label>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/*,.heic,.heif"
                   onChange={(e) => handleFileChange(e, 'edit')}
                   className="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
                 />

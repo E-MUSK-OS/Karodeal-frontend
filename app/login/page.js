@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import Button from '@/components/common/Button';
 import { useGoogleLogin } from '@react-oauth/google';
+import { handleAppError, showSuccessToast } from '@/lib/errorHandler';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -55,18 +56,29 @@ export default function Login() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Invalid email or password');
+        const userMsg = handleAppError(data.error || 'Invalid email or password', {
+          context: 'User Login',
+          title: 'Sign In Failed',
+          fallback: 'Invalid email or password. Please try again.'
+        });
+        setError(userMsg);
         return;
       }
 
       localStorage.setItem('user', JSON.stringify({ ...data.user, token: data.token }));
       window.dispatchEvent(new Event('auth-change'));
+      showSuccessToast('Signed in successfully! Welcome back.');
 
       const urlParams = new URLSearchParams(window.location.search);
       const returnUrl = urlParams.get('returnUrl');
       router.push(returnUrl || '/');
     } catch (err) {
-      setError('Failed to connect to backend server');
+      const userMsg = handleAppError(err, {
+        context: 'User Login Network/Server',
+        title: 'Connection Error',
+        fallback: 'Unable to connect to server. Please try again later.'
+      });
+      setError(userMsg);
     } finally {
       setIsLoading(false);
     }
@@ -86,23 +98,41 @@ export default function Login() {
         const data = await res.json();
 
         if (!res.ok) {
-          setError(data.error || 'Google login failed');
+          const userMsg = handleAppError(data.error || 'Google login failed', {
+            context: 'Google Sign In',
+            title: 'Sign In Failed',
+            fallback: 'Could not sign in with Google. Please try again.'
+          });
+          setError(userMsg);
           return;
         }
 
         localStorage.setItem('user', JSON.stringify({ ...data.user, token: data.token }));
         window.dispatchEvent(new Event('auth-change'));
+        showSuccessToast('Signed in with Google successfully!');
 
         const urlParams = new URLSearchParams(window.location.search);
         const returnUrl = urlParams.get('returnUrl');
         router.push(returnUrl || '/');
       } catch (err) {
-        setError('Failed to connect to backend server');
+        const userMsg = handleAppError(err, {
+          context: 'Google Sign In Network',
+          title: 'Connection Error',
+          fallback: 'Unable to connect to Google service. Please try again.'
+        });
+        setError(userMsg);
       } finally {
         setIsLoading(false);
       }
     },
-    onError: () => setError('Google login failed')
+    onError: (err) => {
+      const userMsg = handleAppError(err, {
+        context: 'Google OAuth Dialog',
+        title: 'Sign In Cancelled',
+        fallback: 'Google sign in was cancelled or failed.'
+      });
+      setError(userMsg);
+    }
   });
 
   return (
@@ -130,8 +160,6 @@ export default function Login() {
         </div>
 
         <form className="mt-8 flex flex-col flex-1" onSubmit={handleLogin}>
-
-          {error && <div className="text-red-500 text-sm mb-4 font-medium">{error}</div>}
 
           {/* Floating Label Input - Email */}
           <div className="relative mb-6">

@@ -181,12 +181,6 @@ export default function ClaimDetailView({
                   <p className="text-[10px] text-neutral-500 mt-1.5 font-medium">* Note is required only when rejecting</p>
                 </div>
 
-                {actionError && (
-                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-xl">
-                    {actionError}
-                  </div>
-                )}
-
                 <div className="flex gap-3 pt-2">
                   <Button
                     variant="none"

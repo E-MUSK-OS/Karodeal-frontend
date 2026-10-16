@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 308" width="500" height="308">
+  <!-- 1. K Stem -->
+  <path id="part-stem" d="M 143 14 C 143 10 146 8 150 8 L 187 8 C 189 8 189 10 189 14 L 189 168 C 189 174 185 180 178 183 L 146 190 C 144 190 143 189 143 186 Z" fill="#032554" />
+
+  <!-- 2. K Top Diagonal -->
+  <polygon id="part-branch" points="214,88 248,88 304,8 266,8" fill="#032554" />
+
+  <!-- 3. Cart Outer Frame & Handle -->
+  <path id="part-cart" d="M 194 71 L 235 174 C 237 178 242 181 247 181 L 319 181 C 324 181 329 177 331 172 L 358 92 L 386 92 L 386 71 L 343 71 L 316 154 L 253 154 L 219 71 Z" fill="#f96b02" />
+
+  <!-- 4. Cart Inner Horizontal Bars -->
+  <g id="part-lines">
+    <rect x="254" y="101" width="92" height="12" rx="4" fill="#f96b02" />
+    <rect x="270" y="126" width="62" height="12" rx="4" fill="#f96b02" />
+  </g>
+
+  <!-- 5. Wheels -->
+  <g id="part-wheels">
+    <circle cx="247" cy="197" r="14" fill="#f96b02" />
+    <circle cx="300" cy="197" r="14" fill="#f96b02" />
+  </g>
+
+  <!-- 6. Logo Typography -->
+  <g id="part-text">
+    <text x="250" y="295" text-anchor="middle" font-family="'Inter', 'Montserrat', 'Arial Black', sans-serif" font-weight="900" font-size="82" letter-spacing="-3.5">
+      <tspan fill="#032554">karo</tspan><tspan fill="#f96b02">deal</tspan>
+    </text>
+  </g>
+</svg>

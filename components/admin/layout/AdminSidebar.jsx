@@ -38,7 +38,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
         const adminStr = localStorage.getItem('adminUser');
         if (!adminStr) return;
         const user = JSON.parse(adminStr);
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
         const res = await fetch(`${apiUrl}/review-requests?status=PENDING`, {
           headers: { Authorization: `Bearer ${user.token}` },
           cache: 'no-store'

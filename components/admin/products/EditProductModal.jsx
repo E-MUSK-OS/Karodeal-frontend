@@ -5,6 +5,8 @@ import Button from '@/components/common/Button';
 import StoreOfferCard from '@/components/deals/StoreOfferCard';
 import CustomSelect from '@/components/common/CustomSelect';
 import { calculateCashback } from '@/lib/cashbackCalculator';
+import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
+import { processImageUpload } from '@/lib/imageProcessor';
 
 export default function EditProductModal({ product, onClose, onSuccess, dbStores, dbCategories, existingProducts = [], currentRole }) {
   const [formData, setFormData] = useState({
@@ -64,11 +66,6 @@ export default function EditProductModal({ product, onClose, onSuccess, dbStores
     }
   }, [product]);
 
-  const showError = (msg) => {
-    setErrorMsg(msg);
-    setTimeout(() => setErrorMsg(null), 4500);
-  };
-
   const updatePricesAndCashback = (updates) => {
     setFormData((prev) => {
       const next = { ...prev, ...updates };
@@ -86,22 +83,28 @@ export default function EditProductModal({ product, onClose, onSuccess, dbStores
     });
   };
 
-  const handleImageFileUpload = (e) => {
+  const showError = (msg) => {
+    showErrorToast(msg);
+  };
+
+  const handleImageFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      showError('File size exceeds 5MB. Please choose a smaller image.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setFormData((prev) => ({ ...prev, image: event.target.result }));
+    try {
+      const processed = await processImageUpload(file, { maxSizeMB: 5.0 });
+      if (processed?.file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            setFormData((prev) => ({ ...prev, image: event.target.result }));
+          }
+        };
+        reader.readAsDataURL(processed.file);
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      showError(err.message || 'Failed to process image');
+    }
   };
 
   const preventNegativeKeys = (e) => {
@@ -141,8 +144,9 @@ export default function EditProductModal({ product, onClose, onSuccess, dbStores
       const isCustom = formData.cardType === 'custom';
       const salePriceNum = Math.max(0, Number(formData.salePrice) || 0);
       const { withoutReview, withReview } = calculateCashback(salePriceNum);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
       
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${product.id}`, {
+      const res = await fetch(`${apiUrl}/products/${product.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -170,13 +174,22 @@ export default function EditProductModal({ product, onClose, onSuccess, dbStores
 
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
+        showSuccessToast('Product card updated successfully!');
         onSuccess('updated');
       } else {
-        showError(data.error || 'Failed to update product. Please check the details and try again.');
+        const userMsg = handleAppError(data.error || 'Failed to update product. Please check the details and try again.', {
+          context: 'Admin / Edit Product',
+          title: 'Update Failed'
+        });
+        showError(userMsg);
       }
     } catch (err) {
-      console.error(err);
-      showError('Failed to connect to server. Please check your connection.');
+      const userMsg = handleAppError(err, {
+        context: 'Admin / Edit Product Network',
+        title: 'Connection Error',
+        fallback: 'Unable to connect to server. Please try again.'
+      });
+      showError(userMsg);
     } finally {
       setIsSubmitting(false);
     }
@@ -198,25 +211,6 @@ export default function EditProductModal({ product, onClose, onSuccess, dbStores
                 <X className="w-5 h-5" />
               </Button>
             </div>
-
-            {errorMsg && (
-              <div className="fixed top-8 right-6 left-6 sm:left-auto sm:right-8 sm:max-w-md z-[100] bg-white border-2 border-red-500 text-neutral-900 px-5 py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.25)] flex items-start gap-3.5 text-sm font-bold animate-in fade-in slide-in-from-top-4 duration-200">
-                <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center shrink-0 text-red-600 mt-0.5">
-                  <AlertCircle className="w-5 h-5 text-red-600" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-red-700 font-black text-xs uppercase tracking-wider mb-0.5">Error</p>
-                  <p className="text-neutral-800 font-semibold text-xs leading-snug">{errorMsg}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setErrorMsg(null)}
-                  className="text-neutral-400 hover:text-neutral-700 p-1 hover:bg-neutral-100 rounded-lg transition-colors cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            )}
 
             <form onSubmit={handleSaveEdit} className="space-y-4" noValidate>
               <div className="flex gap-2 p-1 bg-neutral-100 rounded-xl mb-4 w-fit relative group cursor-not-allowed">
@@ -417,7 +411,7 @@ export default function EditProductModal({ product, onClose, onSuccess, dbStores
                 ) : (
                   <div className="space-y-2">
                     <div className="border-2 border-dashed border-neutral-300 hover:border-[#f96b02] rounded-2xl p-4 text-center transition-colors cursor-pointer relative bg-neutral-50 flex flex-col items-center justify-center gap-1">
-                      <input type="file" accept="image/*" onChange={handleImageFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                      <input type="file" accept="image/*,.heic,.heif" onChange={handleImageFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                       <Upload className="w-5 h-5 text-neutral-600" />
                       <span className="text-xs font-bold text-neutral-800">Click or drag image file here</span>
                       <span className="text-[10px] text-neutral-400">PNG, JPG, WEBP, GIF up to 5MB</span>

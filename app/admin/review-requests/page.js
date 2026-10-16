@@ -5,6 +5,7 @@ import { RefreshCw, Plus, Star } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
 import { getSocket } from '@/lib/socket';
+import { handleAppError, showSuccessToast } from '@/lib/errorHandler';
 
 import ReviewRequestFilterBar from '@/components/admin/review-requests/ReviewRequestFilterBar';
 import ReviewRequestTable from '@/components/admin/review-requests/ReviewRequestTable';
@@ -38,9 +39,12 @@ export default function ReviewRequestsPage() {
     pinnedProducts: []
   });
 
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 4000);
+  const showToast = (msg, isError = false) => {
+    if (isError) {
+      handleAppError(msg, { context: 'Review Requests', title: 'Request Failed' });
+    } else {
+      showSuccessToast(msg);
+    }
   };
 
   const fetchRequests = useCallback(async (isManualReload = false) => {
@@ -54,7 +58,7 @@ export default function ReviewRequestsPage() {
       setCurrentRole(user.role || 'ADMIN');
       setCurrentUserId(user.id);
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
       const statusParam = activeTab === 'ALL' ? '' : `?status=${activeTab}`;
       const res = await fetch(`${apiUrl}/review-requests${statusParam}`, {
         headers: { Authorization: `Bearer ${user.token}` },
@@ -121,7 +125,7 @@ export default function ReviewRequestsPage() {
     try {
       const adminStr = localStorage.getItem('adminUser');
       const user = adminStr ? JSON.parse(adminStr) : null;
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
 
       const chosenRank = parseInt(approvalModal.targetRank, 10) || starStats.nextStarRank || 1;
 
@@ -145,11 +149,10 @@ export default function ReviewRequestsPage() {
         window.dispatchEvent(new Event('karodeal:star_requests_changed'));
         window.dispatchEvent(new Event('karodeal:review_requests_changed'));
       } else {
-        showToast(`Error: ${data.error || 'Failed to approve request'}`);
+        showToast(data.error || 'Failed to approve request', true);
       }
     } catch (err) {
-      console.error(err);
-      showToast('Error approving review request');
+      showToast(err, true);
     } finally {
       setIsSubmitting(false);
     }
@@ -162,7 +165,7 @@ export default function ReviewRequestsPage() {
     try {
       const adminStr = localStorage.getItem('adminUser');
       const user = adminStr ? JSON.parse(adminStr) : null;
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
 
       const res = await fetch(`${apiUrl}/review-requests/${declineModal.request.id}/decline`, {
         method: 'PUT',
@@ -183,11 +186,10 @@ export default function ReviewRequestsPage() {
         window.dispatchEvent(new Event('karodeal:star_requests_changed'));
         window.dispatchEvent(new Event('karodeal:review_requests_changed'));
       } else {
-        showToast(`Error: ${data.error || 'Failed to decline request'}`);
+        showToast(data.error || 'Failed to decline request', true);
       }
     } catch (err) {
-      console.error(err);
-      showToast('Error declining review request');
+      showToast(err, true);
     } finally {
       setIsSubmitting(false);
     }
@@ -239,13 +241,6 @@ export default function ReviewRequestsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-neutral-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-neutral-700 animate-in fade-in slide-in-from-bottom-5">
-          <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
-          <span className="text-sm font-semibold">{toastMessage}</span>
-        </div>
-      )}
 
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

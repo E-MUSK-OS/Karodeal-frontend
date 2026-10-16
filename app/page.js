@@ -17,7 +17,7 @@ async function getBackendStatus() {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/health`, { next: { revalidate: 60 } });
     return await res.json();
   } catch (error) {
-    return { status: 'error', message: 'Backend is not running. Please start it on port 5000.' };
+    return { status: 'error', message: 'Backend is temporarily unavailable.' };
   }
 }
 

@@ -4,6 +4,7 @@ import { Search, Mail, Trash2 } from 'lucide-react';
 import PageLoader from '@/components/common/PageLoader';
 import Button from '@/components/common/Button';
 import ConfirmModal from '@/components/common/ConfirmModal';
+import { handleAppError, showSuccessToast } from '@/lib/errorHandler';
 
 export default function AdminSubscribersPage() {
   const [subscribers, setSubscribers] = useState([]);
@@ -69,15 +70,21 @@ export default function AdminSubscribersPage() {
             }
           });
           
-          const data = await res.json();
+          const data = await res.json().catch(() => ({}));
           if (res.ok) {
             setSubscribers(subscribers.filter(s => s.id !== subscriberId));
+            showSuccessToast('Subscriber removed successfully.');
           } else {
-            alert(data.error || 'Failed to delete subscriber');
+            handleAppError(data.error || 'Failed to delete subscriber', {
+              context: 'Admin Subscribers / Delete',
+              title: 'Delete Failed'
+            });
           }
         } catch (err) {
-          console.error('Failed to delete subscriber', err);
-          alert('Failed to delete subscriber. Please try again.');
+          handleAppError(err, {
+            context: 'Admin Subscribers / Delete Network',
+            title: 'Delete Error'
+          });
         }
       }
     });

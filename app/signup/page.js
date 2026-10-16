@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import Button from '@/components/common/Button';
 import { useGoogleLogin } from '@react-oauth/google';
+import { handleAppError, showSuccessToast } from '@/lib/errorHandler';
 
 export default function Signup() {
   const [step, setStep] = useState(1);
@@ -83,10 +84,15 @@ export default function Signup() {
     fillOtpFromText(pastedText, index);
   };
 
-  const showError = (msg) => {
-    setError(msg);
+  const showError = (msg, context = 'Signup') => {
+    const userMsg = handleAppError(msg, {
+      context,
+      title: 'Sign Up',
+      fallback: 'An error occurred during registration. Please try again.'
+    });
+    setError(userMsg);
     setTimeout(() => {
-      setError((prev) => (prev === msg ? '' : prev));
+      setError((prev) => (prev === userMsg ? '' : prev));
     }, 4000);
   };
 
@@ -103,10 +109,11 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
+      const normalizedEmail = email.trim().toLowerCase();
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: normalizedEmail }),
       });
       const data = await res.json();
 
@@ -166,12 +173,18 @@ export default function Signup() {
 
   const handleVerify = async (e) => {
     e.preventDefault();
+    const finalOtp = (inputCode || otpValues.join('')).trim();
+    if (finalOtp.length < 6) {
+      showError('Please enter all 6 digits of the OTP');
+      return;
+    }
+
     setIsLoading(true);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, otp: inputCode }),
+        body: JSON.stringify({ name: name.trim(), email: email.trim().toLowerCase(), password, otp: finalOtp }),
       });
 
       const data = await res.json();
@@ -184,6 +197,7 @@ export default function Signup() {
       // Save token and user data for session
       localStorage.setItem('user', JSON.stringify({ ...data.user, token: data.token }));
       window.dispatchEvent(new Event('auth-change'));
+      showSuccessToast('Account created successfully! Welcome to KaroDeal.');
 
       const urlParams = new URLSearchParams(window.location.search);
       const returnUrl = urlParams.get('returnUrl');
@@ -197,6 +211,12 @@ export default function Signup() {
 
   const handleVerifyGoogleOtp = async (e) => {
     e.preventDefault();
+    const finalOtp = (inputCode || otpValues.join('')).trim();
+    if (finalOtp.length < 6) {
+      showError('Please enter all 6 digits of the OTP');
+      return;
+    }
+
     setIsLoading(true);
     setError('');
 
@@ -204,7 +224,7 @@ export default function Signup() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/verify-google-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: verifyEmail, otp: inputCode, name: verifyName }),
+        body: JSON.stringify({ email: verifyEmail.trim().toLowerCase(), otp: finalOtp, name: verifyName }),
       });
 
       const data = await res.json();
@@ -241,7 +261,6 @@ export default function Signup() {
             <p className="mt-1.5 text-sm text-neutral-500">We sent a 6-digit OTP to {verifyEmail}</p>
           </div>
           <form className="mt-8 flex flex-col flex-1" onSubmit={handleVerifyGoogleOtp}>
-            {error && <div className="text-red-500 text-sm mb-4 font-medium">{error}</div>}
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-3 text-center">Enter 6-digit OTP</label>
               <div className="grid grid-cols-6 gap-1.5 sm:gap-2.5 w-full" onPaste={(e) => handleOtpPaste(e, 0)}>
@@ -284,19 +303,6 @@ export default function Signup() {
 
   return (
     <div className="bg-white min-h-[calc(100vh-140px)] flex flex-col justify-center items-center py-8 sm:py-12 px-4 sm:px-6 relative font-sans">
-      {/* Toast Notification */}
-      {error && (
-        <div className="fixed top-6 right-6 z-50 animate-slideInRight">
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-xl shadow-lg max-w-sm flex items-start gap-3">
-            <div className="text-sm text-red-700 font-medium leading-relaxed">
-              {error}
-            </div>
-            <Button variant="none" size="none" onClick={() => setError('')} className="text-red-400 hover:text-red-700 transition-colors">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-            </Button>
-          </div>
-        </div>
-      )}
 
       <div className="flex flex-col bg-neutral-50 w-full max-w-[420px] rounded-2xl shadow-sm border border-neutral-200 p-5 sm:p-7 relative">
 

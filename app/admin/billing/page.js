@@ -7,6 +7,7 @@ import BillingSummaryCards from '@/components/admin/billing/BillingSummaryCards'
 import BillingFilterBar from '@/components/admin/billing/BillingFilterBar';
 import BillingTable from '@/components/admin/billing/BillingTable';
 import { getSocket } from '@/lib/socket';
+import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
 
 export default function AdminBillingPage() {
   const router = useRouter();
@@ -161,7 +162,7 @@ export default function AdminBillingPage() {
 
   const handleExportToExcel = () => {
     if (filteredProducts.length === 0) {
-      alert('No billing data to export!');
+      showErrorToast('No billing data to export!', 'Export Failed');
       return;
     }
 

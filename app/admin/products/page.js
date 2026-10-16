@@ -15,6 +15,7 @@ import EditProductModal from '@/components/admin/products/EditProductModal';
 import CustomSelect from '@/components/common/CustomSelect';
 import { calculateCashback } from '@/lib/cashbackCalculator';
 import { getSocket } from '@/lib/socket';
+import { handleAppError, showSuccessToast } from '@/lib/errorHandler';
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
@@ -112,7 +113,7 @@ export default function AdminProductsPage() {
         setCurrentRole(adminObj.role);
       }
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
       let productsRes = await fetch(`${apiUrl}/products/admin`, { headers: { 'Authorization': `Bearer ${token}` } });
       if (productsRes.status === 404) {
         // Fallback for when backend is not yet updated on Vercel
@@ -159,9 +160,12 @@ export default function AdminProductsPage() {
     }
   };
 
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(''), 5000);
+  const showToast = (msg, isError = false) => {
+    if (isError) {
+      handleAppError(msg, { context: 'Admin Products', title: 'Action Failed' });
+    } else {
+      showSuccessToast(msg);
+    }
   };
 
   const handleOpenEdit = (product) => {
@@ -235,7 +239,7 @@ export default function AdminProductsPage() {
     try {
       const adminUserStr = localStorage.getItem('adminUser');
       const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
 
       const res = await fetch(`${apiUrl}/products/reorder`, {
         method: 'PUT',
@@ -253,13 +257,12 @@ export default function AdminProductsPage() {
         showToast(`Moved "${product.title.slice(0, 25)}..." to Rank #${target}`);
         loadProducts();
       } else {
-        const data = await res.json();
-        alert(data.error || 'Failed to reorder product');
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error || 'Failed to reorder product', true);
         loadProducts();
       }
     } catch (err) {
-      console.error(err);
-      alert('Failed to reorder product');
+      showToast(err, true);
       loadProducts();
     } finally {
       setIsReordering(false);
@@ -278,7 +281,8 @@ export default function AdminProductsPage() {
         try {
           const adminUserStr = localStorage.getItem('adminUser');
           const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${id}`, {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
+          const res = await fetch(`${apiUrl}/products/${id}`, {
             method: 'DELETE',
             headers: {
               'Authorization': `Bearer ${token}`
@@ -288,10 +292,10 @@ export default function AdminProductsPage() {
             loadProducts();
             showToast('Product card deleted.');
           } else {
-            alert('Failed to delete product');
+            showToast('Failed to delete product', true);
           }
         } catch (err) {
-          console.error(err);
+          showToast(err, true);
         }
       }
     });
@@ -312,7 +316,8 @@ export default function AdminProductsPage() {
     try {
       const adminUserStr = localStorage.getItem('adminUser');
       const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${product.id}`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
+      const res = await fetch(`${apiUrl}/products/${product.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -328,12 +333,12 @@ export default function AdminProductsPage() {
       } else {
         // Revert on failure
         setProducts(prev => prev.map(p => p.id === product.id ? product : p));
-        alert('Failed to toggle status');
+        showToast('Failed to toggle status', true);
       }
     } catch (err) {
-      console.error(err);
       // Revert on failure
       setProducts(prev => prev.map(p => p.id === product.id ? product : p));
+      showToast(err, true);
     }
   };
 
@@ -349,7 +354,8 @@ export default function AdminProductsPage() {
     try {
       const adminUserStr = localStorage.getItem('adminUser');
       const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${product.id}`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
+      const res = await fetch(`${apiUrl}/products/${product.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -363,12 +369,11 @@ export default function AdminProductsPage() {
         showToast(`Card re-posted! Now live at the top of the user panel.`);
       } else {
         setProducts(prev => prev.map(p => p.id === product.id ? product : p));
-        alert('Failed to re-post product card');
+        showToast('Failed to re-post product card', true);
       }
     } catch (err) {
-      console.error(err);
       setProducts(prev => prev.map(p => p.id === product.id ? product : p));
-      showToast('Error re-posting product');
+      showToast('Error re-posting product', true);
     }
   };
 
@@ -388,7 +393,7 @@ export default function AdminProductsPage() {
       const adminObj = adminUserStr ? JSON.parse(adminUserStr) : null;
       const token = adminObj?.token;
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
       const res = await fetch(`${apiUrl}/products/${product.id}/pin`, {
         method: 'PUT',
         headers: {
@@ -540,13 +545,6 @@ export default function AdminProductsPage() {
 
   return (
     <div className="space-y-6" onClick={() => setOpenDropdown(null)}>
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed top-20 right-8 z-50 bg-white text-neutral-900 border border-neutral-200 px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-bold transition-all">
-          <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

@@ -13,6 +13,8 @@ import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
 import { calculateCashback } from '@/lib/cashbackCalculator';
+import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
+import { processImageUpload } from '@/lib/imageProcessor';
 
 function ProofUploadCard({
   stepNumber,
@@ -83,7 +85,7 @@ function ProofUploadCard({
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.heic,.heif"
         onChange={handleInputChange}
         className="hidden"
       />
@@ -252,30 +254,27 @@ export default function ClaimCashback() {
     fetchProducts();
   }, [router]);
 
-  const processFile = (file, type) => {
+  const processFile = async (file, type) => {
     if (!file) return;
-    if (file.size > 1024 * 1024) {
-      const label = type === 'invoice' ? 'Invoice image' : type === 'review' ? 'Review screenshot' : 'Non-return proof';
-      setFormError(`${label} must be less than 1MB.`);
-      return;
-    }
-    if (file.type && !file.type.startsWith('image/')) {
-      setFormError('Please upload a valid image file (PNG, JPG, WebP).');
-      return;
-    }
-    setFormError('');
-    if (type === 'invoice') {
-      setInvoiceScreenshot(file);
-      if (invoicePreview) URL.revokeObjectURL(invoicePreview);
-      setInvoicePreview(URL.createObjectURL(file));
-    } else if (type === 'review') {
-      setReviewScreenshot(file);
-      if (reviewPreview) URL.revokeObjectURL(reviewPreview);
-      setReviewPreview(URL.createObjectURL(file));
-    } else if (type === 'noReturn') {
-      setNoReturnScreenshot(file);
-      if (noReturnPreview) URL.revokeObjectURL(noReturnPreview);
-      setNoReturnPreview(URL.createObjectURL(file));
+    try {
+      const processed = await processImageUpload(file, { maxSizeMB: 5.0 });
+      if (!processed) return;
+
+      if (type === 'invoice') {
+        if (invoicePreview) URL.revokeObjectURL(invoicePreview);
+        setInvoiceScreenshot(processed.file);
+        setInvoicePreview(processed.previewUrl);
+      } else if (type === 'review') {
+        if (reviewPreview) URL.revokeObjectURL(reviewPreview);
+        setReviewScreenshot(processed.file);
+        setReviewPreview(processed.previewUrl);
+      } else if (type === 'noReturn') {
+        if (noReturnPreview) URL.revokeObjectURL(noReturnPreview);
+        setNoReturnScreenshot(processed.file);
+        setNoReturnPreview(processed.previewUrl);
+      }
+    } catch (err) {
+      showErrorToast(err.message || 'Failed to process image');
     }
   };
 
@@ -335,17 +334,17 @@ export default function ClaimCashback() {
     setFormError('');
 
     if (!storeName || !orderDate || !orderId || !orderAmount) {
-      setFormError('All fields (except Product, which is optional) are required');
+      showErrorToast('All fields (except Product, which is optional) are required');
       return;
     }
 
     if (!invoiceScreenshot || !noReturnScreenshot) {
-      setFormError('You must upload Invoice and Non-Return proof screenshots.');
+      showErrorToast('You must upload Invoice and Non-Return proof screenshots.');
       return;
     }
 
     if (claimType === 'WITH_REVIEW' && !reviewScreenshot) {
-      setFormError('Review screenshot is required when choosing "With Review" claim.');
+      showErrorToast('Review screenshot is required when choosing "With Review" claim.');
       return;
     }
 
@@ -380,11 +379,22 @@ export default function ClaimCashback() {
         setIsModalOpen(false);
         resetForm();
         fetchClaims(false);
+        showSuccessToast('Cashback claim submitted successfully!');
       } else {
-        setFormError(data.error || 'Failed to submit claim');
+        const userMsg = handleAppError(data.error || 'Failed to submit claim', {
+          context: 'Claim Cashback Submit',
+          title: 'Claim Failed',
+          fallback: 'Could not submit your claim. Please review your details and try again.'
+        });
+        setFormError(userMsg);
       }
     } catch (error) {
-      setFormError('An error occurred. Please try again.');
+      const userMsg = handleAppError(error, {
+        context: 'Claim Cashback Network',
+        title: 'Submission Error',
+        fallback: 'Unable to connect to the server. Please try again.'
+      });
+      setFormError(userMsg);
     } finally {
       setIsSubmitting(false);
     }
@@ -637,11 +647,13 @@ export default function ClaimCashback() {
               </p>
             </div>
 
-            <Button variant="none" size="none"
+            <Button
+              variant="primary"
+              size="md"
               onClick={openNewClaimModal}
-              className="bg-black text-white hover:bg-neutral-800 px-5 py-3 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2 shadow-md shrink-0"
+              className="text-[13px] sm:text-[14px] shrink-0"
             >
-              <Plus className="w-4 h-4" /> Submit New Claim
+              <Plus className="w-4 h-4" /> SUBMIT NEW CLAIM
             </Button>
           </div>
 
@@ -650,54 +662,107 @@ export default function ClaimCashback() {
             {isLoading ? (
               <PageLoader />
             ) : claims.length > 0 ? (
-              <div className="overflow-x-auto w-full">
-                <table className="w-full text-left border-collapse min-w-[600px]">
-                  <thead>
-                    <tr className="bg-neutral-50/80 border-b border-neutral-100">
-                      <th className="py-4 px-6 text-xs font-bold text-neutral-500 uppercase tracking-wider">Ticket ID</th>
-                      <th className="py-4 px-6 text-xs font-bold text-neutral-500 uppercase tracking-wider">Store & Claim Info</th>
-                      <th className="py-4 px-6 text-xs font-bold text-neutral-500 uppercase tracking-wider">Date</th>
-                      <th className="py-4 px-6 text-xs font-bold text-neutral-500 uppercase tracking-wider">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-100">
-                    {claims.map((claim) => (
-                      <tr
-                        key={claim.id}
-                        onClick={() => setViewingClaim(claim)}
-                        className="hover:bg-neutral-50/80 transition-colors cursor-pointer group"
-                      >
-                        <td className="py-4 px-6">
-                          <span className="text-[11px] font-mono font-bold bg-neutral-100 text-neutral-600 px-2 py-1 rounded-md">
-                            #{claim.ticketId || claim.id.slice(-6).toUpperCase()}
-                          </span>
-                        </td>
-                        <td className="py-4 px-6">
-                          <p className="font-bold text-neutral-900 text-sm group-hover:text-black transition-colors mb-0.5">{claim.storeName}</p>
-                          {claim.product && (
-                            <p className="text-xs text-blue-500 font-semibold truncate max-w-[200px] mb-1">{claim.product.title}</p>
-                          )}
-                          <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full ${claim.claimType === 'WITHOUT_REVIEW' ? 'bg-neutral-100 text-neutral-600 border border-neutral-200' : 'bg-orange-50 text-[#f96b02] border border-orange-200'}`}>
-                            {claim.claimType === 'WITHOUT_REVIEW' ? '⚡ Without Review' : '🌟 With Review'}
-                          </span>
-                        </td>
-                        <td className="py-4 px-6 text-sm text-neutral-600">{formatDate(claim.createdAt)}</td>
-                        <td className="py-4 px-6">
-                          <div className="flex items-center justify-between gap-3">
-                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold tracking-wide ${claim.status === 'APPROVED' ? 'bg-green-100 text-green-700 border border-green-200' :
-                              claim.status === 'REJECTED' ? 'bg-red-100 text-red-700 border border-red-200' :
-                                'bg-amber-100 text-amber-700 border border-amber-200'
-                              }`}>
-                              {getStatusIcon(claim.status)} {claim.status}
-                            </span>
-                            <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-black transition-colors transform group-hover:translate-x-1" />
-                          </div>
-                        </td>
+              <>
+                {/* Mobile Card List View (< sm) */}
+                <div className="sm:hidden divide-y divide-neutral-100">
+                  {claims.map((claim) => (
+                    <div
+                      key={claim.id}
+                      onClick={() => setViewingClaim(claim)}
+                      className="p-4 hover:bg-neutral-50/80 active:bg-neutral-100 transition-colors cursor-pointer space-y-2.5"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-mono font-bold bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-md">
+                          #{claim.ticketId || claim.id.slice(-6).toUpperCase()}
+                        </span>
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide whitespace-nowrap ${
+                          claim.status === 'APPROVED' ? 'bg-green-100 text-green-700 border border-green-200' :
+                          claim.status === 'REJECTED' ? 'bg-red-100 text-red-700 border border-red-200' :
+                          'bg-amber-100 text-amber-700 border border-amber-200'
+                        }`}>
+                          {getStatusIcon(claim.status)} {claim.status}
+                        </span>
+                      </div>
+
+                      <div>
+                        <p className="font-bold text-neutral-900 text-sm leading-snug">{claim.storeName}</p>
+                        {claim.product && (
+                          <p className="text-xs text-blue-600 font-semibold truncate mt-0.5">
+                            {claim.product.title}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 pt-1 border-t border-neutral-100/70 text-xs">
+                        <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${
+                          claim.claimType === 'WITHOUT_REVIEW'
+                            ? 'bg-neutral-100 text-neutral-600 border border-neutral-200'
+                            : 'bg-orange-50 text-[#f96b02] border border-orange-200'
+                        }`}>
+                          {claim.claimType === 'WITHOUT_REVIEW' ? '⚡ Without Review' : '🌟 With Review'}
+                        </span>
+                        <div className="flex items-center gap-1.5 text-neutral-500 font-medium whitespace-nowrap">
+                          <Calendar className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                          <span className="whitespace-nowrap font-medium text-neutral-700">{formatDate(claim.createdAt)}</span>
+                          <ArrowRight className="w-3.5 h-3.5 text-neutral-300 ml-0.5" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop / Tablet Table View (>= sm) */}
+                <div className="hidden sm:block overflow-x-auto w-full">
+                  <table className="w-full text-left border-collapse min-w-[650px]">
+                    <thead>
+                      <tr className="bg-neutral-50/80 border-b border-neutral-100">
+                        <th className="py-4 px-5 lg:px-6 text-xs font-bold text-neutral-500 uppercase tracking-wider whitespace-nowrap min-w-[110px]">Ticket ID</th>
+                        <th className="py-4 px-5 lg:px-6 text-xs font-bold text-neutral-500 uppercase tracking-wider min-w-[220px]">Store & Claim Info</th>
+                        <th className="py-4 px-5 lg:px-6 text-xs font-bold text-neutral-500 uppercase tracking-wider whitespace-nowrap min-w-[130px]">Date</th>
+                        <th className="py-4 px-5 lg:px-6 text-xs font-bold text-neutral-500 uppercase tracking-wider whitespace-nowrap min-w-[150px]">Status</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-100">
+                      {claims.map((claim) => (
+                        <tr
+                          key={claim.id}
+                          onClick={() => setViewingClaim(claim)}
+                          className="hover:bg-neutral-50/80 transition-colors cursor-pointer group"
+                        >
+                          <td className="py-4 px-5 lg:px-6 whitespace-nowrap">
+                            <span className="text-[11px] font-mono font-bold bg-neutral-100 text-neutral-600 px-2 py-1 rounded-md">
+                              #{claim.ticketId || claim.id.slice(-6).toUpperCase()}
+                            </span>
+                          </td>
+                          <td className="py-4 px-5 lg:px-6 min-w-[220px]">
+                            <p className="font-bold text-neutral-900 text-sm group-hover:text-black transition-colors mb-0.5">{claim.storeName}</p>
+                            {claim.product && (
+                              <p className="text-xs text-blue-500 font-semibold truncate max-w-[240px] mb-1">{claim.product.title}</p>
+                            )}
+                            <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${claim.claimType === 'WITHOUT_REVIEW' ? 'bg-neutral-100 text-neutral-600 border border-neutral-200' : 'bg-orange-50 text-[#f96b02] border border-orange-200'}`}>
+                              {claim.claimType === 'WITHOUT_REVIEW' ? '⚡ Without Review' : '🌟 With Review'}
+                            </span>
+                          </td>
+                          <td className="py-4 px-5 lg:px-6 text-sm text-neutral-600 whitespace-nowrap font-medium min-w-[130px]">
+                            {formatDate(claim.createdAt)}
+                          </td>
+                          <td className="py-4 px-5 lg:px-6 whitespace-nowrap min-w-[150px]">
+                            <div className="flex items-center justify-between gap-3">
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold tracking-wide whitespace-nowrap ${claim.status === 'APPROVED' ? 'bg-green-100 text-green-700 border border-green-200' :
+                                claim.status === 'REJECTED' ? 'bg-red-100 text-red-700 border border-red-200' :
+                                  'bg-amber-100 text-amber-700 border border-amber-200'
+                                }`}>
+                                {getStatusIcon(claim.status)} {claim.status}
+                              </span>
+                              <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-black transition-colors transform group-hover:translate-x-1 shrink-0" />
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             ) : (
               <div className="p-12 text-center flex flex-col items-center">
                 <div className="w-20 h-20 bg-neutral-50 rounded-full flex items-center justify-center mb-4 border border-neutral-100">
@@ -715,9 +780,9 @@ export default function ClaimCashback() {
 
       {/* Modal for Submitting New Claim */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="flex min-h-full items-center justify-center p-3 sm:p-4">
-            <div className="bg-white rounded-3xl w-full max-w-2xl lg:max-w-3xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 relative border border-neutral-100">
+        <div className="fixed inset-0 z-[60] overflow-y-auto bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="flex min-h-full items-center justify-center p-3 sm:p-4 pb-20 sm:pb-4">
+            <div className="bg-white rounded-3xl w-full max-w-2xl lg:max-w-3xl max-h-[85vh] sm:max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 relative border border-neutral-100">
               
               {/* Modal Header */}
               <div className="shrink-0 flex items-center justify-between px-5 sm:px-6 py-4 border-b border-neutral-100 bg-neutral-50/70">
@@ -742,12 +807,6 @@ export default function ClaimCashback() {
 
               {/* Modal Scrollable Body */}
               <form onSubmit={handleSubmit} className="overflow-y-auto p-4 sm:p-6 space-y-4 flex-1">
-                {formError && (
-                  <div className="bg-red-50 text-red-700 p-3 rounded-2xl text-xs font-semibold border border-red-200 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
-                    <span>{formError}</span>
-                  </div>
-                )}
 
                 {/* 1. Product (First) & Store (Second) Selection */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -862,7 +921,7 @@ export default function ClaimCashback() {
                         ))}
                         {availableStores.filter(s => s.name.toLowerCase().includes(storeName.toLowerCase())).length === 0 && (
                           <div className="px-4 py-2.5 text-xs text-neutral-500 text-center italic">
-                            Press Enter to use custom store: "{storeName}"
+                            Press Enter to use custom store: &quot;{storeName}&quot;
                           </div>
                         )}
                       </div>
@@ -1016,17 +1075,17 @@ export default function ClaimCashback() {
 
                 {/* 4. Compact Proof Screenshots in Requested Order: 1. Invoice, 2. Non-Return, 3. Review */}
                 <div className="pt-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <h4 className="text-xs sm:text-sm font-black text-neutral-900">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-2 shrink-0">
+                      <h4 className="text-xs sm:text-sm font-black text-neutral-900 whitespace-nowrap">
                         Upload Proofs
                       </h4>
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-neutral-900 text-white">
+                      <span className="text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-neutral-900 text-white whitespace-nowrap shrink-0">
                         {claimType === 'WITH_REVIEW' ? '3 Required' : '2 Required'}
                       </span>
                     </div>
-                    <span className="text-[10px] text-neutral-400 font-medium">
-                      Click image thumbnail to zoom
+                    <span className="text-[10px] text-neutral-400 font-medium whitespace-nowrap truncate text-right">
+                      Click thumbnail to zoom
                     </span>
                   </div>
 
@@ -1079,32 +1138,21 @@ export default function ClaimCashback() {
                 </div>
 
                 {/* 5. Submit CTA */}
-                <div className="pt-2 space-y-2.5">
+                <div className="pt-2 pb-2 space-y-2.5">
                   <Button
                     type="submit"
                     variant="primary"
+                    size="md"
                     fullWidth={true}
                     isLoading={isSubmitting}
-                    className="w-full py-3.5 rounded-2xl bg-neutral-900 hover:bg-black text-white font-bold text-sm tracking-wide shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    className="text-[13px] sm:text-[14px]"
                   >
-                    {isSubmitting ? (
-                      'Submitting Claim...'
-                    ) : (
-                      <>
-                        <span>
-                          Submit Claim
-                          {(claimType === 'WITH_REVIEW' ? selectedProductCashback.withReview : selectedProductCashback.withoutReview) > 0
-                            ? ` • Earn ₹${claimType === 'WITH_REVIEW' ? selectedProductCashback.withReview : selectedProductCashback.withoutReview} Cashback`
-                            : ''}
-                        </span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
+                    {isSubmitting ? 'SUBMITTING CLAIM...' : 'SUBMIT CLAIM'}
                   </Button>
 
                   <div className="flex items-center justify-center gap-1.5 text-[11px] text-neutral-400 font-medium">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Safe & Encrypted Submission • Reviewed within 24-48 Hours</span>
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span className="text-center">Safe & Encrypted Submission • Reviewed within 24-48 Hours</span>
                   </div>
                 </div>
               </form>

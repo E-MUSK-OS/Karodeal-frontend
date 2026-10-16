@@ -4,6 +4,7 @@ import { Search, Mail, Trash2, MessageSquare } from 'lucide-react';
 import PageLoader from '@/components/common/PageLoader';
 import Button from '@/components/common/Button';
 import ConfirmModal from '@/components/common/ConfirmModal';
+import { handleAppError, showSuccessToast } from '@/lib/errorHandler';
 
 export default function AdminContactMessagesPage() {
   const [messages, setMessages] = useState([]);
@@ -69,15 +70,21 @@ export default function AdminContactMessagesPage() {
             }
           });
           
-          const data = await res.json();
+          const data = await res.json().catch(() => ({}));
           if (res.ok) {
             setMessages(messages.filter(m => m.id !== messageId));
+            showSuccessToast('Message deleted successfully.');
           } else {
-            alert(data.error || 'Failed to delete message');
+            handleAppError(data.error || 'Failed to delete message', {
+              context: 'Admin Messages / Delete',
+              title: 'Delete Failed'
+            });
           }
         } catch (err) {
-          console.error('Failed to delete message', err);
-          alert('Failed to delete message. Please try again.');
+          handleAppError(err, {
+            context: 'Admin Messages / Delete Network',
+            title: 'Delete Error'
+          });
         }
       }
     });

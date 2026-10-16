@@ -12,6 +12,8 @@ import PageLoader from '@/components/common/PageLoader';
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
+import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
+import { processImageUpload } from '@/lib/imageProcessor';
 
 function ProofUploadCard({
   stepNumber,
@@ -80,7 +82,7 @@ function ProofUploadCard({
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.heic,.heif"
         onChange={handleInputChange}
         className="hidden"
       />
@@ -198,29 +200,27 @@ export default function MissingCashback() {
   const [isSendingMsg, setIsSendingMsg] = useState(false);
   const [chatAttachment, setChatAttachment] = useState(null);
 
-  const processProof = (file, slotIndex) => {
+  const processProof = async (file, slotIndex) => {
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      setFormError(`Image ${slotIndex} must be less than 5MB.`);
-      return;
-    }
-    if (file.type && !file.type.startsWith('image/')) {
-      setFormError('Please upload a valid image file (PNG, JPG, WebP).');
-      return;
-    }
-    setFormError('');
-    if (slotIndex === 1) {
-      setProof1(file);
-      if (preview1) URL.revokeObjectURL(preview1);
-      setPreview1(URL.createObjectURL(file));
-    } else if (slotIndex === 2) {
-      setProof2(file);
-      if (preview2) URL.revokeObjectURL(preview2);
-      setPreview2(URL.createObjectURL(file));
-    } else if (slotIndex === 3) {
-      setProof3(file);
-      if (preview3) URL.revokeObjectURL(preview3);
-      setPreview3(URL.createObjectURL(file));
+    try {
+      const processed = await processImageUpload(file, { maxSizeMB: 5.0 });
+      if (!processed) return;
+
+      if (slotIndex === 1) {
+        if (preview1) URL.revokeObjectURL(preview1);
+        setProof1(processed.file);
+        setPreview1(processed.previewUrl);
+      } else if (slotIndex === 2) {
+        if (preview2) URL.revokeObjectURL(preview2);
+        setProof2(processed.file);
+        setPreview2(processed.previewUrl);
+      } else if (slotIndex === 3) {
+        if (preview3) URL.revokeObjectURL(preview3);
+        setProof3(processed.file);
+        setPreview3(processed.previewUrl);
+      }
+    } catch (err) {
+      showErrorToast(err.message || 'Failed to process image');
     }
   };
 
@@ -378,7 +378,7 @@ export default function MissingCashback() {
     setFormError('');
 
     if (!storeName || !orderId || !orderAmount) {
-      setFormError('All required fields must be filled');
+      showErrorToast('All required fields must be filled');
       return;
     }
 
@@ -441,11 +441,22 @@ export default function MissingCashback() {
           setViewingTicket(updatedTicket);
         }
         fetchTickets();
+        showSuccessToast(editingTicketId ? 'Ticket updated successfully!' : 'Missing cashback ticket submitted successfully!');
       } else {
-        setFormError(data.error || 'Failed to submit ticket');
+        const userMsg = handleAppError(data.error || 'Failed to submit ticket', {
+          context: 'Missing Cashback Ticket Submit',
+          title: 'Submission Failed',
+          fallback: 'Could not submit your ticket. Please check the details.'
+        });
+        setFormError(userMsg);
       }
     } catch (error) {
-      setFormError('An error occurred. Please try again.');
+      const userMsg = handleAppError(error, {
+        context: 'Missing Cashback Network',
+        title: 'Connection Error',
+        fallback: 'Unable to connect to the server. Please try again.'
+      });
+      setFormError(userMsg);
     } finally {
       setIsSubmitting(false);
     }
@@ -484,9 +495,18 @@ export default function MissingCashback() {
         setChatMessage('');
         setChatAttachment(null);
         fetchTickets();
+        showSuccessToast('Message sent.');
+      } else {
+        handleAppError('Failed to send message', {
+          context: 'Missing Cashback Chat',
+          title: 'Message Error'
+        });
       }
     } catch (error) {
-      console.error('Error sending message:', error);
+      handleAppError(error, {
+        context: 'Missing Cashback Chat Network',
+        title: 'Connection Error'
+      });
     } finally {
       setIsSendingMsg(false);
     }
@@ -673,7 +693,22 @@ export default function MissingCashback() {
                   <form onSubmit={handleSendMessage} className="shrink-0 flex gap-2 items-center">
                     <label className="cursor-pointer text-neutral-400 hover:text-black transition-colors p-2 bg-neutral-50 rounded-xl border border-neutral-200">
                       <Paperclip className="w-5 h-5" />
-                      <input type="file" className="hidden" accept="image/*" onChange={(e) => setChatAttachment(e.target.files[0])} />
+                      <input 
+                        type="file" 
+                        className="hidden" 
+                        accept="image/*,.heic,.heif" 
+                        onChange={async (e) => {
+                          const f = e.target.files?.[0];
+                          if (f) {
+                            try {
+                              const p = await processImageUpload(f, { maxSizeMB: 5.0 });
+                              setChatAttachment(p ? p.file : f);
+                            } catch (err) {
+                              showErrorToast(err.message || 'Failed to process attachment');
+                            }
+                          }
+                        }} 
+                      />
                     </label>
 
                     <div className="flex-1 flex flex-col gap-1">
@@ -726,11 +761,13 @@ export default function MissingCashback() {
               </p>
             </div>
 
-            <Button variant="none" size="none"
+            <Button
+              variant="primary"
+              size="md"
               onClick={openNewTicketModal}
-              className="bg-black text-white hover:bg-neutral-800 px-5 py-3 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2 shadow-md shrink-0"
+              className="text-[13px] sm:text-[14px] shrink-0"
             >
-              <Plus className="w-4 h-4" /> Raise Ticket
+              <Plus className="w-4 h-4" /> RAISE TICKET
             </Button>
           </div>
 
@@ -767,65 +804,123 @@ export default function MissingCashback() {
             {isLoading ? (
               <PageLoader />
             ) : filteredTickets.length > 0 ? (
-              <div className="overflow-x-auto w-full">
-                <table className="w-full text-left border-collapse min-w-[600px]">
-                  <thead>
-                    <tr className="bg-neutral-50/80 border-b border-neutral-100">
-                      <th className="py-4 px-6 text-xs font-bold text-neutral-500 uppercase tracking-wider">Ticket ID</th>
-                      <th className="py-4 px-6 text-xs font-bold text-neutral-500 uppercase tracking-wider">Store Info</th>
-                      <th className="py-4 px-6 text-xs font-bold text-neutral-500 uppercase tracking-wider">Order Details</th>
-                      <th className="py-4 px-6 text-xs font-bold text-neutral-500 uppercase tracking-wider">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-100">
-                    {filteredTickets.map((ticket) => (
-                      <tr
-                        key={ticket.id}
-                        onClick={() => handleOpenTicket(ticket)}
-                        className="hover:bg-neutral-50/80 transition-colors cursor-pointer group"
-                      >
-                        <td className="py-4 px-6">
-                          <span className="text-[11px] font-mono font-bold bg-neutral-100 text-neutral-600 px-2 py-1 rounded-md">
-                            #{ticket.ticketId || ticket.id.slice(-8).toUpperCase()}
+              <>
+                {/* Mobile Card List View (< sm) */}
+                <div className="sm:hidden divide-y divide-neutral-100">
+                  {filteredTickets.map((ticket) => (
+                    <div
+                      key={ticket.id}
+                      onClick={() => handleOpenTicket(ticket)}
+                      className="p-4 hover:bg-neutral-50/80 active:bg-neutral-100 transition-colors cursor-pointer space-y-2.5"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-mono font-bold bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-md">
+                          #{ticket.ticketId || ticket.id.slice(-8).toUpperCase()}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          {ticket.userUnread && (
+                            <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                          )}
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide whitespace-nowrap ${
+                            ticket.status === 'RESOLVED' ? 'bg-green-100 text-green-700 border border-green-200' :
+                            ticket.status === 'REJECTED' ? 'bg-red-100 text-red-700 border border-red-200' :
+                            'bg-amber-100 text-amber-700 border border-amber-200'
+                          }`}>
+                            {ticket.status}
                           </span>
-                        </td>
-                        <td className="py-4 px-6">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="font-bold text-neutral-900 text-sm group-hover:text-black transition-colors">{ticket.storeName}</p>
-                            {ticket.userUnread && (
-                              <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse ml-1"></span>
-                            )}
-                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-bold text-neutral-900 text-sm leading-snug">{ticket.storeName}</p>
                           {ticket.product && (
-                            <p className="text-xs text-neutral-600 truncate max-w-[220px] mb-1 font-medium">
+                            <p className="text-xs text-neutral-600 truncate mt-0.5 font-medium">
                               📦 {ticket.product.title}
                             </p>
                           )}
-                          <div className="flex items-center gap-1.5 text-xs text-neutral-500 font-medium">
-                            <Calendar className="w-3 h-3" /> Raised on {formatDate(ticket.createdAt)}
-                          </div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <p className="text-sm font-bold text-neutral-700">₹{ticket.orderAmount}</p>
-                          <p className="text-[10px] text-neutral-400 mt-0.5">Ordered on {formatDate(ticket.orderDate)}</p>
-                        </td>
-                        <td className="py-4 px-6">
-                          <div className="flex items-center justify-between gap-3">
-                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold tracking-wide ${ticket.status === 'RESOLVED' ? 'bg-green-100 text-green-700 border border-green-200' :
-                              ticket.status === 'REJECTED' ? 'bg-red-100 text-red-700 border border-red-200' :
-                                'bg-amber-100 text-amber-700 border border-amber-200'
-                              }`}>
-                              {ticket.status}
-                            </span>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="text-sm font-bold text-neutral-900">₹{ticket.orderAmount}</span>
+                        </div>
+                      </div>
 
-                            <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-black transition-colors transform group-hover:translate-x-1" />
-                          </div>
-                        </td>
+                      <div className="flex items-center justify-between gap-2 pt-1 border-t border-neutral-100/70 text-xs text-neutral-500 font-medium">
+                        <div className="flex items-center gap-1.5 whitespace-nowrap">
+                          <Calendar className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                          <span className="whitespace-nowrap font-medium text-neutral-700">Raised on {formatDate(ticket.createdAt)}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-neutral-400">
+                          <span className="text-[11px]">Details</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop / Tablet Table View (>= sm) */}
+                <div className="hidden sm:block overflow-x-auto w-full">
+                  <table className="w-full text-left border-collapse min-w-[650px]">
+                    <thead>
+                      <tr className="bg-neutral-50/80 border-b border-neutral-100">
+                        <th className="py-4 px-5 lg:px-6 text-xs font-bold text-neutral-500 uppercase tracking-wider whitespace-nowrap min-w-[110px]">Ticket ID</th>
+                        <th className="py-4 px-5 lg:px-6 text-xs font-bold text-neutral-500 uppercase tracking-wider min-w-[220px]">Store Info</th>
+                        <th className="py-4 px-5 lg:px-6 text-xs font-bold text-neutral-500 uppercase tracking-wider whitespace-nowrap min-w-[150px]">Order Details</th>
+                        <th className="py-4 px-5 lg:px-6 text-xs font-bold text-neutral-500 uppercase tracking-wider whitespace-nowrap min-w-[150px]">Status</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-100">
+                      {filteredTickets.map((ticket) => (
+                        <tr
+                          key={ticket.id}
+                          onClick={() => handleOpenTicket(ticket)}
+                          className="hover:bg-neutral-50/80 transition-colors cursor-pointer group"
+                        >
+                          <td className="py-4 px-5 lg:px-6 whitespace-nowrap">
+                            <span className="text-[11px] font-mono font-bold bg-neutral-100 text-neutral-600 px-2 py-1 rounded-md">
+                              #{ticket.ticketId || ticket.id.slice(-8).toUpperCase()}
+                            </span>
+                          </td>
+                          <td className="py-4 px-5 lg:px-6 min-w-[220px]">
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="font-bold text-neutral-900 text-sm group-hover:text-black transition-colors">{ticket.storeName}</p>
+                              {ticket.userUnread && (
+                                <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse ml-1"></span>
+                              )}
+                            </div>
+                            {ticket.product && (
+                              <p className="text-xs text-neutral-600 truncate max-w-[240px] mb-1 font-medium">
+                                📦 {ticket.product.title}
+                              </p>
+                            )}
+                            <div className="flex items-center gap-1.5 text-xs text-neutral-500 font-medium whitespace-nowrap">
+                              <Calendar className="w-3 h-3 text-neutral-400 shrink-0" />
+                              <span className="whitespace-nowrap">Raised on {formatDate(ticket.createdAt)}</span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-5 lg:px-6 whitespace-nowrap min-w-[150px]">
+                            <p className="text-sm font-bold text-neutral-800">₹{ticket.orderAmount}</p>
+                            <p className="text-[11px] text-neutral-400 mt-0.5 whitespace-nowrap">Ordered on {formatDate(ticket.orderDate)}</p>
+                          </td>
+                          <td className="py-4 px-5 lg:px-6 whitespace-nowrap min-w-[150px]">
+                            <div className="flex items-center justify-between gap-3">
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold tracking-wide whitespace-nowrap ${ticket.status === 'RESOLVED' ? 'bg-green-100 text-green-700 border border-green-200' :
+                                ticket.status === 'REJECTED' ? 'bg-red-100 text-red-700 border border-red-200' :
+                                  'bg-amber-100 text-amber-700 border border-amber-200'
+                                }`}>
+                                {ticket.status}
+                              </span>
+
+                              <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-black transition-colors transform group-hover:translate-x-1 shrink-0" />
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             ) : (
               <div className="p-12 text-center flex flex-col items-center">
                 <div className="w-20 h-20 bg-neutral-50 rounded-full flex items-center justify-center mb-4 border border-neutral-100">
@@ -843,9 +938,9 @@ export default function MissingCashback() {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="flex min-h-full items-center justify-center p-3 sm:p-4">
-            <div className="bg-white rounded-3xl w-full max-w-2xl lg:max-w-3xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 relative border border-neutral-100">
+        <div className="fixed inset-0 z-[60] overflow-y-auto bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="flex min-h-full items-center justify-center p-3 sm:p-4 pb-20 sm:pb-4">
+            <div className="bg-white rounded-3xl w-full max-w-2xl lg:max-w-3xl max-h-[85vh] sm:max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 relative border border-neutral-100">
               
               {/* Modal Header */}
               <div className="shrink-0 flex items-center justify-between px-5 sm:px-6 py-4 border-b border-neutral-100 bg-neutral-50/70">
@@ -872,12 +967,6 @@ export default function MissingCashback() {
 
               {/* Modal Scrollable Body */}
               <form onSubmit={handleSubmit} className="overflow-y-auto p-4 sm:p-6 space-y-4 flex-1">
-                {formError && (
-                  <div className="bg-red-50 text-red-700 p-3 rounded-2xl text-xs font-semibold border border-red-200 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
-                    <span>{formError}</span>
-                  </div>
-                )}
 
                 {/* 1. Product (First) & Store (Second - Auto Selected) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -1002,7 +1091,7 @@ export default function MissingCashback() {
                         ))}
                         {availableStores.filter(s => !storeName || s.name.toLowerCase().includes(storeName.toLowerCase())).length === 0 && (
                           <div className="px-4 py-2.5 text-xs text-neutral-500 text-center italic">
-                            Press Enter or continue typing for custom store: "{storeName}"
+                            Press Enter or continue typing for custom store: &quot;{storeName}&quot;
                           </div>
                         )}
                       </div>
@@ -1055,16 +1144,16 @@ export default function MissingCashback() {
                 {/* 3. Upload Proofs (3 Dedicated Cards - Optional) */}
                 {!editingTicketId && (
                   <div className="pt-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-xs sm:text-sm font-black text-neutral-900">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <div className="flex items-center gap-2 shrink-0">
+                        <h4 className="text-xs sm:text-sm font-black text-neutral-900 whitespace-nowrap">
                           Proof Screenshots
                         </h4>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 border border-neutral-200">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 border border-neutral-200 whitespace-nowrap shrink-0">
                           Optional (Max 3)
                         </span>
                       </div>
-                      <span className="text-[10px] text-neutral-400 font-medium">
+                      <span className="text-[10px] text-neutral-400 font-medium whitespace-nowrap truncate text-right">
                         Click thumbnail to zoom
                       </span>
                     </div>
@@ -1116,15 +1205,16 @@ export default function MissingCashback() {
                   />
                 </div>
 
-                <div className="pt-2">
+                <div className="pt-2 pb-2">
                   <Button
                     type="submit"
                     variant="primary"
+                    size="md"
                     fullWidth={true}
                     isLoading={isSubmitting}
-                    className="py-3.5 rounded-xl normal-case tracking-normal shadow-md font-bold text-sm"
+                    className="text-[13px] sm:text-[14px]"
                   >
-                    {isSubmitting ? 'Submitting Ticket...' : (editingTicketId ? 'Save Changes' : 'Submit Ticket')}
+                    {isSubmitting ? 'SUBMITTING TICKET...' : (editingTicketId ? 'SAVE CHANGES' : 'SUBMIT TICKET')}
                   </Button>
                 </div>
               </form>

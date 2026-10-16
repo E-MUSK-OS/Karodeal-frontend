@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { User, Mail, Phone, Save, CheckCircle2, LogOut, ArrowLeft, Trash2, LogIn } from 'lucide-react';
 import Button from '@/components/common/Button';
+import { handleAppError, showSuccessToast } from '@/lib/errorHandler';
 
 export default function ProfileSettingsPage() {
   const [user, setUser] = useState(() => {
@@ -125,8 +126,14 @@ export default function ProfileSettingsPage() {
 
       window.dispatchEvent(new Event('auth-change'));
       setSuccessMessage('Account details updated successfully!');
+      showSuccessToast('Account details updated successfully!');
     } catch (err) {
-      setErrorMessage(err.message || 'Failed to save settings. Please try again.');
+      const userMsg = handleAppError(err, {
+        context: 'Profile Settings Update',
+        title: 'Update Failed',
+        fallback: 'Failed to save settings. Please try again.'
+      });
+      setErrorMessage(userMsg);
     } finally {
       setIsSaving(false);
     }
@@ -188,12 +195,6 @@ export default function ProfileSettingsPage() {
               <span>{successMessage}</span>
             </div>
           )}
-
-      {errorMessage && (
-        <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
-          {errorMessage}
-        </div>
-      )}
 
       <form onSubmit={handleSaveProfile} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

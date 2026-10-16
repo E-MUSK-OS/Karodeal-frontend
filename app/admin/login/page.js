@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Lock, Mail, ArrowRight } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
+import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
@@ -75,11 +76,11 @@ export default function AdminLoginPage() {
           continue;
         }
 
-        if (isNetworkError) {
-          setError('Server is waking up from sleep mode. Please try clicking Sign In again in a few seconds.');
-        } else {
-          setError(err.message || 'Invalid admin email or password.');
-        }
+        handleAppError(err, {
+          context: 'Admin Login',
+          title: 'Sign In Failed',
+          fallback: isNetworkError ? 'Server is waking up from sleep mode. Please try clicking Sign In again in a few seconds.' : (err.message || 'Invalid admin email or password.')
+        });
         break;
       } finally {
         if (attempts >= maxAttempts) {
@@ -98,12 +99,6 @@ export default function AdminLoginPage() {
           <h4 className="font-extrabold text-neutral-900 tracking-tight">Admin Portal</h4>
           <p className="text-sm text-neutral-500 mt-1">Sign in with administrator credentials</p>
         </div>
-
-        {error && (
-          <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium text-center">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleAdminLogin} className="space-y-5">
           {/* Admin Email Input */}

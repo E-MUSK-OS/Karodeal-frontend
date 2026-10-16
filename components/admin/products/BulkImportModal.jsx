@@ -4,6 +4,7 @@ import { X, Upload, Download } from 'lucide-react';
 import Button from '@/components/common/Button';
 import * as XLSX from 'xlsx';
 import { calculateCashback } from '@/lib/cashbackCalculator';
+import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
 
 export default function BulkImportModal({ isOpen, onClose, onSuccess, dbStores, dbCategories, currentRole }) {
   const [bulkProducts, setBulkProducts] = useState([]);
@@ -85,7 +86,8 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess, dbStores, 
         setIsSubmitting(false);
         return;
       }
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/bulk`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
+      const res = await fetch(`${apiUrl}/products/bulk`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -96,13 +98,23 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess, dbStores, 
       
       if (res.ok) {
         const result = await res.json();
+        showSuccessToast(`Imported ${result.count} products successfully!`);
         onSuccess({ count: result.count, skippedCount: result.skippedCount });
       } else {
         const errorData = await res.json().catch(() => null);
-        setResultMessage({ type: 'error', text: `Failed to import: ${errorData?.error || res.statusText}` });
+        const userMsg = handleAppError(errorData?.error || res.statusText || 'Failed to import products', {
+          context: 'Admin / Bulk Import',
+          title: 'Import Failed'
+        });
+        setResultMessage({ type: 'error', text: userMsg });
       }
     } catch (err) {
-      console.error(err);
+      const userMsg = handleAppError(err, {
+        context: 'Admin / Bulk Import Network',
+        title: 'Connection Error',
+        fallback: 'Unable to connect to server. Please try again.'
+      });
+      setResultMessage({ type: 'error', text: userMsg });
     } finally {
       setIsSubmitting(false);
     }
@@ -121,12 +133,6 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess, dbStores, 
             <X className="w-5 h-5" />
           </Button>
         </div>
-
-        {resultMessage && (
-          <div className={`mb-4 p-3 rounded-lg text-sm font-semibold border ${resultMessage.type === 'error' ? 'bg-red-50 text-red-600 border-red-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200'}`}>
-            {resultMessage.text}
-          </div>
-        )}
 
         <form onSubmit={handleSaveAdd} className="space-y-4">
           <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 flex flex-col gap-2">

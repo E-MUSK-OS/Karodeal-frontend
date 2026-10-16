@@ -77,6 +77,8 @@ export const metadata = {
 
 import RealtimeProductsListener from '@/components/common/RealtimeProductsListener';
 import FaviconLoader from '@/components/common/FaviconLoader';
+import WebsiteLoader from '@/components/common/WebsiteLoader';
+import ToastContainer from '@/components/common/ToastContainer';
 import { Suspense } from 'react';
 
 export default function RootLayout({ children }) {
@@ -98,6 +100,8 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="flex flex-col min-h-screen pb-16 md:pb-0">
+        <ToastContainer />
+        <WebsiteLoader />
         <Suspense fallback={null}>
           <FaviconLoader />
         </Suspense>

@@ -4,6 +4,10 @@ import { ShoppingBag, Plus, Trash2, Edit3, ExternalLink, CheckCircle2, Upload, X
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
 import ConfirmModal from '@/components/common/ConfirmModal';
+import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
+import { processImageUpload } from '@/lib/imageProcessor';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
 
 export default function AdminStoresPage() {
   const [stores, setStores] = useState([]);
@@ -24,7 +28,7 @@ export default function AdminStoresPage() {
   const loadStores = async () => {
     setIsReloading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/meta/stores`);
+      const res = await fetch(`${API_URL}/meta/stores`);
       if (res.ok) {
         const data = await res.json();
         setStores(data);
@@ -37,22 +41,24 @@ export default function AdminStoresPage() {
     }
   };
 
-  const handleImageFileUpload = (e) => {
+  const handleImageFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('File size exceeds 5MB. Please choose a smaller image.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setLogoUrl(event.target.result);
+    try {
+      const processed = await processImageUpload(file, { maxSizeMB: 5.0 });
+      if (processed?.file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            setLogoUrl(event.target.result);
+          }
+        };
+        reader.readAsDataURL(processed.file);
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      showErrorToast(err.message || 'Failed to process image');
+    }
   };
 
   const handleAddStore = async (e) => {
@@ -65,8 +71,8 @@ export default function AdminStoresPage() {
 
       const method = editingStoreId ? 'PUT' : 'POST';
       const url = editingStoreId
-        ? `${process.env.NEXT_PUBLIC_API_URL}/meta/stores/${editingStoreId}`
-        : `${process.env.NEXT_PUBLIC_API_URL}/meta/stores`;
+        ? `${API_URL}/meta/stores/${editingStoreId}`
+        : `${API_URL}/meta/stores`;
 
       const res = await fetch(url, {
         method,
@@ -86,11 +92,19 @@ export default function AdminStoresPage() {
         setLogoUrl('');
         setEditingStoreId(null);
         setIsModalOpen(false);
+        showSuccessToast(editingStoreId ? 'Store updated successfully!' : 'New store added successfully!');
       } else {
-        alert(editingStoreId ? 'Failed to update store' : 'Failed to add store');
+        const data = await res.json().catch(() => ({}));
+        handleAppError(data.error || (editingStoreId ? 'Failed to update store' : 'Failed to add store'), {
+          context: 'Admin Stores / Save',
+          title: editingStoreId ? 'Update Failed' : 'Add Store Failed'
+        });
       }
     } catch (err) {
-      console.error(err);
+      handleAppError(err, {
+        context: 'Admin Stores / Save Network',
+        title: 'Connection Error'
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -125,7 +139,7 @@ export default function AdminStoresPage() {
           const adminUserStr = localStorage.getItem('adminUser');
           const token = adminUserStr ? JSON.parse(adminUserStr).token : null;
 
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/meta/stores/${id}`, {
+          const res = await fetch(`${API_URL}/meta/stores/${id}`, {
             method: 'DELETE',
             headers: {
               'Authorization': `Bearer ${token}`
@@ -134,11 +148,19 @@ export default function AdminStoresPage() {
 
           if (res.ok) {
             loadStores();
+            showSuccessToast('Store deleted successfully.');
           } else {
-            alert('Failed to delete store');
+            const data = await res.json().catch(() => ({}));
+            handleAppError(data.error || 'Failed to delete store', {
+              context: 'Admin Stores / Delete',
+              title: 'Delete Failed'
+            });
           }
         } catch (err) {
-          console.error(err);
+          handleAppError(err, {
+            context: 'Admin Stores / Delete Network',
+            title: 'Delete Error'
+          });
         }
       }
     });
@@ -318,7 +340,7 @@ export default function AdminStoresPage() {
                     <div className="border-2 border-dashed border-neutral-300 hover:border-[#f96b02] rounded-2xl p-4 text-center transition-colors cursor-pointer relative bg-neutral-50 flex flex-col items-center justify-center gap-1">
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/*,.heic,.heif"
                         onChange={handleImageFileUpload}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                       />

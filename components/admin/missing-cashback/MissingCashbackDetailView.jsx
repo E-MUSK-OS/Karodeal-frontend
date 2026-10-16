@@ -304,18 +304,6 @@ export default function MissingCashbackDetailView({
                   </p>
                 </div>
 
-                {formError && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-semibold">
-                    {formError}
-                  </div>
-                )}
-
-                {formSuccess && (
-                  <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-xs font-semibold">
-                    {formSuccess}
-                  </div>
-                )}
-
                 <div className="pt-2">
                   <Button
                     variant="none"

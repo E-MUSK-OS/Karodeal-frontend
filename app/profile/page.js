@@ -158,7 +158,7 @@ export default function ProfileAccountSettings() {
         {mobileView === 'menu' ? (
           <>
             {/* User Greeting */}
-            <div className="p-5 pb-4">
+            <div className="p-5 pb-4 border-b border-neutral-100">
               <div className="text-[13px] text-neutral-500 font-medium">Hello,</div>
               <h2 className="text-[18px] font-bold text-black">
                 {user?.name || 'User'}
@@ -167,19 +167,20 @@ export default function ProfileAccountSettings() {
 
             {/* Account Settings Option Button */}
             <div className="px-5 py-3.5 border-b border-neutral-100 bg-white hover:bg-neutral-50 transition-colors">
-              <Button variant="none" size="none"
+              <button
+                type="button"
                 onClick={() => setMobileView('settings')}
-                className="flex items-center gap-3 text-black w-full text-left focus:outline-none"
+                className="flex items-center gap-3 text-black w-full text-left focus:outline-none cursor-pointer"
               >
-                <Settings className="w-5 h-5 text-neutral-800" />
+                <Settings className="w-5 h-5 text-neutral-800 shrink-0" />
                 <span className="text-[14px] font-semibold">Account Settings</span>
-              </Button>
+              </button>
             </div>
 
             {/* Change Password Link */}
             <div className="px-5 py-3.5 border-b border-neutral-100 bg-white hover:bg-neutral-50 transition-colors">
               <Link href="/profile/change-password" className="flex items-center gap-3 text-black">
-                <Lock className="w-5 h-5 text-neutral-800" />
+                <Lock className="w-5 h-5 text-neutral-800 shrink-0" />
                 <span className="text-[14px] font-semibold">Change Password</span>
               </Link>
             </div>
@@ -241,10 +242,14 @@ export default function ProfileAccountSettings() {
             {/* Logout / Login Button */}
             <div className="px-5 py-4 bg-white hover:bg-neutral-50 transition-colors">
               {user ? (
-                <Button variant="none" size="none" onClick={handleLogout} className="flex items-center gap-3 text-red-600 w-full text-left">
-                  <LogOut className="w-5 h-5 text-red-600" />
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 text-red-600 w-full text-left focus:outline-none cursor-pointer"
+                >
+                  <LogOut className="w-5 h-5 text-red-600 shrink-0" />
                   <span className="text-[14px] font-medium">Logout</span>
-                </Button>
+                </button>
               ) : (
                 <Link href="/login" className="flex items-center justify-center gap-2 w-full py-3 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors">
                   <LogIn className="w-4 h-4" />
@@ -256,13 +261,14 @@ export default function ProfileAccountSettings() {
         ) : (
           /* MOBILE ACCOUNT SETTINGS FORM VIEW */
           <div className="p-5 sm:p-6">
-            <Button variant="none" size="none"
+            <button
+              type="button"
               onClick={() => setMobileView('menu')}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-600 hover:text-black mb-6"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-600 hover:text-black mb-6 cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Profile
-            </Button>
+            </button>
 
             <div className="mb-6">
               <h2 className="font-bold text-neutral-900 flex items-center gap-2">
@@ -294,12 +300,6 @@ export default function ProfileAccountSettings() {
                   <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-800 text-sm font-medium">
                     <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                     <span>{successMessage}</span>
-                  </div>
-                )}
-
-                {errorMessage && (
-                  <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
-                    {errorMessage}
                   </div>
                 )}
 
@@ -426,12 +426,6 @@ export default function ProfileAccountSettings() {
               <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-800 text-sm font-medium">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                 <span>{successMessage}</span>
-              </div>
-            )}
-
-            {errorMessage && (
-              <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
-                {errorMessage}
               </div>
             )}
 
