@@ -5,14 +5,45 @@ import Link from 'next/link';
 import Button from '@/components/common/Button';
 import {
   User, Mail, Phone, Save, CheckCircle2, LogOut, Settings, Wallet,
-  IndianRupee, History, Ticket, Search, HelpCircle, Star, ShieldCheck, ArrowLeft, Lock, Trash2, Receipt
+  IndianRupee, History, Ticket, Search, HelpCircle, Star, ShieldCheck, ArrowLeft, Lock, Trash2, Receipt, LogIn
 } from 'lucide-react';
 
 export default function ProfileAccountSettings() {
-  const [user, setUser] = useState(null);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [mobile, setMobile] = useState('');
+  const [user, setUser] = useState(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      return JSON.parse(localStorage.getItem('user') || 'null');
+    } catch {
+      return null;
+    }
+  });
+  const [name, setName] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    try {
+      const u = JSON.parse(localStorage.getItem('user') || 'null');
+      return u?.name || '';
+    } catch {
+      return '';
+    }
+  });
+  const [email, setEmail] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    try {
+      const u = JSON.parse(localStorage.getItem('user') || 'null');
+      return u?.email || '';
+    } catch {
+      return '';
+    }
+  });
+  const [mobile, setMobile] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    try {
+      const u = JSON.parse(localStorage.getItem('user') || 'null');
+      return u?.mobile || u?.phone || '';
+    } catch {
+      return '';
+    }
+  });
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -20,6 +51,11 @@ export default function ProfileAccountSettings() {
   const router = useRouter();
 
   useEffect(() => {
+    if (!user?.token) {
+      router.replace('/login');
+      return;
+    }
+
     const fetchLatestProfile = async (token, cachedUser) => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/profile`, {
@@ -34,26 +70,22 @@ export default function ProfileAccountSettings() {
           setEmail(freshUser.email || '');
           setMobile(freshUser.mobile || freshUser.phone || '');
           localStorage.setItem('user', JSON.stringify(freshUser));
+        } else if (res.status === 401 || res.status === 404) {
+          localStorage.removeItem('user');
+          setUser(null);
+          setName('');
+          setEmail('');
+          setMobile('');
+          window.dispatchEvent(new Event('auth-change'));
         }
       } catch (err) {
         console.error("Failed to fetch fresh profile data", err);
       }
     };
 
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const parsedUser = JSON.parse(userStr);
-      setUser(parsedUser);
-      setName(parsedUser.name || '');
-      setEmail(parsedUser.email || '');
-      setMobile(parsedUser.mobile || parsedUser.phone || '');
-
-      // Fetch latest from DB to keep UI in sync
-      fetchLatestProfile(parsedUser.token, parsedUser);
-    } else {
-      router.push('/login');
-    }
-  }, [router]);
+    fetchLatestProfile(user.token, user);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.token]);
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
@@ -111,12 +143,13 @@ export default function ProfileAccountSettings() {
 
   const handleLogout = () => {
     localStorage.removeItem('user');
+    setUser(null);
+    setName('');
+    setEmail('');
+    setMobile('');
     window.dispatchEvent(new Event('auth-change'));
-    router.push('/');
+    router.replace('/login');
   };
-
-
-  if (!user) return null;
 
   return (
     <>
@@ -128,7 +161,7 @@ export default function ProfileAccountSettings() {
             <div className="p-5 pb-4">
               <div className="text-[13px] text-neutral-500 font-medium">Hello,</div>
               <h2 className="text-[18px] font-bold text-black">
-                {user.name || 'User Name'}
+                {user?.name || 'User'}
               </h2>
             </div>
 
@@ -205,12 +238,19 @@ export default function ProfileAccountSettings() {
               </Link>
             </div>
 
-            {/* Logout */}
+            {/* Logout / Login Button */}
             <div className="px-5 py-4 bg-white hover:bg-neutral-50 transition-colors">
-              <Button variant="none" size="none" onClick={handleLogout} className="flex items-center gap-3 text-red-600 w-full text-left">
-                <LogOut className="w-5 h-5 text-red-600" />
-                <span className="text-[14px] font-medium">Logout</span>
-              </Button>
+              {user ? (
+                <Button variant="none" size="none" onClick={handleLogout} className="flex items-center gap-3 text-red-600 w-full text-left">
+                  <LogOut className="w-5 h-5 text-red-600" />
+                  <span className="text-[14px] font-medium">Logout</span>
+                </Button>
+              ) : (
+                <Link href="/login" className="flex items-center justify-center gap-2 w-full py-3 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors">
+                  <LogIn className="w-4 h-4" />
+                  <span className="text-[14px] font-medium">Login / Sign up</span>
+                </Link>
+              )}
             </div>
           </>
         ) : (
@@ -234,6 +274,154 @@ export default function ProfileAccountSettings() {
               </p>
             </div>
 
+            {!user ? (
+              <div className="text-center py-8 px-4 bg-neutral-50 rounded-xl border border-neutral-100">
+                <div className="w-12 h-12 bg-white border border-neutral-200 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
+                  <User className="w-6 h-6 text-neutral-400" />
+                </div>
+                <h3 className="font-bold text-neutral-900 mb-1">Please log in</h3>
+                <p className="text-xs text-neutral-500 max-w-xs mx-auto mb-5">
+                  Log in to edit your name, email, and mobile number.
+                </p>
+                <Link href="/login" className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors">
+                  <LogIn className="w-4 h-4" />
+                  <span>Go to Login</span>
+                </Link>
+              </div>
+            ) : (
+              <>
+                {successMessage && (
+                  <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-800 text-sm font-medium">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                    <span>{successMessage}</span>
+                  </div>
+                )}
+
+                {errorMessage && (
+                  <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
+                    {errorMessage}
+                  </div>
+                )}
+
+                <form onSubmit={handleSaveProfile} className="space-y-6">
+                  <div className="grid grid-cols-1 gap-5">
+                    <div>
+                      <label htmlFor="mobileFullName" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+                        Full Name
+                      </label>
+                      <div className="relative">
+                        <input
+                          id="mobileFullName"
+                          type="text"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="Enter full name"
+                          className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
+                          required
+                        />
+                        <User className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label htmlFor="mobileEmailAddress" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+                        Email Address
+                      </label>
+                      <div className="relative">
+                        <input
+                          id="mobileEmailAddress"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="Enter email address"
+                          className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
+                          required
+                        />
+                        <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label htmlFor="mobilePhoneNumber" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+                        Mobile Number
+                      </label>
+                      <div className="relative">
+                        <input
+                          id="mobilePhoneNumber"
+                          type="tel"
+                          value={mobile}
+                          onChange={(e) => setMobile(e.target.value.replace(/[^0-9]/g, '').slice(0, 10))}
+                          placeholder="Enter mobile number"
+                          maxLength="10"
+                          pattern="[0-9]{10}"
+                          className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
+                        />
+                        <Phone className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 flex flex-col gap-3">
+                    <Button variant="none" size="none"
+                      type="submit"
+                      disabled={isSaving}
+                      className="w-full py-3 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+                    >
+                      <Save className="w-4 h-4" />
+                      {isSaving ? 'Saving...' : 'Save Changes'}
+                    </Button>
+
+                    <Button variant="none" size="none"
+                      type="button"
+                      onClick={handleLogout}
+                      className="w-full py-3 text-red-600 hover:bg-red-50 font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout Account
+                    </Button>
+                  </div>
+                </form>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* DESKTOP MEDIA VIEW (Account Settings Form) */}
+      <div className="hidden md:block bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-neutral-200">
+        <div className="mb-6">
+          <h4 className="font-bold text-neutral-900 flex items-center gap-2">
+            <User className="w-5 h-5 text-neutral-700" />
+            Account Settings
+          </h4>
+          <p className="text-sm text-neutral-500 mt-1">
+            {user ? 'Update your personal details and contact information.' : 'Please log in to view and manage your account details.'}
+          </p>
+        </div>
+
+        {!user && (
+          <div className="text-center py-10 px-4 bg-neutral-50 rounded-xl border border-neutral-100">
+            <div className="w-14 h-14 bg-white border border-neutral-200 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
+              <User className="w-7 h-7 text-neutral-400" />
+            </div>
+            <h5 className="font-bold text-neutral-900 mb-1">You are currently logged out</h5>
+            <p className="text-sm text-neutral-500 max-w-sm mx-auto mb-5">
+              Log in to access your personal details, cashback earnings, and wallet withdrawal options.
+            </p>
+            <div className="flex justify-center gap-3">
+              <Link href="/login" className="inline-flex items-center gap-2 px-6 py-2.5 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors">
+                <LogIn className="w-4 h-4" />
+                <span>Login to Account</span>
+              </Link>
+              <Link href="/signup" className="px-6 py-2.5 bg-white border border-neutral-300 hover:bg-neutral-100 text-black font-medium text-sm rounded-xl transition-colors">
+                Create Account
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {user && (
+          <>
             {successMessage && (
               <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-800 text-sm font-medium">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
@@ -248,114 +436,6 @@ export default function ProfileAccountSettings() {
             )}
 
             <form onSubmit={handleSaveProfile} className="space-y-6">
-              <div className="grid grid-cols-1 gap-5">
-                <div>
-                  <label htmlFor="mobileFullName" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
-                    Full Name
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="mobileFullName"
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Enter full name"
-                      className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
-                      required
-                    />
-                    <User className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="mobileEmailAddress" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
-                    Email Address
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="mobileEmailAddress"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter email address"
-                      className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
-                      required
-                    />
-                    <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="mobilePhoneNumber" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
-                    Mobile Number
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="mobilePhoneNumber"
-                      type="tel"
-                      value={mobile}
-                      onChange={(e) => setMobile(e.target.value.replace(/[^0-9]/g, '').slice(0, 10))}
-                      placeholder="Enter mobile number"
-                      maxLength="10"
-                      pattern="[0-9]{10}"
-                      className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
-                    />
-                    <Phone className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-2 flex flex-col gap-3">
-                <Button variant="none" size="none"
-                  type="submit"
-                  disabled={isSaving}
-                  className="w-full py-3 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
-                >
-                  <Save className="w-4 h-4" />
-                  {isSaving ? 'Saving...' : 'Save Changes'}
-                </Button>
-
-
-                <Button variant="none" size="none"
-                  type="button"
-                  onClick={handleLogout}
-                  className="w-full py-3 text-red-600 hover:bg-red-50 font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout Account
-                </Button>
-              </div>
-            </form>
-          </div>
-        )}
-      </div>
-
-      {/* DESKTOP MEDIA VIEW (Account Settings Form) */}
-      <div className="hidden md:block bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-neutral-200">
-        <div className="mb-6">
-          <h4 className="font-bold text-neutral-900 flex items-center gap-2">
-            <User className="w-5 h-5 text-neutral-700" />
-            Account Settings
-          </h4>
-          <p className="text-sm text-neutral-500 mt-1">
-            Update your personal details and contact information.
-          </p>
-        </div>
-
-        {successMessage && (
-          <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-800 text-sm font-medium">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-            <span>{successMessage}</span>
-          </div>
-        )}
-
-        {errorMessage && (
-          <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
-            {errorMessage}
-          </div>
-        )}
-
-        <form onSubmit={handleSaveProfile} className="space-y-6">
           {/* Personal Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -438,6 +518,8 @@ export default function ProfileAccountSettings() {
             </div>
           </div>
         </form>
+          </>
+        )}
       </div>
     </>
   );

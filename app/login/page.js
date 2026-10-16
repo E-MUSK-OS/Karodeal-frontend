@@ -15,17 +15,33 @@ export default function Login() {
   const router = useRouter();
 
   useEffect(() => {
+    const userStr = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+    if (userStr) {
+      try {
+        const u = JSON.parse(userStr);
+        if (u && u.token) {
+          const urlParams = new URLSearchParams(window.location.search);
+          const returnUrl = urlParams.get('returnUrl');
+          router.push(returnUrl || '/');
+          return;
+        }
+      } catch {
+        localStorage.removeItem('user');
+        window.dispatchEvent(new Event('auth-change'));
+      }
+    }
+
     // Silently pre-warm serverless backend and Neon DB so user doesn't hit cold-start lag
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
-    fetch(`${apiUrl}/health`).catch(() => {});
-  }, []);
+    fetch(`${apiUrl}/health`).catch(() => { });
+  }, [router]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     const formEmail = e.target.email.value;
     const formPassword = e.target.password.value;
-    
+
     setIsLoading(true);
     setError('');
 
@@ -90,17 +106,18 @@ export default function Login() {
   });
 
   return (
-    <div className="bg-white flex flex-col justify-center py-12 relative font-sans ">
-      <div className="flex flex-col bg-neutral-50 sm:mx-auto sm:w-full sm:max-w-[400px] sm:h-auto sm:min-h-[450px] sm:rounded-2xl sm:shadow-sm sm:border sm:border-neutral-200 p-6 relative">
+    <div className="bg-white min-h-[calc(100vh-140px)] flex flex-col justify-center items-center py-8 sm:py-12 px-4 sm:px-6 relative font-sans">
+      <div className="flex flex-col bg-neutral-50 w-full max-w-[420px] rounded-2xl shadow-sm border border-neutral-200 p-5 sm:p-7 relative">
 
         {/* Header Section */}
         <div className="flex items-center mb-6">
-          <Button variant="none" size="none"
-            onClick={() => router.back()}
-            className="p-1 -ml-1 text-black hover:bg-neutral-100 rounded-full transition-colors"
+          <Link
+            href="/"
+            className="p-2 -ml-2 text-black hover:bg-neutral-100 active:bg-neutral-200 rounded-full transition-colors inline-flex items-center justify-center cursor-pointer"
+            aria-label="Back to home"
           >
             <ArrowLeft strokeWidth={2.5} className="w-5 h-5" />
-          </Button>
+          </Link>
         </div>
 
         <div>
@@ -169,15 +186,18 @@ export default function Login() {
             </Link>
           </div>
 
-          <div className="mb-6 flex justify-center w-full relative">
-            <button
+          <div className="mb-6 flex justify-center w-full">
+            <Button
               type="button"
+              variant="outline"
+              size="md"
+              fullWidth
               onClick={() => loginWithGoogle()}
-              className="w-full flex items-center justify-center gap-3 bg-white border border-neutral-300 rounded-lg px-4 py-3.5 text-[15px] font-medium text-neutral-700 hover:bg-neutral-50 transition-colors shadow-sm relative"
+              icon={<img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5 shrink-0" />}
+              className="gap-3"
             >
-              <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5 absolute left-4" />
-              <span>Continue with Google</span>
-            </button>
+              Continue with Google
+            </Button>
           </div>
 
           <div className="relative flex items-center mb-6">
@@ -189,24 +209,20 @@ export default function Login() {
           {/* Terms and Bottom Button */}
           <div className="mt-auto">
             <p className="text-[13px] text-neutral-500 mb-5 leading-relaxed">
-              By continuing, you agree to Karodeal's <Link href="/terms" className="text-sm lg:text-[15px] xl:text-base text-black font-medium hover:underline">terms & conditions</Link> and <Link href="/privacy-policy" className="text-sm lg:text-[15px] xl:text-base text-black font-medium hover:underline">privacy policy</Link>
+              By continuing, you agree to Karodeal&apos;s <Link href="/terms" className="text-sm lg:text-[15px] xl:text-base text-black font-medium hover:underline">terms & conditions</Link> and <Link href="/privacy-policy" className="text-sm lg:text-[15px] xl:text-base text-black font-medium hover:underline">privacy policy</Link>
             </p>
 
-            <Button variant="none" size="none"
+            <Button
+              variant="primary"
+              size="md"
+              fullWidth
+              isLoading={isLoading}
               type="submit"
-              disabled={isLoading}
-              className="w-full bg-black hover:bg-neutral-800 text-white font-medium py-3.5 px-4 rounded-xl transition-colors text-lg flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {isLoading && (
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              )}
-              {isLoading ? 'Loading...' : 'Continue'}
+              Continue
             </Button>
             <p className="text-sm text-center text-neutral-500 mt-4">
-              Don't have an account? <Link href="/signup" className="text-sm lg:text-[15px] xl:text-base text-black font-medium hover:underline">Sign up</Link>
+              Don&apos;t have an account? <Link href="/signup" className="text-sm lg:text-[15px] xl:text-base text-black font-medium hover:underline">Sign up</Link>
             </p>
           </div>
         </form>

@@ -1,30 +1,46 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { History, IndianRupee, Clock, CheckCircle2, XCircle, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { History, IndianRupee, Clock, CheckCircle2, XCircle, ArrowUpRight, ArrowDownLeft, LogIn, User } from 'lucide-react';
+import Link from 'next/link';
 import PageLoader from '@/components/common/PageLoader';
 
 export default function TransactionHistory() {
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
+  const [user, setUser] = useState(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      return JSON.parse(localStorage.getItem('user') || 'null');
+    } catch {
+      return null;
+    }
+  });
 
   useEffect(() => {
+    const handleAuthChange = () => {
+      const uStr = localStorage.getItem('user');
+      setUser(uStr ? JSON.parse(uStr) : null);
+    };
+    window.addEventListener('auth-change', handleAuthChange);
+
     const fetchHistory = async () => {
-      const userStr = localStorage.getItem('user');
-      if (!userStr) {
-        router.push('/login');
+      if (!user?.token) {
+        setIsLoading(false);
         return;
       }
 
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/transactions`, {
-          headers: { 'Authorization': `Bearer ${JSON.parse(userStr).token}` }
+          headers: { 'Authorization': `Bearer ${user.token}` }
         });
         if (res.ok) {
           const data = await res.json();
           setTransactions(data.transactions || []);
+        } else if (res.status === 401 || res.status === 404) {
+          localStorage.removeItem('user');
+          setUser(null);
+          window.dispatchEvent(new Event('auth-change'));
         }
       } catch (err) {
         console.error(err);
@@ -33,7 +49,8 @@ export default function TransactionHistory() {
       }
     };
     fetchHistory();
-  }, [router]);
+    return () => window.removeEventListener('auth-change', handleAuthChange);
+  }, [user?.token]);
 
   const formatDate = (dateString) => {
     try {
@@ -68,9 +85,25 @@ export default function TransactionHistory() {
         </div>
       </div>
 
-      {isLoading ? (
-              <PageLoader />
-            ) : transactions.length > 0 ? (
+      {!user ? (
+        <div className="text-center py-10 px-4 bg-white rounded-3xl border border-neutral-100 shadow-sm">
+          <div className="w-14 h-14 bg-neutral-50 border border-neutral-200 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
+            <User className="w-7 h-7 text-neutral-400" />
+          </div>
+          <h5 className="font-bold text-neutral-900 mb-1">Please log in to view transactions</h5>
+          <p className="text-sm text-neutral-500 max-w-sm mx-auto mb-5">
+            Log in to view your complete transaction history, cashback credit dates, and withdrawal logs.
+          </p>
+          <div className="flex justify-center gap-3">
+            <Link href="/login" className="inline-flex items-center gap-2 px-6 py-2.5 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors">
+              <LogIn className="w-4 h-4" />
+              <span>Login to Account</span>
+            </Link>
+          </div>
+        </div>
+      ) : isLoading ? (
+        <PageLoader />
+      ) : transactions.length > 0 ? (
         <div className="bg-white rounded-3xl border border-neutral-100 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">

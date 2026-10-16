@@ -20,40 +20,63 @@ export default function ForgotPassword() {
   const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
   const otpRefs = useRef([]);
 
+  const fillOtpFromText = (rawText, startIndex = 0) => {
+    const digits = (rawText || '').replace(/\D/g, '').slice(0, 6);
+    if (!digits) return false;
+
+    const newOtp = [...otpValues];
+    const start = digits.length >= 6 ? 0 : startIndex;
+    for (let i = 0; i < digits.length && (start + i) < 6; i++) {
+      newOtp[start + i] = digits[i];
+    }
+    setOtpValues(newOtp);
+    setOtp(newOtp.join(''));
+
+    const nextFocus = Math.min(start + digits.length, 5);
+    otpRefs.current[nextFocus]?.focus();
+    return true;
+  };
+
   const handleOtpChange = (index, value) => {
-    if (!/^\d*$/.test(value)) return;
+    const digitsOnly = value.replace(/\D/g, '');
 
-    const newOtpValues = [...otpValues];
-    newOtpValues[index] = value;
-    setOtpValues(newOtpValues);
-    
-    setOtp(newOtpValues.join(''));
+    // Handle mobile paste or keyboard autocomplete providing multiple digits
+    if (digitsOnly.length > 1) {
+      fillOtpFromText(digitsOnly, index);
+      return;
+    }
 
-    if (value && index < 5) {
+    const char = digitsOnly.slice(-1) || '';
+    const newOtp = [...otpValues];
+    newOtp[index] = char;
+    setOtpValues(newOtp);
+    setOtp(newOtp.join(''));
+
+    if (char && index < 5) {
       otpRefs.current[index + 1]?.focus();
     }
   };
 
   const handleOtpKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !otpValues[index] && index > 0) {
+    if (e.key === 'Backspace') {
+      if (!otpValues[index] && index > 0) {
+        otpRefs.current[index - 1]?.focus();
+        const newOtp = [...otpValues];
+        newOtp[index - 1] = '';
+        setOtpValues(newOtp);
+        setOtp(newOtp.join(''));
+      }
+    } else if (e.key === 'ArrowLeft' && index > 0) {
       otpRefs.current[index - 1]?.focus();
+    } else if (e.key === 'ArrowRight' && index < 5) {
+      otpRefs.current[index + 1]?.focus();
     }
   };
 
-  const handleOtpPaste = (e) => {
+  const handleOtpPaste = (e, index = 0) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData('text').slice(0, 6).split('');
-    if (pastedData.some(char => !/^\d$/.test(char))) return;
-    
-    const newOtpValues = [...otpValues];
-    pastedData.forEach((char, i) => {
-      if (i < 6) newOtpValues[i] = char;
-    });
-    setOtpValues(newOtpValues);
-    setOtp(newOtpValues.join(''));
-    
-    const nextIndex = Math.min(pastedData.length, 5);
-    otpRefs.current[nextIndex]?.focus();
+    const pastedText = e.clipboardData ? e.clipboardData.getData('text') : '';
+    fillOtpFromText(pastedText, index);
   };
 
   const handleSendOtp = async (e) => {
@@ -149,14 +172,14 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="bg-white flex flex-col justify-center py-12 relative font-sans ">
-      <div className="flex flex-col bg-neutral-50 sm:mx-auto sm:w-full sm:max-w-[400px] sm:h-auto sm:min-h-[450px] sm:rounded-2xl sm:shadow-sm sm:border sm:border-neutral-200 p-6 relative">
+    <div className="bg-white min-h-[calc(100vh-140px)] flex flex-col justify-center items-center py-8 sm:py-12 px-4 sm:px-6 relative font-sans">
+      <div className="flex flex-col bg-neutral-50 w-full max-w-[420px] rounded-2xl shadow-sm border border-neutral-200 p-5 sm:p-7 relative">
 
         {/* Header Section */}
         <div className="flex items-center mb-6">
           <Button variant="none" size="none"
-            onClick={() => step === 2 ? setStep(1) : router.back()}
-            className="p-1 -ml-1 text-black hover:bg-neutral-100 rounded-full transition-colors"
+            onClick={() => step === 2 ? setStep(1) : router.push('/login')}
+            className="p-2 -ml-2 text-black hover:bg-neutral-100 active:bg-neutral-200 rounded-full transition-colors cursor-pointer inline-flex items-center justify-center"
           >
             <ArrowLeft strokeWidth={2.5} className="w-5 h-5" />
           </Button>
@@ -200,12 +223,14 @@ export default function ForgotPassword() {
             </div>
 
             <div className="mt-auto">
-              <Button variant="none" size="none"
+              <Button
+                variant="primary"
+                size="md"
+                fullWidth
+                isLoading={isLoading}
                 type="submit"
-                disabled={isLoading}
-                className="w-full bg-black hover:bg-neutral-800 text-white font-medium py-3.5 px-4 rounded-xl transition-colors text-lg disabled:opacity-50"
               >
-                {isLoading ? 'Sending...' : 'Send Verification Code'}
+                Send Verification Code
               </Button>
               <p className="text-sm text-center text-neutral-500 mt-4">
                 Remembered your password? <Link href="/login" className="text-sm lg:text-[15px] xl:text-base text-black font-medium hover:underline">Login</Link>
@@ -221,31 +246,37 @@ export default function ForgotPassword() {
             {/* OTP Input */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-3 text-center">Enter 6-digit OTP</label>
-              <div className="flex justify-between gap-2" onPaste={handleOtpPaste}>
+              <div className="grid grid-cols-6 gap-1.5 sm:gap-2.5 w-full" onPaste={(e) => handleOtpPaste(e, 0)}>
                 {otpValues.map((digit, index) => (
                   <input
                     key={index}
                     ref={(el) => (otpRefs.current[index] = el)}
                     type="text"
                     inputMode="numeric"
-                    maxLength={1}
+                    pattern="[0-9]*"
+                    autoComplete={index === 0 ? "one-time-code" : "off"}
+                    maxLength={6}
                     value={digit}
                     onChange={(e) => handleOtpChange(index, e.target.value)}
                     onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                    className="w-12 h-14 text-center text-xl font-bold text-black bg-transparent rounded-xl border-2 border-neutral-300 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
-                    required
+                    onPaste={(e) => handleOtpPaste(e, index)}
+                    onFocus={(e) => e.target.select()}
+                    className="w-full aspect-[4/5] sm:h-13 text-center text-lg sm:text-xl font-bold text-black bg-white rounded-xl border-2 border-neutral-300 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all p-0 flex items-center justify-center select-all"
+                    required={index === 0}
                   />
                 ))}
               </div>
             </div>
 
             <div className="mt-auto">
-              <Button variant="none" size="none"
+              <Button
+                variant="primary"
+                size="md"
+                fullWidth
+                isLoading={isLoading}
                 type="submit"
-                disabled={isLoading}
-                className="w-full bg-black hover:bg-neutral-800 text-white font-medium py-3.5 px-4 rounded-xl transition-colors text-lg disabled:opacity-50"
               >
-                {isLoading ? 'Verifying...' : 'Verify Code'}
+                Verify Code
               </Button>
             </div>
           </form>
@@ -282,12 +313,14 @@ export default function ForgotPassword() {
             </div>
 
             <div className="mt-auto">
-              <Button variant="none" size="none"
+              <Button
+                variant="primary"
+                size="md"
+                fullWidth
+                isLoading={isLoading}
                 type="submit"
-                disabled={isLoading}
-                className="w-full bg-black hover:bg-neutral-800 text-white font-medium py-3.5 px-4 rounded-xl transition-colors text-lg disabled:opacity-50"
               >
-                {isLoading ? 'Resetting...' : 'Reset Password'}
+                Reset Password
               </Button>
             </div>
           </form>

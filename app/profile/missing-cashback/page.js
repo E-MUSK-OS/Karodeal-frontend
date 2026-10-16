@@ -269,7 +269,7 @@ export default function MissingCashback() {
   const fetchTickets = async (showLoading = true) => {
     const userStr = localStorage.getItem('user');
     if (!userStr) {
-      router.push('/login');
+      if (showLoading) setIsLoading(false);
       return;
     }
     const user = JSON.parse(userStr);

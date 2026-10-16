@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import {
   Info, RefreshCw, Star, Users,
@@ -7,7 +8,15 @@ import {
 } from 'lucide-react';
 
 export default function EarningsPage() {
-  const [user, setUser] = useState(null);
+  const router = useRouter();
+  const [user, setUser] = useState(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      return JSON.parse(localStorage.getItem('user') || 'null');
+    } catch {
+      return null;
+    }
+  });
 
   useEffect(() => {
     const fetchLatestProfile = async (token, cachedUser) => {
@@ -21,19 +30,21 @@ export default function EarningsPage() {
           const freshUser = { ...cachedUser, ...data.user };
           setUser(freshUser);
           localStorage.setItem('user', JSON.stringify(freshUser));
+        } else if (res.status === 401 || res.status === 404) {
+          localStorage.removeItem('user');
+          setUser(null);
+          window.dispatchEvent(new Event('auth-change'));
         }
       } catch (err) {
         console.error("Failed to fetch fresh profile data", err);
       }
     };
 
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const parsedUser = JSON.parse(userStr);
-      setUser(parsedUser);
-      fetchLatestProfile(parsedUser.token, parsedUser);
+    if (user?.token) {
+      fetchLatestProfile(user.token, user);
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.token]);
   return (
     <div className="space-y-6">
       {/* Top Black Banner */}

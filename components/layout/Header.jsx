@@ -15,11 +15,12 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    // Close mobile drawers on navigation
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
     setIsMobileMenuOpen(false);
     setIsMobileSearchOpen(false);
-  }, [pathname]);
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -45,10 +46,7 @@ export default function Header() {
             if (res.status === 401 || res.status === 404) {
               localStorage.removeItem('user');
               setUser(null);
-              // Only redirect if not on an admin page
-              if (!window.location.pathname.startsWith('/admin')) {
-                router.push('/login');
-              }
+              window.dispatchEvent(new Event('auth-change'));
               throw new Error(res.status === 401 ? 'Token expired' : 'User not found');
             }
             return res.json();
@@ -75,7 +73,7 @@ export default function Header() {
       window.removeEventListener('storage', checkLogin);
       window.removeEventListener('auth-change', checkLogin);
     };
-  }, []);
+  }, [router]);
 
   if (pathname?.startsWith('/admin')) {
     return null;
@@ -184,6 +182,7 @@ export default function Header() {
                 <Button variant="none" size="none"
                   onClick={() => {
                     localStorage.removeItem('user');
+                    setUser(null);
                     window.dispatchEvent(new Event('auth-change'));
                     setIsMobileMenuOpen(false);
                   }}

@@ -26,7 +26,6 @@ export default function ProfileMenu({ user }) {
     localStorage.removeItem('user');
     window.dispatchEvent(new Event('auth-change'));
     setIsOpen(false);
-    router.push('/');
   };
 
   if (!user) return null;

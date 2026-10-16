@@ -76,6 +76,8 @@ export const metadata = {
 };
 
 import RealtimeProductsListener from '@/components/common/RealtimeProductsListener';
+import FaviconLoader from '@/components/common/FaviconLoader';
+import { Suspense } from 'react';
 
 export default function RootLayout({ children }) {
   const organizationSchema = {
@@ -96,6 +98,9 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="flex flex-col min-h-screen pb-16 md:pb-0">
+        <Suspense fallback={null}>
+          <FaviconLoader />
+        </Suspense>
         <RealtimeProductsListener />
         <GoogleAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
           <NextTopLoader
@@ -104,7 +109,7 @@ export default function RootLayout({ children }) {
             crawlSpeed={200}
             height={3}
             crawl={true}
-            showSpinner={true}
+            showSpinner={false}
             easing="ease"
             speed={200}
             shadow="0 0 10px #000000,0 0 5px #000000"

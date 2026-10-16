@@ -1,31 +1,54 @@
 'use client';
+import { useEffect, useSyncExternalStore, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import { User, Lock, Wallet, IndianRupee, History, Ticket, Star, ShieldCheck, ChevronRight, HelpCircle, MousePointerClick, Receipt } from 'lucide-react';
+import { User, Lock, Wallet, IndianRupee, History, Ticket, Star, ShieldCheck, ChevronRight, HelpCircle, Receipt } from 'lucide-react';
+
+function subscribe(callback) {
+  if (typeof window === 'undefined') return () => {};
+  window.addEventListener('storage', callback);
+  window.addEventListener('auth-change', callback);
+  return () => {
+    window.removeEventListener('storage', callback);
+    window.removeEventListener('auth-change', callback);
+  };
+}
+
+function getSnapshot() {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('user');
+}
+
+function getServerSnapshot() {
+  return null;
+}
 
 export default function ProfileLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [isAuthorized, setIsAuthorized] = useState(false);
+  const rawUser = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+
+  const isPublic = pathname === '/profile/help' || pathname === '/profile/review';
+
+  const user = useMemo(() => {
+    if (!rawUser) return null;
+    try {
+      const u = JSON.parse(rawUser);
+      return u && u.token ? u : null;
+    } catch {
+      return null;
+    }
+  }, [rawUser]);
 
   useEffect(() => {
-    const checkAuth = () => {
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        setIsAuthorized(true);
-      } else {
-        router.push('/login');
-      }
-    };
+    if (!isPublic && !user) {
+      router.replace('/login');
+    }
+  }, [isPublic, user, router]);
 
-    checkAuth();
-    window.addEventListener('auth-change', checkAuth);
-    return () => window.removeEventListener('auth-change', checkAuth);
-  }, [router]);
-
-  // Don't render the layout until we confirm authorization
-  if (!isAuthorized) return null;
+  if (!isPublic && !user) {
+    return null;
+  }
 
   const navItems = [
     { name: 'Account Settings', href: '/profile', icon: User },

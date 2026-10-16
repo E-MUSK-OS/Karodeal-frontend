@@ -1,37 +1,70 @@
 'use client';
+
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, Wallet, Ticket, User } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Home, Wallet, Ticket, User } from 'lucide-react';
+import { useSyncExternalStore, useMemo } from 'react';
+
+function subscribe(callback) {
+  if (typeof window === 'undefined') return () => {};
+  window.addEventListener('storage', callback);
+  window.addEventListener('auth-change', callback);
+  return () => {
+    window.removeEventListener('storage', callback);
+    window.removeEventListener('auth-change', callback);
+  };
+}
+
+function getSnapshot() {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('user');
+}
+
+function getServerSnapshot() {
+  return null;
+}
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
-  const [user, setUser] = useState(null);
+  const rawUser = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  useEffect(() => {
-    const checkLogin = () => {
-      const userStr = localStorage.getItem('user');
-      setUser(userStr ? JSON.parse(userStr) : null);
-    };
-    checkLogin();
-    window.addEventListener('storage', checkLogin);
-    window.addEventListener('auth-change', checkLogin);
-
-    return () => {
-      window.removeEventListener('storage', checkLogin);
-      window.removeEventListener('auth-change', checkLogin);
-    };
-  }, []);
+  // Validate user and strictly enforce null on login/signup pages
+  const user = useMemo(() => {
+    if (!rawUser || pathname === '/login' || pathname === '/signup') {
+      return null;
+    }
+    try {
+      const parsed = JSON.parse(rawUser);
+      return parsed && parsed.token ? parsed : null;
+    } catch {
+      return null;
+    }
+  }, [rawUser, pathname]);
 
   if (pathname?.startsWith('/admin')) {
     return null;
   }
 
   const navItems = [
-    { name: 'Home', href: '/', icon: Home },
-    { name: `₹${user?.earnings || '0.00'}`, href: '/profile/earnings', icon: Wallet },
-    { name: 'Missing?', href: '/profile/missing-cashback', icon: Ticket },
-    { name: 'Profile', href: '/profile', icon: User },
+    { name: 'Home', href: '/', icon: Home, isHome: true },
+    {
+      name: user ? `₹${user?.earnings || '0.00'}` : '₹0.00',
+      href: user ? '/profile/earnings' : '/login',
+      icon: Wallet,
+      type: 'wallet',
+    },
+    {
+      name: 'Missing?',
+      href: user ? '/profile/missing-cashback' : '/login',
+      icon: Ticket,
+      type: 'missing',
+    },
+    {
+      name: 'Profile',
+      href: user ? '/profile' : '/login',
+      icon: User,
+      type: 'profile',
+    },
   ];
 
   return (
@@ -39,21 +72,28 @@ export default function MobileBottomNav() {
       {navItems.map((item) => {
         const Icon = item.icon;
 
-        // Custom active state logic because /profile is a parent of /profile/earnings and /profile/missing-cashback
         let isActive = false;
-        if (item.href === '/') {
+        if (item.isHome) {
           isActive = pathname === '/';
-        } else if (item.href === '/profile') {
-          isActive = pathname === '/profile';
-        } else {
-          isActive = pathname.startsWith(item.href);
+        } else if (item.type === 'profile') {
+          isActive =
+            (pathname?.startsWith('/profile') &&
+              !pathname?.startsWith('/profile/earnings') &&
+              !pathname?.startsWith('/profile/missing-cashback')) ||
+            (!user && pathname === '/login');
+        } else if (item.type === 'wallet') {
+          isActive = Boolean(user && pathname?.startsWith('/profile/earnings'));
+        } else if (item.type === 'missing') {
+          isActive = Boolean(user && pathname?.startsWith('/profile/missing-cashback'));
         }
 
         return (
           <Link
             key={item.name}
             href={item.href}
-            className={`flex flex-col items-center justify-center flex-1 gap-1 py-1 transition-colors ${isActive ? 'text-blue-600' : 'text-neutral-600'}`}
+            className={`flex flex-col items-center justify-center flex-1 gap-1 py-1 transition-colors ${
+              isActive ? 'text-blue-600' : 'text-neutral-600'
+            }`}
           >
             <Icon className="w-[22px] h-[22px]" strokeWidth={isActive ? 2.5 : 2} />
             <span className={`text-[11px] ${isActive ? 'font-semibold' : 'font-medium'}`}>

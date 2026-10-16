@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { IndianRupee, Landmark, Smartphone, AlertCircle, ArrowRight, BadgeCheck } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { IndianRupee, Landmark, Smartphone, AlertCircle, ArrowRight, BadgeCheck, LogIn, User } from 'lucide-react';
+import Link from 'next/link';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
 
@@ -13,23 +13,39 @@ export default function Payments() {
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const router = useRouter();
+  const [user, setUser] = useState(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      return JSON.parse(localStorage.getItem('user') || 'null');
+    } catch {
+      return null;
+    }
+  });
 
   useEffect(() => {
+    const handleAuthChange = () => {
+      const uStr = localStorage.getItem('user');
+      setUser(uStr ? JSON.parse(uStr) : null);
+    };
+    window.addEventListener('auth-change', handleAuthChange);
+
     const fetchBalance = async () => {
-      const userStr = localStorage.getItem('user');
-      if (!userStr) {
-        router.push('/login');
+      if (!user?.token) {
+        setIsLoading(false);
         return;
       }
 
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/profile`, {
-          headers: { 'Authorization': `Bearer ${JSON.parse(userStr).token}` }
+          headers: { 'Authorization': `Bearer ${user.token}` }
         });
         if (res.ok) {
           const data = await res.json();
           setBalance(data.user?.availableBalance || 0);
+        } else if (res.status === 401 || res.status === 404) {
+          localStorage.removeItem('user');
+          setUser(null);
+          window.dispatchEvent(new Event('auth-change'));
         }
       } catch (err) {
         console.error(err);
@@ -38,7 +54,8 @@ export default function Payments() {
       }
     };
     fetchBalance();
-  }, [router]);
+    return () => window.removeEventListener('auth-change', handleAuthChange);
+  }, [user?.token]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -128,43 +145,61 @@ export default function Payments() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5 max-w-lg">
-          <div className="space-y-4">
-            <div>
-              <label className="text-xs font-bold text-neutral-700 block mb-1.5">Withdrawal Amount (₹)</label>
-              <input
-                type="number"
-                min="1000"
-                step="1"
-                value={amount}
-                onChange={e => setAmount(e.target.value)}
-                placeholder="Enter amount (Min. 1000)"
-                className="w-full bg-white border border-neutral-200 rounded-lg px-3 py-2.5 text-sm text-neutral-900 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
-                required
-              />
+        {!user ? (
+          <div className="text-center py-8 px-4 bg-neutral-50 rounded-xl border border-neutral-100">
+            <div className="w-12 h-12 bg-white border border-neutral-200 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
+              <User className="w-6 h-6 text-neutral-400" />
             </div>
-
-            <div>
-              <label className="text-xs font-bold text-neutral-700 block mb-1.5">UPI ID</label>
-              <input
-                type="text"
-                value={details}
-                onChange={e => setDetails(e.target.value)}
-                placeholder="e.g., yourname@okaxis"
-                className="w-full bg-white border border-neutral-200 rounded-lg px-3 py-2.5 text-sm text-neutral-900 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
-                required
-              />
+            <h5 className="font-bold text-neutral-900 mb-1">Please log in to withdraw funds</h5>
+            <p className="text-xs text-neutral-500 max-w-sm mx-auto mb-5">
+              You must be logged in to view your withdrawable balance and submit payout requests.
+            </p>
+            <div className="flex justify-center gap-3">
+              <Link href="/login" className="inline-flex items-center gap-2 px-6 py-2.5 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors">
+                <LogIn className="w-4 h-4" />
+                <span>Login to Account</span>
+              </Link>
             </div>
           </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-5 max-w-lg">
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-neutral-700 block mb-1.5">Withdrawal Amount (₹)</label>
+                <input
+                  type="number"
+                  min="1000"
+                  step="1"
+                  value={amount}
+                  onChange={e => setAmount(e.target.value)}
+                  placeholder="Enter amount (Min. 1000)"
+                  className="w-full bg-white border border-neutral-200 rounded-lg px-3 py-2.5 text-sm text-neutral-900 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
+                  required
+                />
+              </div>
 
-          <Button variant="none" size="none"
-            type="submit"
-            disabled={balance < 1000 || isLoading}
-            className="w-auto inline-flex justify-center items-center gap-1.5 bg-black text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Submit Request <ArrowRight className="w-3.5 h-3.5" />
-          </Button>
-        </form>
+              <div>
+                <label className="text-xs font-bold text-neutral-700 block mb-1.5">UPI ID</label>
+                <input
+                  type="text"
+                  value={details}
+                  onChange={e => setDetails(e.target.value)}
+                  placeholder="e.g., yourname@okaxis"
+                  className="w-full bg-white border border-neutral-200 rounded-lg px-3 py-2.5 text-sm text-neutral-900 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
+                  required
+                />
+              </div>
+            </div>
+
+            <Button variant="none" size="none"
+              type="submit"
+              disabled={balance < 1000 || isLoading}
+              className="w-auto inline-flex justify-center items-center gap-1.5 bg-black text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Submit Request <ArrowRight className="w-3.5 h-3.5" />
+            </Button>
+          </form>
+        )}
       </div>
     </div>
   );

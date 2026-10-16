@@ -2,20 +2,53 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { User, Mail, Phone, Save, CheckCircle2, LogOut, ArrowLeft, Trash2 } from 'lucide-react';
+import { User, Mail, Phone, Save, CheckCircle2, LogOut, ArrowLeft, Trash2, LogIn } from 'lucide-react';
 import Button from '@/components/common/Button';
 
 export default function ProfileSettingsPage() {
-  const [user, setUser] = useState(null);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [mobile, setMobile] = useState('');
+  const [user, setUser] = useState(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      return JSON.parse(localStorage.getItem('user') || 'null');
+    } catch {
+      return null;
+    }
+  });
+  const [name, setName] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    try {
+      const u = JSON.parse(localStorage.getItem('user') || 'null');
+      return u?.name || '';
+    } catch {
+      return '';
+    }
+  });
+  const [email, setEmail] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    try {
+      const u = JSON.parse(localStorage.getItem('user') || 'null');
+      return u?.email || '';
+    } catch {
+      return '';
+    }
+  });
+  const [mobile, setMobile] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    try {
+      const u = JSON.parse(localStorage.getItem('user') || 'null');
+      return u?.mobile || u?.phone || '';
+    } catch {
+      return '';
+    }
+  });
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
+    if (!user?.token) return;
+
     const fetchLatestProfile = async (token, cachedUser) => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/profile`, {
@@ -30,26 +63,22 @@ export default function ProfileSettingsPage() {
           setEmail(freshUser.email || '');
           setMobile(freshUser.mobile || freshUser.phone || '');
           localStorage.setItem('user', JSON.stringify(freshUser));
+        } else if (res.status === 401 || res.status === 404) {
+          localStorage.removeItem('user');
+          setUser(null);
+          setName('');
+          setEmail('');
+          setMobile('');
+          window.dispatchEvent(new Event('auth-change'));
         }
       } catch (err) {
         console.error("Failed to fetch fresh profile data", err);
       }
     };
 
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const parsedUser = JSON.parse(userStr);
-      setUser(parsedUser);
-      setName(parsedUser.name || '');
-      setEmail(parsedUser.email || '');
-      setMobile(parsedUser.mobile || parsedUser.phone || '');
-
-      // Fetch latest from DB to keep UI in sync
-      fetchLatestProfile(parsedUser.token, parsedUser);
-    } else {
-      router.push('/login');
-    }
-  }, [router]);
+    fetchLatestProfile(user.token, user);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.token]);
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
@@ -105,13 +134,12 @@ export default function ProfileSettingsPage() {
 
   const handleLogout = () => {
     localStorage.removeItem('user');
+    setUser(null);
+    setName('');
+    setEmail('');
+    setMobile('');
     window.dispatchEvent(new Event('auth-change'));
-    router.push('/');
   };
-
-
-
-  if (!user) return null;
 
   return (
     <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-neutral-200">
@@ -129,16 +157,37 @@ export default function ProfileSettingsPage() {
           Account Settings
         </h5>
         <p className="text-sm text-neutral-500 mt-1">
-          Update your personal details and contact information.
+          {user ? 'Update your personal details and contact information.' : 'Please log in to view and manage your account details.'}
         </p>
       </div>
 
-      {successMessage && (
-        <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-800 text-sm font-medium">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-          <span>{successMessage}</span>
+      {!user ? (
+        <div className="text-center py-10 px-4 bg-neutral-50 rounded-xl border border-neutral-100">
+          <div className="w-14 h-14 bg-white border border-neutral-200 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
+            <User className="w-7 h-7 text-neutral-400" />
+          </div>
+          <h5 className="font-bold text-neutral-900 mb-1">You are currently logged out</h5>
+          <p className="text-sm text-neutral-500 max-w-sm mx-auto mb-5">
+            Log in to access your personal details, cashback earnings, and wallet withdrawal options.
+          </p>
+          <div className="flex justify-center gap-3">
+            <Link href="/login" className="inline-flex items-center gap-2 px-6 py-2.5 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors">
+              <LogIn className="w-4 h-4" />
+              <span>Login to Account</span>
+            </Link>
+            <Link href="/signup" className="px-6 py-2.5 bg-white border border-neutral-300 hover:bg-neutral-100 text-black font-medium text-sm rounded-xl transition-colors">
+              Create Account
+            </Link>
+          </div>
         </div>
-      )}
+      ) : (
+        <>
+          {successMessage && (
+            <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-800 text-sm font-medium">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              <span>{successMessage}</span>
+            </div>
+          )}
 
       {errorMessage && (
         <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
@@ -212,20 +261,20 @@ export default function ProfileSettingsPage() {
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>
 
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-
-
-            <Button variant="none" size="none"
-              type="button"
-              onClick={handleLogout}
-              className="w-full sm:w-auto px-6 py-3 text-red-600 hover:bg-red-50 font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout Account
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+              <Button variant="none" size="none"
+                type="button"
+                onClick={handleLogout}
+                className="w-full sm:w-auto px-6 py-3 text-red-600 hover:bg-red-50 font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout Account
+              </Button>
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+        </>
+      )}
     </div>
   );
 }
