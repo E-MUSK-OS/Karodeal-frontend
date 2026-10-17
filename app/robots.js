@@ -14,6 +14,10 @@ export default function robots() {
         ],
       },
       {
+        userAgent: 'Googlebot-Favicons',
+        allow: '/',
+      },
+      {
         userAgent: 'Googlebot-Image',
         allow: ['/images/', '/icon*.png', '/apple-icon.png', '/favicon.ico'],
       },
