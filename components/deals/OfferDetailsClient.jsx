@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PageLoader from '@/components/common/PageLoader';
 import Link from 'next/link';
-import { CheckCircle, ArrowRight, Calendar, Star, ShieldCheck, Clock, Banknote } from 'lucide-react';
+import { CheckCircle, ArrowRight, Calendar, Star, ShieldCheck, Clock, Banknote, ChevronDown, HelpCircle } from 'lucide-react';
 import Button from '@/components/common/Button';
 import { calculateCashback } from '@/lib/cashbackCalculator';
 import { openStoreDeal } from '@/lib/deepLink';
@@ -17,6 +17,7 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
   const [error, setError] = useState(null);
   const [id, setId] = useState(dealId);
   const [isRedirectModalOpen, setIsRedirectModalOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState(0);
 
   useEffect(() => {
     if (dealId) {
@@ -151,13 +152,40 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
   }
 
   return (
-    <div className="page-container py-8 sm:py-12 md:py-20 min-h-screen">
+    <div className="page-container py-6 sm:py-10 md:py-16 min-h-screen">
+      {/* Breadcrumb Navigation for SEO & Crawlers */}
+      <nav aria-label="Breadcrumb" className="mb-4 sm:mb-6 max-w-3xl mx-auto">
+        <ol className="flex items-center space-x-1.5 sm:space-x-2 text-[11px] sm:text-xs text-neutral-500 font-medium overflow-hidden whitespace-nowrap">
+          <li>
+            <Link href="/" className="hover:text-black transition-colors">Home</Link>
+          </li>
+          <li className="text-neutral-300">/</li>
+          <li>
+            <Link href="/deals" className="hover:text-black transition-colors">Deals</Link>
+          </li>
+          {store.name && (
+            <>
+              <li className="text-neutral-300">/</li>
+              <li>
+                <Link href={`/stores/${storeIdStr}`} className="hover:text-black transition-colors">{store.name}</Link>
+              </li>
+            </>
+          )}
+          <li className="text-neutral-300">/</li>
+          <li className="text-black font-semibold truncate max-w-[150px] sm:max-w-xs" aria-current="page">
+            {deal.title}
+          </li>
+        </ol>
+      </nav>
+
       {/* Product Highlight Section */}
       {isCustom ? (
         <div className="rounded-[1.25rem] sm:rounded-[1.5rem] md:rounded-[2rem] shadow-xl overflow-hidden mb-8 sm:mb-12 relative w-full max-w-3xl mx-auto bg-neutral-100 group aspect-[16/10]">
+          <h1 className="sr-only">{deal.title} - Get ₹{withReviewCashback} Cashback on KaroDeal</h1>
           <img
             src={deal.image}
-            alt={deal.title}
+            alt={`${deal.title} - ${store.name || 'Store'} Cashback Deal on KaroDeal`}
+            fetchPriority="high"
             className="w-full h-full object-cover"
             onError={(e) => {
               e.target.style.display = 'none';
@@ -168,7 +196,7 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
             <div className="bg-white rounded-sm sm:rounded-xl md:rounded-2xl w-6 h-6 sm:w-10 sm:h-10 md:w-14 md:h-14 flex items-center justify-center shadow-md shrink-0 p-1 sm:p-1.5 md:p-2">
               <img
                 src={store.logoUrl}
-                alt={store.name}
+                alt={`${store.name || 'Partner Store'} Logo`}
                 className="w-full h-full object-contain"
                 onError={(e) => {
                   e.target.style.display = 'none';
@@ -205,7 +233,7 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
               <div className="bg-white rounded-sm sm:rounded-xl md:rounded-2xl w-6 h-6 sm:w-10 sm:h-10 md:w-14 md:h-14 flex items-center justify-center shadow-md shrink-0 p-1 sm:p-1.5 md:p-2">
                 <img
                   src={store.logoUrl}
-                  alt={store.name}
+                  alt={`${store.name || 'Partner Store'} Logo`}
                   className="w-full h-full object-contain"
                   onError={(e) => {
                     e.target.style.display = 'none';
@@ -214,13 +242,14 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
               </div>
             </div>
 
-            <p className="text-white/90 text-[10px] sm:text-xs md:text-sm font-bold tracking-wide mb-2 sm:mb-3 md:mb-4 line-clamp-1">
+            {/* Semantic H1 for Search Engines */}
+            <h1 className="text-white text-[11px] sm:text-xs md:text-sm font-bold tracking-wide mb-2 sm:mb-3 md:mb-4 line-clamp-2 leading-snug">
               {deal.title}
-            </p>
+            </h1>
 
-            <h2 className="text-xl sm:text-3xl md:text-5xl font-black tracking-tighter text-white mb-2 sm:mb-4 md:mb-6 leading-none">
+            <div className="text-xl sm:text-3xl md:text-5xl font-black tracking-tighter text-white mb-2 sm:mb-4 md:mb-6 leading-none">
               Upto {deal.discount}% Off
-            </h2>
+            </div>
 
             <div className="mb-3 sm:mb-6 md:mb-8 flex flex-wrap gap-2">
               <span className="bg-white/90 backdrop-blur-xs text-black font-extrabold rounded-lg flex items-center justify-center w-fit px-2 sm:px-3 py-1 shrink-0 gap-1.5 shadow-sm text-[10px] sm:text-xs lg:text-sm">
@@ -356,6 +385,67 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
           </div>
         </div>
       </div>
+
+      {/* Frequently Asked Questions (FAQ) Section for Google Search & Users */}
+      <section className="bg-white rounded-[2.5rem] p-6 sm:p-10 md:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 mt-8 sm:mt-12 max-w-3xl mx-auto">
+        <div className="flex items-center justify-center gap-2 mb-2 text-neutral-400">
+          <HelpCircle className="w-5 h-5 text-neutral-800" />
+          <span className="text-xs font-bold uppercase tracking-widest text-neutral-500">Need Help?</span>
+        </div>
+        <h2 className="text-xl sm:text-2xl font-black text-center text-black mb-6 sm:mb-8 tracking-tight">
+          Frequently Asked Questions
+        </h2>
+
+        <div className="space-y-3">
+          {[
+            {
+              q: `How do I earn ₹${withReviewCashback} cashback on ${deal.title}?`,
+              a: `Click "Grab Deal & Earn Cashback" to open ${store.name || 'the store'}, complete your order in the same session, and upload your invoice in your KaroDeal dashboard after 20 days once the return window closes.`
+            },
+            {
+              q: 'What is the difference between review vs without-review cashback?',
+              a: `You can earn up to ₹${withReviewCashback} higher cashback if you post an honest review on ${store.name || 'the store'} and submit a screenshot. Alternatively, you can claim guaranteed standard cashback of ₹${withoutReviewCashback} without writing any review.`
+            },
+            {
+              q: 'How and when can I withdraw my cashback to Bank/UPI?',
+              a: `Once your invoice is verified by our admin team (24-48 hours), your cashback is credited to your KaroDeal wallet. You can withdraw directly to your Bank Account via UPI as soon as your total balance reaches ₹1000.`
+            },
+            {
+              q: 'Can I combine this with store coupons or card discounts?',
+              a: `Yes! KaroDeal cashback is extra on top of all existing store bank discounts, UPI cashback, and coupon offers.`
+            }
+          ].map((item, index) => {
+            const isOpen = openFaq === index;
+            return (
+              <div
+                key={index}
+                className="border border-neutral-200/80 rounded-2xl overflow-hidden transition-all duration-200"
+              >
+                <button
+                  type="button"
+                  onClick={() => setOpenFaq(isOpen ? null : index)}
+                  className="w-full text-left p-4 sm:p-5 flex justify-between items-center gap-4 bg-white hover:bg-neutral-50 transition-colors focus:outline-none"
+                  aria-expanded={isOpen}
+                >
+                  <span className="font-bold text-xs sm:text-sm text-neutral-900 leading-snug">
+                    {item.q}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-neutral-400 shrink-0 transition-transform duration-200 ${
+                      isOpen ? 'rotate-180 text-black' : ''
+                    }`}
+                  />
+                </button>
+                {isOpen && (
+                  <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-1 text-neutral-600 text-xs sm:text-sm leading-relaxed border-t border-neutral-100 bg-neutral-50/50">
+                    {item.a}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       {/* Instant Cashback Activation & App Redirect Modal */}
       <CashbackRedirectModal
