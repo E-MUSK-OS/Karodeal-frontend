@@ -62,6 +62,26 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
     fetchDeal();
   }, [id, deal]);
 
+  // When user returns to the tab/window from the external app, auto-close the redirect modal
+  useEffect(() => {
+    const handleReturn = () => {
+      setIsRedirectModalOpen(false);
+    };
+
+    window.addEventListener('pageshow', handleReturn);
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        setIsRedirectModalOpen(false);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      window.removeEventListener('pageshow', handleReturn);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, []);
+
   const handleDealClick = (e) => {
     if (e && e.preventDefault) {
       e.preventDefault();
@@ -108,6 +128,11 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
         onTrackClick: trackClick,
       });
     }, 350);
+
+    // Guaranteed auto-close after 2s so the modal is never stuck open when returning
+    setTimeout(() => {
+      setIsRedirectModalOpen(false);
+    }, 2000);
   };
 
   if (loading) return <PageLoader />;

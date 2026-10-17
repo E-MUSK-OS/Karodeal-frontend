@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { ExternalLink, CheckCircle2, ShieldCheck, X, Sparkles, ArrowRight } from 'lucide-react';
 
 export default function CashbackRedirectModal({
@@ -12,16 +12,19 @@ export default function CashbackRedirectModal({
   onOpenStore,
 }) {
   const [progress, setProgress] = useState(0);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
+  // Animate progress to 100% and auto-close shortly after completion
   useEffect(() => {
     if (!isOpen) {
       setProgress(0);
       return;
     }
 
-    // Animate progress smoothly from 0 to 100% in 1.2s
     const startTime = Date.now();
-    const duration = 1200;
+    const duration = 1100;
+    let autoCloseTimer = null;
 
     const interval = setInterval(() => {
       const elapsed = Date.now() - startTime;
@@ -30,16 +33,73 @@ export default function CashbackRedirectModal({
 
       if (currentProgress >= 100) {
         clearInterval(interval);
+        // Automatically dismiss modal 700ms after reaching 100%
+        autoCloseTimer = setTimeout(() => {
+          if (onCloseRef.current) onCloseRef.current();
+        }, 700);
       }
     }, 30);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (autoCloseTimer) clearTimeout(autoCloseTimer);
+    };
+  }, [isOpen]);
+
+  // Auto-close modal when user switches to the external app and comes back to the website
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let hasLeftPage = false;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        hasLeftPage = true;
+      } else if (document.visibilityState === 'visible' && hasLeftPage) {
+        // User returned to browser from the store app -> auto close modal immediately
+        if (onCloseRef.current) onCloseRef.current();
+      }
+    };
+
+    const handlePageShow = () => {
+      // Triggered when page is restored from back/forward cache
+      if (onCloseRef.current) onCloseRef.current();
+    };
+
+    const handleWindowBlur = () => {
+      hasLeftPage = true;
+    };
+
+    const handleWindowFocus = () => {
+      if (hasLeftPage) {
+        if (onCloseRef.current) onCloseRef.current();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pageshow', handlePageShow);
+    window.addEventListener('blur', handleWindowBlur);
+    window.addEventListener('focus', handleWindowFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pageshow', handlePageShow);
+      window.removeEventListener('blur', handleWindowBlur);
+      window.removeEventListener('focus', handleWindowFocus);
+    };
   }, [isOpen]);
 
   if (!isOpen) return null;
 
   const storeName = store?.name || 'Store';
   const storeLogo = store?.logoUrl || '';
+
+  const handleManualOpen = () => {
+    if (onOpenStore) onOpenStore();
+    setTimeout(() => {
+      if (onCloseRef.current) onCloseRef.current();
+    }, 400);
+  };
 
   return (
     <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
@@ -130,7 +190,7 @@ export default function CashbackRedirectModal({
 
         {/* 5. Manual Action Button */}
         <button
-          onClick={onOpenStore}
+          onClick={handleManualOpen}
           className="w-full py-3.5 px-4 rounded-xl bg-black hover:bg-neutral-800 active:scale-[0.98] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all"
         >
           <span>Open {storeName} Now</span>
