@@ -10,12 +10,21 @@ import GoogleAuthProvider from '@/components/auth/GoogleAuthProvider';
 export const metadata = {
   metadataBase: new URL('https://karodeal.in'),
   title: {
-    default: 'KaroDeal | Discover. Save. Shop Smart.',
-    template: '%s | KaroDeal'
+    default: 'Karo Deal (KaroDeal) | India’s Best Cashback, Deals & Coupons',
+    template: '%s | KaroDeal (Karo Deal)'
   },
-  description: "Discover the latest discounts, offers, coupons, and trending products from India's top shopping platforms like Amazon, Flipkart, Myntra, and more.",
+  description: "Welcome to Karo Deal (KaroDeal) – India's premier cashback and coupon platform. Discover verified discounts, daily drops, and real withdrawable cashback across Amazon, Flipkart, Myntra, and more.",
   keywords: [
+    'Karo Deal',
+    'karo deal',
     'KaroDeal',
+    'karodeal',
+    'karodeal.in',
+    'Karo Deal Cashback',
+    'Karo Deal Offers',
+    'Karo Deal Coupons',
+    'Karo Deal App',
+    'Karo Deal Website',
     'KaroDeal Cashback',
     'KaroDeal Deals',
     'KaroDeal Offers',
@@ -124,9 +133,13 @@ export default function RootLayout({ children }) {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'KaroDeal',
+    alternateName: ['Karo Deal', 'karo deal', 'karodeal', 'karodeal.in', 'KaroDeal India'],
     url: 'https://karodeal.in',
     logo: 'https://karodeal.in/icon-512.png',
-    description: "Discover the latest discounts, offers, coupons, and trending products from India's top shopping platforms.",
+    description: "Welcome to Karo Deal (KaroDeal) – India's premier cashback and coupon platform.",
+    sameAs: [
+      'https://www.instagram.com/karodeal_/'
+    ],
   };
 
   return (

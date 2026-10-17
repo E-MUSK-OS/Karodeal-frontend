@@ -70,8 +70,9 @@ export default async function Home() {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'KaroDeal',
+    alternateName: ['Karo Deal', 'karo deal', 'karodeal', 'karodeal.in', 'KaroDeal India'],
     url: 'https://karodeal.in',
-    description: "Discover the latest discounts, offers, coupons, and trending products from India's top shopping platforms like Amazon, Flipkart, Myntra, and more.",
+    description: "Welcome to Karo Deal (KaroDeal) – India's premier cashback and coupon platform. Discover verified discounts, daily drops, and real withdrawable cashback.",
     potentialAction: {
       '@type': 'SearchAction',
       target: {
