@@ -8,6 +8,7 @@ import { CheckCircle, ArrowRight, Calendar, Star, ShieldCheck, Clock, Banknote }
 import Button from '@/components/common/Button';
 import { calculateCashback } from '@/lib/cashbackCalculator';
 import { openStoreDeal } from '@/lib/deepLink';
+import CashbackRedirectModal from '@/components/deals/CashbackRedirectModal';
 
 export default function OfferDetailsClient({ initialDeal = null, dealId = null, params }) {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
   const [loading, setLoading] = useState(!initialDeal);
   const [error, setError] = useState(null);
   const [id, setId] = useState(dealId);
+  const [isRedirectModalOpen, setIsRedirectModalOpen] = useState(false);
 
   useEffect(() => {
     if (dealId) {
@@ -63,6 +65,9 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
       e.preventDefault();
     }
 
+    // Instantly show the activating cashback modal (0ms perceived latency)
+    setIsRedirectModalOpen(true);
+
     const trackClick = () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
@@ -93,11 +98,14 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
       }
     };
 
-    openStoreDeal({
-      url: dealUrl,
-      store: storeIdStr,
-      onTrackClick: trackClick,
-    });
+    // Smooth handoff: give the user 350ms to see the activation modal before native app opens
+    setTimeout(() => {
+      openStoreDeal({
+        url: dealUrl,
+        store: storeIdStr,
+        onTrackClick: trackClick,
+      });
+    }, 350);
   };
 
   if (loading) return <PageLoader />;
@@ -348,6 +356,21 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
           </div>
         </div>
       </div>
+
+      {/* Instant Cashback Activation & App Redirect Modal */}
+      <CashbackRedirectModal
+        isOpen={isRedirectModalOpen}
+        onClose={() => setIsRedirectModalOpen(false)}
+        store={store}
+        cashbackAmount={withReviewCashback}
+        dealTitle={deal?.title}
+        onOpenStore={() => {
+          openStoreDeal({
+            url: dealUrl,
+            store: storeIdStr,
+          });
+        }}
+      />
     </div>
   );
 }

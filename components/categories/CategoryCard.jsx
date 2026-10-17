@@ -7,7 +7,8 @@ export default function CategoryCard({ category, products = [] }) {
     return (
         <Link
             href={`/categories/${category.id}`}
-            className="group relative flex flex-col bg-white rounded-2xl md:rounded-[32px] overflow-hidden border border-neutral-100 shadow-sm hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.15)] hover:-translate-y-2 transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]"
+            prefetch={true}
+            className="group relative flex flex-col bg-white rounded-2xl md:rounded-[32px] overflow-hidden border border-neutral-100 shadow-sm hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.15)] hover:-translate-y-2 active:scale-[0.98] transition-all duration-300 touch-manipulation select-none ease-[cubic-bezier(0.25,1,0.5,1)]"
         >
             {/* Top Image Section */}
             <div className="relative aspect-[2.8/3] w-full overflow-hidden bg-[#fafafa] flex items-center justify-center">

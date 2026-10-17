@@ -91,6 +91,7 @@ function UniqueStoreCard({ store, dealCount = 0 }) {
   return (
     <Link
       href={`/stores/${store.id || store.slug}`}
+      prefetch={true}
       onMouseEnter={() => setIsInteracting(true)}
       onMouseLeave={() => setIsInteracting(false)}
       onTouchStart={() => setIsInteracting(true)}

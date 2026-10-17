@@ -41,6 +41,7 @@ export default function StoreCard({ store, products = [] }) {
   return (
     <Link
       href={`/stores/${store.slug || store.id}`}
+      prefetch={true}
       className="group relative flex flex-col justify-between bg-white rounded-2xl sm:rounded-3xl border border-neutral-200/90 hover:border-neutral-300 shadow-xs hover:shadow-xl active:shadow-md transition-all duration-300 overflow-hidden h-full hover:-translate-y-1.5 active:-translate-y-0.5 active:scale-[0.99] touch-manipulation select-none"
     >
       {/* 1. Top Brand Header Bar */}

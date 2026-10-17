@@ -91,11 +91,12 @@ export default function MobileBottomNav() {
           <Link
             key={item.name}
             href={item.href}
-            className={`flex flex-col items-center justify-center flex-1 gap-1 py-1 transition-colors ${
+            prefetch={true}
+            className={`flex flex-col items-center justify-center flex-1 gap-1 py-1 transition-all duration-150 touch-manipulation active:scale-90 select-none ${
               isActive ? 'text-blue-600' : 'text-neutral-600'
             }`}
           >
-            <Icon className="w-[22px] h-[22px]" strokeWidth={isActive ? 2.5 : 2} />
+            <Icon className="w-[22px] h-[22px] transition-transform" strokeWidth={isActive ? 2.5 : 2} />
             <span className={`text-[11px] ${isActive ? 'font-semibold' : 'font-medium'}`}>
               {item.name}
             </span>

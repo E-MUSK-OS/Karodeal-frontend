@@ -67,7 +67,7 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
   const offerPageUrl = `/deals/${generateSlug(currentDeal.title)}-${currentDeal.id}`;
 
   const Wrapper = isPreview ? 'div' : Link;
-  const wrapperProps = isPreview ? {} : { href: offerPageUrl };
+  const wrapperProps = isPreview ? {} : { href: offerPageUrl, prefetch: true };
 
   // IF IT'S A CUSTOM IMAGE CARD
   if (Number(currentDeal.originalPrice) === 0) {

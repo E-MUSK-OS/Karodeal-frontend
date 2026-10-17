@@ -42,6 +42,13 @@
     @apply text-[13px] lg:text-[15px] xl:text-base;
   }
 
+  a,
+  button,
+  .btn {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
   button,
   .btn {
     font-family: var(--font-primary);

@@ -96,10 +96,10 @@ export default function Header() {
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex space-x-4 lg:space-x-10 items-center">
-            <Link href="/" className={`text-[11px] lg:text-sm font-bold uppercase tracking-widest transition-colors ${pathname === '/' ? 'text-black' : 'text-neutral-500 hover:text-black'}`}>Home</Link>
-            <Link href="/deals" className={`text-[11px] lg:text-sm font-bold uppercase tracking-widest transition-colors ${pathname?.startsWith('/deals') ? 'text-black' : 'text-neutral-500 hover:text-black'}`}>Deals</Link>
-            <Link href="/stores" className={`text-[11px] lg:text-sm font-bold uppercase tracking-widest transition-colors ${pathname?.startsWith('/stores') ? 'text-black' : 'text-neutral-500 hover:text-black'}`}>Stores</Link>
-            <Link href="/categories" className={`text-[11px] lg:text-sm font-bold uppercase tracking-widest transition-colors ${pathname?.startsWith('/categories') ? 'text-black' : 'text-neutral-500 hover:text-black'}`}>Categories</Link>
+            <Link href="/" prefetch={true} className={`text-[11px] lg:text-sm font-bold uppercase tracking-widest transition-colors ${pathname === '/' ? 'text-black' : 'text-neutral-500 hover:text-black'}`}>Home</Link>
+            <Link href="/deals" prefetch={true} className={`text-[11px] lg:text-sm font-bold uppercase tracking-widest transition-colors ${pathname?.startsWith('/deals') ? 'text-black' : 'text-neutral-500 hover:text-black'}`}>Deals</Link>
+            <Link href="/stores" prefetch={true} className={`text-[11px] lg:text-sm font-bold uppercase tracking-widest transition-colors ${pathname?.startsWith('/stores') ? 'text-black' : 'text-neutral-500 hover:text-black'}`}>Stores</Link>
+            <Link href="/categories" prefetch={true} className={`text-[11px] lg:text-sm font-bold uppercase tracking-widest transition-colors ${pathname?.startsWith('/categories') ? 'text-black' : 'text-neutral-500 hover:text-black'}`}>Categories</Link>
           </nav>
 
           {/* Search Bar (Desktop) with Live Autocomplete */}
@@ -171,10 +171,46 @@ export default function Header() {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white border-t border-neutral-100 p-4">
           <div className="flex flex-col space-y-4">
-            <Link href="/" className={`text-lg font-bold uppercase tracking-wider ${pathname === '/' ? 'text-black' : 'text-neutral-500'}`}>Home</Link>
-            <Link href="/deals" className={`text-lg font-bold uppercase tracking-wider ${pathname?.startsWith('/deals') ? 'text-black' : 'text-neutral-500'}`}>Deals</Link>
-            <Link href="/stores" className={`text-lg font-bold uppercase tracking-wider ${pathname?.startsWith('/stores') ? 'text-black' : 'text-neutral-500'}`}>Stores</Link>
-            <Link href="/categories" className={`text-lg font-bold uppercase tracking-wider ${pathname?.startsWith('/categories') ? 'text-black' : 'text-neutral-500'}`}>Categories</Link>
+            <Link
+              href="/"
+              prefetch={true}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`text-lg font-bold uppercase tracking-wider py-1 touch-manipulation active:scale-95 transition-transform ${
+                pathname === '/' ? 'text-black' : 'text-neutral-500'
+              }`}
+            >
+              Home
+            </Link>
+            <Link
+              href="/deals"
+              prefetch={true}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`text-lg font-bold uppercase tracking-wider py-1 touch-manipulation active:scale-95 transition-transform ${
+                pathname?.startsWith('/deals') ? 'text-black' : 'text-neutral-500'
+              }`}
+            >
+              Deals
+            </Link>
+            <Link
+              href="/stores"
+              prefetch={true}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`text-lg font-bold uppercase tracking-wider py-1 touch-manipulation active:scale-95 transition-transform ${
+                pathname?.startsWith('/stores') ? 'text-black' : 'text-neutral-500'
+              }`}
+            >
+              Stores
+            </Link>
+            <Link
+              href="/categories"
+              prefetch={true}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`text-lg font-bold uppercase tracking-wider py-1 touch-manipulation active:scale-95 transition-transform ${
+                pathname?.startsWith('/categories') ? 'text-black' : 'text-neutral-500'
+              }`}
+            >
+              Categories
+            </Link>
           </div>
           <div className="mt-8">
             {user ? (
