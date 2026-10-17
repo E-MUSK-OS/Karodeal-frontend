@@ -16,6 +16,8 @@ import CustomSelect from '@/components/common/CustomSelect';
 import { calculateCashback } from '@/lib/cashbackCalculator';
 import { getSocket } from '@/lib/socket';
 import { handleAppError, showSuccessToast } from '@/lib/errorHandler';
+import { buildDeduplicatedCreators, matchesCreatorFilter } from '@/lib/adminCreators';
+import { cleanProductTitle } from '@/lib/titleSanitizer';
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
@@ -423,53 +425,18 @@ export default function AdminProductsPage() {
   };
 
   const allCreators = (() => {
-    const map = new Map();
-
-    // 1. Seed currently logged-in user from localStorage if admin/sub-admin
+    let currentAdmin = null;
     try {
       const adminStr = typeof window !== 'undefined' ? localStorage.getItem('adminUser') : null;
-      if (adminStr) {
-        const currentAdmin = JSON.parse(adminStr);
-        if (currentAdmin?.id && (currentAdmin.role === 'ADMIN' || currentAdmin.role === 'SUB_ADMIN')) {
-          map.set(currentAdmin.id, {
-            id: currentAdmin.id,
-            name: currentAdmin.name || currentAdmin.email || (currentAdmin.role === 'ADMIN' ? 'Main Admin' : 'Sub-Admin'),
-            email: currentAdmin.email,
-            role: currentAdmin.role
-          });
-        }
-      }
+      if (adminStr) currentAdmin = JSON.parse(adminStr);
     } catch (e) {}
 
-    // 2. Add fetched admin & sub-admin users from backend (/auth)
-    adminUsersList.forEach(u => {
-      map.set(u.id, {
-        id: u.id,
-        name: u.name || u.email || (u.role === 'ADMIN' ? 'Main Admin' : 'Sub-Admin'),
-        email: u.email,
-        role: u.role
-      });
-    });
-
-    // 3. Add creators present on existing products
-    products.forEach(p => {
-      if (p.createdById && p.createdBy) {
-        if (!map.has(p.createdById)) {
-          map.set(p.createdById, {
-            id: p.createdById,
-            name: p.createdBy.name || p.createdBy.email || (p.createdBy.role === 'SUB_ADMIN' ? 'Sub-Admin' : 'Main Admin'),
-            email: p.createdBy.email,
-            role: p.createdBy.role || 'ADMIN'
-          });
-        }
-      }
-    });
-
-    // 4. Sort: Main Admins first, then Sub-Admins, then alphabetically by name
-    return Array.from(map.values()).sort((a, b) => {
-      if (a.role === 'ADMIN' && b.role !== 'ADMIN') return -1;
-      if (a.role !== 'ADMIN' && b.role === 'ADMIN') return 1;
-      return (a.name || '').localeCompare(b.name || '');
+    return buildDeduplicatedCreators({
+      currentAdmin,
+      adminUsersList,
+      items: products,
+      getItemCreator: (p) => p.createdBy,
+      getItemCreatorId: (p) => p.createdById,
     });
   })();
 
@@ -478,8 +445,9 @@ export default function AdminProductsPage() {
   );
 
   const filteredProducts = products.filter((p) => {
+    const cleanTitle = cleanProductTitle(p.title);
     const matchesSearch =
-      p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      cleanTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.slug?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStore = selectedStore === 'ALL' || String(p.storeId) === String(selectedStore);
 
@@ -495,7 +463,7 @@ export default function AdminProductsPage() {
 
     let matchesAdmin = true;
     if (currentRole === 'ADMIN' && selectedAdmin !== 'ALL') {
-      matchesAdmin = String(p.createdById) === String(selectedAdmin);
+      matchesAdmin = matchesCreatorFilter(p.createdById, selectedAdmin, allCreators);
     }
 
     return matchesSearch && matchesStore && matchesStatus && matchesAdmin;
@@ -614,7 +582,9 @@ export default function AdminProductsPage() {
       {/* Search & Modern Filter Dropdowns Bar */}
       <div 
         ref={filterBarRef}
-        className="bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5 relative z-20"
+        className={`bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5 relative transition-all ${
+          openDropdown ? 'z-50' : 'z-20'
+        }`}
       >
         {/* Search Input */}
         <div className="relative flex-1 min-w-[240px]">
@@ -812,7 +782,7 @@ export default function AdminProductsPage() {
               {openDropdown === 'admin' && (
                 <div
                   onClick={(e) => e.stopPropagation()}
-                  className="absolute right-0 top-full mt-1.5 z-40 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[220px] max-w-sm animate-in fade-in zoom-in-95 duration-150"
+                  className="absolute right-0 top-full mt-1.5 z-50 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[220px] max-w-sm animate-in fade-in zoom-in-95 duration-150"
                 >
                   <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1 flex items-center justify-between">
                     <span>Admin / Sub-Admin</span>
@@ -919,7 +889,7 @@ export default function AdminProductsPage() {
 
         <div className="overflow-x-auto overflow-y-auto max-h-[70vh] w-full">
           <table className="w-full text-left border-collapse text-sm min-w-[1000px]">
-            <thead className="sticky top-0 z-20">
+            <thead className="sticky top-0 z-10">
               <tr className="bg-neutral-50 text-neutral-500 text-xs font-bold uppercase tracking-wider shadow-[0_1px_0_0_#e5e5e5]">
                 <th 
                   className={`p-4 pl-6 ${currentRole === 'ADMIN' ? 'cursor-pointer hover:bg-neutral-200' : ''} transition-colors group select-none ${currentRole === 'ADMIN' ? 'w-32' : 'w-24'}`}
@@ -1056,7 +1026,7 @@ export default function AdminProductsPage() {
                         />
                       </div>
                       <div className="min-w-0">
-                        <div className="font-bold text-neutral-900 line-clamp-1 max-w-xs">{p.title}</div>
+                        <div className="font-bold text-neutral-900 line-clamp-1 max-w-xs">{cleanProductTitle(p.title)}</div>
                         {currentRole === 'ADMIN' && p.createdBy && (
                           <div className="text-[10px] text-neutral-400 font-medium">
                             Added by: <span className="font-semibold text-neutral-600">{p.createdBy.name || p.createdBy.email}</span> {p.createdBy.role === 'SUB_ADMIN' ? '(Sub-Admin)' : ''}
@@ -1335,7 +1305,7 @@ export default function AdminProductsPage() {
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="font-bold text-xs text-neutral-900 line-clamp-1">{moveRankModal.product.title}</div>
+                <div className="font-bold text-xs text-neutral-900 line-clamp-1">{cleanProductTitle(moveRankModal.product.title)}</div>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-[11px] text-neutral-500">Current Position:</span>
                   <span className="text-xs font-mono font-black text-[#f96b02] bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-md">

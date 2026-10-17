@@ -1,6 +1,7 @@
 import OfferDetailsClient from '@/components/deals/OfferDetailsClient';
 import { calculateCashback } from '@/lib/cashbackCalculator';
 import { notFound } from 'next/navigation';
+import { cleanProductTitle } from '@/lib/titleSanitizer';
 
 async function fetchDealBySlug(slug) {
   try {
@@ -30,6 +31,8 @@ export async function generateMetadata({ params }) {
       robots: { index: false, follow: true },
     };
   }
+
+  deal.title = cleanProductTitle(deal.title);
 
   const storeName = deal.storeRel?.name || 'Top Stores';
   const withReviewCashback = deal.cashbackWithReview ?? deal.cashback ?? calculateCashback(deal.salePrice).withReview;
@@ -100,6 +103,8 @@ export default async function DealDetailPage({ params }) {
   if (!deal) {
     notFound();
   }
+
+  deal.title = cleanProductTitle(deal.title);
 
   const slugParts = slug.split('-');
   const dealId = slugParts.pop();

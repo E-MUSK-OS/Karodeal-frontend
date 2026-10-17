@@ -7,9 +7,9 @@ import ConfirmModal from '@/components/common/ConfirmModal';
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
-import * as XLSX from 'xlsx';
 import { calculateCashback } from '@/lib/cashbackCalculator';
 import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
+import { buildDeduplicatedCreators, matchesCreatorFilter } from '@/lib/adminCreators';
 
 import ClaimsFilterBar from '@/components/admin/claims/ClaimsFilterBar';
 import ClaimsTable from '@/components/admin/claims/ClaimsTable';
@@ -230,50 +230,18 @@ function AdminClaimsContent() {
 
   // Extract all creators for Admin dropdown
   const allCreators = (() => {
-    const map = new Map();
-
+    let currentAdmin = null;
     try {
       const adminStr = typeof window !== 'undefined' ? localStorage.getItem('adminUser') : null;
-      if (adminStr) {
-        const currentAdmin = JSON.parse(adminStr);
-        if (currentAdmin?.id && (currentAdmin.role === 'ADMIN' || currentAdmin.role === 'SUB_ADMIN')) {
-          map.set(currentAdmin.id, {
-            id: currentAdmin.id,
-            name: currentAdmin.name || currentAdmin.email || (currentAdmin.role === 'ADMIN' ? 'Main Admin' : 'Sub-Admin'),
-            email: currentAdmin.email,
-            role: currentAdmin.role
-          });
-        }
-      }
+      if (adminStr) currentAdmin = JSON.parse(adminStr);
     } catch (e) {}
 
-    adminUsersList.forEach(u => {
-      map.set(u.id, {
-        id: u.id,
-        name: u.name || u.email || (u.role === 'ADMIN' ? 'Main Admin' : 'Sub-Admin'),
-        email: u.email,
-        role: u.role
-      });
-    });
-
-    claims.forEach(c => {
-      if (c.product?.createdById) {
-        if (!map.has(c.product.createdById)) {
-          const creator = c.product.createdBy;
-          map.set(c.product.createdById, {
-            id: c.product.createdById,
-            name: creator?.name || creator?.email || (creator?.role === 'SUB_ADMIN' ? 'Sub-Admin' : 'Main Admin'),
-            email: creator?.email,
-            role: creator?.role || 'ADMIN'
-          });
-        }
-      }
-    });
-
-    return Array.from(map.values()).sort((a, b) => {
-      if (a.role === 'ADMIN' && b.role !== 'ADMIN') return -1;
-      if (a.role !== 'ADMIN' && b.role === 'ADMIN') return 1;
-      return (a.name || '').localeCompare(b.name || '');
+    return buildDeduplicatedCreators({
+      currentAdmin,
+      adminUsersList,
+      items: claims,
+      getItemCreator: (c) => c.product?.createdBy,
+      getItemCreatorId: (c) => c.product?.createdById,
     });
   })();
 
@@ -338,7 +306,7 @@ function AdminClaimsContent() {
   const filteredClaims = claims.filter(c => {
     const matchesStatus = statusFilter === 'ALL' || c.status === statusFilter;
     const matchesStore = storeFilter === 'ALL' || c.storeName === storeFilter;
-    const matchesAdmin = selectedAdmin === 'ALL' || String(c.product?.createdById) === String(selectedAdmin);
+    const matchesAdmin = matchesCreatorFilter(c.product?.createdById, selectedAdmin, allCreators);
     const searchLower = searchQuery.toLowerCase().trim();
     const matchesSearch = !searchLower ||
       c.product?.title?.toLowerCase().includes(searchLower) ||

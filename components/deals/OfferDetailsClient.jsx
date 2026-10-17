@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation';
 import PageLoader from '@/components/common/PageLoader';
 import Link from 'next/link';
 import { CheckCircle, ArrowRight, Calendar, Star, ShieldCheck, Clock, Banknote, ChevronDown, HelpCircle } from 'lucide-react';
-import Button from '@/components/common/Button';
 import { calculateCashback } from '@/lib/cashbackCalculator';
 import { openStoreDeal } from '@/lib/deepLink';
 import CashbackRedirectModal from '@/components/deals/CashbackRedirectModal';
+import { cleanProductTitle } from '@/lib/titleSanitizer';
 
 export default function OfferDetailsClient({ initialDeal = null, dealId = null, params }) {
   const router = useRouter();
@@ -173,7 +173,7 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
           )}
           <li className="text-neutral-300">/</li>
           <li className="text-black font-semibold truncate max-w-[150px] sm:max-w-xs" aria-current="page">
-            {deal.title}
+            {cleanProductTitle(deal.title)}
           </li>
         </ol>
       </nav>
@@ -181,10 +181,10 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
       {/* Product Highlight Section */}
       {isCustom ? (
         <div className="rounded-[1.25rem] sm:rounded-[1.5rem] md:rounded-[2rem] shadow-xl overflow-hidden mb-8 sm:mb-12 relative w-full max-w-3xl mx-auto bg-neutral-100 group aspect-[16/10]">
-          <h1 className="sr-only">{deal.title} - Get ₹{withReviewCashback} Cashback on KaroDeal</h1>
+          <h1 className="sr-only">{cleanProductTitle(deal.title)} - Get ₹{withReviewCashback} Cashback on KaroDeal</h1>
           <img
             src={deal.image}
-            alt={`${deal.title} - ${store.name || 'Store'} Cashback Deal on KaroDeal`}
+            alt={`${cleanProductTitle(deal.title)} - ${store.name || 'Store'} Cashback Deal on KaroDeal`}
             fetchPriority="high"
             className="w-full h-full object-cover"
             onError={(e) => {
@@ -244,7 +244,7 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
 
             {/* Semantic H1 for Search Engines */}
             <h1 className="text-white text-[11px] sm:text-xs md:text-sm font-bold tracking-wide mb-2 sm:mb-3 md:mb-4 line-clamp-2 leading-snug">
-              {deal.title}
+              {cleanProductTitle(deal.title)}
             </h1>
 
             <div className="text-xl sm:text-3xl md:text-5xl font-black tracking-tighter text-white mb-2 sm:mb-4 md:mb-6 leading-none">
@@ -399,7 +399,7 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
         <div className="space-y-3">
           {[
             {
-              q: `How do I earn ₹${withReviewCashback} cashback on ${deal.title}?`,
+              q: `How do I earn ₹${withReviewCashback} cashback on ${cleanProductTitle(deal.title)}?`,
               a: `Click "Grab Deal & Earn Cashback" to open ${store.name || 'the store'}, complete your order in the same session, and upload your invoice in your KaroDeal dashboard after 20 days once the return window closes.`
             },
             {

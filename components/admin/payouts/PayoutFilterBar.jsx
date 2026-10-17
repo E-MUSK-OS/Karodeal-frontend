@@ -59,7 +59,9 @@ export default function PayoutFilterBar({
       {/* Search & Status Filter Dropdown Bar */}
       <div
         ref={filterBarRef}
-        className="bg-white p-3.5 sm:p-4 rounded-2xl border border-neutral-200 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 relative z-20"
+        className={`bg-white p-3.5 sm:p-4 rounded-2xl border border-neutral-200 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 relative transition-all ${
+          openDropdown ? 'z-50' : 'z-20'
+        }`}
       >
         {/* Search Input: Strictly searches ONLY by User (name, email, mobile) */}
         <div className="relative flex-1 min-w-[240px]">
@@ -114,7 +116,7 @@ export default function PayoutFilterBar({
             {openDropdown && (
               <div
                 onClick={(e) => e.stopPropagation()}
-                className="absolute right-0 top-full mt-1.5 z-40 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[210px] animate-in fade-in zoom-in-95 duration-150"
+                className="absolute right-0 top-full mt-1.5 z-50 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[210px] animate-in fade-in zoom-in-95 duration-150"
               >
                 <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1">
                   Filter by Transaction Status

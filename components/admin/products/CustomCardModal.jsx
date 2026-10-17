@@ -7,6 +7,7 @@ import CustomSelect from '@/components/common/CustomSelect';
 import { calculateCashback } from '@/lib/cashbackCalculator';
 import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
 import { processImageUpload } from '@/lib/imageProcessor';
+import { cleanProductTitle } from '@/lib/titleSanitizer';
 
 export default function CustomCardModal({ isOpen, onClose, onSuccess, dbStores, dbCategories, existingProducts = [], currentRole }) {
   const [formData, setFormData] = useState({
@@ -67,7 +68,7 @@ export default function CustomCardModal({ isOpen, onClose, onSuccess, dbStores, 
   const handleSaveAdd = async (e) => {
     e.preventDefault();
     
-    const actualTitle = formData.title.trim();
+    const actualTitle = cleanProductTitle(formData.title);
     if (!actualTitle) return showError("Please enter the Product Card Title!");
     if (isDuplicateTitle) {
       return showError("A product card with this title already exists! Please choose a unique title.");

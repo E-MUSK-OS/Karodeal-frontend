@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Button from '@/components/common/Button';
 
 import { calculateCashback } from '@/lib/cashbackCalculator';
+import { cleanProductTitle } from '@/lib/titleSanitizer';
 
 export default function StoreOfferCard({ deal, product, store: propStore, fullWidth = false, isPreview = false, hideCashback = false }) {
 
@@ -76,7 +77,7 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
         {...wrapperProps}
         className={`block relative flex flex-col justify-center items-center ${widthClass} ${heightClass} ${minHeightClass} rounded-2xl md:rounded-[24px] overflow-hidden shrink-0 bg-neutral-100 p-0 group shadow-lg hover:shadow-xl/20 active:shadow-xl/20 hover:-translate-y-2 active:-translate-y-2 transition-all duration-500 ease-out ${isPreview ? 'cursor-default' : 'cursor-pointer'}`}
       >
-        <img src={currentDeal.image} alt={currentDeal.title} className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+        <img src={currentDeal.image} alt={cleanProductTitle(currentDeal.title)} className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
 
         {/* Store Logo Overlay */}
         <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20 pointer-events-none">
@@ -128,7 +129,7 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
         {/* Text Area & Button */}
         <div className="flex flex-col my-auto overflow-hidden">
           <p className="text-white/90 text-[12px] md:text-sm font-bold tracking-wide line-clamp-2 sm:line-clamp-1 mb-1.5 sm:mb-2 md:mb-3 leading-tight mt-4 md:mt-6">
-            {currentDeal.title}
+            {cleanProductTitle(currentDeal.title)}
           </p>
           <h3 className="text-white font-black leading-tight mb-2 sm:mb-3 md:mb-4 lg:mb-5 tracking-tighter shrink-0">
             Upto {currentDeal.discount}% Off
@@ -155,7 +156,7 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
         <div className="w-full absolute inset-0 flex items-center justify-center">
           <img
             src={currentDeal.image}
-            alt={currentDeal.title}
+            alt={cleanProductTitle(currentDeal.title)}
             className="w-full h-full object-cover rounded-lg sm:rounded-xl md:rounded-2xl"
             onError={(e) => { e.target.style.display = 'none'; }}
           />

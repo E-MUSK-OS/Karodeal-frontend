@@ -12,6 +12,7 @@ import MissingCashbackFilterBar from '@/components/admin/missing-cashback/Missin
 import MissingCashbackTable from '@/components/admin/missing-cashback/MissingCashbackTable';
 import MissingCashbackDetailView from '@/components/admin/missing-cashback/MissingCashbackDetailView';
 import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
+import { buildDeduplicatedCreators, matchesCreatorFilter } from '@/lib/adminCreators';
 
 function AdminMissingCashbackContent() {
   const router = useRouter();
@@ -212,58 +213,25 @@ function AdminMissingCashbackContent() {
 
   // Extract all creators for Admin dropdown
   const allCreators = (() => {
-    const map = new Map();
-
+    let currentAdmin = null;
     try {
       const adminStr = typeof window !== 'undefined' ? localStorage.getItem('adminUser') : null;
-      if (adminStr) {
-        const currentAdmin = JSON.parse(adminStr);
-        if (currentAdmin?.id && (currentAdmin.role === 'ADMIN' || currentAdmin.role === 'SUB_ADMIN')) {
-          map.set(currentAdmin.id, {
-            id: currentAdmin.id,
-            name: currentAdmin.name || currentAdmin.email || (currentAdmin.role === 'ADMIN' ? 'Main Admin' : 'Sub-Admin'),
-            email: currentAdmin.email,
-            role: currentAdmin.role
-          });
-        }
-      }
+      if (adminStr) currentAdmin = JSON.parse(adminStr);
     } catch (e) {}
 
-    adminUsersList.forEach(u => {
-      map.set(u.id, {
-        id: u.id,
-        name: u.name || u.email || (u.role === 'ADMIN' ? 'Main Admin' : 'Sub-Admin'),
-        email: u.email,
-        role: u.role
-      });
-    });
-
-    tickets.forEach(t => {
-      const prod = t.product || t.matchedClaim?.product;
-      if (prod?.createdById) {
-        if (!map.has(prod.createdById)) {
-          const creator = prod.createdBy;
-          map.set(prod.createdById, {
-            id: prod.createdById,
-            name: creator?.name || creator?.email || (creator?.role === 'SUB_ADMIN' ? 'Sub-Admin' : 'Main Admin'),
-            email: creator?.email,
-            role: creator?.role || 'ADMIN'
-          });
-        }
-      }
-    });
-
-    return Array.from(map.values()).sort((a, b) => {
-      if (a.role === 'ADMIN' && b.role !== 'ADMIN') return -1;
-      if (a.role !== 'ADMIN' && b.role === 'ADMIN') return 1;
-      return (a.name || '').localeCompare(b.name || '');
+    return buildDeduplicatedCreators({
+      currentAdmin,
+      adminUsersList,
+      items: tickets,
+      getItemCreator: (t) => (t.product || t.matchedClaim?.product)?.createdBy,
+      getItemCreatorId: (t) => (t.product || t.matchedClaim?.product)?.createdById,
     });
   })();
 
   // Filtered Tickets
   const filteredTickets = tickets.filter(t => {
     const prod = t.product || t.matchedClaim?.product;
-    const matchesAdmin = selectedAdmin === 'ALL' || String(prod?.createdById) === String(selectedAdmin);
+    const matchesAdmin = matchesCreatorFilter(prod?.createdById, selectedAdmin, allCreators);
     const matchesStatus = statusFilter === 'ALL' || t.status === statusFilter;
     const searchLower = searchQuery.toLowerCase().trim();
     const matchesSearch = !searchLower ||

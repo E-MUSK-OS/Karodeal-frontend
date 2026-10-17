@@ -5,6 +5,7 @@ import Button from '@/components/common/Button';
 import * as XLSX from 'xlsx';
 import { calculateCashback } from '@/lib/cashbackCalculator';
 import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
+import { cleanProductTitle } from '@/lib/titleSanitizer';
 
 export default function BulkImportModal({ isOpen, onClose, onSuccess, dbStores, dbCategories, currentRole }) {
   const [bulkProducts, setBulkProducts] = useState([]);
@@ -49,7 +50,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess, dbStores, 
           const discount = Math.max(0, parseFloat(row['Discount'] || row['discount'] || 0));
           const { withoutReview, withReview } = calculateCashback(salePrice);
           return {
-            title: row['Title'] || row['title'] || '',
+            title: cleanProductTitle(row['Title'] || row['title'] || ''),
             store: dbStores.find(s => s.name.toLowerCase() === String(row['Store'] || row['store'] || '').toLowerCase())?.id || dbStores[0]?.id || '',
             category: dbCategories.find(c => c.name.toLowerCase() === String(row['Category'] || row['category'] || '').toLowerCase())?.id || dbCategories[0]?.id || '',
             originalPrice,

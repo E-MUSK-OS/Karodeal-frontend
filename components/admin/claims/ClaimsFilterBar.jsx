@@ -59,7 +59,9 @@ export default function ClaimsFilterBar({
       {/* Search & Modern Filter Dropdowns Bar */}
       <div
         ref={filterBarRef}
-        className="bg-white p-3.5 sm:p-4 rounded-2xl border border-neutral-200 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 relative z-20"
+        className={`bg-white p-3.5 sm:p-4 rounded-2xl border border-neutral-200 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 relative transition-all ${
+          openDropdown ? 'z-50' : 'z-20'
+        }`}
       >
         {/* Search Input */}
         <div className="relative flex-1 min-w-[240px]">
@@ -117,7 +119,7 @@ export default function ClaimsFilterBar({
             {openDropdown === 'status' && (
               <div
                 onClick={(e) => e.stopPropagation()}
-                className="absolute right-0 top-full mt-1.5 z-40 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[200px] animate-in fade-in zoom-in-95 duration-150"
+                className="absolute right-0 top-full mt-1.5 z-50 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[200px] animate-in fade-in zoom-in-95 duration-150"
               >
                 <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1">
                   Filter by Status
@@ -178,7 +180,7 @@ export default function ClaimsFilterBar({
             {openDropdown === 'store' && (
               <div
                 onClick={(e) => e.stopPropagation()}
-                className="absolute right-0 top-full mt-1.5 z-40 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[210px] max-w-xs animate-in fade-in zoom-in-95 duration-150"
+                className="absolute right-0 top-full mt-1.5 z-50 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[210px] max-w-xs animate-in fade-in zoom-in-95 duration-150"
               >
                 <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1">
                   Filter by Store
@@ -264,7 +266,7 @@ export default function ClaimsFilterBar({
               {openDropdown === 'admin' && (
                 <div
                   onClick={(e) => e.stopPropagation()}
-                  className="absolute right-0 top-full mt-1.5 z-40 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[220px] max-w-sm animate-in fade-in zoom-in-95 duration-150"
+                  className="absolute right-0 top-full mt-1.5 z-50 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[220px] max-w-sm animate-in fade-in zoom-in-95 duration-150"
                 >
                   <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1 flex items-center justify-between">
                     <span>Admin / Sub-Admin</span>

@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import PageLoader from '@/components/common/PageLoader';
 import { Search, ChevronLeft, ChevronRight, MousePointerClick, X, ShieldCheck, ChevronDown, Check, RotateCcw } from 'lucide-react';
+import { buildDeduplicatedCreators, matchesCreatorFilter } from '@/lib/adminCreators';
+import { cleanProductTitle } from '@/lib/titleSanitizer';
 
 export default function ProductClicksPage() {
   const router = useRouter();
@@ -108,61 +110,25 @@ export default function ProductClicksPage() {
 
   // Build the list of admins/sub-admins for the dropdown filter
   const allCreators = (() => {
-    const map = new Map();
-
-    // 1. Seed currently logged-in user from localStorage if admin/sub-admin
+    let currentAdmin = null;
     try {
       const adminStr = typeof window !== 'undefined' ? localStorage.getItem('adminUser') : null;
-      if (adminStr) {
-        const currentAdmin = JSON.parse(adminStr);
-        if (currentAdmin?.id && (currentAdmin.role === 'ADMIN' || currentAdmin.role === 'SUB_ADMIN')) {
-          map.set(currentAdmin.id, {
-            id: currentAdmin.id,
-            name: currentAdmin.name || currentAdmin.email || (currentAdmin.role === 'ADMIN' ? 'Main Admin' : 'Sub-Admin'),
-            email: currentAdmin.email,
-            role: currentAdmin.role
-          });
-        }
-      }
+      if (adminStr) currentAdmin = JSON.parse(adminStr);
     } catch (e) {}
 
-    // 2. Add fetched admin & sub-admin users from backend (/auth)
-    adminUsersList.forEach(u => {
-      map.set(u.id, {
-        id: u.id,
-        name: u.name || u.email || (u.role === 'ADMIN' ? 'Main Admin' : 'Sub-Admin'),
-        email: u.email,
-        role: u.role
-      });
-    });
-
-    // 3. Add creators present on existing click records
-    clicks.forEach(c => {
-      if (c.product?.createdById) {
-        if (!map.has(c.product.createdById)) {
-          const creator = c.product.createdBy;
-          map.set(c.product.createdById, {
-            id: c.product.createdById,
-            name: creator?.name || creator?.email || (creator?.role === 'SUB_ADMIN' ? 'Sub-Admin' : 'Main Admin'),
-            email: creator?.email,
-            role: creator?.role || 'ADMIN'
-          });
-        }
-      }
-    });
-
-    // 4. Sort: Main Admins first, then Sub-Admins, then alphabetically
-    return Array.from(map.values()).sort((a, b) => {
-      if (a.role === 'ADMIN' && b.role !== 'ADMIN') return -1;
-      if (a.role !== 'ADMIN' && b.role === 'ADMIN') return 1;
-      return (a.name || '').localeCompare(b.name || '');
+    return buildDeduplicatedCreators({
+      currentAdmin,
+      adminUsersList,
+      items: clicks,
+      getItemCreator: (c) => c.product?.createdBy,
+      getItemCreatorId: (c) => c.product?.createdById,
     });
   })();
 
   // Filter clicks
   const filteredClicks = clicks.filter((click) => {
     // Admin filter (only applies if user is ADMIN; SUB_ADMIN is already restricted by backend)
-    const matchesAdmin = userRole !== 'ADMIN' || selectedAdmin === 'ALL' || String(click.product?.createdById) === String(selectedAdmin);
+    const matchesAdmin = userRole !== 'ADMIN' || selectedAdmin === 'ALL' || matchesCreatorFilter(click.product?.createdById, selectedAdmin, allCreators);
     if (!matchesAdmin) return false;
 
     if (!searchTerm.trim()) return true;
@@ -215,7 +181,7 @@ export default function ProductClicksPage() {
         </div>
 
         {/* Filters Row */}
-        <div ref={filterBarRef} className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+        <div ref={filterBarRef} className={`flex flex-wrap items-center gap-2.5 w-full md:w-auto relative transition-all ${openDropdown ? 'z-50' : 'z-20'}`}>
           {/* Search Bar */}
           <div className="relative flex-1 sm:w-64 md:w-64">
             <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -264,7 +230,7 @@ export default function ProductClicksPage() {
               {openDropdown && (
                 <div
                   onClick={(e) => e.stopPropagation()}
-                  className="absolute right-0 top-full mt-1.5 z-40 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[220px] max-w-sm animate-in fade-in zoom-in-95 duration-150"
+                  className="absolute right-0 top-full mt-1.5 z-50 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 min-w-[220px] max-w-sm animate-in fade-in zoom-in-95 duration-150"
                 >
                   <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1">
                     Filter by Admin
@@ -374,7 +340,7 @@ export default function ProductClicksPage() {
                     </td>
                     <td className="px-4 py-3 sm:px-6 sm:py-4 max-w-[200px] sm:max-w-[300px]" title={click.product?.title}>
                       <div className="truncate font-medium text-neutral-900">
-                        {click.product?.title || 'Unknown Product'}
+                        {cleanProductTitle(click.product?.title || 'Unknown Product')}
                       </div>
                       {userRole === 'ADMIN' && click.product?.createdBy && (
                         <div className="text-[10px] text-neutral-400 font-normal mt-0.5">
