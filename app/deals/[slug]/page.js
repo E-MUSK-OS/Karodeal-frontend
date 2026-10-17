@@ -13,7 +13,11 @@ async function fetchDealBySlug(slug) {
     const res = await fetch(`${apiUrl}/products`, { next: { revalidate: 60 } });
     if (!res.ok) return null;
     const allProducts = await res.json();
-    return allProducts.find((p) => String(p.id) === String(dealId)) || null;
+    return allProducts.find((p) => 
+      String(p.id) === String(dealId) || 
+      p.slug === slug || 
+      String(p.id) === String(slug)
+    ) || null;
   } catch (err) {
     console.error('Error fetching deal for SEO metadata:', err);
     return null;
@@ -107,7 +111,7 @@ export default async function DealDetailPage({ params }) {
   deal.title = cleanProductTitle(deal.title);
 
   const slugParts = slug.split('-');
-  const dealId = slugParts.pop();
+  const dealId = deal.id || slugParts.pop();
 
   const store = deal.storeRel || {};
   const storeName = store.name || 'Partner Store';

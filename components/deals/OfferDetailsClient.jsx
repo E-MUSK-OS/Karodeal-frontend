@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import PageLoader from '@/components/common/PageLoader';
 import Link from 'next/link';
 import { CheckCircle, ArrowRight, Calendar, Star, ShieldCheck, Clock, Banknote, ChevronDown, HelpCircle } from 'lucide-react';
+import Button from '@/components/common/Button';
 import { calculateCashback } from '@/lib/cashbackCalculator';
 import { openStoreDeal } from '@/lib/deepLink';
 import CashbackRedirectModal from '@/components/deals/CashbackRedirectModal';
