@@ -12,6 +12,8 @@ import ReviewRequestTable from '@/components/admin/review-requests/ReviewRequest
 import ApproveRequestModal from '@/components/admin/review-requests/ApproveRequestModal';
 import NewRequestModal from '@/components/admin/review-requests/NewRequestModal';
 import DeclineRequestModal from '@/components/admin/review-requests/DeclineRequestModal';
+import EditRequestModal from '@/components/admin/review-requests/EditRequestModal';
+import DeleteRequestModal from '@/components/admin/review-requests/DeleteRequestModal';
 
 export default function ReviewRequestsPage() {
   const [loading, setLoading] = useState(true);
@@ -29,7 +31,10 @@ export default function ReviewRequestsPage() {
   const [isNewRequestModalOpen, setIsNewRequestModalOpen] = useState(false);
   const [approvalModal, setApprovalModal] = useState({ isOpen: false, request: null, targetRank: 1, reviewNote: '' });
   const [declineModal, setDeclineModal] = useState({ isOpen: false, request: null, reviewNote: '' });
+  const [editModal, setEditModal] = useState({ isOpen: false, request: null });
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, request: null });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [starStats, setStarStats] = useState({
     pinnedCount: 0,
     contiguousStarRank: 0,
@@ -118,6 +123,20 @@ export default function ReviewRequestsPage() {
     });
   };
 
+  const handleOpenEditModal = (req) => {
+    setEditModal({
+      isOpen: true,
+      request: req
+    });
+  };
+
+  const handleOpenDeleteModal = (req) => {
+    setDeleteModal({
+      isOpen: true,
+      request: req
+    });
+  };
+
   // Main Admin: Approve Request
   const handleApprove = async () => {
     if (!approvalModal.request) return;
@@ -192,6 +211,39 @@ export default function ReviewRequestsPage() {
       showToast(err, true);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Delete Request (Sub-Admin or Main Admin)
+  const handleDeleteConfirm = async () => {
+    if (!deleteModal.request) return;
+    setIsDeleting(true);
+    try {
+      const adminStr = localStorage.getItem('adminUser');
+      const user = adminStr ? JSON.parse(adminStr) : null;
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
+
+      const res = await fetch(`${apiUrl}/review-requests/${deleteModal.request.id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${user?.token}`
+        }
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        showToast('Review request deleted successfully.');
+        setDeleteModal({ isOpen: false, request: null });
+        fetchRequests();
+        window.dispatchEvent(new Event('karodeal:star_requests_changed'));
+        window.dispatchEvent(new Event('karodeal:review_requests_changed'));
+      } else {
+        showToast(data.error || 'Failed to delete request', true);
+      }
+    } catch (err) {
+      showToast(err, true);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -320,6 +372,8 @@ export default function ReviewRequestsPage() {
         setExpandedNoteId={setExpandedNoteId}
         onOpenApproveModal={handleOpenApprovalModal}
         onOpenDeclineModal={handleOpenDeclineModal}
+        onOpenEditModal={handleOpenEditModal}
+        onOpenDeleteModal={handleOpenDeleteModal}
       />
 
       {/* Sub-Admin New Request Modal */}
@@ -358,6 +412,28 @@ export default function ReviewRequestsPage() {
         isSubmitting={isSubmitting}
         onClose={() => setDeclineModal({ isOpen: false, request: null, reviewNote: '' })}
         onConfirm={handleDecline}
+      />
+
+      {/* Edit Request Modal */}
+      <EditRequestModal
+        isOpen={editModal.isOpen}
+        request={editModal.request}
+        onClose={() => setEditModal({ isOpen: false, request: null })}
+        onSuccess={() => {
+          fetchRequests();
+          window.dispatchEvent(new Event('karodeal:star_requests_changed'));
+          window.dispatchEvent(new Event('karodeal:review_requests_changed'));
+        }}
+        showToast={showToast}
+      />
+
+      {/* Delete Request Modal */}
+      <DeleteRequestModal
+        isOpen={deleteModal.isOpen}
+        request={deleteModal.request}
+        isSubmitting={isDeleting}
+        onClose={() => setDeleteModal({ isOpen: false, request: null })}
+        onConfirm={handleDeleteConfirm}
       />
     </div>
   );

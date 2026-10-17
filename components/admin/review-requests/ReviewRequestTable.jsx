@@ -3,7 +3,7 @@
 import { 
   Star, CheckCircle2, XCircle, Clock, Store, 
   MessageSquare, Check, X, ChevronLeft, ChevronRight,
-  TrendingUp, Sparkles
+  TrendingUp, Sparkles, Edit3, Trash2
 } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
@@ -24,7 +24,9 @@ export default function ReviewRequestTable({
   expandedNoteId,
   setExpandedNoteId,
   onOpenApproveModal,
-  onOpenDeclineModal
+  onOpenDeclineModal,
+  onOpenEditModal,
+  onOpenDeleteModal
 }) {
   return (
     <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
@@ -210,29 +212,53 @@ export default function ReviewRequestTable({
                   )}
                 </div>
 
-                {/* Main Admin Action Buttons on mobile */}
-                {isMainAdmin && isPending && (
-                  <div className="flex items-center gap-2 pt-1">
+                {/* Action Buttons on mobile */}
+                <div className="flex flex-col gap-2 pt-1 border-t border-neutral-100">
+                  {isMainAdmin && isPending && (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="none"
+                        size="none"
+                        onClick={() => onOpenApproveModal(req)}
+                        className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-2xs flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Approve</span>
+                      </Button>
+                      <Button
+                        variant="none"
+                        size="none"
+                        onClick={() => onOpenDeclineModal(req)}
+                        className="flex-1 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                        <span>Decline</span>
+                      </Button>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-2">
                     <Button
                       variant="none"
                       size="none"
-                      onClick={() => onOpenApproveModal(req)}
-                      className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-2xs flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                      onClick={() => onOpenEditModal(req)}
+                      className="flex-1 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border border-neutral-200 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                     >
-                      <Check className="w-3.5 h-3.5" />
-                      <span>Approve</span>
+                      <Edit3 className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Edit</span>
                     </Button>
                     <Button
                       variant="none"
                       size="none"
-                      onClick={() => onOpenDeclineModal(req)}
-                      className="flex-1 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1"
+                      onClick={() => onOpenDeleteModal(req)}
+                      className="py-2 px-3.5 bg-neutral-100 hover:bg-rose-50 text-neutral-600 hover:text-rose-600 border border-neutral-200 hover:border-rose-200 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                      title="Delete Request"
                     >
-                      <X className="w-3.5 h-3.5" />
-                      <span>Decline</span>
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete</span>
                     </Button>
                   </div>
-                )}
+                </div>
               </div>
             );
           })
@@ -241,7 +267,7 @@ export default function ReviewRequestTable({
 
       {/* DESKTOP TABLE VIEW (visible on screen widths >= 768px) */}
       <div className="hidden md:block overflow-x-auto overflow-y-auto max-h-[70vh] w-full">
-        <table className={`w-full text-left border-collapse text-sm ${isMainAdmin ? 'min-w-[1050px]' : 'min-w-[750px]'}`}>
+        <table className={`w-full text-left border-collapse text-sm ${isMainAdmin ? 'min-w-[1150px]' : 'min-w-[950px]'}`}>
           <thead className="sticky top-0 z-20">
             <tr className="bg-neutral-50 text-neutral-500 text-xs font-bold uppercase tracking-wider shadow-[0_1px_0_0_#e5e5e5]">
               <th className="p-4 pl-6 w-20">SR. NO.</th>
@@ -252,20 +278,20 @@ export default function ReviewRequestTable({
               <th className="p-4">TARGET QTY</th>
               <th className="p-4">NOTES</th>
               <th className="p-4 text-center">STATUS</th>
-              {isMainAdmin && <th className="p-4 pr-6 text-right">ACTIONS</th>}
+              <th className="p-4 pr-6 text-right">ACTIONS</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100">
             {isReloading ? (
               <tr>
-                <td colSpan={isMainAdmin ? 9 : 6} className="p-12 text-center">
+                <td colSpan={isMainAdmin ? 9 : 7} className="p-12 text-center">
                   <PageLoader />
                   <p className="text-xs text-neutral-500 font-semibold mt-2">Refreshing requests...</p>
                 </td>
               </tr>
             ) : requests.length === 0 ? (
               <tr>
-                <td colSpan={isMainAdmin ? 9 : 6} className="p-12 text-center text-neutral-500">
+                <td colSpan={isMainAdmin ? 9 : 7} className="p-12 text-center text-neutral-500">
                   <Star className="w-8 h-8 stroke-[1.5] mx-auto mb-2 text-neutral-300" />
                   <p className="font-bold text-neutral-700">No review requests found</p>
                   <p className="text-xs text-neutral-400 mt-0.5">
@@ -449,16 +475,16 @@ export default function ReviewRequestTable({
                       )}
                     </td>
 
-                    {/* Actions (Main Admin only) */}
-                    {isMainAdmin && (
-                      <td className="p-4 pr-6 text-right">
-                        {isPending ? (
-                          <div className="flex items-center justify-end gap-2">
+                    {/* Actions Column (Main Admin & Sub-Admin) */}
+                    <td className="p-4 pr-6 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1.5">
+                        {isMainAdmin && isPending && (
+                          <>
                             <Button
                               variant="none"
                               size="none"
                               onClick={() => onOpenApproveModal(req)}
-                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-2xs flex items-center gap-1 transition-colors cursor-pointer"
+                              className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-2xs flex items-center gap-1 transition-colors cursor-pointer"
                               title="Approve Request"
                             >
                               <Check className="w-3.5 h-3.5" />
@@ -468,20 +494,35 @@ export default function ReviewRequestTable({
                               variant="none"
                               size="none"
                               onClick={() => onOpenDeclineModal(req)}
-                              className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                              className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1"
                               title="Decline Request"
                             >
                               <X className="w-3.5 h-3.5" />
                               <span>Decline</span>
                             </Button>
-                          </div>
-                        ) : (
-                          <span className="text-[11px] text-neutral-400 font-semibold italic">
-                            Resolved
-                          </span>
+                          </>
                         )}
-                      </td>
-                    )}
+                        <Button
+                          variant="none"
+                          size="none"
+                          onClick={() => onOpenEditModal(req)}
+                          className="px-2.5 py-1.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border border-neutral-300 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                          title="Edit Request"
+                        >
+                          <Edit3 className="w-3.5 h-3.5 text-blue-600" />
+                          <span>Edit</span>
+                        </Button>
+                        <Button
+                          variant="none"
+                          size="none"
+                          onClick={() => onOpenDeleteModal(req)}
+                          className="p-1.5 bg-neutral-100 hover:bg-rose-50 text-neutral-500 hover:text-rose-600 border border-neutral-200 hover:border-rose-200 rounded-lg text-xs transition-colors cursor-pointer flex items-center justify-center shadow-2xs"
+                          title="Delete Request"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </td>
                   </tr>
                 );
               })
