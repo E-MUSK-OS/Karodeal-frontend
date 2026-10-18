@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 import {
-  Search, Plus, Edit3, Trash2, CheckCircle2, ExternalLink, Tag, RefreshCw, X, ChevronUp, ChevronDown, ArrowUpDown, RotateCcw, Store, ShieldCheck, Check, Users, GripVertical, Star
+  Search, Plus, Edit3, Trash2, CheckCircle2, ExternalLink, Tag, RefreshCw, X, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, ArrowUpDown, RotateCcw, Store, ShieldCheck, Check, Users, GripVertical, Star
 } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
@@ -1134,19 +1134,29 @@ export default function AdminProductsPage() {
 
         {/* Pagination Controls */}
         {totalPages > 1 && (
-          <div className="px-6 py-4 border-t border-neutral-100 flex items-center justify-between">
-            <span className="text-xs text-neutral-500 font-semibold">
-              Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredProducts.length)} of {filteredProducts.length} entries
-            </span>
-            <div className="flex gap-1">
-              <Button variant="none" size="none"
+          <div className="px-3 sm:px-6 py-3.5 sm:py-4 border-t border-neutral-100 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 bg-white">
+            <div className="text-xs sm:text-sm text-neutral-500 font-medium text-center sm:text-left">
+              Showing <span className="font-bold text-neutral-900">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
+              <span className="font-bold text-neutral-900">
+                {Math.min(currentPage * itemsPerPage, filteredProducts.length)}
+              </span>{' '}
+              of <span className="font-bold text-neutral-900">{filteredProducts.length}</span> entries
+            </div>
+
+            <div className="flex items-center justify-center gap-1 sm:gap-1.5 max-w-full overflow-x-auto py-0.5">
+              {/* Previous Button */}
+              <button
+                type="button"
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 text-xs font-semibold rounded-lg bg-neutral-50 text-neutral-600 hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 shadow-2xs cursor-pointer shrink-0"
+                title="Previous Page"
               >
-                Previous
-              </Button>
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Previous</span>
+              </button>
 
+              {/* Page Number Buttons */}
               <div className="flex items-center gap-1">
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                   let pageNum;
@@ -1156,27 +1166,33 @@ export default function AdminProductsPage() {
                   else pageNum = currentPage - 2 + i;
 
                   return (
-                    <Button variant="none" size="none"
+                    <button
+                      type="button"
                       key={pageNum}
                       onClick={() => setCurrentPage(pageNum)}
-                      className={`w-7 h-7 flex items-center justify-center text-xs font-bold rounded-lg transition-colors ${currentPage === pageNum
-                        ? 'bg-black text-white'
-                        : 'bg-neutral-50 text-neutral-600 hover:bg-neutral-200'
-                        }`}
+                      className={`w-7 h-7 sm:min-w-[32px] sm:h-8 sm:px-2 flex items-center justify-center text-xs font-bold rounded-lg sm:rounded-xl transition-all cursor-pointer ${
+                        currentPage === pageNum
+                          ? 'bg-neutral-900 text-white shadow-2xs'
+                          : 'bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-50'
+                      }`}
                     >
                       {pageNum}
-                    </Button>
+                    </button>
                   );
                 })}
               </div>
 
-              <Button variant="none" size="none"
+              {/* Next Button */}
+              <button
+                type="button"
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="px-3 py-1 text-xs font-semibold rounded-lg bg-neutral-50 text-neutral-600 hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 shadow-2xs cursor-pointer shrink-0"
+                title="Next Page"
               >
-                Next
-              </Button>
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
         )}

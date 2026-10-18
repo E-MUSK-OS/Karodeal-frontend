@@ -549,16 +549,17 @@ export default function AdminUsersPage() {
               </div>
 
               {totalPages > 1 && (
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center justify-center gap-1 sm:gap-1.5 max-w-full overflow-x-auto py-0.5">
                   {/* Previous Button */}
                   <button
                     type="button"
                     onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                     disabled={currentSafePage === 1}
-                    className="px-3 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                    className="px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 shadow-2xs cursor-pointer shrink-0"
+                    title="Previous Page"
                   >
                     <ChevronLeft className="w-3.5 h-3.5" />
-                    <span>Previous</span>
+                    <span className="hidden sm:inline">Previous</span>
                   </button>
 
                   {/* Page Number Buttons */}
@@ -580,7 +581,7 @@ export default function AdminUsersPage() {
                           key={pageNum}
                           type="button"
                           onClick={() => setCurrentPage(pageNum)}
-                          className={`min-w-[32px] h-8 px-2 flex items-center justify-center text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                          className={`w-7 h-7 sm:min-w-[32px] sm:h-8 sm:px-2 flex items-center justify-center text-xs font-bold rounded-lg sm:rounded-xl transition-all cursor-pointer ${
                             currentSafePage === pageNum
                               ? 'bg-neutral-900 text-white shadow-2xs'
                               : 'bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-50'
@@ -597,9 +598,10 @@ export default function AdminUsersPage() {
                     type="button"
                     onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                     disabled={currentSafePage === totalPages}
-                    className="px-3 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                    className="px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 shadow-2xs cursor-pointer shrink-0"
+                    title="Next Page"
                   >
-                    <span>Next</span>
+                    <span className="hidden sm:inline">Next</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>

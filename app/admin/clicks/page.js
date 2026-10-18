@@ -382,8 +382,8 @@ export default function ProductClicksPage() {
       </div>
 
       {/* Pagination Controls */}
-      <div className="px-4 py-4 sm:px-6 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white">
-        <div className="text-xs sm:text-sm text-neutral-500 font-medium">
+      <div className="px-3 sm:px-6 py-3.5 sm:py-4 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 bg-white">
+        <div className="text-xs sm:text-sm text-neutral-500 font-medium text-center sm:text-left">
           {filteredClicks.length > 0 ? (
             <>
               Showing <span className="font-bold text-neutral-900">{startIndex + 1}</span> to{' '}
@@ -399,15 +399,17 @@ export default function ProductClicksPage() {
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center justify-center gap-1 sm:gap-1.5 max-w-full overflow-x-auto py-0.5">
             {/* Prev Button */}
             <button
+              type="button"
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1.5 text-xs font-bold rounded-lg border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 shadow-sm cursor-pointer"
+              className="px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 shadow-2xs cursor-pointer shrink-0"
+              title="Previous Page"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
-              Previous
+              <span className="hidden sm:inline">Previous</span>
             </button>
 
             {/* Page Number Buttons */}
@@ -422,10 +424,11 @@ export default function ProductClicksPage() {
                 return (
                   <button
                     key={pageNum}
+                    type="button"
                     onClick={() => setCurrentPage(pageNum)}
-                    className={`min-w-[32px] h-8 px-2 flex items-center justify-center text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                    className={`w-7 h-7 sm:min-w-[32px] sm:h-8 sm:px-2 flex items-center justify-center text-xs font-bold rounded-lg sm:rounded-xl transition-all cursor-pointer ${
                       currentPage === pageNum
-                        ? 'bg-neutral-900 text-white shadow-sm'
+                        ? 'bg-neutral-900 text-white shadow-2xs'
                         : 'bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-50'
                     }`}
                   >
@@ -437,11 +440,13 @@ export default function ProductClicksPage() {
 
             {/* Next Button */}
             <button
+              type="button"
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1.5 text-xs font-bold rounded-lg border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 shadow-sm cursor-pointer"
+              className="px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 shadow-2xs cursor-pointer shrink-0"
+              title="Next Page"
             >
-              Next
+              <span className="hidden sm:inline">Next</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
