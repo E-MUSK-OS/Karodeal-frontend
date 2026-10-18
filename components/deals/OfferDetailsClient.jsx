@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PageLoader from '@/components/common/PageLoader';
 import Link from 'next/link';
-import { CheckCircle, ArrowRight, Calendar, Star, ShieldCheck, Clock, Banknote, ChevronDown, HelpCircle } from 'lucide-react';
+import { CheckCircle, ArrowRight, Calendar, Star, ShieldCheck, Clock, Banknote, ChevronDown, HelpCircle, Share2 } from 'lucide-react';
 import Button from '@/components/common/Button';
 import { calculateCashback } from '@/lib/cashbackCalculator';
 import { openStoreDeal } from '@/lib/deepLink';
 import CashbackRedirectModal from '@/components/deals/CashbackRedirectModal';
+import ShareDealModal from '@/components/deals/ShareDealModal';
 import { cleanProductTitle } from '@/lib/titleSanitizer';
 
 export default function OfferDetailsClient({ initialDeal = null, dealId = null, params }) {
@@ -18,6 +19,7 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
   const [error, setError] = useState(null);
   const [id, setId] = useState(dealId);
   const [isRedirectModalOpen, setIsRedirectModalOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState(0);
 
   useEffect(() => {
@@ -177,6 +179,27 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
     tagClass = 'bg-black/15 text-white';
   }
 
+  const generateSlug = (text) => {
+    return text
+      ?.toString()
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w\-]+/g, '')
+      .replace(/\-\-+/g, '-')
+      .replace(/^-+/, '')
+      .replace(/-+$/, '') || '';
+  };
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://karodeal.in';
+  const offerSlug = `${generateSlug(deal?.title || '')}-${deal?.id || id}`;
+  const fullShareUrl = `${siteUrl}/deals/${offerSlug}`;
+
+  const handleShareClick = (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    setIsShareOpen(true);
+  };
+
   return (
     <div className="page-container py-6 sm:py-10 md:py-16 min-h-screen">
       {/* Breadcrumb Navigation for SEO & Crawlers */}
@@ -218,7 +241,7 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
             }}
           />
 
-          <div className="absolute top-3 left-3 sm:top-6 sm:left-6 md:top-8 md:left-8 z-20 pointer-events-none">
+          <div className="absolute top-3 left-3 right-3 sm:top-6 sm:left-6 sm:right-6 md:top-8 md:left-8 md:right-8 z-20 flex items-center justify-between pointer-events-auto">
             <div className="bg-white rounded-sm sm:rounded-xl md:rounded-2xl w-6 h-6 sm:w-10 sm:h-10 md:w-14 md:h-14 flex items-center justify-center shadow-md shrink-0 p-1 sm:p-1.5 md:p-2">
               <img
                 src={store.logoUrl}
@@ -229,6 +252,17 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
                 }}
               />
             </div>
+
+            {/* Share Button beside store logo on custom card */}
+            <button
+              type="button"
+              onClick={handleShareClick}
+              className="bg-black/40 hover:bg-black/60 backdrop-blur-md text-white p-2 sm:p-2.5 rounded-full transition-all duration-200 cursor-pointer shadow-md active:scale-90"
+              title="Share deal"
+              aria-label="Share deal"
+            >
+              <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            </button>
           </div>
 
           <div className="absolute bottom-3 left-3 sm:bottom-6 sm:left-6 md:bottom-8 md:left-8 z-20">
@@ -254,8 +288,8 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
         >
           {/* Left Area: Text & Action */}
           <div className="w-[50%] md:w-[55%] p-3 sm:p-6 md:p-8 flex flex-col justify-center">
-            {/* Logo */}
-            <div className="mb-2.5 sm:mb-4 md:mb-6">
+            {/* Logo & Share Button */}
+            <div className="mb-2.5 sm:mb-4 md:mb-6 flex items-center justify-between">
               <div className="bg-white rounded-sm sm:rounded-xl md:rounded-2xl w-6 h-6 sm:w-10 sm:h-10 md:w-14 md:h-14 flex items-center justify-center shadow-md shrink-0 p-1 sm:p-1.5 md:p-2">
                 <img
                   src={store.logoUrl}
@@ -266,6 +300,17 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
                   }}
                 />
               </div>
+
+              {/* Share Button beside store logo */}
+              <button
+                type="button"
+                onClick={handleShareClick}
+                className="bg-white/20 hover:bg-white/30 backdrop-blur-xs text-white p-2 sm:p-2.5 rounded-full transition-all duration-200 cursor-pointer shadow-xs active:scale-90"
+                title="Share deal"
+                aria-label="Share deal"
+              >
+                <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              </button>
             </div>
 
             {/* Semantic H1 for Search Engines */}
@@ -486,6 +531,14 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
             store: storeIdStr,
           });
         }}
+      />
+
+      {/* Share Deal Modal */}
+      <ShareDealModal
+        deal={deal}
+        shareUrl={fullShareUrl}
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
       />
     </div>
   );
