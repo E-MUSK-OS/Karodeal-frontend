@@ -33,7 +33,7 @@ export default function ClaimDetailView({
         <ArrowRight className="w-4 h-4 rotate-180" /> Back to Claims List
       </Button>
 
-      <div className="bg-white rounded-3xl border border-neutral-100 shadow-sm overflow-hidden p-6 sm:p-8">
+      <div className="bg-white rounded-3xl border border-neutral-100 shadow-sm overflow-hidden p-4 sm:p-6 md:p-8">
         {/* Header Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-neutral-100 pb-6">
           <div>
@@ -67,7 +67,7 @@ export default function ClaimDetailView({
         </div>
 
         {/* 3-Column Info Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-8">
           {/* Column 1: Order Details */}
           <div>
             <h3 className="font-bold text-neutral-400 uppercase tracking-wider mb-4 text-xs">Order Details</h3>
@@ -146,7 +146,7 @@ export default function ClaimDetailView({
           <div className={!claim.product ? "md:col-span-1 lg:col-span-2" : ""}>
             <h3 className="font-bold text-neutral-400 uppercase tracking-wider mb-4 text-xs">Take Action</h3>
             {claim.status === 'PENDING' ? (
-              <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-200 space-y-4">
+              <div className="bg-blue-50/50 p-4 sm:p-5 md:p-6 rounded-2xl border border-blue-200 space-y-4 overflow-hidden">
                 <div>
                   <label className="block text-xs font-bold text-neutral-800 mb-1.5">
                     Award Cashback (₹) <span className="text-red-500">*</span>
@@ -159,7 +159,7 @@ export default function ClaimDetailView({
                       if (actionError) setActionError('');
                     }}
                     placeholder="e.g. 50"
-                    className="w-full px-4 py-3 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold bg-white"
+                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold bg-white text-sm"
                   />
                   <p className="text-[10px] text-neutral-500 mt-1.5 font-medium">* Required if approving</p>
                 </div>
@@ -176,34 +176,42 @@ export default function ClaimDetailView({
                     }}
                     placeholder="Add an optional approval note or required rejection reason..."
                     rows="2"
-                    className="w-full px-4 py-3 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-white text-xs sm:text-sm"
+                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-white text-xs sm:text-sm"
                   />
                   <p className="text-[10px] text-neutral-500 mt-1.5 font-medium">* Note is required only when rejecting</p>
                 </div>
 
-                <div className="flex gap-3 pt-2">
+                {actionError && (
+                  <div className="p-3 bg-red-100 border border-red-200 rounded-xl text-red-700 text-xs font-semibold">
+                    {actionError}
+                  </div>
+                )}
+
+                <div className={`grid gap-2.5 pt-2 ${!claim.product ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
                   <Button
                     variant="none"
                     size="none"
                     onClick={() => onInitiateStatusUpdate('APPROVED')}
                     disabled={isUpdating}
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
+                    className="w-full bg-green-600 hover:bg-green-700 active:scale-[0.99] text-white font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow cursor-pointer disabled:opacity-50 text-sm"
                   >
-                    <CheckCircle className="w-5 h-5" /> Approve & Credit
+                    <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                    <span>Approve & Credit</span>
                   </Button>
                   <Button
                     variant="none"
                     size="none"
                     onClick={() => onInitiateStatusUpdate('REJECTED')}
                     disabled={isUpdating}
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
+                    className="w-full bg-red-600 hover:bg-red-700 active:scale-[0.99] text-white font-bold py-2.5 sm:py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow cursor-pointer disabled:opacity-50 text-sm"
                   >
-                    <XCircle className="w-5 h-5" /> Reject
+                    <XCircle className="w-5 h-5 flex-shrink-0" />
+                    <span>Reject</span>
                   </Button>
                 </div>
               </div>
             ) : (
-              <div className={`p-6 rounded-2xl border ${
+              <div className={`p-4 sm:p-5 md:p-6 rounded-2xl border overflow-hidden ${
                 claim.status === 'APPROVED' ? 'bg-green-50 border-green-200 text-green-900' : 'bg-red-50 border-red-200 text-red-900'
               }`}>
                 <h3 className="font-black mb-2">Claim {claim.status}</h3>
@@ -215,7 +223,7 @@ export default function ClaimDetailView({
                   </div>
                 )}
                 {claim.adminNote && (
-                  <div className="mt-3 p-3 bg-white/60 rounded-xl border border-black/5">
+                  <div className="mt-3 p-3 bg-white/60 rounded-xl border border-black/5 break-words">
                     <p className="text-xs font-bold uppercase tracking-wider mb-1 opacity-60">Admin Note</p>
                     <p className="text-sm font-medium">{claim.adminNote}</p>
                   </div>
