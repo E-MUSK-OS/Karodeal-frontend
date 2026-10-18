@@ -5,10 +5,9 @@ import { createPortal } from 'react-dom';
 import { 
   WhatsappIcon, 
   TelegramIcon, 
-  XIcon, 
   FacebookIcon 
 } from 'react-share';
-import { X, Copy, Check, Share2 } from 'lucide-react';
+import { X, Copy, Check, Share2, MessageSquare, MoreHorizontal } from 'lucide-react';
 import { cleanProductTitle } from '@/lib/titleSanitizer';
 
 const emptySubscribe = () => () => {};
@@ -41,7 +40,6 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
 
   const title = cleanProductTitle(deal.title || 'Special Deal');
   const encodedUrl = encodeURIComponent(shareUrl);
-
   const isMobile = typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   // Direct app protocol on mobile; standard full browser tab on desktop
@@ -53,31 +51,8 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
     ? `tg://msg_url?url=${encodedUrl}`
     : `https://t.me/share/url?url=${encodedUrl}`;
 
-  const xUrl = `https://twitter.com/intent/tweet?url=${encodedUrl}`;
   const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
-
-  const shareItems = [
-    {
-      name: 'WhatsApp',
-      href: whatsappUrl,
-      icon: <WhatsappIcon size={48} />,
-    },
-    {
-      name: 'Telegram',
-      href: telegramUrl,
-      icon: <TelegramIcon size={48} />,
-    },
-    {
-      name: 'X',
-      href: xUrl,
-      icon: <XIcon size={48} />,
-    },
-    {
-      name: 'Facebook',
-      href: facebookUrl,
-      icon: <FacebookIcon size={48} />,
-    },
-  ];
+  const smsUrl = isMobile ? `sms:?&body=${encodedUrl}` : `sms:?body=${encodedUrl}`;
 
   const handleCopyLink = async (e) => {
     e?.stopPropagation();
@@ -94,6 +69,47 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
       document.body.removeChild(input);
       setCopied(true);
       setTimeout(() => setCopied(false), 2200);
+    }
+  };
+
+  const handleInstagramShare = async (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    } catch {}
+
+    if (isMobile) {
+      window.location.href = 'instagram://app';
+      setTimeout(() => {
+        window.open('https://www.instagram.com/', '_blank');
+      }, 700);
+    } else {
+      window.open('https://www.instagram.com/', '_blank');
+    }
+    onClose();
+  };
+
+  const handleNativeShare = async (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: title,
+          text: `Check out this deal on KaroDeal: ${title}`,
+          url: shareUrl,
+        });
+        onClose();
+      } catch (err) {
+        if (err?.name !== 'AbortError') {
+          console.error('Error sharing:', err);
+        }
+      }
+    } else {
+      handleCopyLink();
     }
   };
 
@@ -116,7 +132,7 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
         {/* Header */}
         <div className="flex items-center justify-between pb-3.5 border-b border-neutral-100">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-orange-50 text-[#f96b02] flex items-center justify-center">
               <Share2 className="w-4 h-4" />
             </div>
             <div>
@@ -139,28 +155,95 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Social Platforms Row: Opens in Full Tab on PC, Direct Native App on Mobile */}
+        {/* Social Platforms Row: 6 options in balanced 3x2 grid */}
         <div className="my-5">
-          <div className="grid grid-cols-4 gap-2.5">
-            {shareItems.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => onClose()}
-                className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-neutral-50 active:scale-95 transition cursor-pointer group outline-none"
-              >
-                <div className="transition-transform group-hover:scale-105 shadow-md rounded-2xl overflow-hidden">
-                  {item.icon}
-                </div>
-                <span className="text-[11px] font-semibold text-neutral-700">{item.name}</span>
-              </a>
-            ))}
+          <div className="grid grid-cols-3 gap-3">
+            {/* WhatsApp */}
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => onClose()}
+              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 active:scale-95 transition cursor-pointer group outline-none"
+            >
+              <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-xs flex items-center justify-center transition-transform group-hover:scale-105">
+                <WhatsappIcon size={48} />
+              </div>
+              <span className="text-xs font-semibold text-neutral-700">WhatsApp</span>
+            </a>
+
+            {/* Instagram */}
+            <button
+              type="button"
+              onClick={handleInstagramShare}
+              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 active:scale-95 transition cursor-pointer group outline-none"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shadow-xs transition-transform group-hover:scale-105">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-white">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                </svg>
+              </div>
+              <span className="text-xs font-semibold text-neutral-700">Instagram</span>
+            </button>
+
+            {/* Facebook */}
+            <a
+              href={facebookUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => onClose()}
+              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 active:scale-95 transition cursor-pointer group outline-none"
+            >
+              <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-xs flex items-center justify-center transition-transform group-hover:scale-105">
+                <FacebookIcon size={48} />
+              </div>
+              <span className="text-xs font-semibold text-neutral-700">Facebook</span>
+            </a>
+
+            {/* SMS */}
+            <a
+              href={smsUrl}
+              onClick={() => onClose()}
+              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 active:scale-95 transition cursor-pointer group outline-none"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-green-600 flex items-center justify-center text-white shadow-xs transition-transform group-hover:scale-105">
+                <MessageSquare className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-xs font-semibold text-neutral-700">SMS</span>
+            </a>
+
+            {/* Telegram */}
+            <a
+              href={telegramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => onClose()}
+              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 active:scale-95 transition cursor-pointer group outline-none"
+            >
+              <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-xs flex items-center justify-center transition-transform group-hover:scale-105">
+                <TelegramIcon size={48} />
+              </div>
+              <span className="text-xs font-semibold text-neutral-700">Telegram</span>
+            </a>
+
+            {/* More (System Native Share) */}
+            <button
+              type="button"
+              onClick={handleNativeShare}
+              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 active:scale-95 transition cursor-pointer group outline-none"
+              title="More sharing options"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-neutral-900 text-white flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 hover:bg-black">
+                <MoreHorizontal className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-xs font-semibold text-neutral-700">More</span>
+            </button>
           </div>
         </div>
 
-        {/* Single Deal Link & Copy Button */}
+        {/* Single Deal Link & Solid Black Copy Button */}
         <div>
           <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-1.5">
             Single Deal Link
@@ -175,19 +258,19 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
             <button
               type="button"
               onClick={handleCopyLink}
-              className={`px-3.5 py-2 rounded-lg text-xs font-bold shrink-0 transition flex items-center gap-1.5 cursor-pointer shadow-xs ${
+              className={`px-3.5 py-2 rounded-lg text-xs font-bold shrink-0 transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 ${
                 copied
                   ? 'bg-emerald-600 text-white'
-                  : 'bg-primary-600 hover:bg-primary-700 text-white'
+                  : 'bg-black hover:bg-neutral-800 text-white'
               }`}
             >
               {copied ? (
                 <>
-                  <Check className="w-3.5 h-3.5" /> Copied
+                  <Check className="w-3.5 h-3.5 text-white" /> Copied
                 </>
               ) : (
                 <>
-                  <Copy className="w-3.5 h-3.5" /> Copy Link
+                  <Copy className="w-3.5 h-3.5 text-white" /> Copy Link
                 </>
               )}
             </button>
