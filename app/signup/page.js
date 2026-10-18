@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import Button from '@/components/common/Button';
-import { useGoogleLogin } from '@react-oauth/google';
+import GoogleAuthButton from '@/components/auth/GoogleAuthButton';
 import { handleAppError, showSuccessToast } from '@/lib/errorHandler';
 
 export default function Signup() {
@@ -131,45 +131,46 @@ export default function Signup() {
     }
   };
 
-  const loginWithGoogle = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setIsLoading(true);
-      setError('');
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/google`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ credential: tokenResponse.access_token, isSignup: true }),
-        });
+  const handleGoogleSuccess = async (tokenResponse) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: tokenResponse.access_token, isSignup: true }),
+      });
 
-        const data = await res.json();
+      const data = await res.json();
 
-        if (!res.ok) {
-          showError(data.error || 'Google login failed');
-          return;
-        }
-
-        if (data.requireOtp) {
-          setVerifyEmail(data.email);
-          setVerifyName(data.name);
-          setRequireGoogleOtp(true);
-          return;
-        }
-
-        localStorage.setItem('user', JSON.stringify({ ...data.user, token: data.token }));
-        window.dispatchEvent(new Event('auth-change'));
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const returnUrl = urlParams.get('returnUrl');
-        router.push(returnUrl || '/');
-      } catch (err) {
-        showError('Failed to connect to backend server');
-      } finally {
-        setIsLoading(false);
+      if (!res.ok) {
+        showError(data.error || 'Google login failed');
+        return;
       }
-    },
-    onError: () => showError('Google signup failed')
-  });
+
+      if (data.requireOtp) {
+        setVerifyEmail(data.email);
+        setVerifyName(data.name);
+        setRequireGoogleOtp(true);
+        return;
+      }
+
+      localStorage.setItem('user', JSON.stringify({ ...data.user, token: data.token }));
+      window.dispatchEvent(new Event('auth-change'));
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const returnUrl = urlParams.get('returnUrl');
+      router.push(returnUrl || '/');
+    } catch (err) {
+      showError('Failed to connect to backend server');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    showError('Google signup failed');
+  };
 
   const handleVerify = async (e) => {
     e.preventDefault();
@@ -407,17 +408,12 @@ export default function Signup() {
             <div className="flex-1"></div>
 
             <div className="mb-6 flex justify-center w-full">
-              <Button
-                type="button"
-                variant="outline"
-                size="md"
-                fullWidth
-                onClick={() => loginWithGoogle()}
-                icon={<img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5 shrink-0" />}
-                className="gap-3"
-              >
-                Sign up with Google
-              </Button>
+              <GoogleAuthButton
+                text="Sign up with Google"
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                disabled={isLoading}
+              />
             </div>
 
             <div className="relative flex items-center mb-6">

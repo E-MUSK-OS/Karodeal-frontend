@@ -48,12 +48,16 @@ export default function HeaderSearch({ autoFocus = false, onClose }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Close on Escape key
+  // Close on Escape key and add global Cmd+K / Ctrl+K shortcut
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         setIsOpen(false);
         inputRef.current?.blur();
+      } else if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        inputRef.current?.focus();
+        loadProducts();
       }
     };
     document.addEventListener('keydown', handleKeyDown);
@@ -93,9 +97,9 @@ export default function HeaderSearch({ autoFocus = false, onClose }) {
     <div ref={containerRef} className="relative w-full">
       {/* Search Input Bar */}
       <form onSubmit={handleSubmit} className="relative w-full">
-        <div className="relative flex items-center">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
-            <Search className="h-4 w-4" strokeWidth={2.2} />
+        <div className="relative flex items-center group">
+          <div className="absolute inset-y-0 left-0 pl-3.5 sm:pl-4 flex items-center pointer-events-none text-neutral-400 group-focus-within:text-[#f96b02] transition-colors">
+            <Search className="h-4.5 w-4.5" strokeWidth={2.2} />
           </div>
 
           <input
@@ -113,19 +117,25 @@ export default function HeaderSearch({ autoFocus = false, onClose }) {
               else setIsOpen(false);
             }}
             placeholder="Search deals, stores, products..."
-            className="w-full pl-10 pr-10 py-2 lg:py-2.5 bg-neutral-100/80 hover:bg-neutral-100 focus:bg-white border border-neutral-200 focus:border-black rounded-full text-xs lg:text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none transition-all duration-200 shadow-2xs focus:shadow-md"
+            className="w-full pl-11 pr-12 py-2.5 lg:py-2.5 bg-neutral-100/70 hover:bg-neutral-100/90 focus:bg-white border border-neutral-200/90 focus:border-neutral-900 rounded-full text-xs sm:text-[13px] lg:text-[14px] font-medium text-neutral-900 placeholder-neutral-400 focus:outline-none transition-all duration-200 shadow-2xs focus:shadow-md focus:ring-4 focus:ring-black/5"
           />
 
-          {/* Right Action: Clear Button */}
-          {query && (
+          {/* Right Action: Clear Button OR Shortcut Badge */}
+          {query ? (
             <button
               type="button"
               onClick={handleClear}
               className="absolute inset-y-0 right-3 flex items-center text-neutral-400 hover:text-black transition-colors focus:outline-none"
               aria-label="Clear search"
             >
-              <X className="h-4 w-4" />
+              <X className="h-3.5 w-3.5" />
             </button>
+          ) : (
+            <div className="absolute inset-y-0 right-3 hidden lg:flex items-center pointer-events-none">
+              <kbd className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono font-medium text-neutral-400 bg-white border border-neutral-200 rounded-md shadow-2xs">
+                ⌘K
+              </kbd>
+            </div>
           )}
         </div>
       </form>

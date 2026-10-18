@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import Button from '@/components/common/Button';
-import { useGoogleLogin } from '@react-oauth/google';
+import GoogleAuthButton from '@/components/auth/GoogleAuthButton';
 import { handleAppError, showSuccessToast } from '@/lib/errorHandler';
 
 export default function Login() {
@@ -84,56 +84,55 @@ export default function Login() {
     }
   };
 
-  const loginWithGoogle = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setIsLoading(true);
-      setError('');
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/google`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ credential: tokenResponse.access_token, isSignup: false }),
-        });
+  const handleGoogleSuccess = async (tokenResponse) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: tokenResponse.access_token, isSignup: false }),
+      });
 
-        const data = await res.json();
+      const data = await res.json();
 
-        if (!res.ok) {
-          const userMsg = handleAppError(data.error || 'Google login failed', {
-            context: 'Google Sign In',
-            title: 'Sign In Failed',
-            fallback: 'Could not sign in with Google. Please try again.'
-          });
-          setError(userMsg);
-          return;
-        }
-
-        localStorage.setItem('user', JSON.stringify({ ...data.user, token: data.token }));
-        window.dispatchEvent(new Event('auth-change'));
-        showSuccessToast('Signed in with Google successfully!');
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const returnUrl = urlParams.get('returnUrl');
-        router.push(returnUrl || '/');
-      } catch (err) {
-        const userMsg = handleAppError(err, {
-          context: 'Google Sign In Network',
-          title: 'Connection Error',
-          fallback: 'Unable to connect to Google service. Please try again.'
+      if (!res.ok) {
+        const userMsg = handleAppError(data.error || 'Google login failed', {
+          context: 'Google Sign In',
+          title: 'Sign In Failed',
+          fallback: 'Could not sign in with Google. Please try again.'
         });
         setError(userMsg);
-      } finally {
-        setIsLoading(false);
+        return;
       }
-    },
-    onError: (err) => {
+
+      localStorage.setItem('user', JSON.stringify({ ...data.user, token: data.token }));
+      window.dispatchEvent(new Event('auth-change'));
+      showSuccessToast('Signed in with Google successfully!');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const returnUrl = urlParams.get('returnUrl');
+      router.push(returnUrl || '/');
+    } catch (err) {
       const userMsg = handleAppError(err, {
-        context: 'Google OAuth Dialog',
-        title: 'Sign In Cancelled',
-        fallback: 'Google sign in was cancelled or failed.'
+        context: 'Google Sign In Network',
+        title: 'Connection Error',
+        fallback: 'Unable to connect to Google service. Please try again.'
       });
       setError(userMsg);
+    } finally {
+      setIsLoading(false);
     }
-  });
+  };
+
+  const handleGoogleError = (err) => {
+    const userMsg = handleAppError(err, {
+      context: 'Google OAuth Dialog',
+      title: 'Sign In Cancelled',
+      fallback: 'Google sign in was cancelled or failed.'
+    });
+    setError(userMsg);
+  };
 
   return (
     <div className="bg-white min-h-[calc(100vh-140px)] flex flex-col justify-center items-center py-8 sm:py-12 px-4 sm:px-6 relative font-sans">
@@ -215,17 +214,12 @@ export default function Login() {
           </div>
 
           <div className="mb-6 flex justify-center w-full">
-            <Button
-              type="button"
-              variant="outline"
-              size="md"
-              fullWidth
-              onClick={() => loginWithGoogle()}
-              icon={<img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5 shrink-0" />}
-              className="gap-3"
-            >
-              Continue with Google
-            </Button>
+            <GoogleAuthButton
+              text="Continue with Google"
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              disabled={isLoading}
+            />
           </div>
 
           <div className="relative flex items-center mb-6">

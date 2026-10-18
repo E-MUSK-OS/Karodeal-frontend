@@ -32,16 +32,22 @@ export default function ProfileMenu({ user }) {
 
   return (
     <div className="relative" ref={menuRef}>
-      <Button variant="none" size="none"
+      <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 text-sm font-semibold text-black hover:text-neutral-600 transition-colors py-6 focus:outline-none"
+        className="flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-full border border-neutral-200/90 hover:border-neutral-300 hover:bg-neutral-50 transition-all focus:outline-none bg-white shadow-2xs group cursor-pointer"
+        aria-label="Open User Profile Menu"
       >
-        <User className="w-5 h-5" />
-        <span>Profile</span>
-      </Button>
+        <div className="w-7 h-7 rounded-full bg-neutral-900 text-white flex items-center justify-center text-xs font-extrabold uppercase shadow-xs">
+          {user.name ? user.name.charAt(0) : <User className="w-3.5 h-3.5" />}
+        </div>
+        <span className="text-xs sm:text-[13px] font-bold text-neutral-800 max-w-[95px] truncate">
+          {user.name?.split(' ')[0] || 'Profile'}
+        </span>
+      </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-[70px] w-[340px] max-h-[calc(100vh-90px)] overflow-y-auto bg-white rounded-xl shadow-xl border border-neutral-200 z-50 animate-popup transform origin-top-right">
+        <div className="absolute right-0 top-full mt-2.5 w-[340px] max-h-[calc(100vh-90px)] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-neutral-200 z-50 animate-popup transform origin-top-right">
           {/* User Header */}
           <div className="p-5 pb-4">
             <div className="text-[13px] text-neutral-500 font-medium">Hello,</div>
