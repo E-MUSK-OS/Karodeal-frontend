@@ -377,8 +377,14 @@ export default function MissingCashback() {
     e.preventDefault();
     setFormError('');
 
+    if (!productId) {
+      showErrorToast('Please select a product/deal from the list for your missing cashback ticket.');
+      setFormError('Product selection is required. Please search and select a product.');
+      return;
+    }
+
     if (!storeName || !orderId || !orderAmount) {
-      showErrorToast('All required fields must be filled');
+      showErrorToast('All required fields (Product, Store, Order ID, Order Amount) must be filled');
       return;
     }
 
@@ -405,15 +411,13 @@ export default function MissingCashback() {
         bodyData.append('orderId', orderId);
         bodyData.append('orderAmount', orderAmount);
         bodyData.append('userNote', userNote);
-        if (productId) {
-          bodyData.append('productId', productId);
-        }
+        bodyData.append('productId', productId);
         const filesToUpload = [proof1, proof2, proof3].filter(Boolean);
         filesToUpload.forEach(file => {
           bodyData.append('orderScreenshots', file);
         });
       } else {
-        bodyData = JSON.stringify({ storeName, orderDate: submitOrderDate, orderId, orderAmount, userNote, productId: productId || null });
+        bodyData = JSON.stringify({ storeName, orderDate: submitOrderDate, orderId, orderAmount, userNote, productId });
         headersConfig['Content-Type'] = 'application/json';
       }
 
@@ -970,16 +974,20 @@ export default function MissingCashback() {
 
                 {/* 1. Product (First) & Store (Second - Auto Selected) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {/* Product / Deal (FIRST) */}
+                  {/* Product / Deal (FIRST - COMPULSORY) */}
                   <div className="relative">
                     <label className="block text-xs font-bold text-neutral-900 mb-1.5 flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
                         <ShoppingBag className="w-3.5 h-3.5 text-neutral-500" />
-                        Product / Deal <span className="text-neutral-400 font-normal">(Select First)</span>
+                        Product / Deal <span className="text-red-500">*</span>
                       </span>
-                      {productId && (
-                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                          ✓ Linked
+                      {productId ? (
+                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <Check className="w-3 h-3" /> Selected
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full">
+                          Required
                         </span>
                       )}
                     </label>
@@ -990,36 +998,37 @@ export default function MissingCashback() {
                         setProductSearch(e.target.value);
                         setProductId('');
                         setShowProductDropdown(true);
+                        if (formError) setFormError('');
                       }}
                       onFocus={() => setShowProductDropdown(true)}
                       onBlur={() => setTimeout(() => setShowProductDropdown(false), 200)}
-                      placeholder="Search or pick product..."
-                      className="w-full bg-white border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all"
+                      placeholder="Search and select product (Required)..."
+                      className={`w-full bg-white border rounded-xl px-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 transition-all ${
+                        !productId && formError ? 'border-red-400 focus:ring-red-400 ring-1 ring-red-300' : 'border-neutral-200 focus:ring-black focus:border-black'
+                      }`}
+                      required
                     />
+                    {!productId && (
+                      <p className="text-[10px] text-amber-700 font-medium mt-1">
+                        * Please search and select a product/deal from the dropdown.
+                      </p>
+                    )}
                     {showProductDropdown && (
-                      <div className="absolute z-30 w-full mt-1.5 bg-white border border-neutral-200 rounded-xl shadow-xl max-h-48 overflow-y-auto py-1">
-                        <div
-                          className="px-4 py-2 hover:bg-neutral-50 cursor-pointer text-xs font-bold text-neutral-400 border-b border-neutral-100 flex items-center justify-between"
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            setProductId('');
-                            setProductSearch('');
-                            setShowProductDropdown(false);
-                          }}
-                        >
-                          <span>✕ Clear Selection (Custom Product)</span>
-                        </div>
+                      <div className="absolute z-30 w-full mt-1.5 bg-white border border-neutral-200 rounded-xl shadow-xl max-h-52 overflow-y-auto py-1">
                         {availableProducts
                           .filter(p => !productSearch || p.title.toLowerCase().includes(productSearch.toLowerCase()))
                           .map(product => (
                             <div
                               key={product.id}
-                              className="px-4 py-2.5 hover:bg-neutral-50 cursor-pointer text-sm font-medium text-neutral-800 flex items-center justify-between gap-2"
+                              className={`px-4 py-2.5 hover:bg-neutral-50 cursor-pointer text-sm font-medium flex items-center justify-between gap-2 ${
+                                productId === product.id ? 'bg-orange-50/60 text-[#f96b02] font-bold' : 'text-neutral-800'
+                              }`}
                               onMouseDown={(e) => {
                                 e.preventDefault();
                                 setProductId(product.id);
                                 setProductSearch(product.title);
                                 setShowProductDropdown(false);
+                                if (formError) setFormError('');
 
                                 // Auto-select store from product
                                 if (product.storeRel && product.storeRel.name) {
@@ -1041,7 +1050,7 @@ export default function MissingCashback() {
                             </div>
                           ))}
                         {availableProducts.filter(p => !productSearch || p.title.toLowerCase().includes(productSearch.toLowerCase())).length === 0 && (
-                          <div className="px-4 py-2.5 text-xs text-neutral-500 text-center italic">No products found</div>
+                          <div className="px-4 py-3 text-xs text-neutral-500 text-center italic">No matching products found</div>
                         )}
                       </div>
                     )}

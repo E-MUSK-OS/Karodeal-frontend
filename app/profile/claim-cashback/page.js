@@ -333,8 +333,14 @@ export default function ClaimCashback() {
     e.preventDefault();
     setFormError('');
 
+    if (!productId) {
+      showErrorToast('Please select a product/deal from the list to submit your cashback claim.');
+      setFormError('Product selection is required. Please search and select a product.');
+      return;
+    }
+
     if (!storeName || !orderDate || !orderId || !orderAmount) {
-      showErrorToast('All fields (except Product, which is optional) are required');
+      showErrorToast('All fields (Product, Store, Order Date, Order ID, Order Amount) are required.');
       return;
     }
 
@@ -356,7 +362,7 @@ export default function ClaimCashback() {
       const url = `${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/claims`;
       const bodyData = new FormData();
       bodyData.append('storeName', storeName);
-      if (productId) bodyData.append('productId', productId);
+      bodyData.append('productId', productId);
       bodyData.append('orderDate', orderDate);
       bodyData.append('orderId', orderId);
       bodyData.append('orderAmount', orderAmount);
@@ -810,16 +816,20 @@ export default function ClaimCashback() {
 
                 {/* 1. Product (First) & Store (Second) Selection */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {/* Product / Deal (FIRST) */}
+                  {/* Product / Deal (FIRST - COMPULSORY) */}
                   <div className="relative">
                     <label className="block text-xs font-bold text-neutral-900 mb-1.5 flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
                         <ShoppingBag className="w-3.5 h-3.5 text-neutral-500" />
-                        Product / Deal <span className="text-neutral-400 font-normal">(Select First)</span>
+                        Product / Deal <span className="text-red-500">*</span>
                       </span>
-                      {productId && (
-                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                          ✓ Linked
+                      {productId ? (
+                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <Check className="w-3 h-3" /> Selected
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full">
+                          Required
                         </span>
                       )}
                     </label>
@@ -830,32 +840,37 @@ export default function ClaimCashback() {
                         setProductSearch(e.target.value);
                         setProductId('');
                         setShowProductDropdown(true);
+                        if (formError) setFormError('');
                       }}
                       onFocus={() => setShowProductDropdown(true)}
                       onBlur={() => setTimeout(() => setShowProductDropdown(false), 200)}
-                      placeholder="Search or pick product..."
-                      className="w-full bg-white border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all"
+                      placeholder="Search and select product (Required)..."
+                      className={`w-full bg-white border rounded-xl px-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 transition-all ${
+                        !productId && formError ? 'border-red-400 focus:ring-red-400 ring-1 ring-red-300' : 'border-neutral-200 focus:ring-black focus:border-black'
+                      }`}
+                      required
                     />
+                    {!productId && (
+                      <p className="text-[10px] text-amber-700 font-medium mt-1">
+                        * Please search and select a product/deal from the dropdown.
+                      </p>
+                    )}
                     {showProductDropdown && (
-                      <div className="absolute z-30 w-full mt-1.5 bg-white border border-neutral-200 rounded-xl shadow-xl max-h-48 overflow-y-auto py-1">
-                        <div
-                          className="px-4 py-2 hover:bg-neutral-50 cursor-pointer text-xs font-bold text-neutral-400 border-b border-neutral-100 flex items-center justify-between"
-                          onClick={() => {
-                            setProductId('');
-                            setProductSearch('');
-                            setShowProductDropdown(false);
-                          }}
-                        >
-                          <span>✕ Clear Selection (Custom Product)</span>
-                        </div>
-                        {availableProducts.filter(p => p.title.toLowerCase().includes(productSearch.toLowerCase())).map(product => (
+                      <div className="absolute z-30 w-full mt-1.5 bg-white border border-neutral-200 rounded-xl shadow-xl max-h-52 overflow-y-auto py-1">
+                        {availableProducts
+                          .filter(p => !productSearch || p.title.toLowerCase().includes(productSearch.toLowerCase()))
+                          .map(product => (
                           <div
                             key={product.id}
-                            className="px-4 py-2.5 hover:bg-neutral-50 cursor-pointer text-sm font-medium text-neutral-800 flex items-center justify-between gap-2"
-                            onClick={() => {
+                            className={`px-4 py-2.5 hover:bg-neutral-50 cursor-pointer text-sm font-medium flex items-center justify-between gap-2 ${
+                              productId === product.id ? 'bg-orange-50/60 text-[#f96b02] font-bold' : 'text-neutral-800'
+                            }`}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
                               setProductId(product.id);
                               setProductSearch(product.title);
                               setShowProductDropdown(false);
+                              if (formError) setFormError('');
 
                               // Auto-select store from product
                               if (product.storeRel && product.storeRel.name) {
@@ -869,10 +884,15 @@ export default function ClaimCashback() {
                             }}
                           >
                             <span className="truncate">{product.title}</span>
+                            {product.storeRel?.name && (
+                              <span className="text-[10px] text-neutral-400 font-semibold px-1.5 py-0.5 rounded bg-neutral-100 shrink-0">
+                                {product.storeRel.name}
+                              </span>
+                            )}
                           </div>
                         ))}
-                        {availableProducts.filter(p => p.title.toLowerCase().includes(productSearch.toLowerCase())).length === 0 && (
-                          <div className="px-4 py-2.5 text-xs text-neutral-500 text-center italic">No products found</div>
+                        {availableProducts.filter(p => !productSearch || p.title.toLowerCase().includes(productSearch.toLowerCase())).length === 0 && (
+                          <div className="px-4 py-3 text-xs text-neutral-500 text-center italic">No matching products found</div>
                         )}
                       </div>
                     )}
