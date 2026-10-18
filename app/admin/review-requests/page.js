@@ -298,7 +298,7 @@ export default function ReviewRequestsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h2 className="font-black text-neutral-900 tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight">
               Review Requests
             </h2>
             <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${

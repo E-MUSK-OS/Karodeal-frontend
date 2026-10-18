@@ -40,8 +40,8 @@ export default function ReviewRequestTable({
         </span>
       </div>
 
-      {/* MOBILE CARDS VIEW (visible on screen widths < 768px) */}
-      <div className="block md:hidden divide-y divide-neutral-100">
+      {/* MOBILE & TABLET CARDS VIEW (visible on screen widths < 1024px) */}
+      <div className="block lg:hidden divide-y divide-neutral-100">
         {isReloading ? (
           <div className="p-8 text-center">
             <PageLoader />
@@ -265,9 +265,9 @@ export default function ReviewRequestTable({
         )}
       </div>
 
-      {/* DESKTOP TABLE VIEW (visible on screen widths >= 768px) */}
-      <div className="hidden md:block overflow-x-auto overflow-y-auto max-h-[70vh] w-full">
-        <table className={`w-full text-left border-collapse text-sm ${isMainAdmin ? 'min-w-[1150px]' : 'min-w-[950px]'}`}>
+      {/* DESKTOP TABLE VIEW (visible on screen widths >= 1024px) */}
+      <div className="hidden lg:block overflow-x-auto overflow-y-auto max-h-[70vh] w-full border-t border-neutral-100">
+        <table className={`w-full text-left border-collapse text-sm ${isMainAdmin ? 'min-w-[1100px]' : 'min-w-[900px]'}`}>
           <thead className="sticky top-0">
             <tr className="bg-neutral-50 text-neutral-500 text-xs font-bold uppercase tracking-wider shadow-[0_1px_0_0_#e5e5e5]">
               <th className="p-4 pl-6 w-20">SR. NO.</th>

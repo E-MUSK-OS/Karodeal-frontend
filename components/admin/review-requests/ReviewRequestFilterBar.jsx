@@ -28,7 +28,7 @@ export default function ReviewRequestFilterBar({
   return (
     <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-neutral-200 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 relative z-20">
       {/* Search Input: strictly filters by product title */}
-      <div className="relative flex-1 min-w-[240px]">
+      <div className="relative flex-1 min-w-0 sm:min-w-[200px]">
         <input
           type="text"
           placeholder="Search by product title..."
@@ -50,7 +50,7 @@ export default function ReviewRequestFilterBar({
       </div>
 
       {/* Status Dropdown Menu */}
-      <div ref={dropdownRef} className="relative shrink-0">
+      <div ref={dropdownRef} className="relative shrink-0 w-full sm:w-auto">
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
@@ -60,16 +60,16 @@ export default function ReviewRequestFilterBar({
               : 'bg-neutral-50 hover:bg-neutral-100/80 border-neutral-200 text-neutral-800'
           }`}
         >
-          <div className="flex items-center gap-2">
-            <Tag className="w-3.5 h-3.5 text-neutral-500" />
-            <span>Status: {currentStatusLabel}</span>
-            <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
+          <div className="flex items-center gap-2 truncate">
+            <Tag className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
+            <span className="truncate">Status: {currentStatusLabel}</span>
+            <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold shrink-0 ${
               activeTab !== 'ALL' ? 'bg-[#f96b02] text-white' : 'bg-neutral-200 text-neutral-700'
             }`}>
               {counts[activeTab.toLowerCase()] ?? counts.total}
             </span>
           </div>
-          <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isOpen ? 'rotate-180 text-black' : 'text-neutral-400'}`} />
+          <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-black' : 'text-neutral-400'}`} />
         </button>
 
         {isOpen && (
