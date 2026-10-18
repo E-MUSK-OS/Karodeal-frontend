@@ -81,13 +81,21 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
       setTimeout(() => setCopied(false), 2200);
     } catch {}
 
+    window.open('https://www.instagram.com/', '_blank', 'noopener,noreferrer');
+    onClose();
+  };
+
+  const handleSmsShare = (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     if (isMobile) {
-      window.location.href = 'instagram://app';
-      setTimeout(() => {
-        window.open('https://www.instagram.com/', '_blank');
-      }, 700);
+      window.location.href = smsUrl;
     } else {
-      window.open('https://www.instagram.com/', '_blank');
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        navigator.share({ title, url: shareUrl }).catch(() => {});
+      } else {
+        handleCopyLink();
+      }
     }
     onClose();
   };
@@ -203,16 +211,16 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
             </a>
 
             {/* SMS */}
-            <a
-              href={smsUrl}
-              onClick={() => onClose()}
+            <button
+              type="button"
+              onClick={handleSmsShare}
               className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 active:scale-95 transition cursor-pointer group outline-none"
             >
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-green-600 flex items-center justify-center text-white shadow-xs transition-transform group-hover:scale-105">
                 <MessageSquare className="w-6 h-6 text-white" />
               </div>
               <span className="text-xs font-semibold text-neutral-700">SMS</span>
-            </a>
+            </button>
 
             {/* Telegram */}
             <a
