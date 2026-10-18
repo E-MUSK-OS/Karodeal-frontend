@@ -166,9 +166,9 @@ export default function BuilderCardModal({ isOpen, onClose, onSuccess, dbStores,
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-[1200px] w-full shadow-2xl border border-neutral-200 max-h-[90vh] overflow-y-auto my-8">
-        <div className="flex flex-col lg:flex-row gap-8">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2.5 sm:p-4 md:p-6 overflow-y-auto">
+      <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 max-w-[1200px] w-full shadow-2xl border border-neutral-200 max-h-[92vh] sm:max-h-[90vh] overflow-y-auto my-auto">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           <div className="flex-1">
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-100">
               <h4 className="font-bold text-neutral-900 flex items-center gap-2">
@@ -413,9 +413,9 @@ export default function BuilderCardModal({ isOpen, onClose, onSuccess, dbStores,
               </div>
 
 
-              <div className="pt-4 flex items-center justify-end gap-3">
-                <Button variant="none" size="none" type="button" onClick={onClose} className="px-5 py-3 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 rounded-xl transition-colors">Cancel</Button>
-                <Button type="submit" variant="primary" size="md" isLoading={isSubmitting} className="text-xs rounded-xl !px-6 !py-3 normal-case tracking-normal shadow-md">Add Product Card</Button>
+              <div className="pt-4 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
+                <Button variant="none" size="none" type="button" onClick={onClose} className="w-full sm:w-auto px-5 py-3 text-xs font-bold text-neutral-600 hover:bg-neutral-100 rounded-xl transition-colors text-center border border-neutral-200 sm:border-transparent">Cancel</Button>
+                <Button type="submit" variant="primary" size="md" isLoading={isSubmitting} className="w-full sm:w-auto text-xs font-bold rounded-xl !px-6 !py-3 normal-case tracking-normal shadow-md text-center justify-center">Add Product Card</Button>
               </div>
             </form>
           </div>
