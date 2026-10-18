@@ -45,7 +45,6 @@ export async function generateMetadata({ params }) {
   const description = `Buy ${deal.title} online at ₹${deal.salePrice || 0}. Get up to ₹${withReviewCashback} real withdrawable cashback from ${storeName} on KaroDeal. Verified offers & fast tracking.`;
   const url = `https://karodeal.in/deals/${slug}`;
   const cardImageUrl = `https://karodeal.in/deals/${slug}/opengraph-image`;
-  const rawProductImageUrl = deal.image || 'https://karodeal.in/icon-512.png';
 
   return {
     title,
@@ -65,8 +64,8 @@ export async function generateMetadata({ params }) {
       canonical: url,
     },
     openGraph: {
-      title,
-      description,
+      title: '\u200E',
+      description: '\u200E',
       url,
       siteName: 'KaroDeal',
       images: [
@@ -74,13 +73,7 @@ export async function generateMetadata({ params }) {
           url: cardImageUrl,
           width: 1200,
           height: 630,
-          alt: `${deal.title} - KaroDeal Cashback`,
-        },
-        {
-          url: rawProductImageUrl,
-          width: 800,
-          height: 800,
-          alt: `${deal.title} - Product Image`,
+          alt: `${deal.title} - KaroDeal`,
         },
       ],
       locale: 'en_IN',
@@ -88,8 +81,8 @@ export async function generateMetadata({ params }) {
     },
     twitter: {
       card: 'summary_large_image',
-      title,
-      description,
+      title: '\u200E',
+      description: '\u200E',
       images: [cardImageUrl],
       creator: '@KaroDeal',
     },
