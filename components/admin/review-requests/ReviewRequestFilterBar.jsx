@@ -73,7 +73,7 @@ export default function ReviewRequestFilterBar({
         </button>
 
         {isOpen && (
-          <div className="absolute right-0 left-0 sm:left-auto top-full mt-1.5 z-40 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 w-full sm:w-56">
+          <div className="absolute right-0 left-0 sm:left-auto top-full mt-1.5 z-60 bg-white border border-neutral-200 rounded-2xl shadow-xl py-1.5 w-full sm:w-56">
             <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1">
               Filter by Status
             </div>

@@ -268,7 +268,7 @@ export default function ReviewRequestTable({
       {/* DESKTOP TABLE VIEW (visible on screen widths >= 768px) */}
       <div className="hidden md:block overflow-x-auto overflow-y-auto max-h-[70vh] w-full">
         <table className={`w-full text-left border-collapse text-sm ${isMainAdmin ? 'min-w-[1150px]' : 'min-w-[950px]'}`}>
-          <thead className="sticky top-0 z-20">
+          <thead className="sticky top-0">
             <tr className="bg-neutral-50 text-neutral-500 text-xs font-bold uppercase tracking-wider shadow-[0_1px_0_0_#e5e5e5]">
               <th className="p-4 pl-6 w-20">SR. NO.</th>
               <th className="p-4">PRODUCT</th>

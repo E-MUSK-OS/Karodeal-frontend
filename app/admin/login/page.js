@@ -36,57 +36,57 @@ export default function AdminLoginPage() {
     let attempts = 0;
     const maxAttempts = 2;
 
-    while (attempts < maxAttempts) {
-      attempts++;
-      try {
-        const res = await fetch(`${apiUrl}/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
-        });
-        const data = await res.json();
+    try {
+      while (attempts < maxAttempts) {
+        attempts++;
+        try {
+          const res = await fetch(`${apiUrl}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+          });
+          const data = await res.json();
 
-        if (!res.ok) {
-          throw new Error(data.error || 'Failed to login');
-        }
+          if (!res.ok) {
+            throw new Error(data.error || 'Failed to login');
+          }
 
-        if (data.user.role !== 'ADMIN' && data.user.role !== 'SUB_ADMIN') {
-          throw new Error('Access Denied: You do not have administrator privileges.');
-        }
+          if (data.user.role !== 'ADMIN' && data.user.role !== 'SUB_ADMIN') {
+            throw new Error('Access Denied: You do not have administrator privileges.');
+          }
 
-        const adminUser = {
-          id: data.user.id,
-          email: data.user.email,
-          name: data.user.name,
-          role: data.user.role,
-          token: data.token,
-          loginTime: new Date().toISOString(),
-        };
+          const adminUser = {
+            id: data.user.id,
+            email: data.user.email,
+            name: data.user.name,
+            role: data.user.role,
+            token: data.token,
+            loginTime: new Date().toISOString(),
+          };
 
-        localStorage.setItem('adminUser', JSON.stringify(adminUser));
-        window.dispatchEvent(new Event('admin-auth-change'));
-        router.push('/admin');
-        return;
-      } catch (err) {
-        // If it's a cold-start network failure ("Failed to fetch") and we have a retry attempt left
-        const isNetworkError = err.message?.includes('Failed to fetch') || err.name === 'TypeError';
-        if (isNetworkError && attempts < maxAttempts) {
-          // Wait 1.5 seconds while server/DB wakes up and retry automatically
-          await new Promise((r) => setTimeout(r, 1500));
-          continue;
-        }
+          localStorage.setItem('adminUser', JSON.stringify(adminUser));
+          window.dispatchEvent(new Event('admin-auth-change'));
+          router.push('/admin');
+          return;
+        } catch (err) {
+          // If it's a cold-start network failure ("Failed to fetch") and we have a retry attempt left
+          const isNetworkError = err.message?.includes('Failed to fetch') || err.name === 'TypeError';
+          if (isNetworkError && attempts < maxAttempts) {
+            // Wait 1.5 seconds while server/DB wakes up and retry automatically
+            await new Promise((r) => setTimeout(r, 1500));
+            continue;
+          }
 
-        handleAppError(err, {
-          context: 'Admin Login',
-          title: 'Sign In Failed',
-          fallback: isNetworkError ? 'Server is waking up from sleep mode. Please try clicking Sign In again in a few seconds.' : (err.message || 'Invalid admin email or password.')
-        });
-        break;
-      } finally {
-        if (attempts >= maxAttempts) {
-          setIsLoading(false);
+          handleAppError(err, {
+            context: 'Admin Login',
+            title: 'Sign In Failed',
+            fallback: isNetworkError ? 'Server is waking up from sleep mode. Please try clicking Sign In again in a few seconds.' : (err.message || 'Invalid admin email or password.')
+          });
+          break;
         }
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
