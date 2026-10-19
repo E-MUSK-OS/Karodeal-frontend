@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Button from '@/components/common/Button';
+import { handleAppError, showSuccessToast } from '@/lib/errorHandler';
 import {
-  User, Mail, Phone, Save, CheckCircle2, LogOut, Settings, Wallet,
+  User, Mail, Phone, Save, LogOut, Settings, Wallet,
   IndianRupee, History, Ticket, Search, HelpCircle, Star, ShieldCheck, ArrowLeft, Lock, Trash2, Receipt, LogIn
 } from 'lucide-react';
 
@@ -44,8 +45,6 @@ export default function ProfileAccountSettings() {
       return '';
     }
   });
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [mobileView, setMobileView] = useState('menu'); // 'menu' or 'settings'
   const router = useRouter();
@@ -89,8 +88,6 @@ export default function ProfileAccountSettings() {
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
-    setSuccessMessage('');
-    setErrorMessage('');
     setIsSaving(true);
 
     try {
@@ -107,7 +104,12 @@ export default function ProfileAccountSettings() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to update profile');
+        handleAppError(data.error || 'Failed to update profile', {
+          context: 'Profile Update',
+          title: 'Update Failed',
+          fallback: 'Failed to save settings. Please try again.'
+        });
+        return;
       }
 
       const updatedUser = {
@@ -133,9 +135,13 @@ export default function ProfileAccountSettings() {
       }
 
       window.dispatchEvent(new Event('auth-change'));
-      setSuccessMessage('Account details updated successfully!');
+      showSuccessToast('Account details updated successfully!');
     } catch (err) {
-      setErrorMessage(err.message || 'Failed to save settings. Please try again.');
+      handleAppError(err, {
+        context: 'Profile Update',
+        title: 'Update Failed',
+        fallback: 'Failed to save settings. Please try again.'
+      });
     } finally {
       setIsSaving(false);
     }
@@ -295,15 +301,7 @@ export default function ProfileAccountSettings() {
                 </Link>
               </div>
             ) : (
-              <>
-                {successMessage && (
-                  <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-800 text-sm font-medium">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                    <span>{successMessage}</span>
-                  </div>
-                )}
-
-                <form onSubmit={handleSaveProfile} className="space-y-6">
+              <form onSubmit={handleSaveProfile} className="space-y-6">
                   <div className="grid grid-cols-1 gap-5">
                     <div>
                       <label htmlFor="mobileFullName" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
@@ -381,7 +379,6 @@ export default function ProfileAccountSettings() {
                     </Button>
                   </div>
                 </form>
-              </>
             )}
           </div>
         )}
@@ -421,15 +418,7 @@ export default function ProfileAccountSettings() {
         )}
 
         {user && (
-          <>
-            {successMessage && (
-              <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-800 text-sm font-medium">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                <span>{successMessage}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSaveProfile} className="space-y-6">
+          <form onSubmit={handleSaveProfile} className="space-y-6">
           {/* Personal Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -512,7 +501,6 @@ export default function ProfileAccountSettings() {
             </div>
           </div>
         </form>
-          </>
         )}
       </div>
     </>

@@ -39,6 +39,7 @@ export default function AdminLayout({ children }) {
               '/admin/stores',
               '/admin/categories',
               '/admin/users',
+              '/admin/claims',
               '/admin/subscribers',
               '/admin/messages',
               '/admin/missing-cashback'

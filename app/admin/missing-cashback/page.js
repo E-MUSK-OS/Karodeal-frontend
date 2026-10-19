@@ -301,7 +301,7 @@ function AdminMissingCashbackContent() {
   // Execute Ticket Status Update via API
   const executeTicketUpdate = async (targetStatus) => {
     if (!selectedTicket?.id) {
-      setFormError('No ticket selected.');
+      showErrorToast('No ticket selected.');
       return;
     }
 

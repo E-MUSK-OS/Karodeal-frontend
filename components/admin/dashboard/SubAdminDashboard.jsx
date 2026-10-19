@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { 
   Package, MousePointerClick, 
-  CheckCircle2, TrendingUp, ArrowUpRight, ShoppingBag, Tag, Star
+  CheckCircle2, TrendingUp, ArrowUpRight, ShoppingBag, Tag, Star, Receipt, IndianRupee
 } from 'lucide-react';
 
 export default function SubAdminDashboard({ stats = {}, latestDeals = [] }) {
@@ -23,7 +23,7 @@ export default function SubAdminDashboard({ stats = {}, latestDeals = [] }) {
       </div>
 
       {/* Sub-Admin Stat Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5">
         {/* 1. My Live Products */}
         <Link href="/admin/products" className="block group">
           <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3 group-hover:border-neutral-900 transition-all">
@@ -62,6 +62,27 @@ export default function SubAdminDashboard({ stats = {}, latestDeals = [] }) {
             </div>
             <div className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
               <MousePointerClick className="w-5 h-5 sm:w-6 sm:h-6" />
+            </div>
+          </div>
+        </Link>
+
+        {/* 3. Total Billing */}
+        <Link href="/admin/billing" className="block group">
+          <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3 group-hover:border-emerald-500 transition-all">
+            <div className="min-w-0 flex-1">
+              <div className="text-[11px] sm:text-xs font-bold text-neutral-500 uppercase tracking-wider truncate">
+                Total Billing
+              </div>
+              <div className="text-xl sm:text-2xl md:text-3xl font-black text-neutral-900 mt-1 truncate" title={`₹${Number(stats.totalBilling || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}>
+                ₹{Number(stats.totalBilling || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+              <div className="text-xs text-emerald-600 font-bold flex items-center gap-1 mt-2 truncate">
+                <Receipt className="w-3.5 h-3.5 shrink-0" />
+                <span>{stats.approvedClaimsCount || 0} approved claims</span>
+              </div>
+            </div>
+            <div className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <IndianRupee className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
         </Link>
@@ -199,6 +220,22 @@ export default function SubAdminDashboard({ stats = {}, latestDeals = [] }) {
                   <div className="min-w-0">
                     <div className="text-sm font-bold text-neutral-900 truncate">Click Tracking</div>
                     <div className="text-xs text-neutral-500 truncate">See real-time deal clicks</div>
+                  </div>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-black shrink-0 transition-colors ml-2" />
+              </Link>
+
+              <Link
+                href="/admin/billing"
+                className="p-3.5 sm:p-4 rounded-xl border border-neutral-200 hover:border-black hover:bg-neutral-50 transition-all flex items-center justify-between group"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 group-hover:bg-emerald-700 group-hover:text-white transition-colors">
+                    <Receipt className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-bold text-neutral-900 truncate">Billing & Orders</div>
+                    <div className="text-xs text-neutral-500 truncate">View claims and invoices</div>
                   </div>
                 </div>
                 <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-black shrink-0 transition-colors ml-2" />

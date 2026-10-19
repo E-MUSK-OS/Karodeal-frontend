@@ -63,7 +63,15 @@ export default function AdminStoresPage() {
 
   const handleAddStore = async (e) => {
     e.preventDefault();
-    if (!name) return;
+    if (!name.trim()) {
+      showErrorToast('Please enter the store name.');
+      return;
+    }
+    if (!logoUrl || !logoUrl.trim()) {
+      showErrorToast('Store logo/image is compulsory. Please upload an image or enter an image URL.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const adminUserStr = localStorage.getItem('adminUser');
@@ -289,7 +297,7 @@ export default function AdminStoresPage() {
               <div>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-1.5">
                   <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700">
-                    Store Logo
+                    Store Logo <span className="text-red-500">*</span>
                   </label>
                   <div className="flex items-center bg-neutral-100 p-0.5 rounded-xl border border-neutral-200">
                     <Button variant="none" size="none"
@@ -318,11 +326,12 @@ export default function AdminStoresPage() {
                 {imageInputType === 'url' ? (
                   <div className="flex gap-2 items-center">
                     <input
-                      type="text"
+                      type="url"
                       value={logoUrl}
                       onChange={(e) => setLogoUrl(e.target.value)}
                       placeholder="https://example.com/logo.png"
                       className="w-full px-4 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black font-mono text-xs"
+                      required={imageInputType === 'url' && !logoUrl}
                     />
                     {logoUrl && (
                       <div className="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 shrink-0 overflow-hidden p-1 flex items-center justify-center">
@@ -337,16 +346,19 @@ export default function AdminStoresPage() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <div className="border-2 border-dashed border-neutral-300 hover:border-[#f96b02] rounded-2xl p-4 text-center transition-colors cursor-pointer relative bg-neutral-50 flex flex-col items-center justify-center gap-1">
+                    <div className={`border-2 border-dashed ${logoUrl ? 'border-emerald-400 bg-emerald-50/20' : 'border-neutral-300 hover:border-black'} rounded-2xl p-4 text-center transition-colors cursor-pointer relative bg-neutral-50 flex flex-col items-center justify-center gap-1`}>
                       <input
                         type="file"
                         accept="image/*,.heic,.heif"
                         onChange={handleImageFileUpload}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                        required={imageInputType === 'file' && !logoUrl}
                       />
                       <Upload className="w-5 h-5 text-neutral-600" />
-                      <span className="text-xs font-bold text-neutral-800">Click or drag image file here</span>
-                      <span className="text-[10px] text-neutral-400">PNG, JPG, WEBP, GIF up to 5MB</span>
+                      <span className="text-xs font-bold text-neutral-800">
+                        {logoUrl ? 'Change selected image' : 'Click or drag image file here'}
+                      </span>
+                      <span className="text-[10px] text-neutral-400">PNG, JPG, WEBP, GIF up to 5MB (Mandatory)</span>
                     </div>
 
                     {logoUrl && logoUrl.startsWith('data:') && (
@@ -372,6 +384,10 @@ export default function AdminStoresPage() {
                     )}
                   </div>
                 )}
+
+                <p className="text-[11px] text-neutral-500 mt-2 flex items-center gap-1 font-medium">
+                  <span className="text-red-500 font-bold">*</span> Store logo image is compulsory to submit.
+                </p>
               </div>
 
               <div className="pt-4 flex items-center justify-end gap-3">
@@ -387,7 +403,8 @@ export default function AdminStoresPage() {
                   variant="primary"
                   size="md"
                   isLoading={isSubmitting}
-                  className="text-xs rounded-xl !px-5 !py-2.5 normal-case tracking-normal"
+                  disabled={isSubmitting || !name.trim() || !logoUrl.trim()}
+                  className="text-xs rounded-xl !px-5 !py-2.5 normal-case tracking-normal disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {editingStoreId ? 'Update Store' : 'Save Store'}
                 </Button>

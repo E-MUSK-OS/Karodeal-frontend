@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { User, Mail, Phone, Save, CheckCircle2, LogOut, ArrowLeft, Trash2, LogIn } from 'lucide-react';
+import { User, Mail, Phone, Save, LogOut, ArrowLeft, Trash2, LogIn } from 'lucide-react';
 import Button from '@/components/common/Button';
 import { handleAppError, showSuccessToast } from '@/lib/errorHandler';
 
@@ -42,8 +42,6 @@ export default function ProfileSettingsPage() {
       return '';
     }
   });
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
 
@@ -83,8 +81,6 @@ export default function ProfileSettingsPage() {
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
-    setSuccessMessage('');
-    setErrorMessage('');
     setIsSaving(true);
 
     try {
@@ -103,7 +99,12 @@ export default function ProfileSettingsPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to update profile');
+        handleAppError(data.error || 'Failed to update profile', {
+          context: 'Profile Settings Update',
+          title: 'Update Failed',
+          fallback: 'Failed to save settings. Please try again.'
+        });
+        return;
       }
 
       // Merge returned user data into local storage
@@ -125,15 +126,13 @@ export default function ProfileSettingsPage() {
       }
 
       window.dispatchEvent(new Event('auth-change'));
-      setSuccessMessage('Account details updated successfully!');
       showSuccessToast('Account details updated successfully!');
     } catch (err) {
-      const userMsg = handleAppError(err, {
+      handleAppError(err, {
         context: 'Profile Settings Update',
         title: 'Update Failed',
         fallback: 'Failed to save settings. Please try again.'
       });
-      setErrorMessage(userMsg);
     } finally {
       setIsSaving(false);
     }
@@ -188,15 +187,7 @@ export default function ProfileSettingsPage() {
           </div>
         </div>
       ) : (
-        <>
-          {successMessage && (
-            <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-800 text-sm font-medium">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-              <span>{successMessage}</span>
-            </div>
-          )}
-
-      <form onSubmit={handleSaveProfile} className="space-y-6">
+        <form onSubmit={handleSaveProfile} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label htmlFor="fullName" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
@@ -274,7 +265,6 @@ export default function ProfileSettingsPage() {
             </div>
           </div>
         </form>
-        </>
       )}
     </div>
   );

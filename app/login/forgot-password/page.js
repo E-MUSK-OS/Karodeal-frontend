@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
@@ -13,10 +13,21 @@ export default function ForgotPassword() {
   const [newPassword, setNewPassword] = useState('');
   const [resetToken, setResetToken] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [resendTimer, setResendTimer] = useState(30);
+  const [isResending, setIsResending] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    let interval;
+    if (step === 2 && resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [step, resendTimer]);
 
   const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
   const otpRefs = useRef([]);
@@ -83,7 +94,6 @@ export default function ForgotPassword() {
   const handleSendOtp = async (e) => {
     e.preventDefault();
     setError('');
-    setMessage('');
     setIsLoading(true);
 
     try {
@@ -96,21 +106,25 @@ export default function ForgotPassword() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to send OTP');
+        handleAppError(data.error || 'Failed to send OTP', {
+          context: 'Forgot Password / Send OTP',
+          title: 'Reset Code Error',
+          fallback: 'Unable to send verification code. Please check your email address.'
+        });
+        return;
       }
 
-      setMessage('A password reset code has been sent to your email.');
       showSuccessToast('Reset code sent to your email.');
       setOtpValues(['', '', '', '', '', '']);
       setOtp('');
+      setResendTimer(30);
       setStep(2);
     } catch (err) {
-      const userMsg = handleAppError(err, {
+      handleAppError(err, {
         context: 'Forgot Password / Send OTP',
-        title: 'Reset Code Error',
-        fallback: 'Unable to send verification code. Please check your email address.'
+        title: 'Connection Error',
+        fallback: 'Unable to connect to server. Please try again.'
       });
-      setError(userMsg);
     } finally {
       setIsLoading(false);
     }
@@ -125,7 +139,6 @@ export default function ForgotPassword() {
     }
 
     setError('');
-    setMessage('');
     setIsLoading(true);
 
     try {
@@ -138,32 +151,76 @@ export default function ForgotPassword() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Invalid verification code');
+        handleAppError(data.error || 'Invalid verification code', {
+          context: 'Forgot Password / Verify OTP',
+          title: 'Verification Error',
+          fallback: 'Invalid or expired OTP code. Please try again.'
+        });
+        return;
       }
 
       setResetToken(data.resetToken);
-      setMessage('Code verified! Please enter your new password.');
       showSuccessToast('Code verified successfully.');
       setStep(3);
     } catch (err) {
-      const userMsg = handleAppError(err, {
+      handleAppError(err, {
         context: 'Forgot Password / Verify OTP',
-        title: 'Verification Error',
-        fallback: 'Invalid or expired OTP code. Please try again.'
+        title: 'Connection Error',
+        fallback: 'Unable to connect to server. Please try again.'
       });
-      setError(userMsg);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resendTimer > 0 || isResending) return;
+    setIsResending(true);
+    try {
+      const normalizedEmail = email.trim().toLowerCase();
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/send-reset-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: normalizedEmail }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        handleAppError(data.error || 'Failed to resend code', {
+          context: 'Forgot Password / Resend OTP',
+          title: 'Resend Failed',
+          fallback: 'Unable to resend verification code. Please try again.'
+        });
+        return;
+      }
+
+      setOtpValues(['', '', '', '', '', '']);
+      setOtp('');
+      otpRefs.current[0]?.focus();
+      setResendTimer(30);
+      showSuccessToast('A new 6-digit verification code has been sent to your email.');
+    } catch (err) {
+      handleAppError(err, {
+        context: 'Forgot Password / Resend OTP',
+        title: 'Connection Error',
+        fallback: 'Unable to connect to server. Please try again.'
+      });
+    } finally {
+      setIsResending(false);
     }
   };
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
     setError('');
-    setMessage('');
 
     if (newPassword.length < 8) {
-      setError('New password must be at least 8 characters long.');
+      showErrorToast('New password must be at least 8 characters long.');
+      return;
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      showErrorToast('Password must contain at least 8 characters, an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&).');
       return;
     }
 
@@ -178,21 +235,24 @@ export default function ForgotPassword() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to reset password');
+        handleAppError(data.error || 'Failed to reset password', {
+          context: 'Forgot Password / Reset Action',
+          title: 'Reset Failed',
+          fallback: 'Could not reset password. Please try again.'
+        });
+        return;
       }
 
-      setMessage('Password reset successfully! Redirecting to login...');
       showSuccessToast('Password reset successfully! You can now log in.');
       setTimeout(() => {
         router.push('/login');
-      }, 2000);
+      }, 1500);
     } catch (err) {
-      const userMsg = handleAppError(err, {
+      handleAppError(err, {
         context: 'Forgot Password / Reset Action',
-        title: 'Reset Failed',
-        fallback: 'Could not reset password. Please try again.'
+        title: 'Connection Error',
+        fallback: 'Unable to connect to server. Please try again.'
       });
-      setError(userMsg);
     } finally {
       setIsLoading(false);
     }
@@ -205,7 +265,7 @@ export default function ForgotPassword() {
         {/* Header Section */}
         <div className="flex items-center mb-6">
           <Button variant="none" size="none"
-            onClick={() => step === 2 ? setStep(1) : router.push('/login')}
+            onClick={() => step === 2 ? setStep(1) : step === 3 ? setStep(2) : router.push('/login')}
             className="p-2 -ml-2 text-black hover:bg-neutral-100 active:bg-neutral-200 rounded-full transition-colors cursor-pointer inline-flex items-center justify-center"
           >
             <ArrowLeft strokeWidth={2.5} className="w-5 h-5" />
@@ -225,8 +285,6 @@ export default function ForgotPassword() {
 
         {step === 1 ? (
           <form className="mt-8 flex flex-col flex-1" onSubmit={handleSendOtp}>
-
-            {message && <div className="text-green-600 text-sm mb-4 font-medium">{message}</div>}
 
             {/* Floating Label Input - Email */}
             <div className="relative mb-6">
@@ -266,8 +324,6 @@ export default function ForgotPassword() {
         ) : step === 2 ? (
           <form className="mt-8 flex flex-col flex-1" onSubmit={handleVerifyOtp}>
 
-            {message && <div className="text-green-600 text-sm mb-4 font-medium">{message}</div>}
-
             {/* OTP Input */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-3 text-center">Enter 6-digit OTP</label>
@@ -293,6 +349,28 @@ export default function ForgotPassword() {
               </div>
             </div>
 
+            {/* Resend OTP Section */}
+            <div className="text-center mt-2 mb-6">
+              {resendTimer > 0 ? (
+                <p className="text-xs text-neutral-500 font-medium">
+                  Didn&apos;t receive the code? Resend in{' '}
+                  <span className="font-bold text-neutral-800 tabular-nums">{resendTimer}s</span>
+                </p>
+              ) : (
+                <p className="text-xs text-neutral-500 font-medium">
+                  Didn&apos;t receive the code?{' '}
+                  <button
+                    type="button"
+                    onClick={handleResendOtp}
+                    disabled={isResending}
+                    className="text-black font-bold hover:underline cursor-pointer disabled:opacity-50 inline-flex items-center gap-1"
+                  >
+                    {isResending ? 'Sending new code...' : 'Resend Code'}
+                  </button>
+                </p>
+              )}
+            </div>
+
             <div className="mt-auto">
               <Button
                 variant="primary"
@@ -307,8 +385,6 @@ export default function ForgotPassword() {
           </form>
         ) : (
           <form className="mt-8 flex flex-col flex-1" onSubmit={handleResetPassword}>
-
-            {message && <div className="text-green-600 text-sm mb-4 font-medium">{message}</div>}
 
             {/* New Password Input */}
             <div className="relative mb-6">

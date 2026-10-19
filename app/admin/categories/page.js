@@ -8,6 +8,8 @@ import ImageCropper from '@/components/admin/common/ImageCropper';
 import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
 import { processImageUpload } from '@/lib/imageProcessor';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
+
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState('');
@@ -78,7 +80,7 @@ export default function AdminCategoriesPage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch('https://karodeal-backend.vercel.app/api/meta/categories');
+      const res = await fetch(`${API_URL}/meta/categories`);
       if (res.ok) {
         const data = await res.json();
         setCategories(data);
@@ -94,17 +96,23 @@ export default function AdminCategoriesPage() {
 
   const handleAddCategory = async (e) => {
     e.preventDefault();
-    if (!name) return;
+    if (!name.trim()) {
+      showErrorToast('Please enter category name.');
+      return;
+    }
+    if (!imageFile) {
+      showErrorToast('Category image is compulsory. Please select and crop an image.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const token = getToken();
       const formData = new FormData();
       formData.append('name', name.trim());
-      if (imageFile) {
-        formData.append('image', imageFile);
-      }
+      formData.append('image', imageFile);
 
-      const res = await fetch('https://karodeal-backend.vercel.app/api/meta/categories', {
+      const res = await fetch(`${API_URL}/meta/categories`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -146,7 +154,7 @@ export default function AdminCategoriesPage() {
       onConfirm: async () => {
         try {
           const token = getToken();
-          const res = await fetch(`https://karodeal-backend.vercel.app/api/meta/categories/${id}`, {
+          const res = await fetch(`${API_URL}/meta/categories/${id}`, {
             method: 'DELETE',
             headers: {
               Authorization: `Bearer ${token}`,
@@ -195,7 +203,7 @@ export default function AdminCategoriesPage() {
         formData.append('image', editImageFile);
       }
 
-      const res = await fetch(`https://karodeal-backend.vercel.app/api/meta/categories/${id}`, {
+      const res = await fetch(`${API_URL}/meta/categories/${id}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -250,17 +258,24 @@ export default function AdminCategoriesPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-neutral-700 mb-1">Image (Optional)</label>
+              <label className="block text-xs font-bold uppercase text-neutral-700 mb-1">
+                Category Image <span className="text-red-500">*</span>
+              </label>
               <input
                 type="file"
                 accept="image/*,.heic,.heif"
                 onChange={(e) => handleFileChange(e, 'add')}
+                required={!imageFile}
                 className="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
               />
-              {imageFile && (
-                <div className="mt-2 text-xs font-semibold text-green-600">
-                  Image ready ({Math.round(imageFile.size / 1024)} KB)
+              {imageFile ? (
+                <div className="mt-2 text-xs font-semibold text-emerald-600 flex items-center gap-1">
+                  ✓ Image ready ({Math.round(imageFile.size / 1024)} KB)
                 </div>
+              ) : (
+                <p className="text-[11px] text-neutral-500 mt-1.5 flex items-center gap-1 font-medium">
+                  <span className="text-red-500 font-bold">*</span> Category image is compulsory.
+                </p>
               )}
             </div>
 
@@ -269,8 +284,9 @@ export default function AdminCategoriesPage() {
               variant="primary"
               fullWidth={true}
               isLoading={isSubmitting}
+              disabled={isSubmitting || !name.trim() || !imageFile}
               icon={!isSubmitting && <Plus className="w-4 h-4" />}
-              className="py-3 rounded-xl normal-case tracking-normal shadow-md text-xs"
+              className="py-3 rounded-xl normal-case tracking-normal shadow-md text-xs disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Adding...' : 'Add Category'}
             </Button>

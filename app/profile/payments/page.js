@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { IndianRupee, Landmark, Smartphone, AlertCircle, ArrowRight, BadgeCheck, LogIn, User } from 'lucide-react';
+import { IndianRupee, Landmark, Smartphone, AlertCircle, ArrowRight, LogIn, User } from 'lucide-react';
 import Link from 'next/link';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
@@ -12,8 +12,6 @@ export default function Payments() {
   const [isLoading, setIsLoading] = useState(true);
   const [details, setDetails] = useState('');
   const [amount, setAmount] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [user, setUser] = useState(() => {
     if (typeof window === 'undefined') return null;
     try {
@@ -60,8 +58,6 @@ export default function Payments() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
 
     const numAmount = parseFloat(amount);
     if (!numAmount || numAmount < 1000) {
@@ -94,27 +90,24 @@ export default function Payments() {
 
       const data = await res.json();
       if (!res.ok) {
-        const userMsg = handleAppError(data.error || 'Failed to submit request', {
+        handleAppError(data.error || 'Failed to submit request', {
           context: 'Withdrawal Request',
           title: 'Withdrawal Failed',
           fallback: 'Could not submit your withdrawal request. Please check your balance and details.'
         });
-        setError(userMsg);
         return;
       }
 
-      setSuccess('Withdrawal request submitted successfully!');
       showSuccessToast('Withdrawal request submitted successfully!');
       setBalance(prev => prev - numAmount);
       setAmount('');
       setDetails('');
     } catch (err) {
-      const userMsg = handleAppError(err, {
+      handleAppError(err, {
         context: 'Withdrawal Network',
         title: 'Connection Error',
         fallback: 'Unable to connect to the server. Please try again.'
       });
-      setError(userMsg);
     }
   };
 
@@ -142,13 +135,6 @@ export default function Payments() {
 
       <div className="bg-white rounded-xl border border-neutral-200 p-5 shadow-sm">
         <h5 className="font-bold text-neutral-900 mb-4">Payment Details</h5>
-
-        {success && (
-          <div className="mb-4 bg-green-50 text-green-700 p-3 rounded-lg flex items-start gap-2 border border-green-100">
-            <BadgeCheck className="w-4 h-4 shrink-0 mt-0.5" />
-            <p className="text-xs font-medium">{success}</p>
-          </div>
-        )}
 
         {!user ? (
           <div className="text-center py-8 px-4 bg-neutral-50 rounded-xl border border-neutral-100">

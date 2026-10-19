@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Lock, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Lock, Eye, EyeOff } from 'lucide-react';
 import Button from '@/components/common/Button';
 import { handleAppError, showSuccessToast } from '@/lib/errorHandler';
 
@@ -23,8 +23,6 @@ export default function ChangePassword() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
@@ -38,20 +36,29 @@ export default function ChangePassword() {
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
-    setSuccessMessage('');
-    setErrorMessage('');
 
     if (newPassword.length < 8) {
-      const msg = 'New password must be at least 8 characters long.';
-      setErrorMessage(msg);
-      handleAppError(msg, { context: 'Change Password Validation', title: 'Invalid Password' });
+      handleAppError('New password must be at least 8 characters long.', {
+        context: 'Change Password Validation',
+        title: 'Invalid Password'
+      });
+      return;
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      handleAppError('Password must contain at least 8 characters, an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&).', {
+        context: 'Change Password Validation',
+        title: 'Weak Password'
+      });
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      const msg = 'New password and confirm password do not match.';
-      setErrorMessage(msg);
-      handleAppError(msg, { context: 'Change Password Validation', title: 'Password Mismatch' });
+      handleAppError('New password and confirm password do not match.', {
+        context: 'Change Password Validation',
+        title: 'Password Mismatch'
+      });
       return;
     }
 
@@ -70,21 +77,24 @@ export default function ChangePassword() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to update password');
+        handleAppError(data.error || 'Failed to update password', {
+          context: 'Change Password Action',
+          title: 'Update Failed',
+          fallback: 'Failed to update password. Please check your current password.'
+        });
+        return;
       }
 
-      setSuccessMessage('Password updated successfully!');
       showSuccessToast('Password updated successfully!');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (err) {
-      const userMsg = handleAppError(err, {
+      handleAppError(err, {
         context: 'Change Password Action',
-        title: 'Update Failed',
-        fallback: 'Failed to update password. Please check your current password.'
+        title: 'Connection Error',
+        fallback: 'Unable to connect to server. Please try again later.'
       });
-      setErrorMessage(userMsg);
     } finally {
       setIsUpdating(false);
     }
@@ -111,13 +121,6 @@ export default function ChangePassword() {
           Ensure your account is using a long, random password to stay secure.
         </p>
       </div>
-
-      {successMessage && (
-        <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-800 text-sm font-medium">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-          <span>{successMessage}</span>
-        </div>
-      )}
 
       <form onSubmit={handleChangePassword} className="space-y-5 max-w-md">
         <div>

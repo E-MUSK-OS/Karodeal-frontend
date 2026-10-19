@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
@@ -20,7 +20,19 @@ export default function Signup() {
   const [requireGoogleOtp, setRequireGoogleOtp] = useState(false);
   const [verifyEmail, setVerifyEmail] = useState('');
   const [verifyName, setVerifyName] = useState('');
+  const [resendTimer, setResendTimer] = useState(30);
+  const [isResending, setIsResending] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    let interval;
+    if ((step === 2 || requireGoogleOtp) && resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [step, requireGoogleOtp, resendTimer]);
 
   const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
   const otpRefs = useRef([]);
@@ -98,6 +110,7 @@ export default function Signup() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    setError('');
 
     // Password validation: at least 1 uppercase, 1 lowercase, 1 number, 1 special character, min 8 chars
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -123,6 +136,8 @@ export default function Signup() {
       }
 
       setStep(2);
+      setResendTimer(30);
+      showSuccessToast(`Verification code sent to ${normalizedEmail}`);
       setError('');
     } catch (err) {
       showError('Failed to connect to backend server');
@@ -152,6 +167,8 @@ export default function Signup() {
         setVerifyEmail(data.email);
         setVerifyName(data.name);
         setRequireGoogleOtp(true);
+        setResendTimer(30);
+        showSuccessToast(`Verification code sent to ${data.email}`);
         return;
       }
 
@@ -248,6 +265,35 @@ export default function Signup() {
     }
   };
 
+  const handleResendOtp = async () => {
+    if (resendTimer > 0 || isResending) return;
+    setIsResending(true);
+    try {
+      const targetEmail = (requireGoogleOtp ? verifyEmail : email).trim().toLowerCase();
+      const endpoint = `${process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api'}/auth/send-otp`;
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: targetEmail }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showError(data.error || 'Failed to resend code');
+        return;
+      }
+
+      setOtpValues(['', '', '', '', '', '']);
+      setInputCode('');
+      otpRefs.current[0]?.focus();
+      setResendTimer(30);
+      showSuccessToast('A new 6-digit verification code has been sent to your email.');
+    } catch (err) {
+      showError('Failed to connect to backend server');
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   if (requireGoogleOtp) {
     return (
       <div className="bg-white min-h-[calc(100vh-140px)] flex flex-col justify-center items-center py-8 sm:py-12 px-4 sm:px-6 relative font-sans">
@@ -285,6 +331,29 @@ export default function Signup() {
                 ))}
               </div>
             </div>
+
+            {/* Resend OTP Section (Google Verification) */}
+            <div className="text-center mt-2 mb-6">
+              {resendTimer > 0 ? (
+                <p className="text-xs text-neutral-500 font-medium">
+                  Didn&apos;t receive the code? Resend in{' '}
+                  <span className="font-bold text-neutral-800 tabular-nums">{resendTimer}s</span>
+                </p>
+              ) : (
+                <p className="text-xs text-neutral-500 font-medium">
+                  Didn&apos;t receive the code?{' '}
+                  <button
+                    type="button"
+                    onClick={handleResendOtp}
+                    disabled={isResending}
+                    className="text-black font-bold hover:underline cursor-pointer disabled:opacity-50 inline-flex items-center gap-1"
+                  >
+                    {isResending ? 'Sending new code...' : 'Resend Code'}
+                  </button>
+                </p>
+              )}
+            </div>
+
             <div className="mt-auto">
               <Button
                 variant="primary"
@@ -347,7 +416,10 @@ export default function Signup() {
                 className="block px-4 pb-3.5 pt-4 w-full  text-black bg-transparent rounded-lg border-2 border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer [&:-webkit-autofill]:[-webkit-box-shadow:0_0_0_30px_#fafafa_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]"
                 placeholder=" "
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (error) setError('');
+                }}
                 required
               />
               <label
@@ -367,7 +439,10 @@ export default function Signup() {
                 className="block px-4 pb-3.5 pt-4 w-full  text-black bg-transparent rounded-lg border-2 border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer [&:-webkit-autofill]:[-webkit-box-shadow:0_0_0_30px_#fafafa_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]"
                 placeholder=" "
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) setError('');
+                }}
                 required
               />
               <label
@@ -387,7 +462,10 @@ export default function Signup() {
                 className="block px-4 pb-3.5 pt-4 w-full  text-black bg-transparent rounded-lg border-2 border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer pr-12 [&:-webkit-autofill]:[-webkit-box-shadow:0_0_0_30px_#fafafa_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]"
                 placeholder=" "
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (error) setError('');
+                }}
                 required
               />
               <label
@@ -468,6 +546,28 @@ export default function Signup() {
                   />
                 ))}
               </div>
+            </div>
+
+            {/* Resend OTP Section (Email Signup Verification) */}
+            <div className="text-center mt-2 mb-6">
+              {resendTimer > 0 ? (
+                <p className="text-xs text-neutral-500 font-medium">
+                  Didn&apos;t receive the code? Resend in{' '}
+                  <span className="font-bold text-neutral-800 tabular-nums">{resendTimer}s</span>
+                </p>
+              ) : (
+                <p className="text-xs text-neutral-500 font-medium">
+                  Didn&apos;t receive the code?{' '}
+                  <button
+                    type="button"
+                    onClick={handleResendOtp}
+                    disabled={isResending}
+                    className="text-black font-bold hover:underline cursor-pointer disabled:opacity-50 inline-flex items-center gap-1"
+                  >
+                    {isResending ? 'Sending new code...' : 'Resend Code'}
+                  </button>
+                </p>
+              )}
             </div>
 
             <div className="flex-1"></div>

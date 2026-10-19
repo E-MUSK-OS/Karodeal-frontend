@@ -105,11 +105,29 @@ export default function AdminUsersPage() {
   }, [searchQuery]);
 
   const handleDeleteUser = async (userId) => {
+    const targetUser = users.find(u => (u.id === userId || u._id === userId));
+    const targetEmail = targetUser?.email || 'this user';
+    const targetRole = targetUser?.role || 'USER';
+    const roleLabel = targetRole === 'ADMIN' ? 'Main Admin' : targetRole === 'SUB_ADMIN' ? 'Sub-Admin' : 'User';
+
+    // Guard: Prevent logged-in admin from deleting their own account
+    try {
+      const adminStr = localStorage.getItem('adminUser');
+      if (adminStr) {
+        const currentAdmin = JSON.parse(adminStr);
+        const currentId = currentAdmin.id || currentAdmin._id;
+        if (currentId === userId || (targetUser?.email && currentAdmin.email === targetUser.email)) {
+          showErrorToast('You cannot delete your own active administrator account.');
+          return;
+        }
+      }
+    } catch { }
+
     setConfirmModal({
       isOpen: true,
-      title: 'Delete User',
-      message: 'Are you sure you want to delete this user? This action cannot be undone.',
-      confirmText: 'Delete',
+      title: `Delete ${roleLabel} Account`,
+      message: `Are you sure you want to permanently delete "${targetEmail}"? All associated data across the entire system (including wallet, transactions, cashback claims, tickets, messages, product clicks, OTPs, and newsletter subscriptions) will be permanently deleted. This action cannot be undone.`,
+      confirmText: 'Delete Permanently',
       isDestructive: true,
       onConfirm: async () => {
         try {
@@ -131,7 +149,7 @@ export default function AdminUsersPage() {
           const data = await res.json().catch(() => ({}));
           if (res.ok) {
             setUsers(prev => prev.filter(u => u.id !== userId && u._id !== userId));
-            showSuccessToast('User deleted successfully.');
+            showSuccessToast(`Account "${targetEmail}" and all related data deleted successfully.`);
           } else {
             handleAppError(data.error || 'Failed to delete user', {
               context: 'Admin Users / Delete',

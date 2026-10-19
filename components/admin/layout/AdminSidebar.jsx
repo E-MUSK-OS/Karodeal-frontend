@@ -90,12 +90,11 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
     { name: 'Messages', href: '/admin/messages', icon: MessageSquare },
   ];
 
-  // Sub-admin can see: Products & Cards, Billing, Cashback Claims, Review Requests, Click Tracking (plus Dashboard)
+  // Sub-admin can see: Products & Cards, Billing, Review Requests, Click Tracking (plus Dashboard)
   const subAdminAllowedHrefs = [
     '/admin/dashboard',
     '/admin/products',
     '/admin/billing',
-    '/admin/claims',
     '/admin/review-requests',
     '/admin/clicks'
   ];

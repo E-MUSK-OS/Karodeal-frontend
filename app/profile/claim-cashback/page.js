@@ -845,9 +845,7 @@ export default function ClaimCashback() {
                       onFocus={() => setShowProductDropdown(true)}
                       onBlur={() => setTimeout(() => setShowProductDropdown(false), 200)}
                       placeholder="Search and select product (Required)..."
-                      className={`w-full bg-white border rounded-xl px-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 transition-all ${
-                        !productId && formError ? 'border-red-400 focus:ring-red-400 ring-1 ring-red-300' : 'border-neutral-200 focus:ring-black focus:border-black'
-                      }`}
+                      className="w-full bg-white border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all"
                       required
                     />
                     {!productId && (
