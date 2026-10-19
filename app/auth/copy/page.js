@@ -20,6 +20,14 @@ function CopyCodeContent() {
           .then(() => {
             setCopied(true);
             showSuccessToast(`Verification code ${code} copied to clipboard!`);
+            // Attempt to automatically close this tab so the user returns right back to their previous screen
+            setTimeout(() => {
+              try {
+                window.close();
+              } catch (e) {
+                // Browser restricted window.close
+              }
+            }, 600);
           })
           .catch(() => {
             setCopied(false);
@@ -98,18 +106,22 @@ function CopyCodeContent() {
           </Button>
 
           <div className="grid grid-cols-2 gap-2">
-            <Link
-              href="/login"
-              className="bg-neutral-900 hover:bg-black text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1"
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  window.close();
+                } catch (e) {}
+              }}
+              className="bg-neutral-900 hover:bg-black text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1 cursor-pointer"
             >
-              <span>Login</span>
-              <ArrowRight className="w-3 h-3" />
-            </Link>
+              <span>Close Tab</span>
+            </button>
             <Link
               href="/signup"
               className="bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center"
             >
-              <span>Sign Up</span>
+              <span>Back to App</span>
             </Link>
           </div>
         </div>
