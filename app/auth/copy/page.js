@@ -118,7 +118,7 @@ function CopyCodeContent() {
               <span>Close Tab</span>
             </button>
             <Link
-              href="/signup"
+              href="/"
               className="bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center"
             >
               <span>Back to App</span>
