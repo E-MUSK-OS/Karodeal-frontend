@@ -148,40 +148,40 @@ export default function ProfileSettingsPage() {
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-neutral-200">
+    <div className="bg-white dark:bg-neutral-900 rounded-2xl p-6 sm:p-8 shadow-sm border border-neutral-200 dark:border-neutral-800">
       {/* Mobile Back Button */}
       <div className="md:hidden mb-4">
-        <Link href="/profile" className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-600 hover:text-black">
+        <Link href="/profile" className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white">
           <ArrowLeft className="w-4 h-4" />
           Back to Profile
         </Link>
       </div>
 
       <div className="mb-6">
-        <h5 className="font-bold text-neutral-900 flex items-center gap-2">
-          <User className="w-5 h-5 text-neutral-700" />
+        <h5 className="font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+          <User className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
           Account Settings
         </h5>
-        <p className="text-sm text-neutral-500 mt-1">
+        <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
           {user ? 'Update your personal details and contact information.' : 'Please log in to view and manage your account details.'}
         </p>
       </div>
 
       {!user ? (
-        <div className="text-center py-10 px-4 bg-neutral-50 rounded-xl border border-neutral-100">
-          <div className="w-14 h-14 bg-white border border-neutral-200 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
+        <div className="text-center py-10 px-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl border border-neutral-100 dark:border-neutral-800">
+          <div className="w-14 h-14 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
             <User className="w-7 h-7 text-neutral-400" />
           </div>
-          <h5 className="font-bold text-neutral-900 mb-1">You are currently logged out</h5>
-          <p className="text-sm text-neutral-500 max-w-sm mx-auto mb-5">
+          <h5 className="font-bold text-neutral-900 dark:text-white mb-1">You are currently logged out</h5>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-sm mx-auto mb-5">
             Log in to access your personal details, cashback earnings, and wallet withdrawal options.
           </p>
           <div className="flex justify-center gap-3">
-            <Link href="/login" className="inline-flex items-center gap-2 px-6 py-2.5 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors">
+            <Link href="/login" className="inline-flex items-center gap-2 px-6 py-2.5 bg-black dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-black font-medium text-sm rounded-xl transition-colors">
               <LogIn className="w-4 h-4" />
               <span>Login to Account</span>
             </Link>
-            <Link href="/signup" className="px-6 py-2.5 bg-white border border-neutral-300 hover:bg-neutral-100 text-black font-medium text-sm rounded-xl transition-colors">
+            <Link href="/signup" className="px-6 py-2.5 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-700 text-black dark:text-white font-medium text-sm rounded-xl transition-colors">
               Create Account
             </Link>
           </div>
@@ -190,7 +190,7 @@ export default function ProfileSettingsPage() {
         <form onSubmit={handleSaveProfile} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label htmlFor="fullName" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+            <label htmlFor="fullName" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-2">
               Full Name
             </label>
             <div className="relative">
@@ -200,15 +200,15 @@ export default function ProfileSettingsPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter full name"
-                className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
+                className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:bg-white dark:focus:bg-neutral-800 transition-all text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                 required
               />
-              <User className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
+              <User className="w-4 h-4 text-neutral-400 dark:text-neutral-500 absolute left-3.5 top-3.5" />
             </div>
           </div>
 
           <div>
-            <label htmlFor="emailAddress" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+            <label htmlFor="emailAddress" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-2">
               Email Address
             </label>
             <div className="relative">
@@ -218,15 +218,15 @@ export default function ProfileSettingsPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter email address"
-                className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
+                className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:bg-white dark:focus:bg-neutral-800 transition-all text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                 required
               />
-              <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
+              <Mail className="w-4 h-4 text-neutral-400 dark:text-neutral-500 absolute left-3.5 top-3.5" />
             </div>
           </div>
 
           <div className="md:col-span-2">
-            <label htmlFor="phoneNumber" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+            <label htmlFor="phoneNumber" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-2">
               Mobile Number
             </label>
             <div className="relative">
@@ -236,9 +236,9 @@ export default function ProfileSettingsPage() {
                 value={mobile}
                 onChange={(e) => setMobile(e.target.value)}
                 placeholder="Enter mobile number"
-                className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
+                className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:bg-white dark:focus:bg-neutral-800 transition-all text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
               />
-              <Phone className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
+              <Phone className="w-4 h-4 text-neutral-400 dark:text-neutral-500 absolute left-3.5 top-3.5" />
             </div>
           </div>
         </div>
@@ -247,7 +247,7 @@ export default function ProfileSettingsPage() {
           <Button variant="none" size="none"
             type="submit"
             disabled={isSaving}
-            className="w-full sm:w-auto px-6 py-3 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+            className="w-full sm:w-auto px-6 py-3 bg-black dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-black font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             {isSaving ? 'Saving...' : 'Save Changes'}
@@ -257,7 +257,7 @@ export default function ProfileSettingsPage() {
               <Button variant="none" size="none"
                 type="button"
                 onClick={handleLogout}
-                className="w-full sm:w-auto px-6 py-3 text-red-600 hover:bg-red-50 font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100"
+                className="w-full sm:w-auto px-6 py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100 dark:border-red-900/40"
               >
                 <LogOut className="w-4 h-4" />
                 Logout Account

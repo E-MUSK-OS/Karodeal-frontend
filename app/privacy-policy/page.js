@@ -10,22 +10,22 @@ export default function PrivacyPolicyPage() {
   return (
     <div className="page-container pt-12 md:pt-20">
       <div className="max-w-4xl mx-auto">
-        <div className="border-b border-neutral-200 pb-6 md:pb-8 mb-8 md:mb-12">
-          <h1 className="font-black text-black uppercase tracking-tighter mb-4 text-3xl sm:text-4xl md:text-5xl">
+        <div className="border-b border-neutral-200 dark:border-neutral-800 pb-6 md:pb-8 mb-8 md:mb-12">
+          <h1 className="font-black text-black dark:text-white uppercase tracking-tighter mb-4 text-3xl sm:text-4xl md:text-5xl">
             Privacy Policy
           </h1>
-          <p className="text-neutral-500 font-bold tracking-widest uppercase text-[10px] md:text-xs">
+          <p className="text-neutral-500 dark:text-neutral-400 font-bold tracking-widest uppercase text-[10px] md:text-xs">
             Last updated: October 7, 2026
           </p>
         </div>
 
-        <div className="space-y-8 md:space-y-12 text-neutral-700 leading-relaxed">
+        <div className="space-y-8 md:space-y-12 text-neutral-700 dark:text-neutral-300 leading-relaxed">
           <p className="font-medium">
             At KaroDeal, your privacy is our priority. This Privacy Policy outlines how we collect, use, and protect your personal information when you use our website to discover deals and claim cashback.
           </p>
 
           <div>
-            <h2 className="font-black text-black uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
+            <h2 className="font-black text-black dark:text-white uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
               1. Information We Collect
             </h2>
             <p className="mb-4">To provide you with our cashback services, we collect the following types of information:</p>
@@ -38,7 +38,7 @@ export default function PrivacyPolicyPage() {
           </div>
 
           <div>
-            <h2 className="font-black text-black uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
+            <h2 className="font-black text-black dark:text-white uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
               2. How We Use Your Information
             </h2>
             <p className="mb-4">The data we collect is primarily used to ensure a smooth cashback experience. Specifically, we use it to:</p>
@@ -52,7 +52,7 @@ export default function PrivacyPolicyPage() {
           </div>
 
           <div>
-            <h2 className="font-black text-black uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
+            <h2 className="font-black text-black dark:text-white uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
               3. Tracking Technologies and Cookies
             </h2>
             <p>
@@ -62,7 +62,7 @@ export default function PrivacyPolicyPage() {
           </div>
 
           <div>
-            <h2 className="font-black text-black uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
+            <h2 className="font-black text-black dark:text-white uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
               4. Data Sharing &amp; Security
             </h2>
             <p>
@@ -72,7 +72,7 @@ export default function PrivacyPolicyPage() {
           </div>
 
           <div>
-            <h2 className="font-black text-black uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
+            <h2 className="font-black text-black dark:text-white uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
               5. Data Retention
             </h2>
             <p>
@@ -81,7 +81,7 @@ export default function PrivacyPolicyPage() {
           </div>
 
           <div>
-            <h2 className="font-black text-black uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
+            <h2 className="font-black text-black dark:text-white uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
               6. Contact Us
             </h2>
             <p>

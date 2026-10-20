@@ -73,10 +73,10 @@ function ReviewPageContent() {
   return (
     <div className="page-container py-12">
       <div className="text-center mb-12">
-        <h3 className="font-extrabold text-black uppercase tracking-tight mb-4">
+        <h3 className="font-extrabold text-black dark:text-white uppercase tracking-tight mb-4">
           Review Us
         </h3>
-        <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
+        <p className="text-lg text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto">
           We&apos;d love to hear about your experience with KaroDeal. Share your thoughts and help us improve!
         </p>
       </div>
@@ -85,12 +85,12 @@ function ReviewPageContent() {
 
         {/* Info or Write a Review Section */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm sticky top-28 overflow-hidden">
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm sticky top-28 overflow-hidden">
             {!isWriting ? (
               <div className="flex flex-col h-full">
                 <div className="p-6 pb-8">
-                  <h4 className="font-bold text-black mb-4">Reviews</h4>
-                  <div className="text-[14px] text-neutral-600 space-y-4 leading-relaxed">
+                  <h4 className="font-bold text-black dark:text-white mb-4">Reviews</h4>
+                  <div className="text-[14px] text-neutral-600 dark:text-neutral-300 space-y-4 leading-relaxed">
                     <p>
                       Lakhs of Indians visit karodeal every day and make the most of our best offers to get the best deals plus some extra Cashback, right into their bank account. KaroDeal reviews from these users show how our deals and offers have held up over the years.
                     </p>
@@ -102,11 +102,11 @@ function ReviewPageContent() {
                     </p>
                   </div>
                 </div>
-                <div className="p-4 border-t border-neutral-100 bg-neutral-50/50 flex flex-col gap-3">
-                  <span className="text-sm font-bold text-black text-center">Tell Us About Your Experience!</span>
+                <div className="p-4 border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/40 flex flex-col gap-3">
+                  <span className="text-sm font-bold text-black dark:text-white text-center">Tell Us About Your Experience!</span>
                   <Button variant="none" size="none"
                     onClick={() => setIsWriting(true)}
-                    className="w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-neutral-800 transition-colors"
+                    className="w-full bg-black dark:bg-white text-white dark:text-black font-bold py-3 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors"
                   >
                     Write a Review
                   </Button>
@@ -115,29 +115,29 @@ function ReviewPageContent() {
             ) : (
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="font-bold text-black flex items-center gap-2">
+                  <h2 className="font-bold text-black dark:text-white flex items-center gap-2">
                     <MessageSquare className="w-5 h-5" />
                     Write a Review
                   </h2>
                   <Button variant="none" size="none"
                     onClick={() => setIsWriting(false)}
-                    className="text-sm text-neutral-500 hover:text-black font-semibold"
+                    className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white font-semibold"
                   >
                     Cancel
                   </Button>
                 </div>
 
                 {!user ? (
-                  <div className="text-center py-6 bg-neutral-50 rounded-xl border border-neutral-100">
-                    <p className="text-sm lg:text-[15px] xl:text-base text-neutral-600 mb-4 font-medium">You need to be logged in to write a review.</p>
-                    <Link href="/login" className="text-sm lg:text-[15px] xl:text-base inline-block bg-black text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-neutral-800 transition-colors">
+                  <div className="text-center py-6 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl border border-neutral-100 dark:border-neutral-800">
+                    <p className="text-sm lg:text-[15px] xl:text-base text-neutral-600 dark:text-neutral-300 mb-4 font-medium">You need to be logged in to write a review.</p>
+                    <Link href="/login" className="text-sm lg:text-[15px] xl:text-base inline-block bg-black dark:bg-white text-white dark:text-black px-6 py-2.5 rounded-lg font-semibold hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors">
                       Log in
                     </Link>
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                      <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                      <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
                         Your Rating
                       </label>
                       <div className="flex gap-1">
@@ -152,8 +152,8 @@ function ReviewPageContent() {
                           >
                             <Star
                               className={`w-8 h-8 ${(hoverRating || rating) >= star
-                                  ? 'fill-black text-black'
-                                  : 'text-neutral-300'
+                                  ? 'fill-black dark:fill-white text-black dark:text-white'
+                                  : 'text-neutral-300 dark:text-neutral-600'
                                 }`}
                             />
                           </Button>
@@ -162,7 +162,7 @@ function ReviewPageContent() {
                     </div>
 
                     <div>
-                      <label htmlFor="comment" className="block text-sm font-semibold text-neutral-700 mb-2">
+                      <label htmlFor="comment" className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
                         Your Review
                       </label>
                       <textarea
@@ -170,14 +170,14 @@ function ReviewPageContent() {
                         rows={4}
                         value={comment}
                         onChange={(e) => setComment(e.target.value)}
-                        className="w-full px-4 py-3 border border-neutral-200 rounded-lg focus:outline-none focus:border-black focus:ring-1 focus:ring-black resize-none"
+                        className="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:outline-none focus:border-black dark:focus:border-white focus:ring-1 focus:ring-black dark:focus:ring-white resize-none text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                         placeholder="Tell us what you think..."
                       />
                     </div>
 
                     <Button variant="none" size="none"
                       type="submit"
-                      className="w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-neutral-800 transition-colors"
+                      className="w-full bg-black dark:bg-white text-white dark:text-black font-bold py-3 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors"
                     >
                       Publish Review
                     </Button>
@@ -190,31 +190,31 @@ function ReviewPageContent() {
 
         {/* Published Reviews Feed */}
         <div className="lg:col-span-2 space-y-6">
-          <h2 className="font-bold text-black mb-6">Recent Reviews</h2>
+          <h2 className="font-bold text-black dark:text-white mb-6">Recent Reviews</h2>
 
           {reviews.length === 0 ? (
-            <div className="text-center py-12 bg-neutral-50 rounded-2xl border border-neutral-200">
-              <p className="text-sm lg:text-[15px] xl:text-base text-neutral-500 font-medium">No reviews yet. Be the first to share your experience!</p>
+            <div className="text-center py-12 bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl border border-neutral-200 dark:border-neutral-800">
+              <p className="text-sm lg:text-[15px] xl:text-base text-neutral-500 dark:text-neutral-400 font-medium">No reviews yet. Be the first to share your experience!</p>
             </div>
           ) : (
             <div className="grid gap-6">
               {reviews.map((rev) => (
-                <div key={rev.id} className="bg-white rounded-2xl p-6 border border-neutral-200 shadow-sm transition-shadow hover:shadow-md">
+                <div key={rev.id} className="bg-white dark:bg-neutral-900 rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800 shadow-sm transition-shadow hover:shadow-md">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h5 className="font-bold text-black">{rev.name}</h5>
-                      <span className="text-sm text-neutral-500 font-medium">{rev.date}</span>
+                      <h5 className="font-bold text-black dark:text-white">{rev.name}</h5>
+                      <span className="text-sm text-neutral-500 dark:text-neutral-400 font-medium">{rev.date}</span>
                     </div>
                     <div className="flex gap-0.5">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Star
                           key={star}
-                          className={`w-4 h-4 ${star <= rev.rating ? 'fill-black text-black' : 'text-neutral-200'}`}
+                          className={`w-4 h-4 ${star <= rev.rating ? 'fill-black dark:fill-white text-black dark:text-white' : 'text-neutral-200 dark:text-neutral-700'}`}
                         />
                       ))}
                     </div>
                   </div>
-                  <p className="text-neutral-700 leading-relaxed text-[15px]">
+                  <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed text-[15px]">
                     {rev.comment}
                   </p>
                 </div>

@@ -21,26 +21,26 @@ export default function HelpPage() {
   ];
 
   return (
-    <div className="bg-white p-5 md:p-8 rounded-xl shadow-sm border border-neutral-200">
-      <div className="mb-8 border-b border-neutral-100 pb-6">
-        <h4 className="font-extrabold text-neutral-900 uppercase tracking-tight mb-2">
+    <div className="bg-white dark:bg-neutral-900 p-5 md:p-8 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800">
+      <div className="mb-8 border-b border-neutral-100 dark:border-neutral-800 pb-6">
+        <h4 className="font-extrabold text-neutral-900 dark:text-white uppercase tracking-tight mb-2">
           Help & Support
         </h4>
-        <p className="text-sm lg:text-[15px] xl:text-base text-neutral-500 font-medium">Find answers to common questions or reach out to our team.</p>
+        <p className="text-sm lg:text-[15px] xl:text-base text-neutral-500 dark:text-neutral-400 font-medium">Find answers to common questions or reach out to our team.</p>
       </div>
 
       <div className="space-y-10">
         {/* Contact Options */}
         <div>
-          <h4 className="font-bold text-black mb-4">Contact Us</h4>
+          <h4 className="font-bold text-black dark:text-white mb-4">Contact Us</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center gap-4 p-4 rounded-xl border border-neutral-100 bg-neutral-50 hover:bg-neutral-100 transition-colors">
-              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm border border-neutral-200 text-black">
+            <div className="flex items-center gap-4 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/60 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+              <div className="w-12 h-12 bg-white dark:bg-neutral-900 rounded-full flex items-center justify-center shadow-sm border border-neutral-200 dark:border-neutral-700 text-black dark:text-white">
                 <Mail className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-sm font-bold text-black">Email Support</div>
-                <div className="text-sm text-neutral-500">support@karodeal.in</div>
+                <div className="text-sm font-bold text-black dark:text-white">Email Support</div>
+                <div className="text-sm text-neutral-500 dark:text-neutral-400">support@karodeal.in</div>
               </div>
             </div>
           </div>
@@ -48,17 +48,17 @@ export default function HelpPage() {
 
         {/* FAQs */}
         <div>
-          <h4 className="font-bold text-black mb-4">Frequently Asked Questions</h4>
+          <h4 className="font-bold text-black dark:text-white mb-4">Frequently Asked Questions</h4>
           <div className="space-y-3">
             {faqs.map((faq, index) => (
-              <details key={index} className="group bg-neutral-50 rounded-xl border border-neutral-100 overflow-hidden">
-                <summary className="flex justify-between items-center font-semibold cursor-pointer list-none p-4 text-black hover:bg-neutral-100 transition-colors">
+              <details key={index} className="group bg-neutral-50 dark:bg-neutral-800/50 rounded-xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
+                <summary className="flex justify-between items-center font-semibold cursor-pointer list-none p-4 text-black dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800/80 transition-colors">
                   <span>{faq.question}</span>
                   <span className="transition group-open:rotate-180">
-                    <ChevronDown className="w-5 h-5 text-neutral-400" />
+                    <ChevronDown className="w-5 h-5 text-neutral-400 dark:text-neutral-500" />
                   </span>
                 </summary>
-                <div className="text-neutral-600 text-[14px] p-4 pt-0 leading-relaxed bg-neutral-50">
+                <div className="text-neutral-600 dark:text-neutral-300 text-[14px] p-4 pt-0 leading-relaxed bg-neutral-50 dark:bg-neutral-800/50">
                   {faq.answer}
                 </div>
               </details>

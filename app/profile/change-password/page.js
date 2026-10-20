@@ -103,28 +103,28 @@ export default function ChangePassword() {
   if (!user) return null;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 p-5 sm:p-6 md:p-8">
+    <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 p-5 sm:p-6 md:p-8">
       <Link
         href="/profile"
-        className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-600 hover:text-black mb-6"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white mb-6"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Profile
       </Link>
 
       <div className="mb-6">
-        <h5 className="font-bold text-neutral-900 flex items-center gap-2">
-          <Lock className="w-5 h-5 text-neutral-700" />
+        <h5 className="font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+          <Lock className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
           Change Password
         </h5>
-        <p className="text-sm text-neutral-500 mt-1">
+        <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
           Ensure your account is using a long, random password to stay secure.
         </p>
       </div>
 
       <form onSubmit={handleChangePassword} className="space-y-5 max-w-md">
         <div>
-          <label htmlFor="currentPassword" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+          <label htmlFor="currentPassword" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-2">
             Current Password
           </label>
           <div className="relative">
@@ -133,12 +133,12 @@ export default function ChangePassword() {
               type={showCurrentPassword ? "text" : "password"}
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full px-4 py-3 pr-12 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
+              className="w-full px-4 py-3 pr-12 text-sm bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:bg-white dark:focus:bg-neutral-800 transition-all text-neutral-900 dark:text-white"
               required
             />
             <Button variant="none" size="none"
               type="button"
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-black"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white"
               onClick={() => setShowCurrentPassword(!showCurrentPassword)}
             >
               {showCurrentPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -147,7 +147,7 @@ export default function ChangePassword() {
         </div>
 
         <div>
-          <label htmlFor="newPassword" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+          <label htmlFor="newPassword" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-2">
             New Password
           </label>
           <div className="relative">
@@ -156,12 +156,12 @@ export default function ChangePassword() {
               type={showNewPassword ? "text" : "password"}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full px-4 py-3 pr-12 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
+              className="w-full px-4 py-3 pr-12 text-sm bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:bg-white dark:focus:bg-neutral-800 transition-all text-neutral-900 dark:text-white"
               required
             />
             <Button variant="none" size="none"
               type="button"
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-black"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white"
               onClick={() => setShowNewPassword(!showNewPassword)}
             >
               {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -170,7 +170,7 @@ export default function ChangePassword() {
         </div>
 
         <div>
-          <label htmlFor="confirmPassword" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+          <label htmlFor="confirmPassword" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-2">
             Confirm New Password
           </label>
           <div className="relative">
@@ -179,12 +179,12 @@ export default function ChangePassword() {
               type={showConfirmPassword ? "text" : "password"}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-3 pr-12 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
+              className="w-full px-4 py-3 pr-12 text-sm bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:bg-white dark:focus:bg-neutral-800 transition-all text-neutral-900 dark:text-white"
               required
             />
             <Button variant="none" size="none"
               type="button"
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-black"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             >
               {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}

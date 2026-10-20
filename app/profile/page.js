@@ -160,104 +160,104 @@ export default function ProfileAccountSettings() {
   return (
     <>
       {/* MOBILE MEDIA VIEW */}
-      <div className="block md:hidden bg-white rounded-2xl shadow-sm border border-neutral-200 overflow-hidden">
+      <div className="block md:hidden bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden">
         {mobileView === 'menu' ? (
           <>
             {/* User Greeting */}
-            <div className="p-5 pb-4 border-b border-neutral-100">
-              <div className="text-[13px] text-neutral-500 font-medium">Hello,</div>
-              <h2 className="text-[18px] font-bold text-black">
+            <div className="p-5 pb-4 border-b border-neutral-100 dark:border-neutral-800">
+              <div className="text-[13px] text-neutral-500 dark:text-neutral-400 font-medium">Hello,</div>
+              <h2 className="text-[18px] font-bold text-black dark:text-white">
                 {user?.name || 'User'}
               </h2>
             </div>
 
             {/* Account Settings Option Button */}
-            <div className="px-5 py-3.5 border-b border-neutral-100 bg-white hover:bg-neutral-50 transition-colors">
+            <div className="px-5 py-3.5 border-b border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 transition-colors">
               <button
                 type="button"
                 onClick={() => setMobileView('settings')}
-                className="flex items-center gap-3 text-black w-full text-left focus:outline-none cursor-pointer"
+                className="flex items-center gap-3 text-black dark:text-white w-full text-left focus:outline-none cursor-pointer"
               >
-                <Settings className="w-5 h-5 text-neutral-800 shrink-0" />
+                <Settings className="w-5 h-5 text-neutral-800 dark:text-neutral-200 shrink-0" />
                 <span className="text-[14px] font-semibold">Account Settings</span>
               </button>
             </div>
 
             {/* Change Password Link */}
-            <div className="px-5 py-3.5 border-b border-neutral-100 bg-white hover:bg-neutral-50 transition-colors">
-              <Link href="/profile/change-password" className="flex items-center gap-3 text-black">
-                <Lock className="w-5 h-5 text-neutral-800 shrink-0" />
+            <div className="px-5 py-3.5 border-b border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 transition-colors">
+              <Link href="/profile/change-password" className="flex items-center gap-3 text-black dark:text-white">
+                <Lock className="w-5 h-5 text-neutral-800 dark:text-neutral-200 shrink-0" />
                 <span className="text-[14px] font-semibold">Change Password</span>
               </Link>
             </div>
 
             {/* Cashback & Rewards Section */}
-            <div className="px-5 py-4 border-b border-neutral-100">
-              <div className="text-[13px] text-neutral-400 font-semibold mb-4">
+            <div className="px-5 py-4 border-b border-neutral-100 dark:border-neutral-800">
+              <div className="text-[13px] text-neutral-400 dark:text-neutral-500 font-semibold mb-4">
                 Cashback & Rewards
               </div>
               <div className="flex flex-col gap-4">
-                <Link href="/profile/earnings" className="text-sm lg:text-[15px] xl:text-base flex items-center gap-3 text-neutral-800 hover:text-black">
-                  <Wallet className="w-5 h-5 text-neutral-700" />
+                <Link href="/profile/earnings" className="text-sm lg:text-[15px] xl:text-base flex items-center gap-3 text-neutral-800 dark:text-neutral-200 hover:text-black dark:hover:text-white">
+                  <Wallet className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
                   <span className="text-[14px] font-medium">My Earnings</span>
                 </Link>
-                <Link href="/profile/payments" className="text-sm lg:text-[15px] xl:text-base flex items-center gap-3 text-neutral-800 hover:text-black">
-                  <IndianRupee className="w-5 h-5 text-neutral-700" />
+                <Link href="/profile/payments" className="text-sm lg:text-[15px] xl:text-base flex items-center gap-3 text-neutral-800 dark:text-neutral-200 hover:text-black dark:hover:text-white">
+                  <IndianRupee className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
                   <span className="text-[14px] font-medium">Withdraw</span>
                 </Link>
-                <Link href="/profile/payments-history" className="text-sm lg:text-[15px] xl:text-base flex items-center gap-3 text-neutral-800 hover:text-black">
-                  <History className="w-5 h-5 text-neutral-700" />
+                <Link href="/profile/payments-history" className="text-sm lg:text-[15px] xl:text-base flex items-center gap-3 text-neutral-800 dark:text-neutral-200 hover:text-black dark:hover:text-white">
+                  <History className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
                   <span className="text-[14px] font-medium">Payments History</span>
                 </Link>
-                <Link href="/profile/claim-cashback" className="text-sm lg:text-[15px] xl:text-base flex items-center gap-3 text-neutral-800 hover:text-black">
-                  <Receipt className="w-5 h-5 text-neutral-700" />
+                <Link href="/profile/claim-cashback" className="text-sm lg:text-[15px] xl:text-base flex items-center gap-3 text-neutral-800 dark:text-neutral-200 hover:text-black dark:hover:text-white">
+                  <Receipt className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
                   <span className="text-[14px] font-medium">Claim Cashback</span>
                 </Link>
-                <Link href="/profile/missing-cashback" className="text-sm lg:text-[15px] xl:text-base flex items-center gap-3 text-neutral-800 hover:text-black">
-                  <Ticket className="w-5 h-5 text-neutral-700" />
+                <Link href="/profile/missing-cashback" className="text-sm lg:text-[15px] xl:text-base flex items-center gap-3 text-neutral-800 dark:text-neutral-200 hover:text-black dark:hover:text-white">
+                  <Ticket className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
                   <span className="text-[14px] font-medium">Missing Cashback</span>
                 </Link>
               </div>
             </div>
 
             {/* Support & feedback Section */}
-            <div className="px-5 py-4 border-b border-neutral-100">
-              <div className="text-[13px] text-neutral-400 font-semibold mb-4">
+            <div className="px-5 py-4 border-b border-neutral-100 dark:border-neutral-800">
+              <div className="text-[13px] text-neutral-400 dark:text-neutral-500 font-semibold mb-4">
                 Support & feedback
               </div>
               <div className="flex flex-col gap-4">
-                <Link href="/profile/help" className="text-sm lg:text-[15px] xl:text-base flex items-center gap-3 text-neutral-800 hover:text-black">
-                  <HelpCircle className="w-5 h-5 text-neutral-700" />
+                <Link href="/profile/help" className="text-sm lg:text-[15px] xl:text-base flex items-center gap-3 text-neutral-800 dark:text-neutral-200 hover:text-black dark:hover:text-white">
+                  <HelpCircle className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
                   <span className="text-[14px] font-medium">Help & Support</span>
                 </Link>
-                <Link href="/profile/review" className="text-sm lg:text-[15px] xl:text-base flex items-center gap-3 text-neutral-800 hover:text-black">
-                  <Star className="w-5 h-5 text-neutral-700" />
+                <Link href="/profile/review" className="text-sm lg:text-[15px] xl:text-base flex items-center gap-3 text-neutral-800 dark:text-neutral-200 hover:text-black dark:hover:text-white">
+                  <Star className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
                   <span className="text-[14px] font-medium">Review Us</span>
                 </Link>
               </div>
             </div>
 
             {/* Privacy Policy */}
-            <div className="px-5 py-4 border-b border-neutral-100 bg-white hover:bg-neutral-50 transition-colors">
-              <Link href="/privacy-policy" className="text-sm lg:text-[15px] xl:text-base flex items-center gap-3 text-neutral-800 hover:text-black">
-                <ShieldCheck className="w-5 h-5 text-neutral-700" />
+            <div className="px-5 py-4 border-b border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 transition-colors">
+              <Link href="/privacy-policy" className="text-sm lg:text-[15px] xl:text-base flex items-center gap-3 text-neutral-800 dark:text-neutral-200 hover:text-black dark:hover:text-white">
+                <ShieldCheck className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
                 <span className="text-[14px] font-medium">Privacy Policy</span>
               </Link>
             </div>
 
             {/* Logout / Login Button */}
-            <div className="px-5 py-4 bg-white hover:bg-neutral-50 transition-colors">
+            <div className="px-5 py-4 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 transition-colors">
               {user ? (
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="flex items-center gap-3 text-red-600 w-full text-left focus:outline-none cursor-pointer"
+                  className="flex items-center gap-3 text-red-600 dark:text-red-400 w-full text-left focus:outline-none cursor-pointer"
                 >
-                  <LogOut className="w-5 h-5 text-red-600 shrink-0" />
+                  <LogOut className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" />
                   <span className="text-[14px] font-medium">Logout</span>
                 </button>
               ) : (
-                <Link href="/login" className="flex items-center justify-center gap-2 w-full py-3 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors">
+                <Link href="/login" className="flex items-center justify-center gap-2 w-full py-3 bg-black dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-black font-medium text-sm rounded-xl transition-colors">
                   <LogIn className="w-4 h-4" />
                   <span className="text-[14px] font-medium">Login / Sign up</span>
                 </Link>
@@ -266,36 +266,36 @@ export default function ProfileAccountSettings() {
           </>
         ) : (
           /* MOBILE ACCOUNT SETTINGS FORM VIEW */
-          <div className="p-5 sm:p-6">
+          <div className="p-5 sm:p-6 bg-white dark:bg-neutral-900">
             <button
               type="button"
               onClick={() => setMobileView('menu')}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-600 hover:text-black mb-6 cursor-pointer"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white mb-6 cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Profile
             </button>
 
             <div className="mb-6">
-              <h2 className="font-bold text-neutral-900 flex items-center gap-2">
-                <User className="w-5 h-5 text-neutral-700" />
+              <h2 className="font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+                <User className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
                 Account Settings
               </h2>
-              <p className="text-sm text-neutral-500 mt-1">
+              <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
                 Update your personal details and contact information.
               </p>
             </div>
 
             {!user ? (
-              <div className="text-center py-8 px-4 bg-neutral-50 rounded-xl border border-neutral-100">
-                <div className="w-12 h-12 bg-white border border-neutral-200 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
+              <div className="text-center py-8 px-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl border border-neutral-100 dark:border-neutral-800">
+                <div className="w-12 h-12 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
                   <User className="w-6 h-6 text-neutral-400" />
                 </div>
-                <h3 className="font-bold text-neutral-900 mb-1">Please log in</h3>
-                <p className="text-xs text-neutral-500 max-w-xs mx-auto mb-5">
+                <h3 className="font-bold text-neutral-900 dark:text-white mb-1">Please log in</h3>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-xs mx-auto mb-5">
                   Log in to edit your name, email, and mobile number.
                 </p>
-                <Link href="/login" className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors">
+                <Link href="/login" className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-black dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-black font-medium text-sm rounded-xl transition-colors">
                   <LogIn className="w-4 h-4" />
                   <span>Go to Login</span>
                 </Link>
@@ -304,7 +304,7 @@ export default function ProfileAccountSettings() {
               <form onSubmit={handleSaveProfile} className="space-y-6">
                   <div className="grid grid-cols-1 gap-5">
                     <div>
-                      <label htmlFor="mobileFullName" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+                      <label htmlFor="mobileFullName" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-2">
                         Full Name
                       </label>
                       <div className="relative">
@@ -314,15 +314,15 @@ export default function ProfileAccountSettings() {
                           value={name}
                           onChange={(e) => setName(e.target.value)}
                           placeholder="Enter full name"
-                          className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
+                          className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:bg-white dark:focus:bg-neutral-800 transition-all text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                           required
                         />
-                        <User className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
+                        <User className="w-4 h-4 text-neutral-400 dark:text-neutral-500 absolute left-3.5 top-3.5" />
                       </div>
                     </div>
 
                     <div>
-                      <label htmlFor="mobileEmailAddress" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+                      <label htmlFor="mobileEmailAddress" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-2">
                         Email Address
                       </label>
                       <div className="relative">
@@ -332,15 +332,15 @@ export default function ProfileAccountSettings() {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="Enter email address"
-                          className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
+                          className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:bg-white dark:focus:bg-neutral-800 transition-all text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                           required
                         />
-                        <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
+                        <Mail className="w-4 h-4 text-neutral-400 dark:text-neutral-500 absolute left-3.5 top-3.5" />
                       </div>
                     </div>
 
                     <div>
-                      <label htmlFor="mobilePhoneNumber" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+                      <label htmlFor="mobilePhoneNumber" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-2">
                         Mobile Number
                       </label>
                       <div className="relative">
@@ -352,9 +352,9 @@ export default function ProfileAccountSettings() {
                           placeholder="Enter mobile number"
                           maxLength="10"
                           pattern="[0-9]{10}"
-                          className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
+                          className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:bg-white dark:focus:bg-neutral-800 transition-all text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                         />
-                        <Phone className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
+                        <Phone className="w-4 h-4 text-neutral-400 dark:text-neutral-500 absolute left-3.5 top-3.5" />
                       </div>
                     </div>
                   </div>
@@ -363,7 +363,7 @@ export default function ProfileAccountSettings() {
                     <Button variant="none" size="none"
                       type="submit"
                       disabled={isSaving}
-                      className="w-full py-3 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+                      className="w-full py-3 bg-black dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-black font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
                     >
                       <Save className="w-4 h-4" />
                       {isSaving ? 'Saving...' : 'Save Changes'}
@@ -372,7 +372,7 @@ export default function ProfileAccountSettings() {
                     <Button variant="none" size="none"
                       type="button"
                       onClick={handleLogout}
-                      className="w-full py-3 text-red-600 hover:bg-red-50 font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100"
+                      className="w-full py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100 dark:border-red-900/40"
                     >
                       <LogOut className="w-4 h-4" />
                       Logout Account
@@ -385,32 +385,32 @@ export default function ProfileAccountSettings() {
       </div>
 
       {/* DESKTOP MEDIA VIEW (Account Settings Form) */}
-      <div className="hidden md:block bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-neutral-200">
+      <div className="hidden md:block bg-white dark:bg-neutral-900 rounded-2xl p-6 sm:p-8 shadow-sm border border-neutral-200 dark:border-neutral-800">
         <div className="mb-6">
-          <h4 className="font-bold text-neutral-900 flex items-center gap-2">
-            <User className="w-5 h-5 text-neutral-700" />
+          <h4 className="font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+            <User className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
             Account Settings
           </h4>
-          <p className="text-sm text-neutral-500 mt-1">
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
             {user ? 'Update your personal details and contact information.' : 'Please log in to view and manage your account details.'}
           </p>
         </div>
 
         {!user && (
-          <div className="text-center py-10 px-4 bg-neutral-50 rounded-xl border border-neutral-100">
-            <div className="w-14 h-14 bg-white border border-neutral-200 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
+          <div className="text-center py-10 px-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl border border-neutral-100 dark:border-neutral-800">
+            <div className="w-14 h-14 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
               <User className="w-7 h-7 text-neutral-400" />
             </div>
-            <h5 className="font-bold text-neutral-900 mb-1">You are currently logged out</h5>
-            <p className="text-sm text-neutral-500 max-w-sm mx-auto mb-5">
+            <h5 className="font-bold text-neutral-900 dark:text-white mb-1">You are currently logged out</h5>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-sm mx-auto mb-5">
               Log in to access your personal details, cashback earnings, and wallet withdrawal options.
             </p>
             <div className="flex justify-center gap-3">
-              <Link href="/login" className="inline-flex items-center gap-2 px-6 py-2.5 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors">
+              <Link href="/login" className="inline-flex items-center gap-2 px-6 py-2.5 bg-black dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-black font-medium text-sm rounded-xl transition-colors">
                 <LogIn className="w-4 h-4" />
                 <span>Login to Account</span>
               </Link>
-              <Link href="/signup" className="px-6 py-2.5 bg-white border border-neutral-300 hover:bg-neutral-100 text-black font-medium text-sm rounded-xl transition-colors">
+              <Link href="/signup" className="px-6 py-2.5 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-700 text-black dark:text-white font-medium text-sm rounded-xl transition-colors">
                 Create Account
               </Link>
             </div>
@@ -422,7 +422,7 @@ export default function ProfileAccountSettings() {
           {/* Personal Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="fullName" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+              <label htmlFor="fullName" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-2">
                 Full Name
               </label>
               <div className="relative">
@@ -432,15 +432,15 @@ export default function ProfileAccountSettings() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter full name"
-                  className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
+                  className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:bg-white dark:focus:bg-neutral-800 transition-all text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                   required
                 />
-                <User className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
+                <User className="w-4 h-4 text-neutral-400 dark:text-neutral-500 absolute left-3.5 top-3.5" />
               </div>
             </div>
 
             <div>
-              <label htmlFor="emailAddress" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+              <label htmlFor="emailAddress" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-2">
                 Email Address
               </label>
               <div className="relative">
@@ -450,15 +450,15 @@ export default function ProfileAccountSettings() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter email address"
-                  className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
+                  className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:bg-white dark:focus:bg-neutral-800 transition-all text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                   required
                 />
-                <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
+                <Mail className="w-4 h-4 text-neutral-400 dark:text-neutral-500 absolute left-3.5 top-3.5" />
               </div>
             </div>
 
             <div className="md:col-span-2">
-              <label htmlFor="phoneNumber" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+              <label htmlFor="phoneNumber" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-2">
                 Mobile Number
               </label>
               <div className="relative">
@@ -470,9 +470,9 @@ export default function ProfileAccountSettings() {
                   placeholder="Enter mobile number"
                   maxLength="10"
                   pattern="[0-9]{10}"
-                  className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all text-neutral-900"
+                  className="w-full px-4 py-3 pl-10 text-sm bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:bg-white dark:focus:bg-neutral-800 transition-all text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                 />
-                <Phone className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
+                <Phone className="w-4 h-4 text-neutral-400 dark:text-neutral-500 absolute left-3.5 top-3.5" />
               </div>
             </div>
           </div>
@@ -482,7 +482,7 @@ export default function ProfileAccountSettings() {
             <Button variant="none" size="none"
               type="submit"
               disabled={isSaving}
-              className="w-full sm:w-auto px-6 py-3 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+              className="w-full sm:w-auto px-6 py-3 bg-black dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-black font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {isSaving ? 'Saving...' : 'Save Changes'}
@@ -493,7 +493,7 @@ export default function ProfileAccountSettings() {
               <Button variant="none" size="none"
                 type="button"
                 onClick={handleLogout}
-                className="w-full sm:w-auto px-6 py-3 text-red-600 hover:bg-red-50 font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100"
+                className="w-full sm:w-auto px-6 py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 font-medium text-sm rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100 dark:border-red-900/40"
               >
                 <LogOut className="w-4 h-4" />
                 Logout Account

@@ -113,40 +113,40 @@ export default function Payments() {
 
   return (
     <div className="space-y-4 animate-in fade-in duration-500 font-sans pb-10">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-neutral-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-neutral-900 p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg">
+            <div className="p-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 rounded-lg">
               <IndianRupee className="w-5 h-5" />
             </div>
-            <h4 className="font-bold text-neutral-900">Withdraw Money</h4>
+            <h4 className="font-bold text-neutral-900 dark:text-white">Withdraw Money</h4>
           </div>
-          <p className="text-neutral-500 text-xs">
+          <p className="text-neutral-500 dark:text-neutral-400 text-xs">
             Transfer your available cashback directly to your UPI. Minimum withdrawal amount is ₹1000.
           </p>
         </div>
-        <div className="bg-emerald-50/50 px-4 py-2.5 rounded-lg flex flex-col items-end min-w-[140px]">
-          <span className="text-emerald-700 text-[10px] font-bold uppercase tracking-wider mb-0.5">Available to Withdraw</span>
-          <span className="text-xl font-black text-emerald-600 tracking-tight">
+        <div className="bg-emerald-50/50 dark:bg-emerald-950/30 px-4 py-2.5 rounded-lg flex flex-col items-end min-w-[140px] border border-emerald-100/50 dark:border-emerald-900/30">
+          <span className="text-emerald-700 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Available to Withdraw</span>
+          <span className="text-xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">
             ₹{isLoading ? '...' : balance.toFixed(2)}
           </span>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-neutral-200 p-5 shadow-sm">
-        <h5 className="font-bold text-neutral-900 mb-4">Payment Details</h5>
+      <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-5 shadow-sm">
+        <h5 className="font-bold text-neutral-900 dark:text-white mb-4">Payment Details</h5>
 
         {!user ? (
-          <div className="text-center py-8 px-4 bg-neutral-50 rounded-xl border border-neutral-100">
-            <div className="w-12 h-12 bg-white border border-neutral-200 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
+          <div className="text-center py-8 px-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl border border-neutral-100 dark:border-neutral-800">
+            <div className="w-12 h-12 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
               <User className="w-6 h-6 text-neutral-400" />
             </div>
-            <h5 className="font-bold text-neutral-900 mb-1">Please log in to withdraw funds</h5>
-            <p className="text-xs text-neutral-500 max-w-sm mx-auto mb-5">
+            <h5 className="font-bold text-neutral-900 dark:text-white mb-1">Please log in to withdraw funds</h5>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-sm mx-auto mb-5">
               You must be logged in to view your withdrawable balance and submit payout requests.
             </p>
             <div className="flex justify-center gap-3">
-              <Link href="/login" className="inline-flex items-center gap-2 px-6 py-2.5 bg-black hover:bg-neutral-800 text-white font-medium text-sm rounded-xl transition-colors">
+              <Link href="/login" className="inline-flex items-center gap-2 px-6 py-2.5 bg-black dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-black font-medium text-sm rounded-xl transition-colors">
                 <LogIn className="w-4 h-4" />
                 <span>Login to Account</span>
               </Link>
@@ -156,7 +156,7 @@ export default function Payments() {
           <form onSubmit={handleSubmit} className="space-y-5 max-w-lg">
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-neutral-700 block mb-1.5">Withdrawal Amount (₹)</label>
+                <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 block mb-1.5">Withdrawal Amount (₹)</label>
                 <input
                   type="number"
                   min="1000"
@@ -164,19 +164,19 @@ export default function Payments() {
                   value={amount}
                   onChange={e => setAmount(e.target.value)}
                   placeholder="Enter amount (Min. 1000)"
-                  className="w-full bg-white border border-neutral-200 rounded-lg px-3 py-2.5 text-sm text-neutral-900 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
+                  className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-black dark:focus:border-white focus:ring-1 focus:ring-black dark:focus:ring-white transition-all placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-neutral-700 block mb-1.5">UPI ID</label>
+                <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 block mb-1.5">UPI ID</label>
                 <input
                   type="text"
                   value={details}
                   onChange={e => setDetails(e.target.value)}
                   placeholder="e.g., yourname@okaxis"
-                  className="w-full bg-white border border-neutral-200 rounded-lg px-3 py-2.5 text-sm text-neutral-900 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
+                  className="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-black dark:focus:border-white focus:ring-1 focus:ring-black dark:focus:ring-white transition-all placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                   required
                 />
               </div>
@@ -185,7 +185,7 @@ export default function Payments() {
             <Button variant="none" size="none"
               type="submit"
               disabled={balance < 1000 || isLoading}
-              className="w-auto inline-flex justify-center items-center gap-1.5 bg-black text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-auto inline-flex justify-center items-center gap-1.5 bg-black dark:bg-white text-white dark:text-black text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Submit Request <ArrowRight className="w-3.5 h-3.5" />
             </Button>
