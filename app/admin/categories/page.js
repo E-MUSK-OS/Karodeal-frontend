@@ -1,6 +1,7 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, Loader2, X, Check } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
+import { Plus, Trash2, Edit2, Loader2, X, Check, Search, UploadCloud, ExternalLink, Sparkles, Layers, ArrowUpRight } from 'lucide-react';
 import Button from '@/components/common/Button';
 import PageLoader from '@/components/common/PageLoader';
 import ConfirmModal from '@/components/common/ConfirmModal';
@@ -14,14 +15,17 @@ export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState('');
   const [imageFile, setImageFile] = useState(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', confirmText: '', onConfirm: () => {}, isDestructive: true });
 
   // Edit state
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
   const [editImageFile, setEditImageFile] = useState(null);
+  const [editPreviewUrl, setEditPreviewUrl] = useState(null);
 
   // Cropper state
   const [cropImageSrc, setCropImageSrc] = useState(null);
@@ -53,8 +57,10 @@ export default function AdminCategoriesPage() {
       
       if (cropTarget === 'add') {
         setImageFile(file);
+        setImagePreviewUrl(croppedBase64);
       } else if (cropTarget === 'edit') {
         setEditImageFile(file);
+        setEditPreviewUrl(croppedBase64);
       }
     } catch (e) {
       console.error(e);
@@ -124,6 +130,7 @@ export default function AdminCategoriesPage() {
         setCategories([...categories, data]);
         setName('');
         setImageFile(null);
+        setImagePreviewUrl(null);
         showSuccessToast('Category created successfully!');
       } else {
         const data = await res.json().catch(() => ({}));
@@ -148,7 +155,7 @@ export default function AdminCategoriesPage() {
     setConfirmModal({
       isOpen: true,
       title: 'Delete Category',
-      message: 'Are you sure you want to delete this category? This will also delete all associated products.',
+      message: 'Are you sure you want to delete this category? This will also affect all associated products.',
       confirmText: 'Delete',
       isDestructive: true,
       onConfirm: async () => {
@@ -184,16 +191,22 @@ export default function AdminCategoriesPage() {
   const startEditing = (cat) => {
     setEditingId(cat.id);
     setEditName(cat.name || '');
+    setEditImageFile(null);
+    setEditPreviewUrl(cat.image || null);
   };
 
   const cancelEditing = () => {
     setEditingId(null);
     setEditName('');
     setEditImageFile(null);
+    setEditPreviewUrl(null);
   };
 
   const handleUpdate = async (id) => {
-    if (!editName) return;
+    if (!editName.trim()) {
+      showErrorToast('Category name cannot be empty.');
+      return;
+    }
     setIsSubmitting(true);
     try {
       const token = getToken();
@@ -214,7 +227,7 @@ export default function AdminCategoriesPage() {
       if (res.ok) {
         const updated = await res.json();
         setCategories(categories.map(c => c.id === id ? { ...c, ...updated } : c));
-        setEditingId(null);
+        cancelEditing();
         showSuccessToast('Category updated successfully!');
       } else {
         const data = await res.json().catch(() => ({}));
@@ -233,165 +246,378 @@ export default function AdminCategoriesPage() {
     }
   };
 
+  const totalProducts = useMemo(() => {
+    return categories.reduce((sum, c) => sum + (c._count?.products || 0), 0);
+  }, [categories]);
+
+  const filteredCategories = useMemo(() => {
+    if (!searchQuery.trim()) return categories;
+    const q = searchQuery.toLowerCase();
+    return categories.filter(c => 
+      c.name.toLowerCase().includes(q) || 
+      (c.slug || '').toLowerCase().includes(q)
+    );
+  }, [categories, searchQuery]);
+
   return (
-    <div className="space-y-6 relative">
-      <div>
-        <h3 className="font-extrabold text-neutral-900">Categories Management</h3>
-        <p className="text-sm text-neutral-500">Organize site categories and store classifications</p>
+    <div className="space-y-8 relative pb-12">
+      {/* 1. SaaS Dashboard Header with Stats */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-neutral-200/80">
+        <div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200/80 text-[#f96b02] text-xs font-black uppercase tracking-wider mb-2">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Taxonomy & Collections Engine</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black text-neutral-950 uppercase tracking-tight">
+            Categories Management
+          </h2>
+          <p className="text-sm text-neutral-500 font-medium mt-1">
+            Create, curate, and organize site categories with responsive 3:4 lifestyle photography.
+          </p>
+        </div>
+
+        {/* Quick Stat Chips */}
+        <div className="flex items-center gap-3">
+          <div className="px-4 py-2.5 rounded-2xl bg-white border border-neutral-200 shadow-2xs flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-800">
+              <Layers className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="block text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Total Categories</span>
+              <span className="block text-base font-black text-neutral-950">{categories.length}</span>
+            </div>
+          </div>
+
+          <div className="px-4 py-2.5 rounded-2xl bg-white border border-neutral-200 shadow-2xs flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-orange-50 text-[#f96b02] flex items-center justify-center">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="block text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Linked Deals</span>
+              <span className="block text-base font-black text-neutral-950">{totalProducts}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Add Form */}
-        <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm h-max">
-          <h4 className="font-bold text-neutral-900 mb-4">Add New Category</h4>
-          <form onSubmit={handleAddCategory} className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* 2. Add Category Studio Form */}
+        <div className="bg-white rounded-3xl border border-neutral-200/90 p-6 sm:p-7 shadow-sm sticky top-6">
+          <div className="flex items-center justify-between mb-5">
             <div>
-              <label className="block text-xs font-bold uppercase text-neutral-700 mb-1">Category Name</label>
+              <h3 className="font-black text-base sm:text-lg text-neutral-950 uppercase tracking-tight">
+                Add New Category
+              </h3>
+              <p className="text-xs text-neutral-500 font-medium mt-0.5">
+                Upload image & assign taxonomy
+              </p>
+            </div>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          </div>
+
+          <form onSubmit={handleAddCategory} className="space-y-5">
+            {/* Category Name Input */}
+            <div>
+              <label className="block text-[11px] font-black uppercase text-neutral-700 tracking-wider mb-1.5">
+                Category Name <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Home & Kitchen"
-                className="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
+                placeholder="e.g. Denim, Co Ord Set, Sneakers"
+                className="w-full px-4 py-3 text-sm font-semibold bg-neutral-50/70 border border-neutral-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#f96b02] focus:bg-white transition-all shadow-2xs"
                 required
               />
             </div>
 
+            {/* Interactive Image Dropzone / Preview */}
             <div>
-              <label className="block text-xs font-bold uppercase text-neutral-700 mb-1">
-                Category Image <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="file"
-                accept="image/*,.heic,.heif"
-                onChange={(e) => handleFileChange(e, 'add')}
-                required={!imageFile}
-                className="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
-              />
-              {imageFile ? (
-                <div className="mt-2 text-xs font-semibold text-emerald-600 flex items-center gap-1">
-                  ✓ Image ready ({Math.round(imageFile.size / 1024)} KB)
-                </div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-[11px] font-black uppercase text-neutral-700 tracking-wider">
+                  Lifestyle Visual <span className="text-red-500">*</span>
+                </label>
+                <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wide">3:4 Aspect</span>
+              </div>
+
+              {!imagePreviewUrl ? (
+                <label className="relative border-2 border-dashed border-neutral-200 hover:border-[#f96b02] rounded-2xl p-6 flex flex-col items-center justify-center gap-2.5 cursor-pointer transition-all bg-neutral-50/60 hover:bg-orange-50/20 group">
+                  <input
+                    type="file"
+                    accept="image/*,.heic,.heif"
+                    onChange={(e) => handleFileChange(e, 'add')}
+                    className="sr-only"
+                    required={!imageFile}
+                  />
+                  <div className="w-12 h-12 rounded-2xl bg-white shadow-xs border border-neutral-200 flex items-center justify-center text-neutral-400 group-hover:text-[#f96b02] group-hover:scale-108 transition-all">
+                    <UploadCloud className="w-6 h-6 stroke-[2]" />
+                  </div>
+                  <div className="text-center">
+                    <span className="text-xs font-black text-neutral-800 uppercase tracking-wider block">
+                      Choose / Drop Photo
+                    </span>
+                    <span className="text-[10px] text-neutral-500 font-medium block mt-0.5">
+                      Auto opens crop tool (JPG, PNG, WebP)
+                    </span>
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full text-[9px] font-extrabold bg-neutral-200/80 text-neutral-700 uppercase tracking-wider">
+                    Compulsory
+                  </span>
+                </label>
               ) : (
-                <p className="text-[11px] text-neutral-500 mt-1.5 flex items-center gap-1 font-medium">
-                  <span className="text-red-500 font-bold">*</span> Category image is compulsory.
-                </p>
+                <div className="relative rounded-2xl overflow-hidden border border-neutral-200 bg-neutral-950 aspect-[3/4] max-w-[190px] mx-auto shadow-md group">
+                  <img
+                    src={imagePreviewUrl}
+                    alt="Cropped Preview"
+                    className="w-full h-full object-cover object-top"
+                  />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-3">
+                    <label className="px-3.5 py-1.5 rounded-xl bg-white text-neutral-950 text-xs font-black uppercase tracking-wider shadow-md cursor-pointer hover:bg-neutral-100 transition-all">
+                      Change Photo
+                      <input
+                        type="file"
+                        accept="image/*,.heic,.heif"
+                        onChange={(e) => handleFileChange(e, 'add')}
+                        className="sr-only"
+                      />
+                    </label>
+                  </div>
+                  <div className="absolute bottom-2 left-2 right-2">
+                    <span className="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider bg-black/75 backdrop-blur-md text-emerald-400 border border-white/20 block text-center shadow-xs">
+                      ✓ Ready ({Math.round((imageFile?.size || 0) / 1024)} KB)
+                    </span>
+                  </div>
+                </div>
               )}
             </div>
 
+            {/* Submit Action Button */}
             <Button
               type="submit"
               variant="primary"
               fullWidth={true}
               isLoading={isSubmitting}
               disabled={isSubmitting || !name.trim() || !imageFile}
-              icon={!isSubmitting && <Plus className="w-4 h-4" />}
-              className="py-3 rounded-xl normal-case tracking-normal shadow-md text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+              icon={!isSubmitting && <Plus className="w-4 h-4 stroke-[2.5]" />}
+              className="py-3.5 rounded-2xl normal-case tracking-normal shadow-lg shadow-black/10 hover:shadow-orange-500/25 text-xs font-black uppercase disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
-              {isSubmitting ? 'Adding...' : 'Add Category'}
+              {isSubmitting ? 'Creating Category...' : 'Create Category'}
             </Button>
           </form>
         </div>
 
-        {/* List */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-neutral-200 shadow-sm p-6">
-          <h4 className="font-bold text-neutral-900 mb-4">Active Categories</h4>
+        {/* 3. Active Categories List & Controls */}
+        <div className="lg:col-span-2 bg-white rounded-3xl border border-neutral-200/90 shadow-sm p-6 sm:p-7">
+          {/* List Header with Search */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-neutral-100 mb-4">
+            <div className="flex items-center gap-2.5">
+              <h3 className="font-black text-base sm:text-lg text-neutral-950 uppercase tracking-tight">
+                Active Categories
+              </h3>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-[#f96b02]/10 text-[#f96b02] border border-[#f96b02]/20">
+                {filteredCategories.length}
+              </span>
+            </div>
+
+            {/* Live Search Filter */}
+            <div className="relative w-full sm:w-64">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+              <input
+                type="text"
+                placeholder="Search categories..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-3.5 py-2 text-xs font-semibold rounded-xl bg-neutral-50/70 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-[#f96b02] focus:bg-white transition-all"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Categories Rows */}
           <div className="divide-y divide-neutral-100">
             {loading ? (
-              <div className="py-4">
+              <div className="py-12">
                 <PageLoader />
               </div>
-            ) : categories.length === 0 ? (
-              <div className="py-8 text-center text-neutral-500">No categories found. Add one to get started.</div>
+            ) : filteredCategories.length === 0 ? (
+              <div className="py-12 text-center">
+                <p className="text-sm font-bold text-neutral-400">
+                  {searchQuery ? `No categories found matching "${searchQuery}".` : 'No categories found. Add one to get started.'}
+                </p>
+              </div>
             ) : (
-              categories.map((cat) => (
-                <div key={cat.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 first:pt-0 last:pb-0">
-                  <div className="flex items-center gap-4 flex-1">
-                    {cat.image ? (
-                      <img
-                        src={cat.image.startsWith('/') ? `${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace(/\/api\/?$/, '')}${cat.image}` : cat.image}
-                        alt={cat.name}
-                        className="w-12 h-12 rounded-full object-cover border border-neutral-200"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 rounded-full bg-neutral-100 border border-neutral-200 flex items-center justify-center text-neutral-400 text-xs">No img</div>
-                    )}
-                    <div>
-                      <div className="font-bold text-neutral-900 text-sm">{cat.name}</div>
-                      <div className="text-xs text-neutral-500 mt-1">
-                        {cat._count?.products || 0} Products
+              filteredCategories.map((cat) => {
+                const catImg = cat.image
+                  ? (cat.image.startsWith('/')
+                    ? `${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace(/\/api\/?$/, '')}${cat.image}`
+                    : cat.image)
+                  : null;
+
+                const dealCount = cat._count?.products || 0;
+
+                return (
+                  <div
+                    key={cat.id}
+                    className="py-3.5 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:bg-neutral-50/60 px-3 -mx-3 rounded-2xl transition-colors"
+                  >
+                    {/* Left: Fashion Squircle Thumbnail + Title + Meta */}
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                      {catImg ? (
+                        <div className="w-14 h-18 sm:w-16 sm:h-20 rounded-2xl overflow-hidden bg-neutral-100 border border-neutral-200/90 shrink-0 shadow-2xs group-hover:shadow-md transition-shadow">
+                          <img
+                            src={catImg}
+                            alt={cat.name}
+                            className="w-full h-full object-cover object-top group-hover:scale-106 transition-transform duration-300"
+                            loading="lazy"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-14 h-18 sm:w-16 sm:h-20 rounded-2xl bg-neutral-100 border border-neutral-200 shrink-0 flex items-center justify-center text-neutral-400 text-[10px] font-bold uppercase">
+                          No Pic
+                        </div>
+                      )}
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-black text-neutral-900 text-sm sm:text-base uppercase tracking-tight truncate group-hover:text-[#f96b02] transition-colors">
+                            {cat.name}
+                          </h4>
+                          <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono text-neutral-400 bg-neutral-100">
+                            /{cat.slug || cat.id}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-orange-50 text-[#f96b02] border border-orange-200/70">
+                            {dealCount} {dealCount === 1 ? 'Product' : 'Products'}
+                          </span>
+                          <span className="text-neutral-400">•</span>
+                          <span className="text-[11px] text-neutral-500 font-medium">
+                            {cat.updatedAt ? new Date(cat.updatedAt).toLocaleDateString() : 'Active'}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex items-center gap-1 self-end sm:self-auto">
-                    <Button variant="none" size="none"
-                      onClick={() => startEditing(cat)}
-                      className="p-2 text-neutral-400 hover:text-[#f96b02] hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Edit"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </Button>
-                    <Button variant="none" size="none"
-                      onClick={() => handleDelete(cat.id)}
-                      className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    {/* Right Action Toolbar */}
+                    <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0">
+                      <Link
+                        href={`/categories/${cat.slug || cat.id}`}
+                        target="_blank"
+                        className="p-2 text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 rounded-xl transition-colors"
+                        title="View Live Category Page"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </Link>
+
+                      <Button
+                        variant="none"
+                        size="none"
+                        onClick={() => startEditing(cat)}
+                        className="p-2 text-neutral-400 hover:text-[#f96b02] hover:bg-orange-50 rounded-xl transition-colors"
+                        title="Edit Category"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+
+                      <Button
+                        variant="none"
+                        size="none"
+                        onClick={() => handleDelete(cat.id)}
+                        className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                        title="Delete Category"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
       </div>
 
-      {/* Edit Modal */}
+      {/* 4. Luxury Edit Category Modal */}
       {editingId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 border border-neutral-100">
             <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
-              <h4 className="font-bold text-neutral-900">Edit Category</h4>
-              <Button variant="none" size="none"
+              <div>
+                <h4 className="font-black text-lg text-neutral-950 uppercase tracking-tight">Edit Category</h4>
+                <p className="text-xs text-neutral-500 font-medium">Update title or visual lifestyle asset</p>
+              </div>
+              <Button
+                variant="none"
+                size="none"
                 onClick={cancelEditing}
-                className="text-neutral-400 hover:text-[#f96b02] transition-colors bg-neutral-100 hover:bg-neutral-200 p-1.5 rounded-lg"
+                className="text-neutral-400 hover:text-neutral-950 transition-colors bg-neutral-100 hover:bg-neutral-200 p-2 rounded-xl"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </Button>
             </div>
 
             <div className="p-6 space-y-5">
               <div>
-                <label className="block text-xs font-bold uppercase text-neutral-700 mb-1">Category Name</label>
+                <label className="block text-[11px] font-black uppercase text-neutral-700 tracking-wider mb-1.5">
+                  Category Name <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black transition-shadow"
+                  className="w-full px-4 py-3 text-sm font-semibold bg-neutral-50/70 border border-neutral-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#f96b02] focus:bg-white transition-all shadow-2xs"
                   required
                 />
               </div>
+
               <div>
-                <label className="block text-xs font-bold uppercase text-neutral-700 mb-1">Update Image (Optional)</label>
-                <input
-                  type="file"
-                  accept="image/*,.heic,.heif"
-                  onChange={(e) => handleFileChange(e, 'edit')}
-                  className="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
-                />
-                {editImageFile && (
-                  <div className="mt-2 text-xs font-semibold text-green-600">
-                    New image ready ({Math.round(editImageFile.size / 1024)} KB)
+                <label className="block text-[11px] font-black uppercase text-neutral-700 tracking-wider mb-1.5">
+                  Update Lifestyle Photo
+                </label>
+
+                {editPreviewUrl && (
+                  <div className="mb-3 rounded-2xl overflow-hidden border border-neutral-200 bg-neutral-950 aspect-[3/4] max-w-[140px] mx-auto shadow-sm">
+                    <img
+                      src={editPreviewUrl.startsWith('/') ? `${(process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api').replace(/\/api\/?$/, '')}${editPreviewUrl}` : editPreviewUrl}
+                      alt="Edit Preview"
+                      className="w-full h-full object-cover object-top"
+                    />
                   </div>
+                )}
+
+                <label className="w-full py-2.5 px-4 rounded-xl border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 text-neutral-800 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-2xs">
+                  <UploadCloud className="w-4 h-4" />
+                  <span>Choose New Image</span>
+                  <input
+                    type="file"
+                    accept="image/*,.heic,.heif"
+                    onChange={(e) => handleFileChange(e, 'edit')}
+                    className="sr-only"
+                  />
+                </label>
+                {editImageFile && (
+                  <p className="text-[11px] font-bold text-emerald-600 mt-2 text-center">
+                    ✓ New image cropped ({Math.round(editImageFile.size / 1024)} KB)
+                  </p>
                 )}
               </div>
             </div>
 
-            <div className="p-6 border-t border-neutral-100 bg-neutral-50 flex gap-3 justify-end">
-              <Button variant="none" size="none"
+            <div className="p-5 border-t border-neutral-100 bg-neutral-50/70 flex gap-3 justify-end">
+              <Button
+                variant="none"
+                size="none"
                 onClick={cancelEditing}
-                className="px-5 py-2.5 text-sm font-bold text-neutral-700 hover:bg-neutral-200 rounded-xl transition-colors"
+                className="px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-neutral-600 hover:bg-neutral-200 rounded-xl transition-colors"
               >
                 Cancel
               </Button>
@@ -400,8 +626,8 @@ export default function AdminCategoriesPage() {
                 variant="primary"
                 size="md"
                 isLoading={isSubmitting}
-                icon={!isSubmitting && <Check className="w-4 h-4" />}
-                className="text-sm rounded-xl !px-5 !py-2.5 normal-case tracking-normal shadow-md"
+                icon={!isSubmitting && <Check className="w-4 h-4 stroke-[2.5]" />}
+                className="text-xs font-black uppercase tracking-wider rounded-xl !px-5 !py-2.5 shadow-md hover:shadow-orange-500/25"
               >
                 {isSubmitting ? 'Saving...' : 'Save Changes'}
               </Button>
@@ -409,10 +635,12 @@ export default function AdminCategoriesPage() {
           </div>
         </div>
       )}
+
+      {/* 5. Cropper Modal */}
       {cropImageSrc && (
         <ImageCropper
           imageSrc={cropImageSrc}
-          aspectRatio={2.8 / 3}
+          aspectRatio={3 / 4}
           onCropComplete={handleCropComplete}
           onCancel={() => {
             setCropImageSrc(null);
@@ -420,6 +648,7 @@ export default function AdminCategoriesPage() {
           }}
         />
       )}
+
       <ConfirmModal {...confirmModal} onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })} />
     </div>
   );

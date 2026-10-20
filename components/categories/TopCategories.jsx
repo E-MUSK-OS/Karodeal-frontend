@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import Button from '@/components/common/Button';
 import Slider from '@/components/common/Slider';
+import { ArrowUpRight, Sparkles } from 'lucide-react';
 
 function TopCategoryCard({ category }) {
   if (!category) return null;
@@ -12,28 +13,63 @@ function TopCategoryCard({ category }) {
     imageUrl = `${backendBase}${imageUrl}`;
   }
 
+  const dealCount = category._count?.products || 0;
+
   return (
     <Link
-      href={category.href || `/categories/${category.id}`}
+      href={category.href || `/categories/${category.slug || category.id}`}
       title={category.name}
-      className="group relative flex flex-col items-center text-center cursor-pointer select-none w-full transition-all duration-300"
+      className="group relative flex flex-col justify-between w-full aspect-[3/4] rounded-[22px] sm:rounded-[26px] overflow-hidden bg-neutral-950 border border-neutral-200/80 hover:border-white/60 shadow-md hover:shadow-2xl hover:shadow-black/30 hover:-translate-y-2 transition-all duration-300 ease-out select-none cursor-pointer"
     >
-      {/* Circle Image Container with delicate border and soft shadow */}
-      <div className="relative flex items-center justify-center">
-        <div className="w-[72px] h-[72px] sm:w-[90px] sm:h-[90px] md:w-[110px] md:h-[110px] lg:w-[130px] lg:h-[130px] rounded-full bg-slate-50 border border-slate-100 group-hover:shadow-[0_10px_25px_rgba(0,0,0,0.1)] group-active:shadow-[0_10px_25px_rgba(0,0,0,0.1)] group-hover:-translate-y-1 group-active:-translate-y-1 flex items-center justify-center overflow-hidden transition-all duration-300 ease-out shrink-0">
-          <img
-            src={imageUrl}
-            alt={category.name}
-            className="w-full h-full object-cover group-hover:scale-110 group-active:scale-110 transition-transform duration-500 ease-out"
-            loading="lazy"
-          />
-        </div>
+      {/* 1. Lifestyle Image */}
+      <img
+        src={imageUrl}
+        alt={category.name}
+        className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-700 ease-out"
+        loading="lazy"
+        onError={(e) => {
+          e.target.src = 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=600&auto=format&fit=crop';
+        }}
+      />
+
+      {/* 2. Cinematic Multi-Stop Dark Gradient (Keeps upper outfit bright and clear) */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 via-35% to-transparent pointer-events-none transition-opacity duration-300 group-hover:from-black/90" />
+
+      {/* 3. Glossy Holographic Light Sweep Shimmer on hover */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[22px] sm:rounded-[26px]">
+        <div className="w-[200%] h-full absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-700 ease-in-out" />
       </div>
 
-      {/* Title */}
-      <span className="text-sm lg:text-[15px] xl:text-base mt-3  font-semibold text-neutral-800 group-hover:text-[#f96b02] transition-colors line-clamp-2 leading-tight max-w-[100px] sm:max-w-[120px]">
-        {category.name}
-      </span>
+      {/* 4. Top Micro Badges (Curated & High-Contrast Deals Tag) */}
+      <div className="relative z-10 w-full p-2.5 sm:p-3 flex items-center justify-between pointer-events-none">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8.5px] sm:text-[9px] font-black uppercase tracking-wider bg-black/45 backdrop-blur-md text-white/95 border border-white/20 shadow-xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span>Curated</span>
+        </span>
+
+        {dealCount > 0 ? (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[8.5px] sm:text-[9px] font-black uppercase tracking-wider bg-white/90 backdrop-blur-md text-neutral-950 border border-white/80 shadow-xs">
+            {dealCount} Deals
+          </span>
+        ) : (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[8.5px] sm:text-[9px] font-extrabold uppercase tracking-wider bg-black/35 backdrop-blur-md text-white/80 border border-white/15">
+            Hot
+          </span>
+        )}
+      </div>
+
+      {/* 5. Bottom Info: Category Title & Interactive High-Contrast Pill */}
+      <div className="relative z-10 w-full p-3 sm:p-3.5 flex flex-col items-start pointer-events-none">
+        <h4 className="text-white font-black text-xs sm:text-[13px] md:text-sm tracking-tight uppercase leading-snug drop-shadow-md truncate max-w-full group-hover:text-orange-400 transition-colors">
+          {category.name}
+        </h4>
+
+        {/* High-Contrast Action Pill (Transforms to solid white on hover) */}
+        <div className="mt-1 inline-flex items-center gap-1 px-2.5 py-0.5 sm:py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-[9px] sm:text-[10px] font-black uppercase tracking-wider shadow-xs group-hover:bg-white group-hover:text-neutral-950 group-hover:border-white transition-all duration-300">
+          <span>Explore</span>
+          <ArrowUpRight className="w-3 h-3 stroke-[2.5] text-orange-400 group-hover:text-neutral-950 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        </div>
+      </div>
     </Link>
   );
 }
@@ -42,13 +78,21 @@ export default function TopCategories({ categories }) {
   if (!categories || categories.length === 0) return null;
 
   return (
-    <section className="mb-6 md:mb-12">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end md:mb-6 gap-4">
+    <section className="mb-10 md:mb-16">
+      {/* Section Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 md:mb-8 gap-4 border-b border-neutral-200/80 pb-4">
         <div>
-          <h2 className="font-black text-black uppercase tracking-tighter">Shop by Category</h2>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-orange-50 border border-orange-200/80 text-[#f96b02] text-[10px] sm:text-xs font-black uppercase tracking-wider mb-2 shadow-2xs">
+            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            <span>Curated Collections</span>
+          </div>
+          <h2 className="font-black text-neutral-950 uppercase tracking-tighter text-2xl sm:text-3xl md:text-4xl">
+            Shop by Category
+          </h2>
         </div>
+
         <div className="hidden sm:block">
-          <Button href="/categories" variant="outline">
+          <Button href="/categories" variant="outline" className="group">
             Explore All Categories
             <span className="group-hover:translate-x-1 transition-transform duration-300" aria-hidden="true">&rarr;</span>
           </Button>
@@ -58,27 +102,30 @@ export default function TopCategories({ categories }) {
       {/* Responsive Categories Track */}
       <Slider
         autoPlay={true}
-        autoPlayInterval={3000}
-        slidesPerView={3}
+        autoPlayInterval={3500}
+        slidesPerView={2.2}
         breakpoints={{
-          0: { slidesPerView: 3, spaceBetween: 10 },
-          480: { slidesPerView: 4, spaceBetween: 15 },
-          640: { slidesPerView: 5, spaceBetween: 15 },
-          768: { slidesPerView: 6, spaceBetween: 20 },
-          1024: { slidesPerView: 7, spaceBetween: 20 },
-          1280: { slidesPerView: 9, spaceBetween: 30 }
+          0: { slidesPerView: 2.2, spaceBetween: 12 },
+          480: { slidesPerView: 3.2, spaceBetween: 14 },
+          640: { slidesPerView: 4.2, spaceBetween: 16 },
+          768: { slidesPerView: 5.2, spaceBetween: 18 },
+          1024: { slidesPerView: 6.2, spaceBetween: 20 },
+          1280: { slidesPerView: 7.2, spaceBetween: 20 }
         }}
         slideClassName="!h-auto"
       >
-        {categories.map(category => (
-          <div
-            key={category.id}
-            className="flex justify-center w-full"
-          >
+        {categories.map((category) => (
+          <div key={category.id} className="w-full h-full flex p-0.5">
             <TopCategoryCard category={category} />
           </div>
         ))}
       </Slider>
+
+      <div className="mt-6 sm:hidden text-center">
+        <Button href="/categories" variant="outline" fullWidth>
+          Explore All Categories &rarr;
+        </Button>
+      </div>
     </section>
   );
 }
