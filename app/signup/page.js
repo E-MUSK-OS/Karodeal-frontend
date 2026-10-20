@@ -296,20 +296,27 @@ export default function Signup() {
 
   if (requireGoogleOtp) {
     return (
-      <div className="bg-white min-h-[calc(100vh-140px)] flex flex-col justify-center items-center py-8 sm:py-12 px-4 sm:px-6 relative font-sans">
-        <div className="flex flex-col bg-neutral-50 w-full max-w-[420px] rounded-2xl shadow-sm border border-neutral-200 p-5 sm:p-7 relative">
+      <div className="bg-white dark:bg-neutral-950 min-h-[calc(100vh-140px)] flex flex-col justify-center items-center py-8 sm:py-12 px-4 sm:px-6 relative font-sans">
+        <div className="flex flex-col bg-neutral-50 dark:bg-neutral-900 w-full max-w-[420px] rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 p-5 sm:p-7 relative">
           <div className="flex items-center mb-6">
-            <Button variant="none" size="none" onClick={() => { setRequireGoogleOtp(false); setInputCode(''); setOtpValues(['','','','','','']); }} className="p-1 -ml-1 text-black hover:bg-neutral-100 rounded-full transition-colors">
+            <Button variant="none" size="none" onClick={() => { setRequireGoogleOtp(false); setInputCode(''); setOtpValues(['','','','','','']); }} className="p-1 -ml-1 text-black dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors cursor-pointer">
               <ArrowLeft strokeWidth={2.5} className="w-5 h-5" />
             </Button>
           </div>
           <div>
-            <h2 className="font-extrabold text-black tracking-tight leading-tight">Verify Google Account</h2>
-            <p className="mt-1.5 text-sm text-neutral-500">We sent a 6-digit OTP to {verifyEmail}</p>
+            <h2 className="font-extrabold text-black dark:text-white tracking-tight leading-tight">Verify Google Account</h2>
+            <p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-400">We sent a 6-digit OTP to {verifyEmail}</p>
           </div>
+
+          {error && (
+            <div className="mt-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-400 text-xs font-semibold">
+              {error}
+            </div>
+          )}
+
           <form className="mt-8 flex flex-col flex-1" onSubmit={handleVerifyGoogleOtp}>
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-3 text-center">Enter 6-digit OTP</label>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3 text-center">Enter 6-digit OTP</label>
               <div className="grid grid-cols-6 gap-1.5 sm:gap-2.5 w-full" onPaste={(e) => handleOtpPaste(e, 0)}>
                 {otpValues.map((digit, index) => (
                   <input
@@ -325,7 +332,7 @@ export default function Signup() {
                     onKeyDown={(e) => handleOtpKeyDown(index, e)}
                     onPaste={(e) => handleOtpPaste(e, index)}
                     onFocus={(e) => e.target.select()}
-                    className="w-full aspect-[4/5] sm:h-13 text-center text-lg sm:text-xl font-bold text-black bg-white rounded-xl border-2 border-neutral-300 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all p-0 flex items-center justify-center select-all"
+                    className="w-full aspect-[4/5] sm:h-13 text-center text-lg sm:text-xl font-bold text-black dark:text-white bg-white dark:bg-neutral-800 rounded-xl border-2 border-neutral-300 dark:border-neutral-700 focus:outline-none focus:border-black dark:focus:border-white focus:ring-1 focus:ring-black dark:focus:ring-white transition-all p-0 flex items-center justify-center select-all"
                     required={index === 0}
                   />
                 ))}
@@ -335,18 +342,18 @@ export default function Signup() {
             {/* Resend OTP Section (Google Verification) */}
             <div className="text-center mt-2 mb-6">
               {resendTimer > 0 ? (
-                <p className="text-xs text-neutral-500 font-medium">
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">
                   Didn&apos;t receive the code? Resend in{' '}
-                  <span className="font-bold text-neutral-800 tabular-nums">{resendTimer}s</span>
+                  <span className="font-bold text-neutral-800 dark:text-neutral-200 tabular-nums">{resendTimer}s</span>
                 </p>
               ) : (
-                <p className="text-xs text-neutral-500 font-medium">
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">
                   Didn&apos;t receive the code?{' '}
                   <button
                     type="button"
                     onClick={handleResendOtp}
                     disabled={isResending}
-                    className="text-black font-bold hover:underline cursor-pointer disabled:opacity-50 inline-flex items-center gap-1"
+                    className="text-black dark:text-white font-bold hover:underline cursor-pointer disabled:opacity-50 inline-flex items-center gap-1"
                   >
                     {isResending ? 'Sending new code...' : 'Resend Code'}
                   </button>
@@ -372,9 +379,9 @@ export default function Signup() {
   }
 
   return (
-    <div className="bg-white min-h-[calc(100vh-140px)] flex flex-col justify-center items-center py-8 sm:py-12 px-4 sm:px-6 relative font-sans">
+    <div className="bg-white dark:bg-neutral-950 min-h-[calc(100vh-140px)] flex flex-col justify-center items-center py-8 sm:py-12 px-4 sm:px-6 relative font-sans">
 
-      <div className="flex flex-col bg-neutral-50 w-full max-w-[420px] rounded-2xl shadow-sm border border-neutral-200 p-5 sm:p-7 relative">
+      <div className="flex flex-col bg-neutral-50 dark:bg-neutral-900 w-full max-w-[420px] rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 p-5 sm:p-7 relative">
 
         {/* Header Section */}
         <div className="flex items-center mb-6">
@@ -389,20 +396,26 @@ export default function Signup() {
                 router.push('/');
               }
             }}
-            className="p-2 -ml-2 text-black hover:bg-neutral-100 active:bg-neutral-200 rounded-full transition-colors cursor-pointer inline-flex items-center justify-center"
+            className="p-2 -ml-2 text-black dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 active:bg-neutral-200 dark:active:bg-neutral-700 rounded-full transition-colors cursor-pointer inline-flex items-center justify-center"
           >
             <ArrowLeft strokeWidth={2.5} className="w-5 h-5" />
           </Button>
         </div>
 
         <div>
-          <h2 className="font-extrabold text-black tracking-tight leading-tight">
+          <h2 className="font-extrabold text-black dark:text-white tracking-tight leading-tight">
             {step === 1 ? 'Sign up' : 'Verify Email'}
           </h2>
-          <p className="mt-1.5 text-sm text-neutral-500">
+          <p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-400">
             {step === 1 ? 'Create an account to get started.' : `We've sent a 6-digit code to ${email}`}
           </p>
         </div>
+
+        {error && (
+          <div className="mt-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-400 text-xs font-semibold">
+            {error}
+          </div>
+        )}
 
         {step === 1 ? (
           <form className="mt-8 flex flex-col flex-1" onSubmit={handleSignup}>
@@ -413,7 +426,7 @@ export default function Signup() {
                 type="text"
                 id="name"
                 name="name"
-                className="block px-4 pb-3.5 pt-4 w-full  text-black bg-transparent rounded-lg border-2 border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer [&:-webkit-autofill]:[-webkit-box-shadow:0_0_0_30px_#fafafa_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]"
+                className="block px-4 pb-3.5 pt-4 w-full text-black dark:text-white bg-transparent rounded-lg border-2 border-neutral-300 dark:border-neutral-700 appearance-none focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white peer [&:-webkit-autofill]:[-webkit-box-shadow:0_0_0_30px_#fafafa_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black] dark:[&:-webkit-autofill]:[-webkit-box-shadow:0_0_0_30px_#171717_inset] dark:[&:-webkit-autofill]:[-webkit-text-fill-color:white]"
                 placeholder=" "
                 value={name}
                 onChange={(e) => {
@@ -424,7 +437,7 @@ export default function Signup() {
               />
               <label
                 htmlFor="name"
-                className={`absolute text-[15px] duration-300 transform z-10 origin-[0] bg-neutral-50 px-1.5 left-3 peer-focus:text-black peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-[&:-webkit-autofill]:top-2 peer-[&:-webkit-autofill]:-translate-y-4 peer-[&:-webkit-autofill]:scale-75 ${name ? 'top-2 -translate-y-4 scale-75 text-black' : 'top-1/2 -translate-y-1/2 scale-100 text-neutral-500'}`}
+                className={`absolute text-[15px] duration-300 transform z-10 origin-[0] bg-neutral-50 dark:bg-neutral-900 px-1.5 left-3 peer-focus:text-black dark:peer-focus:text-white peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-[&:-webkit-autofill]:top-2 peer-[&:-webkit-autofill]:-translate-y-4 peer-[&:-webkit-autofill]:scale-75 ${name ? 'top-2 -translate-y-4 scale-75 text-black dark:text-white' : 'top-1/2 -translate-y-1/2 scale-100 text-neutral-500 dark:text-neutral-400'}`}
               >
                 Full Name
               </label>
@@ -436,7 +449,7 @@ export default function Signup() {
                 type="email"
                 id="email"
                 name="email"
-                className="block px-4 pb-3.5 pt-4 w-full  text-black bg-transparent rounded-lg border-2 border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer [&:-webkit-autofill]:[-webkit-box-shadow:0_0_0_30px_#fafafa_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]"
+                className="block px-4 pb-3.5 pt-4 w-full text-black dark:text-white bg-transparent rounded-lg border-2 border-neutral-300 dark:border-neutral-700 appearance-none focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white peer [&:-webkit-autofill]:[-webkit-box-shadow:0_0_0_30px_#fafafa_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black] dark:[&:-webkit-autofill]:[-webkit-box-shadow:0_0_0_30px_#171717_inset] dark:[&:-webkit-autofill]:[-webkit-text-fill-color:white]"
                 placeholder=" "
                 value={email}
                 onChange={(e) => {
@@ -447,7 +460,7 @@ export default function Signup() {
               />
               <label
                 htmlFor="email"
-                className={`absolute text-[15px] duration-300 transform z-10 origin-[0] bg-neutral-50 px-1.5 left-3 peer-focus:text-black peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-[&:-webkit-autofill]:top-2 peer-[&:-webkit-autofill]:-translate-y-4 peer-[&:-webkit-autofill]:scale-75 ${email ? 'top-2 -translate-y-4 scale-75 text-black' : 'top-1/2 -translate-y-1/2 scale-100 text-neutral-500'}`}
+                className={`absolute text-[15px] duration-300 transform z-10 origin-[0] bg-neutral-50 dark:bg-neutral-900 px-1.5 left-3 peer-focus:text-black dark:peer-focus:text-white peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-[&:-webkit-autofill]:top-2 peer-[&:-webkit-autofill]:-translate-y-4 peer-[&:-webkit-autofill]:scale-75 ${email ? 'top-2 -translate-y-4 scale-75 text-black dark:text-white' : 'top-1/2 -translate-y-1/2 scale-100 text-neutral-500 dark:text-neutral-400'}`}
               >
                 Email address
               </label>
@@ -459,7 +472,7 @@ export default function Signup() {
                 type={showPassword ? "text" : "password"}
                 id="password"
                 name="password"
-                className="block px-4 pb-3.5 pt-4 w-full  text-black bg-transparent rounded-lg border-2 border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer pr-12 [&:-webkit-autofill]:[-webkit-box-shadow:0_0_0_30px_#fafafa_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]"
+                className="block px-4 pb-3.5 pt-4 w-full text-black dark:text-white bg-transparent rounded-lg border-2 border-neutral-300 dark:border-neutral-700 appearance-none focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white peer pr-12 [&:-webkit-autofill]:[-webkit-box-shadow:0_0_0_30px_#fafafa_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black] dark:[&:-webkit-autofill]:[-webkit-box-shadow:0_0_0_30px_#171717_inset] dark:[&:-webkit-autofill]:[-webkit-text-fill-color:white]"
                 placeholder=" "
                 value={password}
                 onChange={(e) => {
@@ -470,13 +483,13 @@ export default function Signup() {
               />
               <label
                 htmlFor="password"
-                className={`absolute text-[15px] duration-300 transform z-10 origin-[0] bg-neutral-50 px-1.5 left-3 peer-focus:text-black peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-[&:-webkit-autofill]:top-2 peer-[&:-webkit-autofill]:-translate-y-4 peer-[&:-webkit-autofill]:scale-75 ${password ? 'top-2 -translate-y-4 scale-75 text-black' : 'top-1/2 -translate-y-1/2 scale-100 text-neutral-500'}`}
+                className={`absolute text-[15px] duration-300 transform z-10 origin-[0] bg-neutral-50 dark:bg-neutral-900 px-1.5 left-3 peer-focus:text-black dark:peer-focus:text-white peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-[&:-webkit-autofill]:top-2 peer-[&:-webkit-autofill]:-translate-y-4 peer-[&:-webkit-autofill]:scale-75 ${password ? 'top-2 -translate-y-4 scale-75 text-black dark:text-white' : 'top-1/2 -translate-y-1/2 scale-100 text-neutral-500 dark:text-neutral-400'}`}
               >
                 Password
               </label>
               <Button variant="none" size="none"
                 type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-black"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -495,15 +508,15 @@ export default function Signup() {
             </div>
 
             <div className="relative flex items-center mb-6">
-              <div className="flex-grow border-t border-neutral-300"></div>
-              <span className="flex-shrink-0 mx-4 text-neutral-400 text-sm">Or sign up with email</span>
-              <div className="flex-grow border-t border-neutral-300"></div>
+              <div className="flex-grow border-t border-neutral-300 dark:border-neutral-800"></div>
+              <span className="flex-shrink-0 mx-4 text-neutral-400 dark:text-neutral-500 text-sm">Or sign up with email</span>
+              <div className="flex-grow border-t border-neutral-300 dark:border-neutral-800"></div>
             </div>
 
             {/* Terms and Bottom Button */}
             <div className="mt-auto">
-              <p className="text-[13px] text-neutral-500 mb-5 leading-relaxed">
-                By continuing, you agree to Karodeal&apos;s <Link href="/terms" className="text-sm lg:text-[15px] xl:text-base text-black font-medium hover:underline">terms & conditions</Link> and <Link href="/privacy-policy" className="text-sm lg:text-[15px] xl:text-base text-black font-medium hover:underline">privacy policy</Link>
+              <p className="text-[13px] text-neutral-500 dark:text-neutral-400 mb-5 leading-relaxed">
+                By continuing, you agree to Karodeal&apos;s <Link href="/terms" className="text-sm lg:text-[15px] xl:text-base text-black dark:text-white font-medium hover:underline">terms & conditions</Link> and <Link href="/privacy-policy" className="text-sm lg:text-[15px] xl:text-base text-black dark:text-white font-medium hover:underline">privacy policy</Link>
               </p>
 
               <Button
@@ -515,8 +528,8 @@ export default function Signup() {
               >
                 Create Account
               </Button>
-              <p className="text-sm text-center text-neutral-500 mt-4">
-                Already have an account? <Link href="/login" className="text-sm lg:text-[15px] xl:text-base text-black font-medium hover:underline">Login</Link>
+              <p className="text-sm text-center text-neutral-500 dark:text-neutral-400 mt-4">
+                Already have an account? <Link href="/login" className="text-sm lg:text-[15px] xl:text-base text-black dark:text-white font-medium hover:underline">Login</Link>
               </p>
             </div>
           </form>
@@ -525,7 +538,7 @@ export default function Signup() {
 
             {/* OTP Input */}
             <div className="mb-8">
-              <label className="block text-sm font-medium text-gray-700 mb-4 text-center">Enter 6-digit OTP</label>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-4 text-center">Enter 6-digit OTP</label>
               <div className="grid grid-cols-6 gap-1.5 sm:gap-2.5 w-full" onPaste={(e) => handleOtpPaste(e, 0)}>
                 {otpValues.map((digit, index) => (
                   <input
@@ -541,7 +554,7 @@ export default function Signup() {
                     onKeyDown={(e) => handleOtpKeyDown(index, e)}
                     onPaste={(e) => handleOtpPaste(e, index)}
                     onFocus={(e) => e.target.select()}
-                    className="w-full aspect-[4/5] sm:h-13 text-center text-lg sm:text-xl font-bold text-black bg-white rounded-xl border-2 border-neutral-300 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all p-0 flex items-center justify-center select-all"
+                    className="w-full aspect-[4/5] sm:h-13 text-center text-lg sm:text-xl font-bold text-black dark:text-white bg-white dark:bg-neutral-800 rounded-xl border-2 border-neutral-300 dark:border-neutral-700 focus:outline-none focus:border-black dark:focus:border-white focus:ring-1 focus:ring-black dark:focus:ring-white transition-all p-0 flex items-center justify-center select-all"
                     required={index === 0}
                   />
                 ))}
@@ -551,18 +564,18 @@ export default function Signup() {
             {/* Resend OTP Section (Email Signup Verification) */}
             <div className="text-center mt-2 mb-6">
               {resendTimer > 0 ? (
-                <p className="text-xs text-neutral-500 font-medium">
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">
                   Didn&apos;t receive the code? Resend in{' '}
-                  <span className="font-bold text-neutral-800 tabular-nums">{resendTimer}s</span>
+                  <span className="font-bold text-neutral-800 dark:text-neutral-200 tabular-nums">{resendTimer}s</span>
                 </p>
               ) : (
-                <p className="text-xs text-neutral-500 font-medium">
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">
                   Didn&apos;t receive the code?{' '}
                   <button
                     type="button"
                     onClick={handleResendOtp}
                     disabled={isResending}
-                    className="text-black font-bold hover:underline cursor-pointer disabled:opacity-50 inline-flex items-center gap-1"
+                    className="text-black dark:text-white font-bold hover:underline cursor-pointer disabled:opacity-50 inline-flex items-center gap-1"
                   >
                     {isResending ? 'Sending new code...' : 'Resend Code'}
                   </button>
