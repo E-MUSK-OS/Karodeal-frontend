@@ -109,11 +109,11 @@ export default function Hero() {
   ];
 
   return (
-    <section className="relative bg-gradient-to-b from-neutral-50/70 via-white to-white border-b border-neutral-200/80 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 lg:p-12 mb-8 sm:mb-12 shadow-[0_2px_20px_rgba(0,0,0,0.02)]">
+    <section className="relative bg-gradient-to-b from-neutral-50/70 via-white to-white dark:from-neutral-900/90 dark:via-neutral-950 dark:to-neutral-950 border border-neutral-200/80 dark:border-neutral-800 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 lg:p-12 mb-8 sm:mb-12 shadow-[0_2px_20px_rgba(0,0,0,0.02)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
       {/* Ambient background glow safely clipped to preserve rounded corners without clipping the search dropdown */}
       <div className="absolute inset-0 overflow-hidden rounded-2xl sm:rounded-3xl pointer-events-none -z-10">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-orange-100/40 via-amber-50/20 to-transparent rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-to-tr from-emerald-50/30 via-transparent to-transparent rounded-full blur-3xl" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-orange-100/40 via-amber-50/20 to-transparent dark:from-orange-500/10 dark:via-amber-500/5 dark:to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-to-tr from-emerald-50/30 via-transparent to-transparent dark:from-emerald-500/10 dark:via-transparent dark:to-transparent rounded-full blur-3xl" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-14 items-center">
