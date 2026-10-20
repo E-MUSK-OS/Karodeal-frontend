@@ -10,23 +10,23 @@ export default function TermsPage() {
   return (
     <div className="page-container pt-12 md:pt-20">
       <div className="max-w-4xl mx-auto">
-        <div className="border-b border-neutral-200 pb-6 md:pb-8 mb-8 md:mb-12">
-          <h1 className="font-black text-black uppercase tracking-tighter mb-4 text-3xl sm:text-4xl md:text-5xl">
+        <div className="border-b border-neutral-200 dark:border-neutral-800 pb-6 md:pb-8 mb-8 md:mb-12">
+          <h1 className="font-black text-black dark:text-white uppercase tracking-tighter mb-4 text-3xl sm:text-4xl md:text-5xl">
             Terms &amp; Conditions
           </h1>
-          <p className="text-neutral-500 font-bold tracking-widest uppercase text-[10px] md:text-xs">
+          <p className="text-neutral-500 dark:text-neutral-400 font-bold tracking-widest uppercase text-[10px] md:text-xs">
             Last updated: October 7, 2026
           </p>
         </div>
 
-        <div className="space-y-8 md:space-y-12 text-neutral-700 leading-relaxed">
+        <div className="space-y-8 md:space-y-12 text-neutral-700 dark:text-neutral-300 leading-relaxed">
           <p className="font-medium">
             Welcome to KaroDeal! Please read these terms and conditions carefully before using our platform. 
             By accessing or using KaroDeal, you agree to be bound by these Terms &amp; Conditions.
           </p>
 
           <div>
-            <h2 className="font-black text-black uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
+            <h2 className="font-black text-black dark:text-white uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
               1. General Platform Usage
             </h2>
             <p>
@@ -36,7 +36,7 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="font-black text-black uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
+            <h2 className="font-black text-black dark:text-white uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
               2. How to Claim Cashback
             </h2>
             <p className="mb-4">To successfully track and claim your cashback, you must strictly follow these steps:</p>
@@ -49,7 +49,7 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="font-black text-black uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
+            <h2 className="font-black text-black dark:text-white uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
               3. Mandatory Positive Review Policy
             </h2>
             <p>
@@ -60,7 +60,7 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="font-black text-black uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
+            <h2 className="font-black text-black dark:text-white uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
               4. Claim Approval &amp; Timeline
             </h2>
             <p>
@@ -71,7 +71,7 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="font-black text-black uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
+            <h2 className="font-black text-black dark:text-white uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
               5. Wallet &amp; Withdrawals
             </h2>
             <p>
@@ -82,7 +82,7 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="font-black text-black uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
+            <h2 className="font-black text-black dark:text-white uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
               6. Fraud &amp; Account Suspension
             </h2>
             <p>
@@ -92,7 +92,7 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="font-black text-black uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
+            <h2 className="font-black text-black dark:text-white uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
               7. Third-Party Links
             </h2>
             <p>
@@ -103,7 +103,7 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="font-black text-black uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
+            <h2 className="font-black text-black dark:text-white uppercase tracking-tight text-lg sm:text-xl md:text-2xl mb-3 md:mb-4">
               8. Changes to These Terms
             </h2>
             <p>

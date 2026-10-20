@@ -80,21 +80,21 @@ Work Email / Phone: `
   };
 
   return (
-    <div className="bg-white min-h-[calc(100vh-80px)]">
+    <div className="bg-white dark:bg-neutral-950 min-h-[calc(100vh-80px)]">
       
       {/* 1. Clean Minimal Header */}
-      <section className="border-b border-neutral-200 bg-neutral-50/50 py-12 sm:py-16">
+      <section className="border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 py-12 sm:py-16">
         <div className="page-container text-center">
           {isSellerTopic ? (
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black text-white text-[11px] font-black uppercase tracking-wider mb-3">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black dark:bg-white text-white dark:text-black text-[11px] font-black uppercase tracking-wider mb-3">
               <span className="w-2 h-2 rounded-full bg-[#f96b02] animate-pulse" />
               Seller Partnership Desk
             </div>
           ) : null}
-          <h1 className="font-black text-black uppercase tracking-tighter leading-tight mb-3">
+          <h1 className="font-black text-black dark:text-white uppercase tracking-tighter leading-tight mb-3">
             {isSellerTopic ? 'List Your Products on KaroDeal' : 'Contact Us'}
           </h1>
-          <p className="text-neutral-500 max-w-xl mx-auto leading-relaxed text-sm sm:text-base">
+          <p className="text-neutral-500 dark:text-neutral-400 max-w-xl mx-auto leading-relaxed text-sm sm:text-base">
             {isSellerTopic 
               ? 'Are you selling products on Amazon, Flipkart, Meesho, Shopify, or your own store? Connect with our team below to list your products on KaroDeal.'
               : 'Have a question or need assistance? Reach out to our team directly or send us a message below.'}
@@ -109,10 +109,10 @@ Work Email / Phone: `
           {/* Left Column: 4 Direct Contact Channels */}
           <div className="lg:col-span-5 space-y-6">
             <div>
-              <h2 className="font-black text-black uppercase tracking-tight mb-2">
+              <h2 className="font-black text-black dark:text-white uppercase tracking-tight mb-2">
                 Direct Channels
               </h2>
-              <p className="text-neutral-500 leading-relaxed mb-6 text-sm">
+              <p className="text-neutral-500 dark:text-neutral-400 leading-relaxed mb-6 text-sm">
                 Choose your preferred way to connect with us:
               </p>
             </div>
@@ -126,23 +126,23 @@ Work Email / Phone: `
                     ? "mailto:support@karodeal.in?subject=Seller%20Partnership%20-%20List%20My%20Products%20on%20KaroDeal&body=Hello%20KaroDeal%20Team%2C%0A%0AI%20am%20a%20seller%20and%20I%20would%20like%20to%20list%20my%20products%20on%20KaroDeal.%0A%0A"
                     : "mailto:support@karodeal.in?subject=KaroDeal%20Support%20Inquiry&body=Hello%20KaroDeal%20Team%2C%0A%0A"
                 }
-                className="flex items-center justify-between p-4 rounded-2xl border border-neutral-200 hover:border-black bg-white transition-all duration-200 group shadow-2xs hover:-translate-y-0.5"
+                className="flex items-center justify-between p-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 hover:border-black dark:hover:border-neutral-600 bg-white dark:bg-neutral-900 transition-all duration-200 group shadow-2xs hover:-translate-y-0.5"
                 title="Send Email"
               >
                 <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-neutral-100 group-hover:bg-black group-hover:text-white text-black flex items-center justify-center transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-neutral-100 dark:bg-neutral-800 group-hover:bg-black dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black text-black dark:text-white flex items-center justify-center transition-colors">
                     <Mail className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="font-bold text-neutral-400 uppercase tracking-widest text-[11px]">
+                    <div className="font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest text-[11px]">
                       Email {isSellerTopic && '(Seller Inquiries)'}
                     </div>
-                    <div className="font-bold text-black break-all text-sm">
+                    <div className="font-bold text-black dark:text-white break-all text-sm">
                       support@karodeal.in
                     </div>
                   </div>
                 </div>
-                <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />
+                <ArrowUpRight className="w-4 h-4 text-neutral-400 dark:text-neutral-500 group-hover:text-black dark:group-hover:text-white transition-colors" />
               </a>
 
               {/* Instagram */}
@@ -150,11 +150,11 @@ Work Email / Phone: `
                 href="https://www.instagram.com/karodeal_/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between p-4 rounded-2xl border border-neutral-200 hover:border-black bg-white transition-all duration-200 group shadow-2xs hover:-translate-y-0.5"
+                className="flex items-center justify-between p-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 hover:border-black dark:hover:border-neutral-600 bg-white dark:bg-neutral-900 transition-all duration-200 group shadow-2xs hover:-translate-y-0.5"
                 title="Visit Instagram"
               >
                 <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-neutral-100 group-hover:bg-black group-hover:text-white text-black flex items-center justify-center transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-neutral-100 dark:bg-neutral-800 group-hover:bg-black dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black text-black dark:text-white flex items-center justify-center transition-colors">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                       <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
                       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
@@ -162,34 +162,34 @@ Work Email / Phone: `
                     </svg>
                   </div>
                   <div>
-                    <div className="font-bold text-neutral-400 uppercase tracking-widest text-[11px]">
+                    <div className="font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest text-[11px]">
                       Instagram
                     </div>
-                    <div className="font-bold text-black text-sm">
+                    <div className="font-bold text-black dark:text-white text-sm">
                       @karodeal_
                     </div>
                   </div>
                 </div>
-                <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />
+                <ArrowUpRight className="w-4 h-4 text-neutral-400 dark:text-neutral-500 group-hover:text-black dark:group-hover:text-white transition-colors" />
               </a>
 
             </div>
 
             {/* Seller Notice if topic=seller */}
             {isSellerTopic && (
-              <div className="p-4 rounded-2xl border border-[#f96b02]/30 bg-[#f96b02]/5 flex items-start gap-3">
+              <div className="p-4 rounded-2xl border border-[#f96b02]/30 bg-[#f96b02]/5 dark:bg-[#f96b02]/10 flex items-start gap-3">
                 <Store className="w-5 h-5 text-[#f96b02] shrink-0 mt-0.5" />
-                <div className="text-xs text-neutral-700 leading-relaxed font-medium">
-                  <strong className="text-black font-bold block mb-1">Selling on Any E-Commerce Platform?</strong>
+                <div className="text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed font-medium">
+                  <strong className="text-black dark:text-white font-bold block mb-1">Selling on Any E-Commerce Platform?</strong>
                   KaroDeal welcomes all online sellers and D2C brands. Whether you sell on Amazon, Flipkart, Meesho, Shopify, or your own online e-commerce website, share your store link and our team will verify and list your product deals.
                 </div>
               </div>
             )}
 
             {/* Office Location */}
-            <div className="p-4 rounded-2xl border border-neutral-200 bg-neutral-50/60 flex items-center gap-3">
-              <MapPin className="w-4 h-4 text-neutral-500 shrink-0" />
-              <div className="text-neutral-600 font-medium text-sm">
+            <div className="p-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-900 flex items-center gap-3">
+              <MapPin className="w-4 h-4 text-neutral-500 dark:text-neutral-400 shrink-0" />
+              <div className="text-neutral-600 dark:text-neutral-300 font-medium text-sm">
                 Headquarters: Surat, Gujarat, India
               </div>
             </div>
@@ -197,13 +197,13 @@ Work Email / Phone: `
 
           {/* Right Column: Clean Minimal Contact Form */}
           <div className="lg:col-span-7">
-            <div className="bg-white border border-neutral-200 rounded-3xl p-6 sm:p-8 md:p-10 shadow-xs">
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 sm:p-8 md:p-10 shadow-xs">
               
               <div className="mb-6 sm:mb-8">
-                <h2 className="font-black text-black uppercase tracking-tight mb-2">
+                <h2 className="font-black text-black dark:text-white uppercase tracking-tight mb-2">
                   {isSellerTopic ? 'Seller Listing Application' : 'Send a Message'}
                 </h2>
-                <p className="text-neutral-500 leading-relaxed text-sm">
+                <p className="text-neutral-500 dark:text-neutral-400 leading-relaxed text-sm">
                   {isSellerTopic
                     ? 'Submit your store or product details and we will get back to you shortly.'
                     : 'Fill in your details below and we will get back to you shortly.'}
@@ -212,13 +212,13 @@ Work Email / Phone: `
 
               {submitted ? (
                 <div className="flex flex-col items-center justify-center text-center py-10">
-                  <div className="w-14 h-14 bg-black text-white rounded-full flex items-center justify-center mb-5">
+                  <div className="w-14 h-14 bg-black dark:bg-white text-white dark:text-black rounded-full flex items-center justify-center mb-5">
                     <CheckCircle2 className="w-7 h-7 text-[#f96b02]" strokeWidth={2.5} />
                   </div>
-                  <h3 className="font-black text-black uppercase tracking-tight mb-2">
+                  <h3 className="font-black text-black dark:text-white uppercase tracking-tight mb-2">
                     Message Sent
                   </h3>
-                  <p className="text-neutral-500 font-medium max-w-sm mb-6 leading-relaxed text-sm">
+                  <p className="text-neutral-500 dark:text-neutral-400 font-medium max-w-sm mb-6 leading-relaxed text-sm">
                     Thank you for reaching out. We have received your note and our team will reply soon.
                   </p>
                   <Button onClick={() => setSubmitted(false)} variant="outline" size="md">
@@ -229,34 +229,34 @@ Work Email / Phone: `
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label htmlFor="name" className="block font-bold text-neutral-800 uppercase tracking-widest text-xs">
+                      <label htmlFor="name" className="block font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-widest text-xs">
                         {isSellerTopic ? 'Seller / Contact Name *' : 'Name *'}
                       </label>
                       <input 
                         type="text" 
                         id="name" 
                         required 
-                        className="w-full bg-neutral-50/50 border border-neutral-200 rounded-xl focus:border-black focus:ring-1 focus:ring-black px-4 py-3 font-medium text-black placeholder-neutral-400 focus:outline-none transition-all text-sm" 
+                        className="w-full bg-neutral-50/50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:border-black dark:focus:border-white focus:ring-1 focus:ring-black dark:focus:ring-white px-4 py-3 font-medium text-black dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none transition-all text-sm" 
                         placeholder={isSellerTopic ? 'Your Name or Brand' : 'Your Name'} 
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label htmlFor="email" className="block font-bold text-neutral-800 uppercase tracking-widest text-xs">
+                      <label htmlFor="email" className="block font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-widest text-xs">
                         Email Address *
                       </label>
                       <input 
                         type="email" 
                         id="email" 
                         required 
-                        className="w-full bg-neutral-50/50 border border-neutral-200 rounded-xl focus:border-black focus:ring-1 focus:ring-black px-4 py-3 font-medium text-black placeholder-neutral-400 focus:outline-none transition-all text-sm" 
+                        className="w-full bg-neutral-50/50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:border-black dark:focus:border-white focus:ring-1 focus:ring-black dark:focus:ring-white px-4 py-3 font-medium text-black dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none transition-all text-sm" 
                         placeholder="you@example.com" 
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label htmlFor="message" className="block font-bold text-neutral-800 uppercase tracking-widest text-xs">
+                    <label htmlFor="message" className="block font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-widest text-xs">
                       {isSellerTopic ? 'Store & Product Details *' : 'Message *'}
                     </label>
                     <textarea 
@@ -265,13 +265,13 @@ Work Email / Phone: `
                       required 
                       value={messageText}
                       onChange={(e) => setMessageText(e.target.value)}
-                      className="w-full bg-neutral-50/50 border border-neutral-200 rounded-xl focus:border-black focus:ring-1 focus:ring-black px-4 py-3 font-medium text-black placeholder-neutral-400 focus:outline-none transition-all resize-none text-sm leading-relaxed" 
+                      className="w-full bg-neutral-50/50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:border-black dark:focus:border-white focus:ring-1 focus:ring-black dark:focus:ring-white px-4 py-3 font-medium text-black dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none transition-all resize-none text-sm leading-relaxed" 
                       placeholder={isSellerTopic ? 'Please provide details about your products, store links, etc.' : 'How can we help you?'}
                     />
                   </div>
 
                   {error && (
-                    <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+                    <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-400 text-xs font-semibold">
                       {error}
                     </div>
                   )}
@@ -301,7 +301,7 @@ Work Email / Phone: `
 
 export default function ContactPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-white" />}>
+    <Suspense fallback={<div className="min-h-screen bg-white dark:bg-neutral-950" />}>
       <ContactForm />
     </Suspense>
   );

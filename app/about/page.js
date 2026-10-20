@@ -29,16 +29,16 @@ export const metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="bg-white">
+    <div className="bg-white dark:bg-neutral-950">
       
       {/* 1. Clean Minimal Hero */}
-      <section className="border-b border-neutral-200 bg-neutral-50/50 py-16 sm:py-20 md:py-24">
+      <section className="border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 py-16 sm:py-20 md:py-24">
         <div className="page-container text-center max-w-4xl mx-auto">
-          <h1 className="font-black text-black uppercase tracking-tighter leading-tight mb-4 sm:mb-6">
+          <h1 className="font-black text-black dark:text-white uppercase tracking-tighter leading-tight mb-4 sm:mb-6">
             Redefining Smart Shopping
           </h1>
 
-          <p className="text-neutral-500 leading-relaxed mb-8 sm:mb-10 max-w-2xl mx-auto">
+          <p className="text-neutral-500 dark:text-neutral-400 leading-relaxed mb-8 sm:mb-10 max-w-2xl mx-auto">
             KaroDeal is India&apos;s most rewarding cashback and deal discovery platform. We exist for one simple reason: to make sure you never pay full price on the internet again.
           </p>
 
@@ -54,19 +54,19 @@ export default function AboutPage() {
       </section>
 
       {/* 2. The Problem & Our Story */}
-      <section className="py-16 sm:py-20 md:py-24 page-container border-b border-neutral-200">
+      <section className="py-16 sm:py-20 md:py-24 page-container border-b border-neutral-200 dark:border-neutral-800">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
           
           <div className="lg:col-span-7 space-y-8">
             {/* The Problem */}
             <div>
-              <div className="font-bold text-neutral-400 uppercase tracking-widest text-xs mb-2">
+              <div className="font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest text-xs mb-2">
                 The Problem
               </div>
-              <h2 className="font-black text-black uppercase tracking-tight mb-4 leading-tight">
+              <h2 className="font-black text-black dark:text-white uppercase tracking-tight mb-4 leading-tight">
                 Online shopping has become confusing.
               </h2>
-              <div className="text-neutral-600 space-y-4 leading-relaxed font-medium">
+              <div className="text-neutral-600 dark:text-neutral-300 space-y-4 leading-relaxed font-medium">
                 <p>
                   Today, the internet is flooded with fake discounts, expired coupon codes, and manipulative sale events. You spend hours hunting for a valid promo code, only to find out at checkout that it doesn&apos;t work.
                 </p>
@@ -77,14 +77,14 @@ export default function AboutPage() {
             </div>
 
             {/* The Solution */}
-            <div className="pt-6 border-t border-neutral-100">
-              <div className="font-bold text-neutral-400 uppercase tracking-widest text-xs mb-2">
+            <div className="pt-6 border-t border-neutral-100 dark:border-neutral-800">
+              <div className="font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest text-xs mb-2">
                 The Solution
               </div>
-              <h2 className="font-black text-black uppercase tracking-tight mb-4 leading-tight">
+              <h2 className="font-black text-black dark:text-white uppercase tracking-tight mb-4 leading-tight">
                 Enter KaroDeal.
               </h2>
-              <div className="text-neutral-600 space-y-4 leading-relaxed font-medium">
+              <div className="text-neutral-600 dark:text-neutral-300 space-y-4 leading-relaxed font-medium">
                 <p>
                   KaroDeal was born out of frustration with this broken system. We wanted to build a platform that actually puts the consumer first. Instead of keeping the referral commissions we earn from retail giants like Amazon and Flipkart, we decided to give it back to you.
                 </p>
@@ -192,45 +192,45 @@ export default function AboutPage() {
       </section>
 
       {/* 4. Core Values */}
-      <section className="py-10 sm:py-14 md:py-16 bg-white border-b border-neutral-200">
+      <section className="py-10 sm:py-14 md:py-16 bg-white dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-800">
         <div className="page-container text-center">
-          <h2 className="font-black text-black uppercase tracking-tight mb-6 sm:mb-8 md:mb-10">
+          <h2 className="font-black text-black dark:text-white uppercase tracking-tight mb-6 sm:mb-8 md:mb-10">
             Our Core Values
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 md:gap-6 max-w-5xl mx-auto items-stretch">
-            <div className="flex flex-col bg-neutral-50/60 border border-neutral-200 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-6 hover:border-black transition-all duration-200 text-center shadow-2xs hover:shadow-xs">
-              <div className="w-11 h-11 bg-white border border-neutral-200 rounded-xl sm:rounded-2xl flex items-center justify-center mb-3.5 sm:mb-4 mx-auto shadow-2xs shrink-0">
-                <Heart className="w-5 h-5 text-black" />
+            <div className="flex flex-col bg-neutral-50/60 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-6 hover:border-black dark:hover:border-neutral-700 transition-all duration-200 text-center shadow-2xs hover:shadow-xs">
+              <div className="w-11 h-11 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl sm:rounded-2xl flex items-center justify-center mb-3.5 sm:mb-4 mx-auto shadow-2xs shrink-0">
+                <Heart className="w-5 h-5 text-black dark:text-white" />
               </div>
-              <h3 className="font-black uppercase tracking-tight text-black !text-base sm:!text-lg md:!text-xl leading-snug mb-2 sm:mb-2.5 break-words">
+              <h3 className="font-black uppercase tracking-tight text-black dark:text-white !text-base sm:!text-lg md:!text-xl leading-snug mb-2 sm:mb-2.5 break-words">
                 User Obsession
               </h3>
-              <p className="text-neutral-600 leading-relaxed text-xs sm:text-sm font-normal">
+              <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed text-xs sm:text-sm font-normal">
                 Everything we build is designed to make your life easier and your wallet heavier. If a deal doesn&apos;t benefit you, it doesn&apos;t go on our site.
               </p>
             </div>
 
-            <div className="flex flex-col bg-neutral-50/60 border border-neutral-200 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-6 hover:border-black transition-all duration-200 text-center shadow-2xs hover:shadow-xs">
-              <div className="w-11 h-11 bg-white border border-neutral-200 rounded-xl sm:rounded-2xl flex items-center justify-center mb-3.5 sm:mb-4 mx-auto shadow-2xs shrink-0">
-                <ShieldCheck className="w-5 h-5 text-black" />
+            <div className="flex flex-col bg-neutral-50/60 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-6 hover:border-black dark:hover:border-neutral-700 transition-all duration-200 text-center shadow-2xs hover:shadow-xs">
+              <div className="w-11 h-11 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl sm:rounded-2xl flex items-center justify-center mb-3.5 sm:mb-4 mx-auto shadow-2xs shrink-0">
+                <ShieldCheck className="w-5 h-5 text-black dark:text-white" />
               </div>
-              <h3 className="font-black uppercase tracking-tight text-black !text-base sm:!text-lg md:!text-xl leading-snug mb-2 sm:mb-2.5 break-words">
+              <h3 className="font-black uppercase tracking-tight text-black dark:text-white !text-base sm:!text-lg md:!text-xl leading-snug mb-2 sm:mb-2.5 break-words">
                 Absolute Transparency
               </h3>
-              <p className="text-neutral-600 leading-relaxed text-xs sm:text-sm font-normal">
+              <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed text-xs sm:text-sm font-normal">
                 No hidden fees, no impossible conditions, and no delayed payouts without reason. We maintain complete transparency in how your cashback is tracked and paid.
               </p>
             </div>
 
-            <div className="flex flex-col bg-neutral-50/60 border border-neutral-200 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-6 hover:border-black transition-all duration-200 text-center shadow-2xs hover:shadow-xs">
-              <div className="w-11 h-11 bg-white border border-neutral-200 rounded-xl sm:rounded-2xl flex items-center justify-center mb-3.5 sm:mb-4 mx-auto shadow-2xs shrink-0">
-                <Zap className="w-5 h-5 text-black" />
+            <div className="flex flex-col bg-neutral-50/60 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-6 hover:border-black dark:hover:border-neutral-700 transition-all duration-200 text-center shadow-2xs hover:shadow-xs">
+              <div className="w-11 h-11 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl sm:rounded-2xl flex items-center justify-center mb-3.5 sm:mb-4 mx-auto shadow-2xs shrink-0">
+                <Zap className="w-5 h-5 text-black dark:text-white" />
               </div>
-              <h3 className="font-black uppercase tracking-tight text-black !text-base sm:!text-lg md:!text-xl leading-snug mb-2 sm:mb-2.5 break-words">
+              <h3 className="font-black uppercase tracking-tight text-black dark:text-white !text-base sm:!text-lg md:!text-xl leading-snug mb-2 sm:mb-2.5 break-words">
                 Relentless Innovation
               </h3>
-              <p className="text-neutral-600 leading-relaxed text-xs sm:text-sm font-normal">
+              <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed text-xs sm:text-sm font-normal">
                 We are constantly improving our tech stack and partnering with more brands to ensure you have the fastest, most reliable cashback experience in India.
               </p>
             </div>
@@ -239,12 +239,12 @@ export default function AboutPage() {
       </section>
 
       {/* 5. Our Promise */}
-      <section className="bg-neutral-50/70 py-16 sm:py-20 border-b border-neutral-200">
+      <section className="bg-neutral-50/70 dark:bg-neutral-900/50 py-16 sm:py-20 border-b border-neutral-200 dark:border-neutral-800">
         <div className="page-container text-center max-w-4xl mx-auto">
-          <h2 className="font-black text-black uppercase tracking-tight mb-6">
+          <h2 className="font-black text-black dark:text-white uppercase tracking-tight mb-6">
             Our Promise to You
           </h2>
-          <p className="text-neutral-600 leading-relaxed">
+          <p className="text-neutral-600 dark:text-neutral-300 leading-relaxed">
             We know that earning trust takes time. Our promise is to always prioritize your savings over our profits. 
             We will never sell your data, we will never spam your inbox with useless offers, and our admin team will always 
             work tirelessly to ensure your claims are reviewed and approved as quickly as humanly possible.
@@ -253,53 +253,53 @@ export default function AboutPage() {
       </section>
 
       {/* 6. Why Choose Us Grid */}
-      <section className="py-16 sm:py-20 md:py-24 page-container border-b border-neutral-200">
+      <section className="py-16 sm:py-20 md:py-24 page-container border-b border-neutral-200 dark:border-neutral-800">
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-          <h2 className="font-black text-black uppercase tracking-tight mb-3">
+          <h2 className="font-black text-black dark:text-white uppercase tracking-tight mb-3">
             Why KaroDeal Stands Out
           </h2>
-          <p className="text-neutral-500">
+          <p className="text-neutral-500 dark:text-neutral-400">
             We didn&apos;t just build a platform, we built a community for savvy shoppers.
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="p-6 border border-neutral-200 rounded-3xl hover:border-black transition-all duration-200 bg-white shadow-2xs hover:-translate-y-0.5">
-            <ShieldCheck className="w-8 h-8 text-black mb-4" />
-            <h4 className="font-black uppercase tracking-tight mb-2">
+          <div className="p-6 border border-neutral-200 dark:border-neutral-800 rounded-3xl hover:border-black dark:hover:border-neutral-700 transition-all duration-200 bg-white dark:bg-neutral-900 shadow-2xs hover:-translate-y-0.5">
+            <ShieldCheck className="w-8 h-8 text-black dark:text-white mb-4" />
+            <h4 className="font-black text-neutral-900 dark:text-white uppercase tracking-tight mb-2">
               100% Genuine
             </h4>
-            <p className="text-neutral-600 leading-relaxed text-sm">
+            <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed text-sm">
               Every deal is manually curated, verified, and tested by our expert team before it ever reaches you.
             </p>
           </div>
 
-          <div className="p-6 border border-neutral-200 rounded-3xl hover:border-black transition-all duration-200 bg-white shadow-2xs hover:-translate-y-0.5">
-            <Zap className="w-8 h-8 text-black mb-4" />
-            <h4 className="font-black uppercase tracking-tight mb-2">
+          <div className="p-6 border border-neutral-200 dark:border-neutral-800 rounded-3xl hover:border-black dark:hover:border-neutral-700 transition-all duration-200 bg-white dark:bg-neutral-900 shadow-2xs hover:-translate-y-0.5">
+            <Zap className="w-8 h-8 text-black dark:text-white mb-4" />
+            <h4 className="font-black text-neutral-900 dark:text-white uppercase tracking-tight mb-2">
               Fast Approvals
             </h4>
-            <p className="text-neutral-600 leading-relaxed text-sm">
+            <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed text-sm">
               No waiting for months. Once your return window closes, our team reviews and approves claims within 24 to 48 hours.
             </p>
           </div>
 
-          <div className="p-6 border border-neutral-200 rounded-3xl hover:border-black transition-all duration-200 bg-white shadow-2xs hover:-translate-y-0.5">
-            <TrendingUp className="w-8 h-8 text-black mb-4" />
-            <h4 className="font-black uppercase tracking-tight mb-2">
+          <div className="p-6 border border-neutral-200 dark:border-neutral-800 rounded-3xl hover:border-black dark:hover:border-neutral-700 transition-all duration-200 bg-white dark:bg-neutral-900 shadow-2xs hover:-translate-y-0.5">
+            <TrendingUp className="w-8 h-8 text-black dark:text-white mb-4" />
+            <h4 className="font-black text-neutral-900 dark:text-white uppercase tracking-tight mb-2">
               Max Returns
             </h4>
-            <p className="text-neutral-600 leading-relaxed text-sm">
+            <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed text-sm">
               We negotiate aggressive commission slabs directly with brands so you enjoy industry-leading cashback rates.
             </p>
           </div>
 
-          <div className="p-6 border border-neutral-200 rounded-3xl hover:border-black transition-all duration-200 bg-white shadow-2xs hover:-translate-y-0.5">
-            <Users className="w-8 h-8 text-black mb-4" />
-            <h4 className="font-black uppercase tracking-tight mb-2">
+          <div className="p-6 border border-neutral-200 dark:border-neutral-800 rounded-3xl hover:border-black dark:hover:border-neutral-700 transition-all duration-200 bg-white dark:bg-neutral-900 shadow-2xs hover:-translate-y-0.5">
+            <Users className="w-8 h-8 text-black dark:text-white mb-4" />
+            <h4 className="font-black text-neutral-900 dark:text-white uppercase tracking-tight mb-2">
               Community
             </h4>
-            <p className="text-neutral-600 leading-relaxed text-sm">
+            <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed text-sm">
               Dedicated support, transparent dispute resolution, and a friendly ecosystem built entirely for Indian shoppers.
             </p>
           </div>
@@ -318,8 +318,6 @@ export default function AboutPage() {
           <div className="w-20 h-1 bg-[#f96b02] mx-auto rounded-full" />
         </div>
       </section>
-
-
 
     </div>
   );
