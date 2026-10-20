@@ -127,6 +127,8 @@ import WebsiteLoader from '@/components/common/WebsiteLoader';
 import ToastContainer from '@/components/common/ToastContainer';
 import FacebookPixel from '@/components/common/FacebookPixel';
 import DisableRightClickAndSelect from '@/components/common/DisableRightClickAndSelect';
+import NewUserSignupModal from '@/components/common/NewUserSignupModal';
+import WhatsAppNumberPromptModal from '@/components/common/WhatsAppNumberPromptModal';
 import { Suspense } from 'react';
 
 export default function RootLayout({ children }) {
@@ -159,6 +161,12 @@ export default function RootLayout({ children }) {
       <body className="flex flex-col min-h-screen pb-16 md:pb-0">
         <DisableRightClickAndSelect />
         <ToastContainer />
+        <Suspense fallback={null}>
+          <NewUserSignupModal />
+        </Suspense>
+        <Suspense fallback={null}>
+          <WhatsAppNumberPromptModal />
+        </Suspense>
         <WebsiteLoader />
         <Suspense fallback={null}>
           <FaviconLoader />

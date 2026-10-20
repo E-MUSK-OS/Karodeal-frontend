@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Button from '@/components/common/Button';
 import { 
-  LayoutDashboard, ShoppingBag, FolderTree, Users, LogOut, Package, IndianRupee, Ticket, X, MousePointerClick, Mail, MessageSquare, Star, Receipt
+  LayoutDashboard, ShoppingBag, FolderTree, Users, LogOut, Package, IndianRupee, Ticket, X, MousePointerClick, Mail, MessageSquare, Star, Receipt, Store
 } from 'lucide-react';
 import { getSocket } from '@/lib/socket';
 
@@ -87,6 +87,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
     { name: 'Missing Cashback', href: '/admin/missing-cashback', icon: Ticket },
     { name: 'Click Tracking', href: '/admin/clicks', icon: MousePointerClick },
     { name: 'Subscribers', href: '/admin/subscribers', icon: Mail },
+    { name: 'Seller Requests', href: '/admin/seller-requests', icon: Store },
     { name: 'Messages', href: '/admin/messages', icon: MessageSquare },
   ];
 

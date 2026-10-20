@@ -11,6 +11,7 @@ import Newsletter from '@/components/home/Newsletter';
 import Button from '@/components/common/Button';
 import StoreDealsSection from '@/components/home/StoreDealsSection';
 import TheProcess from '@/components/home/TheProcess';
+import SellerPartnerSection from '@/components/home/SellerPartnerSection';
 
 async function getBackendStatus() {
   try {
@@ -118,6 +119,9 @@ export default async function Home() {
 
 
         <TheProcess />
+
+        {/* Seller Partnership & Product Listing Section */}
+        <SellerPartnerSection />
 
       </div>
 
