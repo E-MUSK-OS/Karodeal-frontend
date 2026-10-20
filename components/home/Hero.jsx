@@ -15,7 +15,6 @@ export default function Hero() {
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
-  const videoRef = useRef(null);
   const searchContainerRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -73,15 +72,6 @@ export default function Hero() {
     if (!trimmed || !searchIndex) return [];
     return performSearch(searchIndex, trimmed).slice(0, 5);
   }, [searchQuery, searchIndex]);
-
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.muted = true;
-      videoRef.current.play().catch(() => {
-        // Fallback for browsers that enforce user interaction before play
-      });
-    }
-  }, []);
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
@@ -355,21 +345,16 @@ export default function Hero() {
             {/* Soft Ambient Radial Glow */}
             <div className="absolute inset-0 bg-gradient-to-tr from-amber-200/40 via-orange-100/30 to-emerald-100/30 dark:from-amber-500/10 dark:via-orange-500/10 dark:to-emerald-500/10 rounded-full blur-3xl -z-10 transform scale-105 pointer-events-none" />
 
-            {/* 3D KaroDeal Store Animation Video (Enlarged, Autoplay, Loop, Transparent Alpha) */}
+            {/* 3D KaroDeal Store Presentation (Clean Transparent Alpha, Zero White Artifacts) */}
             <div className="relative w-full flex items-center justify-center py-1 sm:py-2 transform scale-100 sm:scale-105 lg:scale-110">
-              <video
-                ref={videoRef}
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-                disablePictureInPicture
-                className="w-full h-auto object-contain filter drop-shadow-[0_25px_45px_rgba(0,0,0,0.10)] select-none pointer-events-none hover:scale-[1.02] transition-transform duration-500 ease-out"
-              >
-                <source src="/video/hero.webm" type="video/webm" />
-                <source src="/video/hero.mp4" type="video/mp4" />
-              </video>
+              <img
+                src="/images/hero-karodeal-3d-transparent.png"
+                alt="KaroDeal 3D Store"
+                width={981}
+                height={700}
+                fetchPriority="high"
+                className="w-full h-auto object-contain filter drop-shadow-[0_25px_45px_rgba(0,0,0,0.10)] dark:drop-shadow-[0_25px_45px_rgba(0,0,0,0.5)] select-none pointer-events-none hover:scale-[1.02] transition-transform duration-500 ease-out"
+              />
             </div>
 
             {/* Floating Live Badge 1: Top Right - Cashback Credited */}
