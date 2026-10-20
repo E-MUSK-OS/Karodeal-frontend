@@ -101,9 +101,9 @@ export default function DealsPage() {
 
   return (
     <div className="page-container py-8 sm:py-12 md:py-20 mb-12 md:mb-20">
-      <div className="w-full text-center mb-10 sm:mb-16 border-b border-neutral-200 pb-10 sm:pb-14">
-        <h2 className="text-black uppercase tracking-tighter mb-6 leading-none">All Deals</h2>
-        <p className="text-sm lg:text-[15px] xl:text-base text-neutral-500 font-medium max-w-2xl mx-auto leading-relaxed">Explore best offers from top platforms</p>
+      <div className="w-full text-center mb-10 sm:mb-16 border-b border-neutral-200 dark:border-neutral-800 pb-10 sm:pb-14">
+        <h2 className="text-black dark:text-white uppercase tracking-tighter mb-6 leading-none">All Deals</h2>
+        <p className="text-sm lg:text-[15px] xl:text-base text-neutral-500 dark:text-neutral-400 font-medium max-w-2xl mx-auto leading-relaxed">Explore best offers from top platforms</p>
       </div>
 
       <div className="flex justify-end mb-6 sm:mb-8">
@@ -112,15 +112,15 @@ export default function DealsPage() {
           <select
             value={activeFilter}
             onChange={(e) => handleFilterClick(e.target.value)}
-            className="w-full appearance-none bg-white hover:bg-neutral-50 border-2 border-neutral-200 text-black px-4 py-2.5 sm:py-3 text-[10px] sm:text-xs font-bold uppercase tracking-widest focus:outline-none focus:border-black cursor-pointer rounded-full shadow-sm hover:shadow-md transition-all duration-300"
+            className="w-full appearance-none bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 border-2 border-neutral-200 dark:border-neutral-800 text-black dark:text-white px-4 py-2.5 sm:py-3 text-[10px] sm:text-xs font-bold uppercase tracking-widest focus:outline-none focus:border-black dark:focus:border-neutral-600 cursor-pointer rounded-full shadow-sm hover:shadow-md transition-all duration-300"
           >
             {filters.map(filter => (
-              <option key={filter.id} value={filter.id}>
+              <option key={filter.id} value={filter.id} className="dark:bg-neutral-900 dark:text-white">
                 {filter.label}
               </option>
             ))}
           </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-black transition-transform group-hover:translate-y-1">
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-black dark:text-white transition-transform group-hover:translate-y-1">
             <svg className="fill-current h-3.5 w-3.5 sm:h-4 sm:w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
               <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
             </svg>
@@ -136,7 +136,7 @@ export default function DealsPage() {
 
           {hasMore && (
             <div ref={loaderRef} className="mt-12 flex justify-center py-8">
-              <div className="w-8 h-8 border-4 border-neutral-200 border-t-black rounded-full animate-spin"></div>
+              <div className="w-8 h-8 border-4 border-neutral-200 dark:border-neutral-800 border-t-black dark:border-t-white rounded-full animate-spin"></div>
             </div>
           )}
         </>

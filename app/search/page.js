@@ -96,15 +96,15 @@ function SearchContent() {
     <div className="page-container py-8 md:py-12 mb-10">
       {/* Search Header and Input */}
       <div className="max-w-3xl mx-auto text-center mb-10 md:mb-14">
-        <h1 className="font-black text-black uppercase tracking-tight mb-6 text-3xl sm:text-4xl md:text-5xl">
+        <h1 className="font-black text-black dark:text-white uppercase tracking-tight mb-6 text-3xl sm:text-4xl md:text-5xl">
           Search Deals
         </h1>
 
         <form onSubmit={handleSearch} className="relative w-full">
-          <div className="relative flex items-center border-b-2 border-black focus-within:border-[#f96b02] transition-colors pb-2">
+          <div className="relative flex items-center border-b-2 border-black dark:border-white focus-within:border-[#f96b02] dark:focus-within:border-[#f96b02] transition-colors pb-2">
             <input
               type="text"
-              className="block w-full py-2 pl-0 pr-16 bg-transparent text-lg sm:text-2xl font-bold tracking-tight placeholder-neutral-400 focus:outline-none transition-colors"
+              className="block w-full py-2 pl-0 pr-16 bg-transparent text-lg sm:text-2xl font-bold tracking-tight text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none transition-colors"
               placeholder="Search by product, brand, or store..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -115,7 +115,7 @@ function SearchContent() {
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="p-1 text-neutral-400 hover:text-black transition-colors"
+                  className="p-1 text-neutral-400 hover:text-black dark:hover:text-white transition-colors"
                   aria-label="Clear search"
                 >
                   <X className="h-5 w-5" />
@@ -125,7 +125,7 @@ function SearchContent() {
                 variant="none"
                 size="none"
                 type="submit"
-                className="p-1 text-black hover:text-[#f96b02] transition-colors focus:outline-none"
+                className="p-1 text-black dark:text-white hover:text-[#f96b02] dark:hover:text-[#f96b02] transition-colors focus:outline-none"
                 aria-label="Submit search"
               >
                 <SearchIcon className="h-6 w-6" strokeWidth={2.5} />
@@ -137,7 +137,7 @@ function SearchContent() {
 
       {/* Loading State */}
       {isLoading && (
-        <div className="py-12 text-center text-neutral-400 font-bold uppercase tracking-widest text-sm">
+        <div className="py-12 text-center text-neutral-400 dark:text-neutral-500 font-bold uppercase tracking-widest text-sm">
           Loading deals...
         </div>
       )}
@@ -145,16 +145,16 @@ function SearchContent() {
       {/* Search Results */}
       {!isLoading && hasSearched && (
         <section className="w-full animate-in fade-in duration-200">
-          <div className="flex justify-between items-end mb-6 border-b border-neutral-200 pb-3">
+          <div className="flex justify-between items-end mb-6 border-b border-neutral-200 dark:border-neutral-800 pb-3">
             <div>
-              <span className="text-xs font-bold text-neutral-400 uppercase tracking-widest block mb-1">
+              <span className="text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest block mb-1">
                 Search Results
               </span>
-              <h2 className="font-black text-black uppercase tracking-tight text-xl sm:text-2xl">
+              <h2 className="font-black text-black dark:text-white uppercase tracking-tight text-xl sm:text-2xl">
                 &ldquo;{urlQuery}&rdquo;
               </h2>
             </div>
-            <span className="text-neutral-500 text-xs font-bold uppercase tracking-widest px-2.5 py-1 bg-neutral-100 rounded-full">
+            <span className="text-neutral-500 dark:text-neutral-300 text-xs font-bold uppercase tracking-widest px-2.5 py-1 bg-neutral-100 dark:bg-neutral-800 rounded-full">
               {results.length} {results.length === 1 ? 'deal found' : 'deals found'}
             </span>
           </div>
@@ -162,12 +162,12 @@ function SearchContent() {
           {results.length > 0 ? (
             <DealGrid deals={results} cardType="storeOffer" mobileGrid={true} />
           ) : (
-            <div className="py-16 text-center border border-dashed border-neutral-200 rounded-3xl bg-neutral-50 p-8 max-w-lg mx-auto">
+            <div className="py-16 text-center border border-dashed border-neutral-200 dark:border-neutral-800 rounded-3xl bg-neutral-50 dark:bg-neutral-900 p-8 max-w-lg mx-auto">
               <AlertCircle className="w-10 h-10 text-neutral-400 mx-auto mb-3" />
-              <h3 className="text-lg font-black uppercase tracking-tight text-neutral-900 mb-2">
+              <h3 className="text-lg font-black uppercase tracking-tight text-neutral-900 dark:text-white mb-2">
                 No Deals Found
               </h3>
-              <p className="text-neutral-500 text-sm leading-relaxed">
+              <p className="text-neutral-500 dark:text-neutral-400 text-sm leading-relaxed">
                 We couldn&apos;t find any active deals matching &ldquo;{urlQuery}&rdquo;. Try checking for typos or searching a broader term like &ldquo;Amazon&rdquo; or &ldquo;Trousers&rdquo;.
               </p>
             </div>
@@ -177,7 +177,7 @@ function SearchContent() {
 
       {/* Default State: When user hasn't searched anything yet */}
       {!isLoading && !hasSearched && (
-        <div className="py-12 text-center text-neutral-400 text-sm">
+        <div className="py-12 text-center text-neutral-400 dark:text-neutral-500 text-sm">
           <p>Type a keyword above to discover verified cashback deals.</p>
         </div>
       )}

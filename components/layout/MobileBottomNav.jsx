@@ -68,7 +68,7 @@ export default function MobileBottomNav() {
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-neutral-200 px-2 py-2 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] pb-safe">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-neutral-950 border-t border-neutral-200 dark:border-neutral-800 px-2 py-2 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_12px_rgba(0,0,0,0.5)] pb-safe transition-colors duration-200">
       {navItems.map((item) => {
         const Icon = item.icon;
 
@@ -93,7 +93,7 @@ export default function MobileBottomNav() {
             href={item.href}
             prefetch={true}
             className={`flex flex-col items-center justify-center flex-1 gap-1 py-1 transition-all duration-150 touch-manipulation active:scale-90 select-none ${
-              isActive ? 'text-blue-600' : 'text-neutral-600'
+              isActive ? 'text-blue-600 dark:text-blue-400' : 'text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white'
             }`}
           >
             <Icon className="w-[22px] h-[22px] transition-transform" strokeWidth={isActive ? 2.5 : 2} />

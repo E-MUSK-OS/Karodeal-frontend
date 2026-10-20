@@ -20,10 +20,10 @@ export default function Button({
   const baseClasses = `btn group inline-flex items-center justify-center gap-2 transition-all duration-300 active:scale-95 focus:outline-none whitespace-nowrap ${isDisabled ? 'opacity-70 cursor-not-allowed pointer-events-none' : ''} ${!isNone ? 'font-bold uppercase rounded-full shadow-sm hover:shadow-md' : ''}`;
 
   const variants = {
-    primary: "bg-black text-white hover:bg-neutral-700 border border-black hover:border-neutral-700",
-    secondary: "bg-neutral-100 text-black hover:bg-neutral-200 border border-transparent",
-    outline: "bg-white text-black hover:bg-neutral-50 border border-neutral-200 hover:border-black",
-    ghost: "text-neutral-500 hover:text-black border border-transparent hover:border-neutral-200 shadow-none hover:shadow-none",
+    primary: "bg-black text-white hover:bg-neutral-800 border border-black hover:border-neutral-800 dark:bg-white dark:text-black dark:border-white dark:hover:bg-neutral-200 dark:hover:border-neutral-200",
+    secondary: "bg-neutral-100 text-black hover:bg-neutral-200 border border-transparent dark:bg-neutral-800 dark:text-white dark:hover:bg-neutral-700",
+    outline: "bg-white text-black hover:bg-neutral-50 border border-neutral-200 hover:border-black dark:bg-neutral-900 dark:text-white dark:border-neutral-700 dark:hover:border-neutral-400 dark:hover:bg-neutral-800",
+    ghost: "text-neutral-500 hover:text-black border border-transparent hover:border-neutral-200 shadow-none hover:shadow-none dark:text-neutral-400 dark:hover:text-white dark:hover:border-neutral-700",
     none: ""
   };
 

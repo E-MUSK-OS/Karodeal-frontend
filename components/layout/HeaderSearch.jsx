@@ -117,7 +117,7 @@ export default function HeaderSearch({ autoFocus = false, onClose }) {
               else setIsOpen(false);
             }}
             placeholder="Search deals, stores, products..."
-            className="w-full pl-11 pr-12 py-2.5 lg:py-2.5 bg-neutral-100/70 hover:bg-neutral-100/90 focus:bg-white border border-neutral-200/90 focus:border-neutral-900 rounded-full text-xs sm:text-[13px] lg:text-[14px] font-medium text-neutral-900 placeholder-neutral-400 focus:outline-none transition-all duration-200 shadow-2xs focus:shadow-md focus:ring-4 focus:ring-black/5"
+            className="w-full pl-11 pr-12 py-2.5 lg:py-2.5 bg-neutral-100/70 hover:bg-neutral-100/90 focus:bg-white dark:bg-neutral-900/80 dark:hover:bg-neutral-900 dark:focus:bg-neutral-900 border border-neutral-200/90 dark:border-neutral-800 focus:border-neutral-900 dark:focus:border-neutral-400 rounded-full text-xs sm:text-[13px] lg:text-[14px] font-medium text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none transition-all duration-200 shadow-2xs focus:shadow-md focus:ring-4 focus:ring-black/5 dark:focus:ring-white/5"
           />
 
           {/* Right Action: Clear Button OR Shortcut Badge */}
@@ -125,14 +125,14 @@ export default function HeaderSearch({ autoFocus = false, onClose }) {
             <button
               type="button"
               onClick={handleClear}
-              className="absolute inset-y-0 right-3 flex items-center text-neutral-400 hover:text-black transition-colors focus:outline-none"
+              className="absolute inset-y-0 right-3 flex items-center text-neutral-400 hover:text-black dark:hover:text-white transition-colors focus:outline-none cursor-pointer"
               aria-label="Clear search"
             >
               <X className="h-3.5 w-3.5" />
             </button>
           ) : (
             <div className="absolute inset-y-0 right-3 hidden lg:flex items-center pointer-events-none">
-              <kbd className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono font-medium text-neutral-400 bg-white border border-neutral-200 rounded-md shadow-2xs">
+              <kbd className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono font-medium text-neutral-400 dark:text-neutral-500 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-md shadow-2xs">
                 ⌘K
               </kbd>
             </div>
@@ -142,15 +142,15 @@ export default function HeaderSearch({ autoFocus = false, onClose }) {
 
       {/* Modern Live Dropdown (Only appears when user types a query) */}
       {isOpen && query.trim().length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-neutral-200 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-150">
           {/* Results Header */}
-          <div className="px-4 py-2.5 bg-neutral-50 border-b border-neutral-100 flex items-center justify-between text-xs font-bold text-neutral-500 uppercase tracking-wider">
+          <div className="px-4 py-2.5 bg-neutral-50 dark:bg-neutral-950 border-b border-neutral-100 dark:border-neutral-800 flex items-center justify-between text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
             <div className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-[#f96b02]" />
               <span>Matching Deals</span>
             </div>
             {searchResults.length > 0 && (
-              <span className="text-neutral-400 font-normal lowercase">
+              <span className="text-neutral-400 dark:text-neutral-500 font-normal lowercase">
                 {searchResults.length} {searchResults.length === 1 ? 'deal' : 'deals'} shown
               </span>
             )}
@@ -158,7 +158,7 @@ export default function HeaderSearch({ autoFocus = false, onClose }) {
 
           {/* Deals List */}
           {searchResults.length > 0 ? (
-            <div className="divide-y divide-neutral-100 max-h-80 overflow-y-auto">
+            <div className="divide-y divide-neutral-100 dark:divide-neutral-800 max-h-80 overflow-y-auto">
               {searchResults.map((deal) => (
                 <Link
                   key={deal.id}
@@ -167,36 +167,36 @@ export default function HeaderSearch({ autoFocus = false, onClose }) {
                     setIsOpen(false);
                     if (onClose) onClose();
                   }}
-                  className="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-neutral-50 transition-colors group"
+                  className="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 transition-colors group"
                 >
                   <div className="flex-1 min-w-0 pr-2">
-                    <h5 className="text-xs sm:text-sm font-semibold text-neutral-900 truncate group-hover:text-black">
+                    <h5 className="text-xs sm:text-sm font-semibold text-neutral-900 dark:text-neutral-100 truncate group-hover:text-black dark:group-hover:text-white">
                       {deal.title}
                     </h5>
                     {deal.storeRel?.name && (
-                      <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-neutral-400 block mt-0.5">
+                      <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 block mt-0.5">
                         {deal.storeRel.name}
                       </span>
                     )}
                   </div>
 
-                  <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-black group-hover:translate-x-0.5 transition-all shrink-0" />
+                  <ArrowRight className="w-4 h-4 text-neutral-300 dark:text-neutral-600 group-hover:text-black dark:group-hover:text-white group-hover:translate-x-0.5 transition-all shrink-0" />
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="p-6 text-center text-xs text-neutral-500">
-              <p className="font-semibold text-neutral-700 mb-1">No instant deals found for &ldquo;{query}&rdquo;</p>
-              <p className="text-neutral-400">Press Enter or click below to search across all products and categories.</p>
+            <div className="p-6 text-center text-xs text-neutral-500 dark:text-neutral-400">
+              <p className="font-semibold text-neutral-700 dark:text-neutral-200 mb-1">No instant deals found for &ldquo;{query}&rdquo;</p>
+              <p className="text-neutral-400 dark:text-neutral-500">Press Enter or click below to search across all products and categories.</p>
             </div>
           )}
 
           {/* View All Search Results Footer */}
-          <div className="p-2.5 bg-neutral-50 border-t border-neutral-100">
+          <div className="p-2.5 bg-neutral-50 dark:bg-neutral-950 border-t border-neutral-100 dark:border-neutral-800">
             <button
               type="button"
               onClick={handleSubmit}
-              className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-black hover:bg-neutral-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-2xs"
+              className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-black dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-black rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-2xs cursor-pointer"
             >
               <Search className="w-3.5 h-3.5" />
               <span>View All Results for &ldquo;{query}&rdquo;</span>

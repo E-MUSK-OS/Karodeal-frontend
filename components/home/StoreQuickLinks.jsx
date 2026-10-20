@@ -177,7 +177,7 @@ export default function StoreQuickLinks({ stores, products = [] }) {
   };
 
   return (
-    <section className="border-b border-neutral-200 pb-8 md:pb-12 mb-12 md:mb-20 w-full">
+    <section className="border-b border-neutral-200 dark:border-neutral-800 pb-8 md:pb-12 mb-12 md:mb-20 w-full">
       {/* Slider layout with identical slide width as product deal cards */}
       <Slider
         autoPlay={true}

@@ -19,7 +19,7 @@ export default function StoreDealsSection({ store, deals }) {
   return (
     <section className="mb-2 md:mb-12">
       <div className="flex justify-between items-end mb-2 md:mb-6">
-        <h2 className="font-black text-black uppercase tracking-tight">
+        <h2 className="font-black text-black dark:text-white uppercase tracking-tight">
           {title}
         </h2>
         <Button href={`/stores/${store.id}`} variant="outline">

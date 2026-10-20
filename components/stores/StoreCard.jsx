@@ -117,7 +117,7 @@ export default function StoreCard({ store, products = [] }) {
     <Link
       href={`/stores/${store.slug || store.id}`}
       prefetch={true}
-      className="group relative flex flex-col justify-between bg-white rounded-[26px] sm:rounded-[30px] border border-neutral-200/90 hover:border-neutral-300 shadow-sm hover:shadow-2xl active:shadow-md transition-all duration-300 overflow-hidden h-full hover:-translate-y-2 active:-translate-y-0.5 touch-manipulation select-none"
+      className="group relative flex flex-col justify-between bg-white dark:bg-neutral-900 rounded-[26px] sm:rounded-[30px] border border-neutral-200/90 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 shadow-sm hover:shadow-2xl active:shadow-md transition-all duration-300 overflow-hidden h-full hover:-translate-y-2 active:-translate-y-0.5 touch-manipulation select-none"
     >
       {/* 1. Top Brand Header Bar with Ambient Glow & Shimmer */}
       <div
@@ -146,7 +146,7 @@ export default function StoreCard({ store, products = [] }) {
 
       {/* 2. Floating Overlapping Logo Stage */}
       <div className="px-5 sm:px-6 relative z-10 flex items-center justify-between">
-        <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl sm:rounded-[22px] bg-white shadow-xl shadow-black/10 border-2 border-white p-2.5 sm:p-3 -mt-10 sm:-mt-11 flex items-center justify-center group-hover:scale-108 group-hover:shadow-2xl transition-all duration-300">
+        <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl sm:rounded-[22px] bg-white shadow-xl shadow-black/10 border-2 border-white dark:border-neutral-700 p-2.5 sm:p-3 -mt-10 sm:-mt-11 flex items-center justify-center group-hover:scale-108 group-hover:shadow-2xl transition-all duration-300">
           <img
             src={store.logoUrl}
             alt={store.name}
@@ -163,7 +163,7 @@ export default function StoreCard({ store, products = [] }) {
         </div>
 
         {/* Brand Perk Badge */}
-        <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-extrabold text-neutral-600 bg-neutral-100 px-2.5 py-1 rounded-full border border-neutral-200/80 -mt-2 shadow-2xs">
+        <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-extrabold text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-2.5 py-1 rounded-full border border-neutral-200/80 dark:border-neutral-700 -mt-2 shadow-2xs">
           <Sparkles className="w-3 h-3 text-[#f96b02]" />
           <span>{theme.badge}</span>
         </span>
@@ -171,24 +171,24 @@ export default function StoreCard({ store, products = [] }) {
 
       {/* 3. Card Body: Store Title, Tagline & Fintech Reward Pill */}
       <div className="px-5 sm:px-6 pt-3.5 pb-2 flex-grow flex flex-col">
-        <h4 className="font-black text-xl sm:text-2xl text-neutral-900 uppercase tracking-tight group-hover:text-[#f96b02] transition-colors leading-none mb-1.5 truncate">
+        <h4 className="font-black text-xl sm:text-2xl text-neutral-900 dark:text-white uppercase tracking-tight group-hover:text-[#f96b02] transition-colors leading-none mb-1.5 truncate">
           {store.name}
         </h4>
 
-        <p className="text-xs sm:text-[13px] text-neutral-500 font-medium line-clamp-1 mb-3.5">
+        <p className="text-xs sm:text-[13px] text-neutral-500 dark:text-neutral-400 font-medium line-clamp-1 mb-3.5">
           {store.description || theme.tagline}
         </p>
 
         {/* Fintech Reward Banner */}
-        <div className="mb-4 p-2.5 rounded-xl bg-gradient-to-r from-orange-50/80 via-amber-50/50 to-orange-50/40 border border-orange-200/60 flex items-center gap-2.5">
+        <div className="mb-4 p-2.5 rounded-xl bg-gradient-to-r from-orange-50/80 dark:from-orange-950/40 via-amber-50/50 dark:via-amber-950/20 to-orange-50/40 dark:to-orange-950/30 border border-orange-200/60 dark:border-orange-800/60 flex items-center gap-2.5">
           <div className="w-6 h-6 rounded-lg bg-[#f96b02] text-white flex items-center justify-center shrink-0 shadow-xs">
             <Sparkles className="w-3.5 h-3.5" />
           </div>
           <div className="min-w-0">
-            <span className="block text-[11px] font-black uppercase text-neutral-900 tracking-wide truncate">
+            <span className="block text-[11px] font-black uppercase text-neutral-900 dark:text-white tracking-wide truncate">
               {theme.perkText}
             </span>
-            <span className="block text-[9px] font-medium text-neutral-500 -mt-0.5 truncate">
+            <span className="block text-[9px] font-medium text-neutral-500 dark:text-neutral-400 -mt-0.5 truncate">
               KaroDeal Guaranteed Cashback
             </span>
           </div>
@@ -200,7 +200,7 @@ export default function StoreCard({ store, products = [] }) {
             {activeCategories.map((cat) => (
               <span
                 key={cat}
-                className="px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold text-neutral-700 bg-neutral-100 border border-neutral-200/60 group-hover:bg-neutral-200/70 transition-colors uppercase tracking-wider"
+                className="px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200/60 dark:border-neutral-700 group-hover:bg-neutral-200/70 dark:group-hover:bg-neutral-700 transition-colors uppercase tracking-wider"
               >
                 {cat}
               </span>
@@ -208,7 +208,7 @@ export default function StoreCard({ store, products = [] }) {
           </div>
         ) : (
           <div className="mt-auto mb-4">
-            <span className="px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold text-neutral-500 bg-neutral-100 border border-neutral-200/60 uppercase tracking-wider">
+            <span className="px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200/60 dark:border-neutral-700 uppercase tracking-wider">
               Top Verified Deals
             </span>
           </div>
@@ -217,7 +217,7 @@ export default function StoreCard({ store, products = [] }) {
 
       {/* 4. Full-Width CTA Below */}
       <div className="p-4 sm:p-5 pt-0 mt-auto">
-        <div className="w-full py-3 sm:py-3.5 px-4 rounded-xl sm:rounded-2xl bg-neutral-950 group-hover:bg-[#f96b02] text-white text-xs sm:text-[13px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-300 shadow-md group-hover:shadow-lg group-hover:shadow-orange-500/25">
+        <div className="w-full py-3 sm:py-3.5 px-4 rounded-xl sm:rounded-2xl bg-neutral-950 dark:bg-neutral-800 group-hover:bg-[#f96b02] dark:group-hover:bg-[#f96b02] text-white text-xs sm:text-[13px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-300 shadow-md group-hover:shadow-lg group-hover:shadow-orange-500/25">
           <span>Explore {store.name} Deals</span>
           <ArrowUpRight className="w-4 h-4 stroke-[2.5] text-white transition-transform duration-200 group-hover:translate-x-1 group-hover:-translate-y-1" />
         </div>

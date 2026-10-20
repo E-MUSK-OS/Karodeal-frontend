@@ -6,6 +6,7 @@ import { Search, Menu, X, User, Wallet, Sparkles } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import ProfileMenu from './ProfileMenu';
 import HeaderSearch from './HeaderSearch';
+import ThemeToggle from '@/components/theme/ThemeToggle';
 
 const NAV_ITEMS = [
   { label: 'Home', href: '/', exact: true },
@@ -89,8 +90,8 @@ export default function Header() {
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
         isScrolled
-          ? 'bg-white/95 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border-b border-neutral-200/90'
-          : 'bg-white/90 backdrop-blur-md border-b border-neutral-200/60'
+          ? 'bg-white/95 dark:bg-neutral-950/95 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] border-b border-neutral-200/90 dark:border-neutral-800/90'
+          : 'bg-white/90 dark:bg-neutral-950/90 backdrop-blur-md border-b border-neutral-200/60 dark:border-neutral-800/60'
       }`}
     >
       <div className="page-container">
@@ -108,7 +109,7 @@ export default function Header() {
           </div>
 
           {/* Center-Left: Modern Segmented Navigation Links (Refined Scale) */}
-          <nav className="hidden md:flex items-center gap-1 p-1 rounded-full bg-neutral-100/75 border border-neutral-200/60 shadow-2xs">
+          <nav className="hidden md:flex items-center gap-1 p-1 rounded-full bg-neutral-100/75 dark:bg-neutral-900/80 border border-neutral-200/60 dark:border-neutral-800/80 shadow-2xs">
             {NAV_ITEMS.map((item) => {
               const isActive = item.exact
                 ? pathname === item.href
@@ -120,8 +121,8 @@ export default function Header() {
                   prefetch={true}
                   className={`px-3.5 sm:px-4 py-1.5 sm:py-1.75 rounded-full text-xs sm:text-[13.5px] font-bold tracking-tight transition-all duration-200 ${
                     isActive
-                      ? 'bg-white text-black font-extrabold shadow-xs'
-                      : 'text-neutral-600 hover:text-black hover:bg-white/70'
+                      ? 'bg-white dark:bg-neutral-800 text-black dark:text-white font-extrabold shadow-xs'
+                      : 'text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white hover:bg-white/70 dark:hover:bg-neutral-800/60'
                   }`}
                 >
                   {item.label}
@@ -135,21 +136,24 @@ export default function Header() {
             <HeaderSearch />
           </div>
 
-          {/* Right: Actions (Wallet, Profile, Login/Signup) */}
-          <div className="hidden md:flex items-center gap-2.5 lg:gap-3 shrink-0">
+          {/* Right: Actions (Theme Toggle, Wallet, Profile, Login/Signup) */}
+          <div className="hidden md:flex items-center gap-2 lg:gap-2.5 shrink-0">
+            {/* Theme Toggle Button */}
+            <ThemeToggle size="md" />
+
             {user ? (
               <>
                 {/* Live Cashback Wallet Balance Pill */}
                 <Link
                   href="/profile/earnings"
-                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200/80 text-emerald-800 text-xs sm:text-[13px] font-extrabold shadow-2xs transition-all active:scale-95 group"
+                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50 border border-emerald-200/80 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300 text-xs sm:text-[13px] font-extrabold shadow-2xs transition-all active:scale-95 group"
                   title="Cashback Wallet Balance"
                 >
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
-                  <Wallet className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
+                  <Wallet className="w-4 h-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
                   <span>₹{user.earnings || '0.00'}</span>
                 </Link>
 
@@ -160,30 +164,33 @@ export default function Header() {
               <div className="flex items-center gap-2">
                 <Link
                   href="/login"
-                  className="text-xs sm:text-[13px] font-bold text-neutral-700 hover:text-black px-3.5 py-1.75 rounded-full hover:bg-neutral-100/80 transition-colors"
+                  className="text-xs sm:text-[13px] font-bold text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white px-3.5 py-1.75 rounded-full hover:bg-neutral-100/80 dark:hover:bg-neutral-800/80 transition-colors"
                 >
                   Sign in
                 </Link>
                 <Link
                   href="/signup"
-                  className="inline-flex items-center gap-1.5 px-4 py-1.75 rounded-full bg-neutral-950 hover:bg-black text-white text-xs sm:text-[13px] font-extrabold shadow-xs hover:shadow-md transition-all active:scale-95"
+                  className="inline-flex items-center gap-1.5 px-4 py-1.75 rounded-full bg-neutral-950 dark:bg-white hover:bg-black dark:hover:bg-neutral-200 text-white dark:text-black text-xs sm:text-[13px] font-extrabold shadow-xs hover:shadow-md transition-all active:scale-95"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400 dark:text-amber-500" />
                   <span>Join Free</span>
                 </Link>
               </div>
             )}
           </div>
 
-          {/* Mobile Right Icons (Search & Hamburger) */}
+          {/* Mobile Right Icons (Theme Toggle, Search & Hamburger) */}
           <div className="flex md:hidden items-center gap-1.5">
+            <ThemeToggle size="sm" />
             <button
               onClick={() => {
                 setIsMobileSearchOpen(!isMobileSearchOpen);
                 if (isMobileMenuOpen) setIsMobileMenuOpen(false);
               }}
-              className={`p-2 rounded-full transition-colors focus:outline-none border border-neutral-200/80 shadow-2xs ${
-                isMobileSearchOpen ? 'bg-black text-white border-black' : 'text-neutral-700 bg-white hover:bg-neutral-100'
+              className={`p-2 rounded-full transition-colors focus:outline-none border border-neutral-200/80 dark:border-neutral-800 shadow-2xs cursor-pointer ${
+                isMobileSearchOpen
+                  ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white'
+                  : 'text-neutral-700 dark:text-neutral-200 bg-white dark:bg-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800'
               }`}
               aria-label="Toggle Search"
             >
@@ -198,8 +205,10 @@ export default function Header() {
                 setIsMobileMenuOpen(!isMobileMenuOpen);
                 if (isMobileSearchOpen) setIsMobileSearchOpen(false);
               }}
-              className={`p-2 rounded-full transition-colors focus:outline-none border border-neutral-200/80 shadow-2xs ${
-                isMobileMenuOpen ? 'bg-black text-white border-black' : 'text-neutral-700 bg-white hover:bg-neutral-100'
+              className={`p-2 rounded-full transition-colors focus:outline-none border border-neutral-200/80 dark:border-neutral-800 shadow-2xs cursor-pointer ${
+                isMobileMenuOpen
+                  ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white'
+                  : 'text-neutral-700 dark:text-neutral-200 bg-white dark:bg-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800'
               }`}
               aria-label="Toggle Menu"
             >
@@ -215,7 +224,7 @@ export default function Header() {
 
         {/* Mobile Search Dropdown */}
         {isMobileSearchOpen && (
-          <div className="md:hidden pb-3.5 pt-1 border-t border-neutral-100 animate-in fade-in slide-in-from-top-1">
+          <div className="md:hidden pb-3.5 pt-1 border-t border-neutral-100 dark:border-neutral-800 animate-in fade-in slide-in-from-top-1">
             <HeaderSearch autoFocus onClose={() => setIsMobileSearchOpen(false)} />
           </div>
         )}
@@ -223,7 +232,12 @@ export default function Header() {
 
       {/* Mobile Drawer Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white/98 backdrop-blur-xl border-t border-neutral-200 p-5 shadow-2xl animate-in fade-in slide-in-from-top-2">
+        <div className="md:hidden bg-white/98 dark:bg-neutral-950/98 backdrop-blur-xl border-t border-neutral-200 dark:border-neutral-800 p-5 shadow-2xl animate-in fade-in slide-in-from-top-2">
+          {/* Theme Toggle in Mobile Drawer */}
+          <div className="mb-4">
+            <ThemeToggle showLabel={true} />
+          </div>
+
           {/* Mobile Nav Links */}
           <div className="flex flex-col space-y-1">
             {NAV_ITEMS.map((item) => {
@@ -238,8 +252,8 @@ export default function Header() {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`flex items-center justify-between px-4 py-3 rounded-xl text-[15px] font-bold transition-all ${
                     isActive
-                      ? 'bg-neutral-100 text-black'
-                      : 'text-neutral-600 hover:text-black hover:bg-neutral-50'
+                      ? 'bg-neutral-100 dark:bg-neutral-900 text-black dark:text-white'
+                      : 'text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-neutral-900/60'
                   }`}
                 >
                   <span>{item.label}</span>
@@ -250,16 +264,16 @@ export default function Header() {
           </div>
 
           {/* Mobile User Section */}
-          <div className="mt-5 pt-5 border-t border-neutral-100">
+          <div className="mt-5 pt-5 border-t border-neutral-100 dark:border-neutral-800">
             {user ? (
               <div className="flex flex-col gap-3">
                 <Link
                   href="/profile/earnings"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-between p-3.5 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-800"
+                  className="flex items-center justify-between p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/80 text-emerald-800 dark:text-emerald-300"
                 >
                   <div className="flex items-center gap-2.5 font-bold">
-                    <Wallet className="w-5 h-5 text-emerald-600" />
+                    <Wallet className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                     <span>Wallet Balance</span>
                   </div>
                   <span className="font-extrabold text-base">₹{user.earnings || '0.00'}</span>
@@ -267,7 +281,7 @@ export default function Header() {
                 <Link
                   href="/profile"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 w-full py-3 text-neutral-800 font-bold bg-neutral-100 hover:bg-neutral-200 rounded-xl transition-colors"
+                  className="flex items-center justify-center gap-2 w-full py-3 text-neutral-800 dark:text-neutral-200 font-bold bg-neutral-100 dark:bg-neutral-900 hover:bg-neutral-200 dark:hover:bg-neutral-800 rounded-xl transition-colors"
                 >
                   <User className="w-4 h-4" />
                   <span>My Account</span>
@@ -279,7 +293,7 @@ export default function Header() {
                     window.dispatchEvent(new Event('auth-change'));
                     setIsMobileMenuOpen(false);
                   }}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 text-red-600 font-semibold text-sm hover:bg-red-50 rounded-xl transition-colors"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 text-red-600 dark:text-red-400 font-semibold text-sm hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-colors cursor-pointer"
                 >
                   Logout
                 </button>
@@ -289,16 +303,16 @@ export default function Header() {
                 <Link
                   href="/login"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-center py-3 text-sm font-bold text-neutral-800 bg-neutral-100 hover:bg-neutral-200 rounded-xl transition-colors"
+                  className="flex items-center justify-center py-3 text-sm font-bold text-neutral-800 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-900 hover:bg-neutral-200 dark:hover:bg-neutral-800 rounded-xl transition-colors"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/signup"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-1.5 py-3 text-sm font-bold text-white bg-black hover:bg-neutral-800 rounded-xl shadow-xs transition-colors"
+                  className="flex items-center justify-center gap-1.5 py-3 text-sm font-bold text-white dark:text-black bg-black dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 rounded-xl shadow-xs transition-colors"
                 >
-                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <Sparkles className="w-4 h-4 text-amber-400 dark:text-amber-500" />
                   <span>Join Free</span>
                 </Link>
               </div>

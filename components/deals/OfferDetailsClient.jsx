@@ -204,24 +204,24 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
     <div className="page-container py-6 sm:py-10 md:py-16 min-h-screen">
       {/* Breadcrumb Navigation for SEO & Crawlers */}
       <nav aria-label="Breadcrumb" className="mb-4 sm:mb-6 max-w-3xl mx-auto">
-        <ol className="flex items-center space-x-1.5 sm:space-x-2 text-[11px] sm:text-xs text-neutral-500 font-medium overflow-hidden whitespace-nowrap">
+        <ol className="flex items-center space-x-1.5 sm:space-x-2 text-[11px] sm:text-xs text-neutral-500 dark:text-neutral-400 font-medium overflow-hidden whitespace-nowrap">
           <li>
-            <Link href="/" className="hover:text-black transition-colors">Home</Link>
+            <Link href="/" className="hover:text-black dark:hover:text-white transition-colors">Home</Link>
           </li>
-          <li className="text-neutral-300">/</li>
+          <li className="text-neutral-300 dark:text-neutral-700">/</li>
           <li>
-            <Link href="/deals" className="hover:text-black transition-colors">Deals</Link>
+            <Link href="/deals" className="hover:text-black dark:hover:text-white transition-colors">Deals</Link>
           </li>
           {store.name && (
             <>
-              <li className="text-neutral-300">/</li>
+              <li className="text-neutral-300 dark:text-neutral-700">/</li>
               <li>
-                <Link href={`/stores/${storeIdStr}`} className="hover:text-black transition-colors">{store.name}</Link>
+                <Link href={`/stores/${storeIdStr}`} className="hover:text-black dark:hover:text-white transition-colors">{store.name}</Link>
               </li>
             </>
           )}
-          <li className="text-neutral-300">/</li>
-          <li className="text-black font-semibold truncate max-w-[150px] sm:max-w-xs" aria-current="page">
+          <li className="text-neutral-300 dark:text-neutral-700">/</li>
+          <li className="text-black dark:text-white font-semibold truncate max-w-[150px] sm:max-w-xs" aria-current="page">
             {cleanProductTitle(deal.title)}
           </li>
         </ol>
@@ -396,19 +396,19 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
       )}
 
       {/* Rules Section */}
-      <div className="bg-white rounded-[2.5rem] p-8 sm:p-12 md:p-16 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 relative overflow-hidden">
-        <h2 className="font-black mb-5 sm:mb-7 lg:mb-9 tracking-tight text-center text-black">
+      <div className="bg-white dark:bg-neutral-900 rounded-[2.5rem] p-8 sm:p-12 md:p-16 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 dark:border-neutral-800 relative overflow-hidden">
+        <h2 className="font-black mb-5 sm:mb-7 lg:mb-9 tracking-tight text-center text-black dark:text-white">
           How to claim your cashback?
         </h2>
 
         <div className="flex flex-col gap-8 md:gap-10">
           <div className="flex gap-5 md:gap-6">
-            <div className="hidden md:flex shrink-0 w-16 h-16 bg-[#fafafa] rounded-2xl items-center justify-center text-black shadow-sm border border-neutral-100">
+            <div className="hidden md:flex shrink-0 w-16 h-16 bg-[#fafafa] dark:bg-neutral-800 rounded-2xl items-center justify-center text-black dark:text-white shadow-sm border border-neutral-100 dark:border-neutral-700">
               <Calendar className="w-6 h-6 md:w-7 md:h-7" />
             </div>
             <div>
-              <h4 className="font-black mb-3 text-black">1. Submit Claim After 20 Days</h4>
-              <p className="text-neutral-500 text-sm md:text-base leading-relaxed font-medium">
+              <h4 className="font-black mb-3 text-black dark:text-white">1. Submit Claim After 20 Days</h4>
+              <p className="text-neutral-500 dark:text-neutral-400 text-sm md:text-base leading-relaxed font-medium">
                 You can only submit your cashback claim ticket after 20 days from the date of your purchase. This mandatory
                 waiting period ensures that the product's return window has expired.
               </p>
@@ -416,12 +416,12 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
           </div>
 
           <div className="flex gap-5 md:gap-6">
-            <div className="hidden md:flex shrink-0 w-16 h-16 bg-[#fafafa] rounded-2xl items-center justify-center text-black shadow-sm border border-neutral-100">
+            <div className="hidden md:flex shrink-0 w-16 h-16 bg-[#fafafa] dark:bg-neutral-800 rounded-2xl items-center justify-center text-black dark:text-white shadow-sm border border-neutral-100 dark:border-neutral-700">
               <CheckCircle className="w-6 h-6 md:w-7 md:h-7" />
             </div>
             <div>
-              <h4 className="font-black mb-3 text-black">2. Upload Invoice</h4>
-              <p className="text-neutral-500 text-sm md:text-base leading-relaxed font-medium">
+              <h4 className="font-black mb-3 text-black dark:text-white">2. Upload Invoice</h4>
+              <p className="text-neutral-500 dark:text-neutral-400 text-sm md:text-base leading-relaxed font-medium">
                 After completing your purchase through the "Grab Deal" link, it is mandatory to upload your valid purchase
                 invoice or order receipt in your Karodeal account dashboard. Make sure the order number and date are
                 clearly visible for verification.
@@ -430,12 +430,12 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
           </div>
 
           <div className="flex gap-5 md:gap-6">
-            <div className="hidden md:flex shrink-0 w-16 h-16 bg-[#fafafa] rounded-2xl items-center justify-center text-black shadow-sm border border-neutral-100">
+            <div className="hidden md:flex shrink-0 w-16 h-16 bg-[#fafafa] dark:bg-neutral-800 rounded-2xl items-center justify-center text-black dark:text-white shadow-sm border border-neutral-100 dark:border-neutral-700">
               <Star className="w-6 h-6 md:w-7 md:h-7" />
             </div>
             <div>
-              <h4 className="font-black mb-3 text-black">3. Review for Higher Cashback (Optional)</h4>
-              <p className="text-neutral-500 text-sm md:text-base leading-relaxed font-medium">
+              <h4 className="font-black mb-3 text-black dark:text-white">3. Review for Higher Cashback (Optional)</h4>
+              <p className="text-neutral-500 dark:text-neutral-400 text-sm md:text-base leading-relaxed font-medium">
                 Leave a positive review on the store's platform (e.g. Amazon/Flipkart) and upload a screenshot to earn
                 higher cashback (₹{withReviewCashback}), or choose to claim without a review to earn standard cashback (₹
                 {withoutReviewCashback}).
@@ -444,12 +444,12 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
           </div>
 
           <div className="flex gap-5 md:gap-6">
-            <div className="hidden md:flex shrink-0 w-16 h-16 bg-[#fafafa] rounded-2xl items-center justify-center text-black shadow-sm border border-neutral-100">
+            <div className="hidden md:flex shrink-0 w-16 h-16 bg-[#fafafa] dark:bg-neutral-800 rounded-2xl items-center justify-center text-black dark:text-white shadow-sm border border-neutral-100 dark:border-neutral-700">
               <ShieldCheck className="w-6 h-6 md:w-7 md:h-7" />
             </div>
             <div>
-              <h4 className="font-black mb-3 text-black">4. No-Return Proof</h4>
-              <p className="text-neutral-500 text-sm md:text-base leading-relaxed font-medium">
+              <h4 className="font-black mb-3 text-black dark:text-white">4. No-Return Proof</h4>
+              <p className="text-neutral-500 dark:text-neutral-400 text-sm md:text-base leading-relaxed font-medium">
                 You must also provide proof that the product was not returned or cancelled. This can be a screenshot of
                 your order details page on the store's app showing that the return window has successfully closed.
               </p>
@@ -457,12 +457,12 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
           </div>
 
           <div className="flex gap-5 md:gap-6">
-            <div className="hidden md:flex shrink-0 w-16 h-16 bg-[#fafafa] rounded-2xl items-center justify-center text-black shadow-sm border border-neutral-100">
+            <div className="hidden md:flex shrink-0 w-16 h-16 bg-[#fafafa] dark:bg-neutral-800 rounded-2xl items-center justify-center text-black dark:text-white shadow-sm border border-neutral-100 dark:border-neutral-700">
               <Clock className="w-6 h-6 md:w-7 md:h-7" />
             </div>
             <div>
-              <h4 className="font-black mb-3 text-black">5. Admin Approval (24-48 Hours)</h4>
-              <p className="text-neutral-500 text-sm md:text-base leading-relaxed font-medium">
+              <h4 className="font-black mb-3 text-black dark:text-white">5. Admin Approval (24-48 Hours)</h4>
+              <p className="text-neutral-500 dark:text-neutral-400 text-sm md:text-base leading-relaxed font-medium">
                 After you have submitted all your proofs, our admin team will manually verify your purchase. This approval
                 or rejection process typically takes between 24 to 48 hours depending on the volume of requests.
               </p>
@@ -470,15 +470,15 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
           </div>
 
           <div className="flex gap-5 md:gap-6">
-            <div className="hidden md:flex shrink-0 w-16 h-16 bg-[#fafafa] rounded-2xl items-center justify-center text-black shadow-sm border border-neutral-100">
+            <div className="hidden md:flex shrink-0 w-16 h-16 bg-[#fafafa] dark:bg-neutral-800 rounded-2xl items-center justify-center text-black dark:text-white shadow-sm border border-neutral-100 dark:border-neutral-700">
               <Banknote className="w-6 h-6 md:w-7 md:h-7" />
             </div>
             <div>
-              <h4 className="font-black mb-3 text-black">6. Minimum Withdrawal Limit</h4>
-              <p className="text-neutral-500 text-sm md:text-base leading-relaxed font-medium">
+              <h4 className="font-black mb-3 text-black dark:text-white">6. Minimum Withdrawal Limit</h4>
+              <p className="text-neutral-500 dark:text-neutral-400 text-sm md:text-base leading-relaxed font-medium">
                 Once your cashback is approved, it will be added to your Karodeal wallet. You can withdraw your earnings
                 directly to your Bank account via UPI once your total approved wallet balance reaches a minimum of{' '}
-                <strong className="text-black">₹1000</strong>.
+                <strong className="text-black dark:text-white">₹1000</strong>.
               </p>
             </div>
           </div>
@@ -486,12 +486,12 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
       </div>
 
       {/* Frequently Asked Questions (FAQ) Section for Google Search & Users */}
-      <section className="bg-white rounded-[2.5rem] p-6 sm:p-10 md:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 mt-8 sm:mt-12 max-w-3xl mx-auto">
+      <section className="bg-white dark:bg-neutral-900 rounded-[2.5rem] p-6 sm:p-10 md:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 dark:border-neutral-800 mt-8 sm:mt-12 max-w-3xl mx-auto">
         <div className="flex items-center justify-center gap-2 mb-2 text-neutral-400">
-          <HelpCircle className="w-5 h-5 text-neutral-800" />
-          <span className="text-xs font-bold uppercase tracking-widest text-neutral-500">Need Help?</span>
+          <HelpCircle className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />
+          <span className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Need Help?</span>
         </div>
-        <h2 className="text-xl sm:text-2xl font-black text-center text-black mb-6 sm:mb-8 tracking-tight">
+        <h2 className="text-xl sm:text-2xl font-black text-center text-black dark:text-white mb-6 sm:mb-8 tracking-tight">
           Frequently Asked Questions
         </h2>
 
@@ -518,25 +518,25 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
             return (
               <div
                 key={index}
-                className="border border-neutral-200/80 rounded-2xl overflow-hidden transition-all duration-200"
+                className="border border-neutral-200/80 dark:border-neutral-800 rounded-2xl overflow-hidden transition-all duration-200"
               >
                 <button
                   type="button"
                   onClick={() => setOpenFaq(isOpen ? null : index)}
-                  className="w-full text-left p-4 sm:p-5 flex justify-between items-center gap-4 bg-white hover:bg-neutral-50 transition-colors focus:outline-none"
+                  className="w-full text-left p-4 sm:p-5 flex justify-between items-center gap-4 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800/80 transition-colors focus:outline-none"
                   aria-expanded={isOpen}
                 >
-                  <span className="font-bold text-xs sm:text-sm text-neutral-900 leading-snug">
+                  <span className="font-bold text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 leading-snug">
                     {item.q}
                   </span>
                   <ChevronDown
                     className={`w-4 h-4 text-neutral-400 shrink-0 transition-transform duration-200 ${
-                      isOpen ? 'rotate-180 text-black' : ''
+                      isOpen ? 'rotate-180 text-black dark:text-white' : ''
                     }`}
                   />
                 </button>
                 {isOpen && (
-                  <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-1 text-neutral-600 text-xs sm:text-sm leading-relaxed border-t border-neutral-100 bg-neutral-50/50">
+                  <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-1 text-neutral-600 dark:text-neutral-300 text-xs sm:text-sm leading-relaxed border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/50">
                     {item.a}
                   </div>
                 )}

@@ -45,9 +45,9 @@ export default function LatestDrops() {
 
   return (
     <section className="mb-10 md:mb-20">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 md:mb-12 border-b border-black pb-4">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 md:mb-12 border-b border-black dark:border-neutral-800 pb-4">
         <div>
-          <h2 className="font-black text-black uppercase tracking-tighter">Latest Drops</h2>
+          <h2 className="font-black text-black dark:text-white uppercase tracking-tighter">Latest Drops</h2>
         </div>
 
         <div className="mt-6 md:mt-0">

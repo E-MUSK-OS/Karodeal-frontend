@@ -4,8 +4,8 @@ import Slider from '@/components/common/Slider';
 export default function DealGrid({ deals, cardType = 'deal', mobileGrid = false, tall = false, cardHeight }) {
   if (!deals || deals.length === 0) {
     return (
-      <div className="py-12 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-300">
-        <p className="text-sm lg:text-[15px] xl:text-base text-slate-500 font-medium">No deals found matching your criteria.</p>
+      <div className="py-12 text-center bg-slate-50 dark:bg-neutral-900/50 rounded-2xl border border-dashed border-slate-300 dark:border-neutral-800">
+        <p className="text-sm lg:text-[15px] xl:text-base text-slate-500 dark:text-neutral-400 font-medium">No deals found matching your criteria.</p>
       </div>
     );
   }

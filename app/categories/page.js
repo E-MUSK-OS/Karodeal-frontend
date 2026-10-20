@@ -24,13 +24,13 @@ export default async function CategoriesPage() {
     <div className="px-4 sm:px-8 lg:px-16 py-12 md:py-24 mb-12 md:mb-20">
 
       <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
-        <h2 className="text-black uppercase tracking-tighter mb-2 sm:mb-3">Categories</h2>
-        <p className="text-sm lg:text-[15px] xl:text-base text-neutral-500 font-medium tracking-widest">Browse by section</p>
+        <h2 className="text-black dark:text-white uppercase tracking-tighter mb-2 sm:mb-3">Categories</h2>
+        <p className="text-sm lg:text-[15px] xl:text-base text-neutral-500 dark:text-neutral-400 font-medium tracking-widest">Browse by section</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-12 pt-8 sm:pt-12 border-t border-neutral-200">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-12 pt-8 sm:pt-12 border-t border-neutral-200 dark:border-neutral-800">
         {categories.map(category => (
-          <div key={category.id} className="border-neutral-200">
+          <div key={category.id} className="border-neutral-200 dark:border-neutral-800">
             <CategoryCard category={category} products={products} />
           </div>
         ))}

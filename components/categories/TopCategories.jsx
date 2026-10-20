@@ -19,7 +19,7 @@ function TopCategoryCard({ category }) {
     <Link
       href={category.href || `/categories/${category.slug || category.id}`}
       title={category.name}
-      className="group relative flex flex-col justify-between w-full aspect-[3/4] rounded-[22px] sm:rounded-[26px] overflow-hidden bg-neutral-950 border border-neutral-200/80 hover:border-white/60 shadow-md hover:shadow-2xl hover:shadow-black/30 hover:-translate-y-2 transition-all duration-300 ease-out select-none cursor-pointer"
+      className="group relative flex flex-col justify-between w-full aspect-[3/4] rounded-[22px] sm:rounded-[26px] overflow-hidden bg-neutral-950 border border-neutral-200/80 dark:border-neutral-800 hover:border-white/60 shadow-md hover:shadow-2xl hover:shadow-black/30 hover:-translate-y-2 transition-all duration-300 ease-out select-none cursor-pointer"
     >
       {/* 1. Lifestyle Image */}
       <img
@@ -80,13 +80,13 @@ export default function TopCategories({ categories }) {
   return (
     <section className="mb-10 md:mb-16">
       {/* Section Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 md:mb-8 gap-4 border-b border-neutral-200/80 pb-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 md:mb-8 gap-4 border-b border-neutral-200/80 dark:border-neutral-800 pb-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-orange-50 border border-orange-200/80 text-[#f96b02] text-[10px] sm:text-xs font-black uppercase tracking-wider mb-2 shadow-2xs">
-            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-orange-50 dark:bg-orange-950/40 border border-orange-200/80 dark:border-orange-800/60 text-[#f96b02] text-[10px] sm:text-xs font-black uppercase tracking-wider mb-2 shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5" />
             <span>Curated Collections</span>
           </div>
-          <h2 className="font-black text-neutral-950 uppercase tracking-tighter text-2xl sm:text-3xl md:text-4xl">
+          <h2 className="font-black text-neutral-950 dark:text-white uppercase tracking-tighter text-2xl sm:text-3xl md:text-4xl">
             Shop by Category
           </h2>
         </div>

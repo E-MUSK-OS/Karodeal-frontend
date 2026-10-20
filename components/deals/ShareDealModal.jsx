@@ -133,21 +133,21 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
       }}
     >
       <div
-        className="bg-white rounded-2xl md:rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl p-5 border border-neutral-100 relative animate-in zoom-in-95 duration-150"
+        className="bg-white dark:bg-neutral-900 rounded-2xl md:rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl p-5 border border-neutral-100 dark:border-neutral-800 relative animate-in zoom-in-95 duration-150"
         onMouseDown={(e) => e.stopPropagation()}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between pb-3.5 border-b border-neutral-100">
+        <div className="flex items-center justify-between pb-3.5 border-b border-neutral-100 dark:border-neutral-800">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-orange-50 text-[#f96b02] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-orange-50 dark:bg-orange-950/40 text-[#f96b02] flex items-center justify-center">
               <Share2 className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-extrabold text-neutral-900 text-sm sm:text-base leading-none">
+              <h3 className="font-extrabold text-neutral-900 dark:text-white text-sm sm:text-base leading-none">
                 Share Deal
               </h3>
-              <p className="text-[11px] text-neutral-500 mt-1 truncate max-w-[210px]">{title}</p>
+              <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-1 truncate max-w-[210px]">{title}</p>
             </div>
           </div>
           <button
@@ -157,7 +157,7 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
               e.stopPropagation();
               onClose();
             }}
-            className="p-1.5 rounded-full text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition cursor-pointer"
+            className="p-1.5 rounded-full text-neutral-400 hover:text-neutral-700 dark:text-neutral-200 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition cursor-pointer"
           >
             <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
@@ -172,19 +172,19 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => onClose()}
-              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 active:scale-95 transition cursor-pointer group outline-none"
+              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 dark:hover:bg-neutral-800 active:scale-95 transition cursor-pointer group outline-none"
             >
               <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-xs flex items-center justify-center transition-transform group-hover:scale-105">
                 <WhatsappIcon size={48} />
               </div>
-              <span className="text-xs font-semibold text-neutral-700">WhatsApp</span>
+              <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">WhatsApp</span>
             </a>
 
             {/* Instagram */}
             <button
               type="button"
               onClick={handleInstagramShare}
-              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 active:scale-95 transition cursor-pointer group outline-none"
+              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 dark:hover:bg-neutral-800 active:scale-95 transition cursor-pointer group outline-none"
             >
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shadow-xs transition-transform group-hover:scale-105">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-white">
@@ -193,7 +193,7 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
                   <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
                 </svg>
               </div>
-              <span className="text-xs font-semibold text-neutral-700">Instagram</span>
+              <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">Instagram</span>
             </button>
 
             {/* Facebook */}
@@ -202,24 +202,24 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => onClose()}
-              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 active:scale-95 transition cursor-pointer group outline-none"
+              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 dark:hover:bg-neutral-800 active:scale-95 transition cursor-pointer group outline-none"
             >
               <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-xs flex items-center justify-center transition-transform group-hover:scale-105">
                 <FacebookIcon size={48} />
               </div>
-              <span className="text-xs font-semibold text-neutral-700">Facebook</span>
+              <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">Facebook</span>
             </a>
 
             {/* SMS */}
             <button
               type="button"
               onClick={handleSmsShare}
-              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 active:scale-95 transition cursor-pointer group outline-none"
+              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 dark:hover:bg-neutral-800 active:scale-95 transition cursor-pointer group outline-none"
             >
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-green-600 flex items-center justify-center text-white shadow-xs transition-transform group-hover:scale-105">
                 <MessageSquare className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xs font-semibold text-neutral-700">SMS</span>
+              <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">SMS</span>
             </button>
 
             {/* Telegram */}
@@ -228,40 +228,40 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => onClose()}
-              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 active:scale-95 transition cursor-pointer group outline-none"
+              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 dark:hover:bg-neutral-800 active:scale-95 transition cursor-pointer group outline-none"
             >
               <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-xs flex items-center justify-center transition-transform group-hover:scale-105">
                 <TelegramIcon size={48} />
               </div>
-              <span className="text-xs font-semibold text-neutral-700">Telegram</span>
+              <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">Telegram</span>
             </a>
 
             {/* More (System Native Share) */}
             <button
               type="button"
               onClick={handleNativeShare}
-              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 active:scale-95 transition cursor-pointer group outline-none"
+              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-neutral-50 dark:hover:bg-neutral-800 active:scale-95 transition cursor-pointer group outline-none"
               title="More sharing options"
             >
-              <div className="w-12 h-12 rounded-2xl bg-neutral-900 text-white flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 hover:bg-black">
+              <div className="w-12 h-12 rounded-2xl bg-neutral-900 dark:bg-neutral-800 text-white flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 hover:bg-black">
                 <MoreHorizontal className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xs font-semibold text-neutral-700">More</span>
+              <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">More</span>
             </button>
           </div>
         </div>
 
         {/* Single Deal Link & Solid Black Copy Button */}
         <div>
-          <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-1.5">
+          <div className="text-[11px] font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1.5">
             Single Deal Link
           </div>
-          <div className="flex items-center gap-2 bg-neutral-100 rounded-xl p-1.5 pl-3 border border-neutral-200">
+          <div className="flex items-center gap-2 bg-neutral-100 dark:bg-neutral-800 rounded-xl p-1.5 pl-3 border border-neutral-200 dark:border-neutral-700">
             <input
               type="text"
               readOnly
               value={shareUrl}
-              className="w-full bg-transparent text-xs text-neutral-600 outline-none truncate select-all"
+              className="w-full bg-transparent text-xs text-neutral-600 dark:text-neutral-300 outline-none truncate select-all"
             />
             <button
               type="button"
@@ -269,7 +269,7 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
               className={`px-3.5 py-2 rounded-lg text-xs font-bold shrink-0 transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 ${
                 copied
                   ? 'bg-emerald-600 text-white'
-                  : 'bg-black hover:bg-neutral-800 text-white'
+                  : 'bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200'
               }`}
             >
               {copied ? (

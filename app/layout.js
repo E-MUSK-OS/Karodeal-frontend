@@ -6,6 +6,7 @@ import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import NextTopLoader from 'nextjs-toploader';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import GoogleAuthProvider from '@/components/auth/GoogleAuthProvider';
+import { ThemeProvider } from '@/components/theme/ThemeProvider';
 
 export const metadata = {
   metadataBase: new URL('https://karodeal.in'),
@@ -146,7 +147,7 @@ export default function RootLayout({ children }) {
   };
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/icon-48.png" type="image/png" sizes="48x48" />
@@ -154,47 +155,68 @@ export default function RootLayout({ children }) {
         <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
         <link rel="apple-touch-icon" href="/apple-icon.png" sizes="180x180" />
         <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var saved = localStorage.getItem('karodeal-theme');
+                  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  if (saved === 'dark' || (!saved && prefersDark)) {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.style.colorScheme = 'dark';
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                    document.documentElement.style.colorScheme = 'light';
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
       </head>
-      <body className="flex flex-col min-h-screen pb-16 md:pb-0">
-        <DisableRightClickAndSelect />
-        <ToastContainer />
-        <Suspense fallback={null}>
-          <NewUserSignupModal />
-        </Suspense>
-        <Suspense fallback={null}>
-          <WhatsAppNumberPromptModal />
-        </Suspense>
-        <WebsiteLoader />
-        <Suspense fallback={null}>
-          <FaviconLoader />
-        </Suspense>
-        <Suspense fallback={null}>
-          <FacebookPixel />
-        </Suspense>
-        <RealtimeProductsListener />
-        <GoogleAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
-          <NextTopLoader
-            color="#000000"
-            initialPosition={0.08}
-            crawlSpeed={200}
-            height={3}
-            crawl={true}
-            showSpinner={false}
-            easing="ease"
-            speed={200}
-            shadow="0 0 10px #000000,0 0 5px #000000"
-          />
-          <Header />
-          <main className="flex-grow">
-            {children}
-          </main>
-          <Footer />
-          <MobileBottomNav />
-          <ScrollToTop />
-        </GoogleAuthProvider>
+      <body className="flex flex-col min-h-screen pb-16 md:pb-0 bg-[var(--background)] text-[var(--foreground)]">
+        <ThemeProvider>
+          <DisableRightClickAndSelect />
+          <ToastContainer />
+          <Suspense fallback={null}>
+            <NewUserSignupModal />
+          </Suspense>
+          <Suspense fallback={null}>
+            <WhatsAppNumberPromptModal />
+          </Suspense>
+          <WebsiteLoader />
+          <Suspense fallback={null}>
+            <FaviconLoader />
+          </Suspense>
+          <Suspense fallback={null}>
+            <FacebookPixel />
+          </Suspense>
+          <RealtimeProductsListener />
+          <GoogleAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
+            <NextTopLoader
+              color="#000000"
+              initialPosition={0.08}
+              crawlSpeed={200}
+              height={3}
+              crawl={true}
+              showSpinner={false}
+              easing="ease"
+              speed={200}
+              shadow="0 0 10px #000000,0 0 5px #000000"
+            />
+            <Header />
+            <main className="flex-grow">
+              {children}
+            </main>
+            <Footer />
+            <MobileBottomNav />
+            <ScrollToTop />
+          </GoogleAuthProvider>
+        </ThemeProvider>
       </body>
       <GoogleAnalytics gaId="G-6V8BF2S1R3" />
     </html>

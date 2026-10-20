@@ -1,11 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
-  --foreground: #000000;
+  --foreground: #09090b;
   --font-primary: "Inter", sans-serif;
   --font-secondary: "Roboto", sans-serif;
+}
+
+.dark {
+  --background: #09090b;
+  --foreground: #f4f4f5;
 }
 
 @theme inline {
@@ -26,6 +33,7 @@
     -moz-osx-font-smoothing: grayscale;
     max-width: 1920px;
     margin-inline: auto;
+    transition: background-color 0.25s ease, color 0.25s ease;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -192,12 +200,16 @@
   width: 50px;
   aspect-ratio: 1;
   display: grid;
+  color: #09090b;
+}
+.dark .loader {
+  color: #f96b02;
 }
 .loader::before,
 .loader::after {    
   content:"";
   grid-area: 1/1;
-  --c:no-repeat radial-gradient(farthest-side, #000000 92%, #0000); /* Changed to black for generic use */
+  --c:no-repeat radial-gradient(farthest-side, currentColor 92%, #0000);
   background: 
     var(--c) 50%  0, 
     var(--c) 50%  100%, 

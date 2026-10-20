@@ -183,40 +183,40 @@ Product Categories: ${formData.category || 'Not specified'}`;
   return (
     <section className="mb-12 sm:mb-16 md:mb-24 w-full" id="seller-hub">
       {/* Container: Clean, Modern Corporate Merchant Section */}
-      <div className="relative rounded-2xl sm:rounded-[36px] md:rounded-[40px] border border-neutral-200/90 bg-white p-4 sm:p-8 lg:p-14 overflow-hidden shadow-xs">
+      <div className="relative rounded-2xl sm:rounded-[36px] md:rounded-[40px] border border-neutral-200/90 dark:border-neutral-800 bg-white dark:bg-neutral-900/60 p-4 sm:p-8 lg:p-14 overflow-hidden shadow-xs">
         
         {/* Subtle, soft ambient background tint */}
         <div 
           className="absolute top-0 right-0 w-[550px] h-[550px] bg-gradient-to-br from-[#f96b02]/5 via-amber-500/5 to-transparent rounded-full blur-3xl pointer-events-none" 
         />
         <div 
-          className="absolute -bottom-24 -left-24 w-[450px] h-[450px] bg-neutral-100 rounded-full blur-3xl pointer-events-none" 
+          className="absolute -bottom-24 -left-24 w-[450px] h-[450px] bg-neutral-100 dark:bg-neutral-800/20 rounded-full blur-3xl pointer-events-none" 
         />
 
         {/* 1. Header Section */}
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-8 sm:pb-10 border-b border-neutral-200/80 mb-8 sm:mb-12">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-8 sm:pb-10 border-b border-neutral-200/80 dark:border-neutral-800 mb-8 sm:mb-12">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-100 border border-neutral-200/80 text-[11px] font-black uppercase tracking-wider text-black mb-3.5 sm:mb-4">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-neutral-200/80 dark:border-neutral-700 text-[11px] font-black uppercase tracking-wider text-black dark:text-white mb-3.5 sm:mb-4">
               <span className="w-2 h-2 rounded-full bg-[#f96b02]" />
               <span>KaroDeal Merchant Network</span>
-              <span className="text-neutral-300">•</span>
-              <span className="text-neutral-600 font-semibold">For Online & E-Commerce Sellers</span>
+              <span className="text-neutral-300 dark:text-neutral-600">•</span>
+              <span className="text-neutral-600 dark:text-neutral-400 font-semibold">For Online & E-Commerce Sellers</span>
             </div>
 
-            <h2 className="font-black text-black uppercase tracking-tight text-2xl sm:text-4xl lg:text-5xl leading-[1.1] mb-4">
+            <h2 className="font-black text-black dark:text-white uppercase tracking-tight text-2xl sm:text-4xl lg:text-5xl leading-[1.1] mb-4">
               Selling On Any E-Commerce Store? <br />
               <span className="text-[#f96b02]">List Your Products On KaroDeal</span>
             </h2>
 
-            <p className="text-sm sm:text-base text-neutral-600 font-medium leading-relaxed max-w-2xl">
-              Do you sell online via <strong className="text-black font-semibold">Amazon, Flipkart, Meesho, Shopify</strong>, or your own e-commerce website? KaroDeal is an open deal aggregation network where <strong className="text-black font-semibold">all e-commerce sellers are welcomed</strong>. Feature your online catalog to drive high-converting shopper traffic directly to your product links.
+            <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-300 font-medium leading-relaxed max-w-2xl">
+              Do you sell online via <strong className="text-black dark:text-white font-semibold">Amazon, Flipkart, Meesho, Shopify</strong>, or your own e-commerce website? KaroDeal is an open deal aggregation network where <strong className="text-black dark:text-white font-semibold">all e-commerce sellers are welcomed</strong>. Feature your online catalog to drive high-converting shopper traffic directly to your product links.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
             <Link
               href="/contact?topic=seller"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-black hover:bg-[#f96b02] text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-full transition-all duration-300 active:scale-95 shadow-sm hover:shadow-md"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-black dark:bg-white text-white dark:text-black hover:bg-[#f96b02] dark:hover:bg-[#f96b02] dark:hover:text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-full transition-all duration-300 active:scale-95 shadow-sm hover:shadow-md"
             >
               <span>Contact Merchant Desk</span>
               <ArrowRight className="w-4 h-4" />
@@ -231,11 +231,11 @@ Product Categories: ${formData.category || 'Not specified'}`;
             return (
               <div
                 key={benefit.title}
-                className="group relative bg-neutral-50/70 border border-neutral-200/80 hover:border-black hover:bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col justify-between"
+                className="group relative bg-neutral-50/70 dark:bg-neutral-900/80 border border-neutral-200/80 dark:border-neutral-800 hover:border-black dark:hover:border-neutral-600 hover:bg-white dark:hover:bg-neutral-800/90 rounded-2xl sm:rounded-3xl p-5 sm:p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 rounded-xl bg-white group-hover:bg-black group-hover:text-white text-black border border-neutral-200/60 group-hover:border-black flex items-center justify-center transition-colors duration-300 shadow-2xs">
+                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-neutral-800 group-hover:bg-black dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black text-black dark:text-white border border-neutral-200/60 dark:border-neutral-700 group-hover:border-black flex items-center justify-center transition-colors duration-300 shadow-2xs">
                       <Icon className="w-5 h-5" />
                     </div>
                     <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
@@ -243,16 +243,16 @@ Product Categories: ${formData.category || 'Not specified'}`;
                     </span>
                   </div>
 
-                  <h3 className="font-black text-black text-sm sm:text-base uppercase tracking-tight mb-2 group-hover:text-[#f96b02] transition-colors">
+                  <h3 className="font-black text-black dark:text-white text-sm sm:text-base uppercase tracking-tight mb-2 group-hover:text-[#f96b02] transition-colors">
                     {benefit.title}
                   </h3>
 
-                  <p className="text-xs sm:text-[13px] text-neutral-600 font-medium leading-relaxed">
+                  <p className="text-xs sm:text-[13px] text-neutral-600 dark:text-neutral-400 font-medium leading-relaxed">
                     {benefit.desc}
                   </p>
                 </div>
 
-                <div className="mt-5 pt-3 border-t border-neutral-200/60 flex items-center gap-1.5 text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
+                <div className="mt-5 pt-3 border-t border-neutral-200/60 dark:border-neutral-800 flex items-center gap-1.5 text-[11px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                   <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
                   <span>Verified Feature</span>
                 </div>
@@ -268,23 +268,23 @@ Product Categories: ${formData.category || 'Not specified'}`;
           <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
             
             {/* Supported Online Channels */}
-            <div className="bg-neutral-50/60 border border-neutral-200/90 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xs">
+            <div className="bg-neutral-50/60 dark:bg-neutral-900/80 border border-neutral-200/90 dark:border-neutral-800 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xs">
               <div className="flex items-center justify-between gap-3 mb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-[#f96b02]" />
-                  <span className="text-xs font-black uppercase tracking-wider text-black">
+                  <span className="text-xs font-black uppercase tracking-wider text-black dark:text-white">
                     Supported E-Commerce Marketplaces & Stores
                   </span>
                 </div>
-                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+                <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 rounded-full">
                   100% Free Listing
                 </span>
               </div>
 
-              <h4 className="font-black text-black uppercase tracking-tight text-lg sm:text-xl mb-2">
+              <h4 className="font-black text-black dark:text-white uppercase tracking-tight text-lg sm:text-xl mb-2">
                 Showcase Products From Any Online Storefront
               </h4>
-              <p className="text-xs sm:text-sm text-neutral-600 font-medium leading-relaxed mb-6">
+              <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 font-medium leading-relaxed mb-6">
                 KaroDeal operates as a pure digital commerce deal aggregator. When you list your online products, active buyers browse verified deals on KaroDeal and click directly through to place orders on your official e-commerce website or marketplace store.
               </p>
 
@@ -293,7 +293,7 @@ Product Categories: ${formData.category || 'Not specified'}`;
                 {ECOMMERCE_PLATFORMS.map((platform) => (
                   <div
                     key={platform.name}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-neutral-100 border border-neutral-200 text-neutral-800 text-xs font-semibold transition-all hover:scale-[1.02] shadow-2xs"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 text-xs font-semibold transition-all hover:scale-[1.02] shadow-2xs"
                   >
                     <span>{platform.name}</span>
                     <span className="text-[10px] text-neutral-400 font-normal uppercase">
@@ -301,42 +301,42 @@ Product Categories: ${formData.category || 'Not specified'}`;
                     </span>
                   </div>
                 ))}
-                <div className="inline-flex items-center px-3.5 py-1.5 rounded-xl bg-black text-white text-xs font-bold uppercase tracking-wider">
+                <div className="inline-flex items-center px-3.5 py-1.5 rounded-xl bg-black dark:bg-white text-white dark:text-black text-xs font-bold uppercase tracking-wider">
                   + Any E-Commerce Store or Online Marketplace
                 </div>
               </div>
             </div>
 
             {/* 3 Step E-Commerce Listing Process */}
-            <div className="bg-neutral-50/60 border border-neutral-200/90 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xs">
-              <h4 className="font-black text-black uppercase tracking-tight text-xs sm:text-sm text-neutral-400 mb-4">
+            <div className="bg-neutral-50/60 dark:bg-neutral-900/80 border border-neutral-200/90 dark:border-neutral-800 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xs">
+              <h4 className="font-black text-black dark:text-white uppercase tracking-tight text-xs sm:text-sm text-neutral-400 dark:text-neutral-500 mb-4">
                 How It Works For E-Commerce Sellers
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-1.5">
-                  <span className="inline-block text-xl font-black text-black font-mono">01</span>
-                  <div className="font-bold text-black text-xs sm:text-sm uppercase tracking-tight">
+                  <span className="inline-block text-xl font-black text-black dark:text-white font-mono">01</span>
+                  <div className="font-bold text-black dark:text-white text-xs sm:text-sm uppercase tracking-tight">
                     Submit Product URL
                   </div>
-                  <p className="text-[11px] sm:text-xs text-neutral-500 font-medium leading-relaxed">
+                  <p className="text-[11px] sm:text-xs text-neutral-500 dark:text-neutral-400 font-medium leading-relaxed">
                     Provide your Amazon, Flipkart, Meesho, or Shopify online product links.
                   </p>
                 </div>
-                <div className="space-y-1.5 sm:border-l sm:border-neutral-200 sm:pl-4">
+                <div className="space-y-1.5 sm:border-l sm:border-neutral-200 dark:sm:border-neutral-800 sm:pl-4">
                   <span className="inline-block text-xl font-black text-[#f96b02] font-mono">02</span>
-                  <div className="font-bold text-black text-xs sm:text-sm uppercase tracking-tight">
+                  <div className="font-bold text-black dark:text-white text-xs sm:text-sm uppercase tracking-tight">
                     Catalog Verification
                   </div>
-                  <p className="text-[11px] sm:text-xs text-neutral-500 font-medium leading-relaxed">
+                  <p className="text-[11px] sm:text-xs text-neutral-500 dark:text-neutral-400 font-medium leading-relaxed">
                     Our catalog team reviews your product discounts and configures the deal listing.
                   </p>
                 </div>
-                <div className="space-y-1.5 sm:border-l sm:border-neutral-200 sm:pl-4">
-                  <span className="inline-block text-xl font-black text-emerald-600 font-mono">03</span>
-                  <div className="font-bold text-black text-xs sm:text-sm uppercase tracking-tight">
+                <div className="space-y-1.5 sm:border-l sm:border-neutral-200 dark:sm:border-neutral-800 sm:pl-4">
+                  <span className="inline-block text-xl font-black text-emerald-600 dark:text-emerald-400 font-mono">03</span>
+                  <div className="font-bold text-black dark:text-white text-xs sm:text-sm uppercase tracking-tight">
                     Direct Store Sales
                   </div>
-                  <p className="text-[11px] sm:text-xs text-neutral-500 font-medium leading-relaxed">
+                  <p className="text-[11px] sm:text-xs text-neutral-500 dark:text-neutral-400 font-medium leading-relaxed">
                     Shoppers click through from KaroDeal and complete purchases directly on your checkout.
                   </p>
                 </div>
@@ -348,22 +348,22 @@ Product Categories: ${formData.category || 'Not specified'}`;
               {/* Email Support Card */}
               <a
                 href="mailto:support@karodeal.in?subject=E-Commerce%20Seller%20Partnership%20-%20List%20My%20Products%20on%20KaroDeal"
-                className="group flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-neutral-50/60 border border-neutral-200/90 hover:border-black hover:bg-white transition-all duration-200 shadow-2xs hover:shadow-sm"
+                className="group flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-neutral-50/60 dark:bg-neutral-900/80 border border-neutral-200/90 dark:border-neutral-800 hover:border-black dark:hover:border-neutral-600 hover:bg-white dark:hover:bg-neutral-800 transition-all duration-200 shadow-2xs hover:shadow-sm"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white border border-neutral-200/80 group-hover:bg-black group-hover:text-white text-black flex items-center justify-center transition-colors shadow-2xs shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200/80 dark:border-neutral-700 group-hover:bg-black dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black text-black dark:text-white flex items-center justify-center transition-colors shadow-2xs shrink-0">
                     <Mail className="w-4 h-4" />
                   </div>
                   <div>
                     <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
                       Merchant Support Email
                     </div>
-                    <div className="text-xs sm:text-sm font-bold text-black group-hover:text-[#f96b02] transition-colors">
+                    <div className="text-xs sm:text-sm font-bold text-black dark:text-white group-hover:text-[#f96b02] transition-colors">
                       support@karodeal.in
                     </div>
                   </div>
                 </div>
-                <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-black group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0 ml-2" />
+                <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-black dark:group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0 ml-2" />
               </a>
 
               {/* Instagram Channel Card */}
@@ -371,10 +371,10 @@ Product Categories: ${formData.category || 'Not specified'}`;
                 href="https://www.instagram.com/karodeal_/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-neutral-50/60 border border-neutral-200/90 hover:border-black hover:bg-white transition-all duration-200 shadow-2xs hover:shadow-sm"
+                className="group flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-neutral-50/60 dark:bg-neutral-900/80 border border-neutral-200/90 dark:border-neutral-800 hover:border-black dark:hover:border-neutral-600 hover:bg-white dark:hover:bg-neutral-800 transition-all duration-200 shadow-2xs hover:shadow-sm"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white border border-neutral-200/80 group-hover:bg-[#E1306C] group-hover:text-white text-black flex items-center justify-center transition-colors shadow-2xs shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200/80 dark:border-neutral-700 group-hover:bg-[#E1306C] group-hover:text-white text-black dark:text-white flex items-center justify-center transition-colors shadow-2xs shrink-0">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                       <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
                       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
@@ -385,12 +385,12 @@ Product Categories: ${formData.category || 'Not specified'}`;
                     <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
                       Direct Message Channel
                     </div>
-                    <div className="text-xs sm:text-sm font-bold text-black group-hover:text-[#f96b02] transition-colors">
+                    <div className="text-xs sm:text-sm font-bold text-black dark:text-white group-hover:text-[#f96b02] transition-colors">
                       Instagram @karodeal_
                     </div>
                   </div>
                 </div>
-                <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-black group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0 ml-2" />
+                <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-black dark:group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0 ml-2" />
               </a>
             </div>
 
