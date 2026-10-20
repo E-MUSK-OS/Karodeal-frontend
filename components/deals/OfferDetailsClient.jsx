@@ -284,18 +284,18 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
         </div>
       ) : (
         <div
-          className={`${bgClass} rounded-[22px] sm:rounded-[28px] md:rounded-[36px] shadow-2xl overflow-hidden mb-8 sm:mb-12 flex flex-col sm:flex-row justify-between items-stretch max-w-4xl mx-auto border border-white/20 relative group p-4 sm:p-6 md:p-8`}
+          className={`${bgClass} rounded-[22px] sm:rounded-[28px] md:rounded-[36px] shadow-2xl overflow-hidden mb-8 sm:mb-12 flex flex-row justify-between items-stretch max-w-4xl mx-auto border border-white/20 relative group p-3.5 sm:p-6 md:p-8 min-h-[260px] sm:min-h-[320px] md:min-h-[360px]`}
         >
           {/* Subtle Ambient Specular & Lighting Glows */}
           <div className="absolute -top-16 -left-16 w-52 h-52 bg-white/20 rounded-full blur-3xl pointer-events-none transition-opacity group-hover:opacity-100 opacity-60" />
           <div className="absolute -bottom-16 -right-16 w-52 h-52 bg-black/35 rounded-full blur-3xl pointer-events-none" />
 
           {/* Left Area: Text & Action */}
-          <div className="w-full sm:w-[54%] md:w-[56%] z-10 flex flex-col justify-between pr-0 sm:pr-4 md:pr-6">
+          <div className="w-[55%] sm:w-[54%] md:w-[56%] z-10 flex flex-col justify-between pr-1.5 sm:pr-4 md:pr-6 min-h-0">
             {/* Top: Logo & Share Button & Verified Pill */}
-            <div className="mb-3 sm:mb-4 md:mb-5 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 sm:gap-2.5">
-                <div className="bg-white rounded-xl sm:rounded-2xl w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center shadow-md shadow-black/10 shrink-0 p-1.5 md:p-2 border border-white/80 group-hover:scale-102 transition-transform">
+            <div className="mb-2 sm:mb-4 md:mb-5 flex items-center justify-between gap-1.5 sm:gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2.5">
+                <div className="bg-white rounded-xl sm:rounded-2xl w-9 h-9 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center shadow-md shadow-black/10 shrink-0 p-1 sm:p-1.5 md:p-2 border border-white/80 group-hover:scale-102 transition-transform">
                   <img
                     src={store.logoUrl}
                     alt={`${store.name || 'Partner Store'} Logo`}
@@ -310,43 +310,44 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
                 <button
                   type="button"
                   onClick={handleShareClick}
-                  className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-xl sm:rounded-2xl bg-black/15 hover:bg-white text-white hover:text-neutral-900 backdrop-blur-md flex items-center justify-center transition-all duration-200 border border-white/25 shadow-sm active:scale-95 cursor-pointer group/share"
+                  className="w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-xl sm:rounded-2xl bg-black/15 hover:bg-white text-white hover:text-neutral-900 backdrop-blur-md flex items-center justify-center transition-all duration-200 border border-white/25 shadow-sm active:scale-95 cursor-pointer group/share"
                   title="Share deal"
                   aria-label="Share deal"
                 >
-                  <Share2 className="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform group-hover/share:scale-110" />
+                  <Share2 className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 transition-transform group-hover/share:scale-110" />
                 </button>
               </div>
 
               {/* Micro Verified Tag */}
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider">
-                <Sparkles className="w-3 h-3 text-amber-300" />
-                <span>Verified Deal</span>
+              <div className="inline-flex items-center gap-1 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-[9px] sm:text-xs font-bold uppercase tracking-wider shrink-0">
+                <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-300" />
+                <span className="hidden sm:inline">Verified Deal</span>
+                <span className="sm:hidden">Verified</span>
               </div>
             </div>
 
             {/* Semantic H1 & Product Title */}
-            <div className="my-auto py-1 sm:py-2">
-              <h1 className="text-white/90 text-xs sm:text-sm md:text-base font-bold tracking-tight mb-1.5 sm:mb-2.5 line-clamp-2 leading-snug drop-shadow-xs">
+            <div className="my-auto py-1 sm:py-2 overflow-hidden">
+              <h1 className="text-white/90 text-[11px] sm:text-sm md:text-base font-bold tracking-tight mb-1 sm:mb-2 line-clamp-2 leading-snug drop-shadow-xs">
                 {cleanProductTitle(deal.title)}
               </h1>
 
               {/* Bold Discount Typography */}
-              <div className="shrink-0 mb-2 sm:mb-3 md:mb-4">
-                <div className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-none drop-shadow-sm flex items-baseline gap-1.5">
+              <div className="shrink-0 mb-1.5 sm:mb-3 md:mb-4">
+                <div className="text-[20px] sm:text-3xl md:text-5xl font-black text-white tracking-tight leading-none drop-shadow-sm flex items-baseline gap-1 sm:gap-1.5">
                   <span>Upto {deal.discount}%</span>
-                  <span className="text-xs sm:text-base md:text-lg font-extrabold uppercase text-white/90">Off</span>
+                  <span className="text-[10px] sm:text-base md:text-lg font-extrabold uppercase text-white/90">Off</span>
                 </div>
               </div>
 
               {/* Cashback Pills */}
-              <div className="mb-3 sm:mb-5 md:mb-6 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md text-neutral-900 font-black text-[11px] sm:text-xs md:text-sm shadow-sm border border-white/90">
-                  <img src="/images/favicon.png" alt="logo" className="w-4 h-4 object-contain rounded shrink-0" />
+              <div className="mb-2 sm:mb-4 md:mb-6 flex flex-wrap items-center gap-1 sm:gap-2">
+                <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-white/95 backdrop-blur-md text-neutral-900 font-black text-[9px] sm:text-xs md:text-sm shadow-sm border border-white/90">
+                  <img src="/images/favicon.png" alt="logo" className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded shrink-0" />
                   <span>₹{withReviewCashback} With Review</span>
                 </span>
                 {withoutReviewCashback > 0 && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-black/25 backdrop-blur-md text-white/90 font-semibold text-[11px] sm:text-xs md:text-sm border border-white/25 shadow-xs">
+                  <span className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-black/25 backdrop-blur-md text-white/90 font-semibold text-[9px] sm:text-xs md:text-sm border border-white/25 shadow-xs">
                     <span>₹{withoutReviewCashback} W/O Review</span>
                   </span>
                 )}
@@ -354,7 +355,7 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
             </div>
 
             {/* Grab Deal CTA Button & Footnote */}
-            <div className="mt-2 sm:mt-auto">
+            <div className="mt-auto shrink-0 pt-1">
               <Button
                 as="a"
                 href={dealUrl}
@@ -363,30 +364,32 @@ export default function OfferDetailsClient({ initialDeal = null, dealId = null, 
                 onClick={handleDealClick}
                 variant="outline"
                 size="none"
-                className="inline-flex items-center justify-center gap-2 px-5 sm:px-7 md:px-8 py-2.5 sm:py-3 md:py-3.5 rounded-full bg-white hover:bg-neutral-100 text-neutral-950 font-black text-xs sm:text-sm uppercase tracking-wider shadow-xl hover:shadow-2xl hover:scale-102 active:scale-98 transition-all duration-200 border-none w-fit"
+                className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-7 md:px-8 py-2 sm:py-3 md:py-3.5 rounded-full bg-white hover:bg-neutral-100 text-neutral-950 font-black text-[10px] sm:text-xs md:text-sm uppercase tracking-wider shadow-lg hover:shadow-2xl hover:scale-102 active:scale-98 transition-all duration-200 border-none w-fit"
               >
                 <span className="hidden sm:inline">Grab Deal & Earn Cashback</span>
                 <span className="sm:hidden">Grab Deal & Cashback</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:translate-x-1" />
               </Button>
-              <p className="text-[10px] sm:text-xs text-white/75 mt-2 font-medium flex items-center gap-1.5">
-                <ExternalLink className="w-3 h-3 text-white/60 shrink-0" />
+              <p className="text-[9px] sm:text-xs text-white/75 mt-1 sm:mt-2 font-medium flex items-center gap-1">
+                <ExternalLink className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white/60 shrink-0" />
                 <span>*Opens {store.name ? `${store.name} app or website` : 'store'} directly</span>
               </p>
             </div>
           </div>
 
           {/* Right Area: Framed Product Image Showcase Housing */}
-          <div className="w-full sm:w-[46%] md:w-[44%] z-10 relative mt-4 sm:mt-0 flex items-stretch">
-            <div className="w-full min-h-[220px] sm:min-h-[280px] md:min-h-[340px] bg-white rounded-xl sm:rounded-2xl md:rounded-[24px] overflow-hidden shadow-xl border border-white/75 p-2 sm:p-3 relative flex items-center justify-center">
-              <img
-                src={deal.image}
-                alt={deal.title}
-                className="w-full h-full object-contain sm:object-cover rounded-lg sm:rounded-xl transition-transform duration-500 ease-out group-hover:scale-105"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                }}
-              />
+          <div className="w-[45%] sm:w-[46%] md:w-[44%] z-10 relative flex items-stretch ml-2 sm:ml-4 min-h-0">
+            <div className="w-full h-full min-h-[200px] sm:min-h-[280px] md:min-h-[340px] bg-white rounded-xl sm:rounded-2xl md:rounded-[24px] overflow-hidden shadow-xl border border-white/75 p-1 sm:p-2.5 md:p-3 relative flex items-center justify-center">
+              <div className="w-full h-full relative overflow-hidden rounded-lg sm:rounded-xl">
+                <img
+                  src={deal.image}
+                  alt={cleanProductTitle(deal.title)}
+                  className="w-full h-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>

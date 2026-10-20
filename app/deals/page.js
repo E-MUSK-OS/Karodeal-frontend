@@ -132,7 +132,7 @@ export default function DealsPage() {
         <PageLoader />
       ) : (
         <>
-          <DealGrid deals={visibleDeals} cardType="storeOffer" mobileGrid={true} />
+          <DealGrid deals={visibleDeals} cardType="storeOffer" mobileGrid={true} tall={true} />
 
           {hasMore && (
             <div ref={loaderRef} className="mt-12 flex justify-center py-8">

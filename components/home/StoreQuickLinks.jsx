@@ -98,14 +98,14 @@ function UniqueStoreCard({ store, dealCount = 0 }) {
   const theme = STORE_THEMES[storeKey] || STORE_THEMES.default;
 
   // Exactly matching product deal card (StoreOfferCard) dimensions
-  const widthClass = "w-[280px] sm:w-[340px] md:w-[420px] lg:w-[460px]";
-  const minHeightClass = "min-h-[230px] sm:min-h-[260px] md:min-h-[295px] lg:min-h-[325px]";
+  const widthClass = "w-[85vw] max-w-[350px] sm:max-w-none sm:w-[340px] md:w-[420px] lg:w-[460px]";
+  const heightClass = "h-[220px] sm:h-[260px] md:h-[295px] lg:h-[325px]";
 
   return (
     <Link
       href={`/stores/${store.id || store.slug}`}
       prefetch={true}
-      className={`group relative flex flex-col items-center justify-between ${widthClass} h-full ${minHeightClass} p-4 sm:p-5 md:p-6 rounded-[22px] sm:rounded-[26px] md:rounded-[30px] bg-gradient-to-br ${theme.gradient} border border-white/25 hover:border-white/55 transition-all duration-300 ease-out cursor-pointer select-none overflow-hidden touch-manipulation hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/25 active:-translate-y-0.5 shadow-md shrink-0`}
+      className={`group relative flex flex-col items-center justify-between ${widthClass} ${heightClass} p-4 sm:p-5 md:p-6 rounded-[22px] sm:rounded-[26px] md:rounded-[30px] bg-gradient-to-br ${theme.gradient} border border-white/25 hover:border-white/55 transition-all duration-300 ease-out cursor-pointer select-none overflow-hidden touch-manipulation hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/25 active:-translate-y-0.5 shadow-md shrink-0`}
     >
       {/* 1. Subtle Specular & Ambient Lighting Glows */}
       <div className="absolute -top-12 -left-12 w-36 h-36 bg-white/25 rounded-full blur-2xl pointer-events-none transition-opacity group-hover:opacity-100 opacity-60" />

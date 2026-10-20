@@ -8,7 +8,7 @@ import ShareDealModal from './ShareDealModal';
 import { calculateCashback } from '@/lib/cashbackCalculator';
 import { cleanProductTitle } from '@/lib/titleSanitizer';
 
-export default function StoreOfferCard({ deal, product, store: propStore, fullWidth = false, isPreview = false, hideCashback = false }) {
+export default function StoreOfferCard({ deal, product, store: propStore, fullWidth = false, isPreview = false, hideCashback = false, tall = false, cardHeight }) {
   const [isShareOpen, setIsShareOpen] = useState(false);
 
   // Backwards compatibility if called with product instead of deal
@@ -59,11 +59,12 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
   const cashback = getCashback(currentDeal);
   const cashbackType = storeIdStr === 'flipkart' ? 'Cashback' : 'Rewards';
 
-  const widthClass = fullWidth ? "w-full" : "w-[280px] sm:w-[340px] md:w-[420px] lg:w-[460px]";
-  const heightClass = "h-full";
-  const minHeightClass = fullWidth 
-    ? "min-h-[240px] sm:min-h-[270px] md:min-h-[300px] lg:min-h-[325px]" 
-    : "min-h-[230px] sm:min-h-[260px] md:min-h-[295px] lg:min-h-[325px]";
+  const widthClass = fullWidth ? "w-full" : "w-[85vw] max-w-[350px] sm:max-w-none sm:w-[340px] md:w-[420px] lg:w-[460px]";
+  const defaultHeightClass = fullWidth 
+    ? "h-[225px] sm:h-[270px] md:h-[300px] lg:h-[325px]" 
+    : "h-[220px] sm:h-[260px] md:h-[295px] lg:h-[325px]";
+  const tallHeightClass = "h-[275px] sm:h-[310px] md:h-[340px] lg:h-[365px]";
+  const heightClass = cardHeight || (tall ? tallHeightClass : defaultHeightClass);
 
   const generateSlug = (text) => {
     return text.toString().toLowerCase()
@@ -89,7 +90,7 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
     return (
       <>
         <div
-          className={`block relative flex flex-col justify-center items-center ${widthClass} ${heightClass} ${minHeightClass} rounded-2xl md:rounded-[28px] overflow-hidden shrink-0 bg-neutral-100 p-0 group shadow-md hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 ease-out border border-neutral-200`}
+          className={`block relative flex flex-col justify-center items-center ${widthClass} ${heightClass} rounded-2xl md:rounded-[28px] overflow-hidden shrink-0 bg-neutral-100 p-0 group shadow-md hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 ease-out border border-neutral-200`}
         >
           {/* Stretched Link for Card Navigation */}
           {!isPreview && (
@@ -159,7 +160,7 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
   return (
     <>
       <div
-        className={`block relative flex flex-row justify-between items-stretch ${widthClass} ${heightClass} ${minHeightClass} rounded-[22px] sm:rounded-[26px] md:rounded-[30px] overflow-hidden shrink-0 ${bgClass} p-3.5 sm:p-4 md:p-5 group shadow-md hover:shadow-2xl hover:shadow-black/25 hover:-translate-y-1.5 transition-all duration-300 ease-out border border-white/20 hover:border-white/40`}
+        className={`block relative flex flex-row justify-between items-stretch ${widthClass} ${heightClass} rounded-[22px] sm:rounded-[26px] md:rounded-[30px] overflow-hidden shrink-0 ${bgClass} p-3.5 sm:p-4 md:p-5 group shadow-md hover:shadow-2xl hover:shadow-black/25 hover:-translate-y-1.5 transition-all duration-300 ease-out border border-white/20 hover:border-white/40`}
       >
         {/* Subtle Ambient Specular & Lighting Glows */}
         <div className="absolute -top-12 -left-12 w-36 h-36 bg-white/20 rounded-full blur-2xl pointer-events-none transition-opacity group-hover:opacity-100 opacity-60" />
@@ -176,7 +177,7 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
         )}
 
         {/* Left Column: Logo + Share + All Text + Button */}
-        <div className="flex flex-col justify-between w-[54%] h-full z-10 pr-1 sm:pr-2 pointer-events-none">
+        <div className="flex flex-col justify-between w-[54%] h-full min-h-0 z-10 pr-1 sm:pr-2 pointer-events-none">
           {/* Top: Logo + Share Button + Verified Pill */}
           <div className="flex items-center justify-between gap-1.5 shrink-0 pointer-events-auto">
             <div className="flex items-center gap-1.5 sm:gap-2">
@@ -245,14 +246,16 @@ export default function StoreOfferCard({ deal, product, store: propStore, fullWi
         </div>
 
         {/* Right Column: Product Image with Sleek Showcase Housing */}
-        <div className={`w-[46%] flex items-stretch z-10 relative pointer-events-none ml-2 sm:ml-3 ${fullWidth ? 'aspect-[4/5] sm:aspect-[4/5] md:aspect-[3/4]' : 'aspect-[4/5] sm:aspect-[1/1] md:aspect-[4/5]'}`}>
-          <div className="w-full absolute inset-0 flex items-center justify-center bg-white rounded-xl sm:rounded-2xl md:rounded-[22px] overflow-hidden shadow-lg border border-white/70 p-1.5 sm:p-2">
-            <img
-              src={currentDeal.image}
-              alt={cleanProductTitle(currentDeal.title)}
-              className="w-full h-full object-contain sm:object-cover rounded-lg sm:rounded-xl transition-transform duration-500 ease-out group-hover:scale-106"
-              onError={(e) => { e.target.style.display = 'none'; }}
-            />
+        <div className="w-[46%] h-full min-h-0 flex items-stretch z-10 relative pointer-events-none ml-2 sm:ml-3">
+          <div className="w-full h-full min-h-0 relative flex items-center justify-center bg-white rounded-xl sm:rounded-2xl md:rounded-[22px] overflow-hidden shadow-lg border border-white/70 p-1 sm:p-1.5 md:p-2">
+            <div className="w-full h-full relative overflow-hidden rounded-lg sm:rounded-xl">
+              <img
+                src={currentDeal.image}
+                alt={cleanProductTitle(currentDeal.title)}
+                className="w-full h-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-106"
+                onError={(e) => { e.target.style.display = 'none'; }}
+              />
+            </div>
           </div>
         </div>
       </div>
