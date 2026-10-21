@@ -75,12 +75,12 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
   const handleCopyLink = async (e) => {
     e?.stopPropagation();
     try {
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(whatsappShareUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2200);
     } catch {
       const input = document.createElement('input');
-      input.value = shareUrl;
+      input.value = whatsappShareUrl;
       document.body.appendChild(input);
       input.select();
       document.execCommand('copy');
@@ -126,7 +126,7 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
         await navigator.share({
           title: title,
           text: `Check out this deal on KaroDeal: ${title}`,
-          url: shareUrl,
+          url: whatsappShareUrl,
         });
         onClose();
       } catch (err) {
@@ -278,7 +278,7 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
             <input
               type="text"
               readOnly
-              value={shareUrl}
+              value={whatsappShareUrl}
               className="w-full bg-transparent text-xs text-neutral-600 dark:text-neutral-300 outline-none truncate select-all"
             />
             <button

@@ -121,8 +121,26 @@ function getTrafficBadge(source, medium, campaign) {
     );
   }
 
-  // Social Media
-  if (m === 'social' || /instagram|facebook|whatsapp|youtube|twitter|x\.com|linkedin|pinterest|reddit/i.test(s)) {
+  // WhatsApp (Dedicated emerald green badge for WhatsApp Marketing / Shares)
+  if (/whatsapp/i.test(s) || /whatsapp/i.test(m)) {
+    return (
+      <span
+        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-900 border border-emerald-300 shadow-2xs"
+        title={`WhatsApp: ${campaign || s}`}
+      >
+        <span>📱</span>
+        <span className="truncate max-w-[120px]">WhatsApp</span>
+        {campaign && (
+          <span className="text-[9px] bg-emerald-200/90 text-emerald-950 font-black px-1 rounded truncate max-w-[110px]" title={campaign}>
+            {campaign}
+          </span>
+        )}
+      </span>
+    );
+  }
+
+  // Social Media (Instagram, Facebook, etc.)
+  if (m === 'social' || /instagram|facebook|youtube|twitter|x\.com|linkedin|pinterest|reddit/i.test(s)) {
     return (
       <span
         className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-800 border border-purple-200/90 shadow-2xs"
@@ -130,6 +148,11 @@ function getTrafficBadge(source, medium, campaign) {
       >
         <span>📱</span>
         <span className="truncate max-w-[140px]">{s}</span>
+        {campaign && (
+          <span className="text-[9px] bg-purple-200/90 text-purple-950 font-black px-1 rounded truncate max-w-[100px]">
+            {campaign}
+          </span>
+        )}
       </span>
     );
   }
@@ -836,16 +859,13 @@ export default function VisitorAnalyticsPage() {
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-neutral-50 border-b border-neutral-200 text-neutral-500 font-bold uppercase tracking-wider text-[11px]">
-                  <th className="py-3.5 px-4">Visitor ID</th>
-                  <th className="py-3.5 px-4">Current / Last Page</th>
-                  <th className="py-3.5 px-4">First Visit</th>
-                  <th className="py-3.5 px-4">Last Activity</th>
-                  <th className="py-3.5 px-4">Page Entry</th>
-                  <th className="py-3.5 px-4">Page End Time</th>
-                  <th className="py-3.5 px-4">Page Duration</th>
-                  <th className="py-3.5 px-4">Active Time</th>
-                  <th className="py-3.5 px-4">Status</th>
-                  <th className="py-3.5 px-4 text-right">Actions</th>
+                  <th className="py-3 px-3.5">Visitor & Source</th>
+                  <th className="py-3 px-3.5">Current / Last Page</th>
+                  <th className="py-3 px-3.5">Visit Timing</th>
+                  <th className="py-3 px-3.5">Page Duration</th>
+                  <th className="py-3 px-3.5">Active Time (Total Site)</th>
+                  <th className="py-3 px-3.5">Status</th>
+                  <th className="py-3 px-3.5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100">
@@ -857,6 +877,13 @@ export default function VisitorAnalyticsPage() {
                   // Device Icon
                   const DeviceIcon = v.deviceType === 'Mobile' ? Smartphone : v.deviceType === 'Tablet' ? Tablet : Monitor;
 
+                  // Calculate total site seconds
+                  const totalSiteSec = Math.max(
+                    Number(v.totalActiveSeconds) || 0,
+                    Number(p?.activeSeconds) || 0,
+                    (v.totalVisits <= 1 && p?.status === 'ENDED') ? (Number(p?.durationSeconds) || 0) : 0
+                  );
+
                   return (
                     <tr
                       key={v.visitorId}
@@ -864,15 +891,15 @@ export default function VisitorAnalyticsPage() {
                         isLive ? 'bg-emerald-50/20' : ''
                       }`}
                     >
-                      {/* Visitor ID Column */}
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-2">
+                      {/* 1. Visitor & Source */}
+                      <td className="py-3 px-3.5">
+                        <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => copyToClipboard(v.visitorId, v.visitorId)}
                             title="Click to copy full Visitor ID"
-                            className="flex items-center gap-1 font-mono font-bold text-neutral-900 hover:text-neutral-600 transition-colors"
+                            className="flex items-center gap-1 font-mono font-bold text-neutral-900 hover:text-neutral-600 transition-colors cursor-pointer"
                           >
-                            <span>{v.visitorId.slice(0, 13)}...</span>
+                            <span>{v.visitorId.slice(0, 11)}...</span>
                             {isCopied ? (
                               <Check className="w-3.5 h-3.5 text-emerald-600" />
                             ) : (
@@ -880,23 +907,23 @@ export default function VisitorAnalyticsPage() {
                             )}
                           </button>
                         </div>
-                        <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                        <div className="mt-1 flex flex-wrap items-center gap-1">
                           {getTrafficBadge(v.trafficSource, v.trafficMedium, v.utmCampaign)}
                         </div>
-                        <div className="flex items-center gap-2 mt-1 text-[10px] text-neutral-500">
+                        <div className="flex items-center gap-1.5 mt-1 text-[10px] text-neutral-500">
                           <span className="flex items-center gap-1">
                             <DeviceIcon className="w-3 h-3 text-neutral-400" />
                             {v.browser}
                           </span>
                           <span>•</span>
-                          <span className="bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-600 font-semibold">
+                          <span className="bg-neutral-100 px-1.5 py-0.2 rounded text-neutral-600 font-semibold">
                             {v.totalVisits} {v.totalVisits === 1 ? 'visit' : 'visits'}
                           </span>
                         </div>
                       </td>
 
-                      {/* Current / Last Page */}
-                      <td className="py-3.5 px-4 max-w-[200px]">
+                      {/* 2. Current / Last Page */}
+                      <td className="py-3 px-3.5 max-w-[200px]">
                         {p ? (
                           <div className="space-y-0.5">
                             <div className="font-semibold text-neutral-900 truncate" title={p.pageTitle || p.pagePath}>
@@ -911,95 +938,84 @@ export default function VisitorAnalyticsPage() {
                         )}
                       </td>
 
-                      {/* First Visit Time (Asia/Kolkata) */}
-                      <td className="py-3.5 px-4 text-neutral-700 whitespace-nowrap">
-                        <div>{formatKolkataTime(v.firstVisitAt)}</div>
-                      </td>
-
-                      {/* Last Activity Time (Asia/Kolkata + Relative) */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="font-medium text-neutral-900">
-                          {formatRelativeTime(v.lastVisitAt)}
+                      {/* 3. Visit Timing (Entry + Exit + Relative) */}
+                      <td className="py-3 px-3.5">
+                        <div className="font-medium text-neutral-900 text-xs">
+                          {formatKolkataTime(p?.enteredAt || v.lastVisitAt)}
                         </div>
-                        <div className="text-[10px] text-neutral-400">
-                          {formatKolkataTime(v.lastVisitAt)}
-                        </div>
-                      </td>
-
-                      {/* Page Entry Time */}
-                      <td className="py-3.5 px-4 text-neutral-700 whitespace-nowrap">
-                        {p ? formatKolkataTime(p.enteredAt) : '—'}
-                      </td>
-
-                      {/* Page End Time (Actual vs Estimated) */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        {p ? (
-                          p.status === 'ENDED' ? (
-                            <div className="space-y-0.5">
-                              <span className="text-neutral-900 font-medium">
-                                {formatKolkataTime(p.leftAt || p.estimatedEndTime)}
+                        <div className="flex items-center gap-1.5 text-[10px] text-neutral-500 mt-1 flex-wrap">
+                          <span className="font-semibold text-neutral-700">{formatRelativeTime(v.lastVisitAt)}</span>
+                          <span>•</span>
+                          {p ? (
+                            p.status === 'ENDED' ? (
+                              <span className={`px-1.5 py-0.2 rounded text-[10px] font-semibold ${
+                                p.isExactEndTime ? 'bg-neutral-100 text-neutral-700' : 'bg-amber-50 text-amber-700 border border-amber-200'
+                              }`}>
+                                {p.isExactEndTime ? 'Confirmed Exit' : 'Estimated Exit'}
                               </span>
-                              <div>
-                                <span className={`text-[10px] px-1.5 py-0.2 rounded font-semibold ${
-                                  p.isExactEndTime ? 'bg-neutral-100 text-neutral-700' : 'bg-amber-50 text-amber-700 border border-amber-200'
-                                }`}>
-                                  {p.isExactEndTime ? 'Confirmed Exit' : 'Estimated Exit'}
-                                </span>
-                              </div>
-                            </div>
-                          ) : (
-                            <span className="text-emerald-600 font-semibold flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                              Active On Page
-                            </span>
-                          )
-                        ) : (
-                          <span className="text-neutral-400">—</span>
-                        )}
+                            ) : (
+                              <span className="text-emerald-600 font-semibold flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                Active Now
+                              </span>
+                            )
+                          ) : null}
+                        </div>
                       </td>
 
-                      {/* Page Duration (Total Elapsed Time) */}
-                      <td className="py-3.5 px-4 font-mono font-semibold text-neutral-900 whitespace-nowrap">
+                      {/* 4. Page Duration */}
+                      <td className="py-3 px-3.5 font-mono font-semibold text-neutral-900">
                         {p ? formatDuration(p.durationSeconds) : '0s'}
                       </td>
 
-                      {/* Active Time (Engaged Time) */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="font-mono font-bold text-emerald-700">
-                          {p ? formatDuration(p.activeSeconds) : '0s'}
-                        </div>
-                        <div className="text-[10px] text-neutral-400">
-                          Total: {formatDuration(v.totalActiveSeconds)}
+                      {/* 5. Active Time (Total Time on Website) */}
+                      <td className="py-3 px-3.5">
+                        <div>
+                          <div className="font-mono font-bold text-emerald-700 text-[13px] flex items-center gap-1.5">
+                            <Timer className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            <span>{formatDuration(totalSiteSec)}</span>
+                            <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/70 border border-emerald-200 px-1 py-0.2 rounded">
+                              {totalSiteSec}s
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-neutral-500 mt-0.5 font-medium">
+                            {v.totalVisits > 1 ? (
+                              <span>Total on site • Page: {formatDuration(p?.activeSeconds || 0)}</span>
+                            ) : (
+                              <span>Total on site</span>
+                            )}
+                          </div>
                         </div>
                       </td>
 
-                      {/* Status */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
+                      {/* 6. Status */}
+                      <td className="py-3 px-3.5">
                         {v.status === 'ACTIVE' ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
                             ACTIVE
                           </span>
                         ) : v.status === 'INACTIVE' ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
                             <Clock className="w-3 h-3 text-amber-600" />
-                            INACTIVE
+                            IDLE
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-neutral-100 text-neutral-600">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-neutral-100 text-neutral-600">
                             ENDED
                           </span>
                         )}
                       </td>
 
-                      {/* Actions */}
-                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                      {/* 7. Actions */}
+                      <td className="py-3 px-3.5 text-right">
                         <button
                           onClick={() => openVisitorDetail(v.visitorId)}
-                          className="px-3 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-900 hover:text-white text-neutral-700 text-xs font-semibold transition-all inline-flex items-center gap-1 shadow-2xs"
+                          title="View complete visitor history & timeline"
+                          className="px-2.5 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-900 hover:text-white text-neutral-700 text-xs font-semibold transition-all inline-flex items-center gap-1 shadow-2xs cursor-pointer"
                         >
                           <Eye className="w-3.5 h-3.5" />
-                          History ({v.totalPageVisits})
+                          <span>History ({v.totalPageVisits})</span>
                         </button>
                       </td>
                     </tr>
@@ -1095,16 +1111,22 @@ export default function VisitorAnalyticsPage() {
                         {visitorDetail.summary?.totalPageVisits || 0}
                       </div>
                     </div>
-                    <div className="bg-neutral-50 p-3.5 rounded-xl border border-neutral-200">
-                      <span className="text-[10px] font-bold uppercase text-emerald-600">Active Time</span>
-                      <div className="text-xl font-black text-emerald-700 mt-0.5">
-                        {formatDuration(visitorDetail.summary?.totalActiveSeconds || 0)}
+                    <div className="bg-emerald-50 p-3.5 rounded-xl border border-emerald-200">
+                      <span className="text-[10px] font-bold uppercase text-emerald-800">Total Active Time</span>
+                      <div className="text-xl font-black text-emerald-700 mt-0.5 flex items-baseline gap-2">
+                        <span>{formatDuration(visitorDetail.summary?.totalActiveSeconds || 0)}</span>
+                        <span className="text-xs font-bold text-emerald-800 bg-emerald-100/90 border border-emerald-300 px-2 py-0.5 rounded">
+                          {visitorDetail.summary?.totalActiveSeconds || 0} seconds
+                        </span>
                       </div>
                     </div>
                     <div className="bg-neutral-50 p-3.5 rounded-xl border border-neutral-200">
                       <span className="text-[10px] font-bold uppercase text-neutral-500">Total Elapsed</span>
-                      <div className="text-xl font-black text-neutral-900 mt-0.5">
-                        {formatDuration(visitorDetail.summary?.totalDurationSeconds || 0)}
+                      <div className="text-xl font-black text-neutral-900 mt-0.5 flex items-baseline gap-2">
+                        <span>{formatDuration(visitorDetail.summary?.totalDurationSeconds || 0)}</span>
+                        <span className="text-xs font-bold text-neutral-700 bg-neutral-200/80 px-2 py-0.5 rounded">
+                          {visitorDetail.summary?.totalDurationSeconds || 0} seconds
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -1224,7 +1246,9 @@ export default function VisitorAnalyticsPage() {
                               </div>
                               <div>
                                 <span className="text-emerald-600 block text-[9px] uppercase font-bold">Active Time</span>
-                                <span className="font-mono font-bold text-emerald-700">{formatDuration(visit.activeSeconds)}</span>
+                                <span className="font-mono font-bold text-emerald-700">
+                                  {formatDuration(visit.activeSeconds)} ({visit.activeSeconds}s)
+                                </span>
                               </div>
                             </div>
                           </div>
