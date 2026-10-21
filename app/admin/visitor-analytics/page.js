@@ -419,6 +419,17 @@ export default function VisitorAnalyticsPage() {
     };
   }, [isAuthorized, fetchVisitors, selectedVisitorId, openVisitorDetail]);
 
+  // 5. Fallback Live Auto-Sync (Runs every 10 seconds when running without WebSockets, e.g. on Vercel Serverless)
+  useEffect(() => {
+    if (!isAuthorized || socketConnected) return;
+
+    const interval = setInterval(() => {
+      fetchVisitors(true);
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [isAuthorized, socketConnected, fetchVisitors]);
+
   const copyToClipboard = (text, id) => {
     if (!text) return;
     navigator.clipboard.writeText(text);
@@ -461,23 +472,17 @@ export default function VisitorAnalyticsPage() {
           </p>
         </div>
 
-        {/* Realtime Socket.IO Status Badge & Manual Refresh */}
+        {/* Realtime Live Status Badge & Manual Refresh */}
         <div className="flex items-center gap-2.5 self-start sm:self-auto">
           <div
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all shadow-2xs select-none ${
-              socketConnected
-                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                : 'bg-amber-50 text-amber-800 border-amber-200'
-            }`}
-            title={socketConnected ? 'Real-time WebSocket connected via Socket.IO' : 'Attempting to connect to Socket.IO...'}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all shadow-2xs select-none bg-emerald-50 text-emerald-800 border-emerald-200"
+            title={socketConnected ? 'Real-time WebSocket connected via Socket.IO' : 'Live Auto-Sync active (syncs every 10 seconds)'}
           >
             <span className="relative flex h-2 w-2">
-              {socketConnected && (
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              )}
-              <span className={`relative inline-flex rounded-full h-2 w-2 ${socketConnected ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            <span>{socketConnected ? 'Live Realtime (Socket.IO)' : 'Socket.IO Connecting...'}</span>
+            <span>{socketConnected ? 'Live Realtime (Socket.IO)' : 'Live Auto-Sync (10s)'}</span>
           </div>
 
           <button
