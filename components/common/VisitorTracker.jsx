@@ -79,15 +79,16 @@ export default function VisitorTracker() {
     if (typeof window !== 'undefined') {
       try {
         const sp = new URLSearchParams(window.location.search);
-        const utm_source = sp.get('utm_source');
-        const utm_medium = sp.get('utm_medium');
-        const utm_campaign = sp.get('utm_campaign');
+        const utm_source = sp.get('utm_source') || sp.get('source') || sp.get('ref') || sp.get('src');
+        const utm_medium = sp.get('utm_medium') || sp.get('medium');
+        const utm_campaign = sp.get('utm_campaign') || sp.get('campaign');
         const gclid = sp.get('gclid');
         const fbclid = sp.get('fbclid');
         const ttclid = sp.get('ttclid');
+        const wa = sp.get('wa');
 
-        if (utm_source || utm_medium || utm_campaign || gclid || fbclid || ttclid) {
-          queryParams = { utm_source, utm_medium, utm_campaign, gclid, fbclid, ttclid };
+        if (utm_source || utm_medium || utm_campaign || gclid || fbclid || ttclid || wa) {
+          queryParams = { utm_source, utm_medium, utm_campaign, gclid, fbclid, ttclid, wa };
           sessionStorage.setItem('karodeal_traffic_params', JSON.stringify(queryParams));
         } else {
           const cached = sessionStorage.getItem('karodeal_traffic_params');

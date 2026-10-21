@@ -39,20 +39,38 @@ export default function ShareDealModal({ deal, shareUrl, isOpen, onClose }) {
   if (!isOpen || !deal || !mounted) return null;
 
   const title = cleanProductTitle(deal.title || 'Special Deal');
-  const encodedUrl = encodeURIComponent(shareUrl);
   const isMobile = typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  const appendTracking = (urlStr, source) => {
+    try {
+      const u = new URL(urlStr, typeof window !== 'undefined' ? window.location.origin : 'https://karodeal.in');
+      u.searchParams.set('utm_source', source);
+      u.searchParams.set('utm_medium', 'social');
+      return u.toString();
+    } catch {
+      const sep = urlStr.includes('?') ? '&' : '?';
+      return `${urlStr}${sep}utm_source=${source}&utm_medium=social`;
+    }
+  };
+
+  const whatsappShareUrl = appendTracking(shareUrl, 'whatsapp');
+  const encodedWhatsappUrl = encodeURIComponent(`${title ? title + '\n' : ''}${whatsappShareUrl}`);
 
   // Direct app protocol on mobile; standard full browser tab on desktop
   const whatsappUrl = isMobile 
-    ? `whatsapp://send?text=${encodedUrl}` 
-    : `https://web.whatsapp.com/send?text=${encodedUrl}`;
+    ? `whatsapp://send?text=${encodedWhatsappUrl}` 
+    : `https://web.whatsapp.com/send?text=${encodedWhatsappUrl}`;
 
+  const telegramShareUrl = appendTracking(shareUrl, 'telegram');
+  const encodedTelegramUrl = encodeURIComponent(telegramShareUrl);
   const telegramUrl = isMobile
-    ? `tg://msg_url?url=${encodedUrl}`
-    : `https://t.me/share/url?url=${encodedUrl}`;
+    ? `tg://msg_url?url=${encodedTelegramUrl}`
+    : `https://t.me/share/url?url=${encodedTelegramUrl}`;
 
-  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
-  const smsUrl = isMobile ? `sms:?&body=${encodedUrl}` : `sms:?body=${encodedUrl}`;
+  const facebookShareUrl = appendTracking(shareUrl, 'facebook');
+  const encodedFacebookUrl = encodeURIComponent(facebookShareUrl);
+  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedFacebookUrl}`;
+  const smsUrl = isMobile ? `sms:?&body=${encodedWhatsappUrl}` : `sms:?body=${encodedWhatsappUrl}`;
 
   const handleCopyLink = async (e) => {
     e?.stopPropagation();
