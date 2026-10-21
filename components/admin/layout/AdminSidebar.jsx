@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Button from '@/components/common/Button';
 import { 
-  LayoutDashboard, ShoppingBag, FolderTree, Users, LogOut, Package, IndianRupee, Ticket, X, MousePointerClick, Mail, MessageSquare, Star, Receipt, Store
+  LayoutDashboard, ShoppingBag, FolderTree, Users, LogOut, Package, IndianRupee, Ticket, X, MousePointerClick, Mail, MessageSquare, Star, Receipt, Store, Activity
 } from 'lucide-react';
 import { getSocket } from '@/lib/socket';
 
@@ -76,6 +76,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
 
   const allNavItems = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
+    { name: 'Visitor Analytics', href: '/admin/visitor-analytics', icon: Activity },
     { name: 'Payout Requests', href: '/admin/payouts', icon: IndianRupee },
     { name: 'Products & Cards', href: '/admin/products', icon: Package },
     { name: 'Billing', href: '/admin/billing', icon: Receipt },

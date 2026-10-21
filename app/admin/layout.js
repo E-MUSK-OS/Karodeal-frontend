@@ -42,7 +42,8 @@ export default function AdminLayout({ children }) {
               '/admin/claims',
               '/admin/subscribers',
               '/admin/messages',
-              '/admin/missing-cashback'
+              '/admin/missing-cashback',
+              '/admin/visitor-analytics'
             ];
 
             if (currentRole === 'SUB_ADMIN' && restrictedForSubAdmin.some((prefix) => pathname.startsWith(prefix))) {
@@ -100,7 +101,7 @@ export default function AdminLayout({ children }) {
   }
 
   return (
-    <div className="h-screen bg-neutral-100 flex font-sans relative overflow-hidden">
+    <div className="h-screen bg-neutral-100 text-neutral-900 flex font-sans relative overflow-hidden">
       <AdminSidebar isOpen={isMobileMenuOpen} setIsOpen={setIsMobileMenuOpen} />
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         <AdminHeader onMenuClick={() => setIsMobileMenuOpen(true)} />

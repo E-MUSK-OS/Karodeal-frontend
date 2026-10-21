@@ -130,6 +130,7 @@ import FacebookPixel from '@/components/common/FacebookPixel';
 import DisableRightClickAndSelect from '@/components/common/DisableRightClickAndSelect';
 import NewUserSignupModal from '@/components/common/NewUserSignupModal';
 import WhatsAppNumberPromptModal from '@/components/common/WhatsAppNumberPromptModal';
+import VisitorTracker from '@/components/common/VisitorTracker';
 import { Suspense } from 'react';
 
 export default function RootLayout({ children }) {
@@ -194,6 +195,9 @@ export default function RootLayout({ children }) {
           </Suspense>
           <Suspense fallback={null}>
             <FacebookPixel />
+          </Suspense>
+          <Suspense fallback={null}>
+            <VisitorTracker />
           </Suspense>
           <RealtimeProductsListener />
           <GoogleAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
