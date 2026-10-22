@@ -886,7 +886,7 @@ export default function VisitorAnalyticsPage() {
               })()}
 
               {openDropdown === 'source' && (
-                <div className="absolute left-0 top-full mt-1.5 z-40 bg-white border border-neutral-200/90 rounded-2xl shadow-xl py-1.5 min-w-[245px] animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute right-0 sm:right-0 top-full mt-1.5 z-40 bg-white border border-neutral-200/90 rounded-2xl shadow-xl py-1.5 min-w-[255px] animate-in fade-in zoom-in-95 duration-150">
                   <div className="px-3.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1">
                     Traffic Source
                   </div>
@@ -902,7 +902,7 @@ export default function VisitorAnalyticsPage() {
                           setPagination((p) => ({ ...p, page: 1 }));
                           setOpenDropdown(null);
                         }}
-                        className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer text-left ${
+                        className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-3 transition-colors cursor-pointer text-left ${
                           isSelected ? 'bg-neutral-100 font-bold text-neutral-900' : 'hover:bg-neutral-50 text-neutral-700'
                         }`}
                       >
@@ -910,12 +910,12 @@ export default function VisitorAnalyticsPage() {
                           <div className={`w-6 h-6 rounded-lg ${opt.iconBg} ${opt.iconColor} flex items-center justify-center shrink-0`}>
                             <Icon className="w-3.5 h-3.5" />
                           </div>
-                          <div>
-                            <div className="truncate font-semibold">{opt.label}</div>
-                            <div className="text-[10px] text-neutral-400 font-normal">{opt.desc}</div>
+                          <div className="min-w-0">
+                            <div className="truncate font-semibold text-neutral-900">{opt.label}</div>
+                            <div className="text-[10px] text-neutral-400 font-normal whitespace-nowrap">{opt.desc}</div>
                           </div>
                         </div>
-                        {isSelected && <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" />}
+                        {isSelected && <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0 ml-1" />}
                       </button>
                     );
                   })}
@@ -955,7 +955,7 @@ export default function VisitorAnalyticsPage() {
               })()}
 
               {openDropdown === 'period' && (
-                <div className="absolute left-0 top-full mt-1.5 z-40 bg-white border border-neutral-200/90 rounded-2xl shadow-xl py-1.5 min-w-[220px] animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute right-0 top-full mt-1.5 z-40 bg-white border border-neutral-200/90 rounded-2xl shadow-xl py-1.5 min-w-[235px] animate-in fade-in zoom-in-95 duration-150">
                   <div className="px-3.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1">
                     Date Range Preset
                   </div>
@@ -970,18 +970,18 @@ export default function VisitorAnalyticsPage() {
                           handlePeriodChange(opt.id);
                           setOpenDropdown(null);
                         }}
-                        className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer text-left ${
+                        className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-3 transition-colors cursor-pointer text-left ${
                           isSelected ? 'bg-neutral-100 font-bold text-neutral-900' : 'hover:bg-neutral-50 text-neutral-700'
                         }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
                           <Icon className={`w-3.5 h-3.5 shrink-0 ${opt.iconColor}`} />
-                          <div>
-                            <div className="truncate font-semibold">{opt.label}</div>
-                            <div className="text-[10px] text-neutral-400 font-normal">{opt.desc}</div>
+                          <div className="min-w-0">
+                            <div className="truncate font-semibold text-neutral-900">{opt.label}</div>
+                            <div className="text-[10px] text-neutral-400 font-normal whitespace-nowrap">{opt.desc}</div>
                           </div>
                         </div>
-                        {isSelected && <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" />}
+                        {isSelected && <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0 ml-1" />}
                       </button>
                     );
                   })}
