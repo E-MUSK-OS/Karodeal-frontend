@@ -34,7 +34,9 @@ import {
   MessageCircle,
   Compass,
   Zap,
-  Target
+  Target,
+  Camera,
+  Megaphone
 } from 'lucide-react';
 
 function formatKolkataTime(dateStr, includeSeconds = false) {
@@ -101,17 +103,20 @@ function getTrafficBadge(source, medium, campaign) {
   const m = (medium || 'direct').toLowerCase();
   const formattedCampaign = formatCampaignLabel(campaign);
 
-  // Paid Ads / Campaigns
-  if (m === 'cpc' || m === 'paid_social' || m === 'ads' || m === 'ppc' || s.toLowerCase().includes('ads')) {
+  // 1. Google Ads (Separate Badge)
+  if (
+    s.toLowerCase().includes('google ads') ||
+    (s.toLowerCase().includes('google') && ['cpc', 'paid', 'ad', 'ads', 'ppc'].includes(m))
+  ) {
     return (
       <span
-        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-200/90 shadow-2xs"
-        title={`Paid Campaign: ${campaign || s}`}
+        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-300 shadow-2xs"
+        title={`Google Ads: ${campaign || s}`}
       >
         <span>🎯</span>
-        <span className="truncate max-w-[130px]">{s}</span>
+        <span className="truncate max-w-[130px]">Google Ads</span>
         {formattedCampaign && (
-          <span className="text-[9px] bg-amber-200/90 text-amber-950 font-black px-1.5 py-0.2 rounded" title={campaign}>
+          <span className="text-[9px] bg-amber-200 text-amber-950 font-black px-1.5 py-0.2 rounded" title={campaign}>
             {formattedCampaign}
           </span>
         )}
@@ -119,20 +124,50 @@ function getTrafficBadge(source, medium, campaign) {
     );
   }
 
-  // Google & Search Engines
-  if (s.toLowerCase().includes('google') || s.toLowerCase().includes('search') || m === 'organic') {
+  // 2. Meta Ads (Separate Badge for Facebook / Instagram Paid Ads)
+  if (
+    s.toLowerCase().includes('meta ads') ||
+    s.toLowerCase().includes('facebook ads') ||
+    s.toLowerCase().includes('instagram ads') ||
+    m === 'paid_social' ||
+    (['facebook', 'instagram', 'meta', 'fb', 'insta'].some((x) => s.toLowerCase().includes(x)) &&
+      ['cpc', 'paid', 'ads', 'ppc', 'ad'].includes(m))
+  ) {
     return (
       <span
-        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200/90 shadow-2xs"
-        title="Organic Search Engine"
+        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-900 border border-indigo-300 shadow-2xs"
+        title={`Meta Ads: ${campaign || s}`}
       >
-        <span>🔎</span>
-        <span className="truncate max-w-[130px]">{s}</span>
+        <span>📢</span>
+        <span className="truncate max-w-[130px]">Meta Ads</span>
+        {formattedCampaign && (
+          <span className="text-[9px] bg-indigo-200 text-indigo-950 font-black px-1.5 py-0.2 rounded" title={campaign}>
+            {formattedCampaign}
+          </span>
+        )}
       </span>
     );
   }
 
-  // WhatsApp (Dedicated emerald green badge for WhatsApp Marketing / Shares)
+  // 3. Instagram (Separate Badge for Organic / In-App / Bio)
+  if (/instagram/i.test(s) || /instagram/i.test(m)) {
+    return (
+      <span
+        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-pink-50 text-pink-900 border border-pink-300 shadow-2xs"
+        title={`Instagram: ${campaign || s}`}
+      >
+        <span>📸</span>
+        <span className="truncate max-w-[130px]">Instagram</span>
+        {formattedCampaign && (
+          <span className="text-[9px] bg-pink-200 text-pink-950 font-black px-1.5 py-0.2 rounded truncate max-w-[100px]" title={campaign}>
+            {formattedCampaign}
+          </span>
+        )}
+      </span>
+    );
+  }
+
+  // 4. WhatsApp (Dedicated emerald green badge for WhatsApp Marketing / Shares)
   if (/whatsapp/i.test(s) || /whatsapp/i.test(m)) {
     return (
       <span
@@ -150,8 +185,39 @@ function getTrafficBadge(source, medium, campaign) {
     );
   }
 
-  // Social Media (Instagram, Facebook, etc.)
-  if (m === 'social' || /instagram|facebook|youtube|twitter|x\.com|linkedin|pinterest|reddit/i.test(s)) {
+  // 5. Other Paid Ads / Campaigns
+  if (['cpc', 'paid_social', 'ads', 'ppc'].includes(m) || s.toLowerCase().includes('ads')) {
+    return (
+      <span
+        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-orange-50 text-orange-900 border border-orange-200/90 shadow-2xs"
+        title={`Paid Campaign: ${campaign || s}`}
+      >
+        <span>🎯</span>
+        <span className="truncate max-w-[130px]">{s}</span>
+        {formattedCampaign && (
+          <span className="text-[9px] bg-orange-200/90 text-orange-950 font-black px-1.5 py-0.2 rounded" title={campaign}>
+            {formattedCampaign}
+          </span>
+        )}
+      </span>
+    );
+  }
+
+  // 6. Google & Organic Search Engines
+  if (s.toLowerCase().includes('google') || s.toLowerCase().includes('search') || m === 'organic') {
+    return (
+      <span
+        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200/90 shadow-2xs"
+        title="Organic Search Engine"
+      >
+        <span>🔎</span>
+        <span className="truncate max-w-[130px]">{s}</span>
+      </span>
+    );
+  }
+
+  // 7. Other Social Media (Facebook, YouTube, Twitter/X, etc.)
+  if (m === 'social' || /facebook|youtube|twitter|x\.com|linkedin|pinterest|reddit/i.test(s)) {
     return (
       <span
         className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-800 border border-purple-200/90 shadow-2xs"
@@ -168,7 +234,7 @@ function getTrafficBadge(source, medium, campaign) {
     );
   }
 
-  // External Referral
+  // 8. External Referral
   if (m === 'referral') {
     return (
       <span
@@ -181,7 +247,7 @@ function getTrafficBadge(source, medium, campaign) {
     );
   }
 
-  // Direct / Chrome Search
+  // 9. Direct / Chrome Search
   return (
     <span
       className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-neutral-100 text-neutral-700 border border-neutral-200 shadow-2xs"
@@ -203,11 +269,14 @@ const STATUS_OPTIONS = [
 
 const SOURCE_OPTIONS = [
   { id: 'ALL', label: 'All Traffic Sources', icon: Globe, iconColor: 'text-neutral-600', iconBg: 'bg-neutral-100', desc: 'Any source / referrer' },
+  { id: 'GOOGLE_ADS', label: 'Google Ads', icon: Target, iconColor: 'text-amber-600', iconBg: 'bg-amber-50', desc: 'Google Search & Display Ads (gclid)' },
+  { id: 'META_ADS', label: 'Meta Ads', icon: Megaphone, iconColor: 'text-indigo-600', iconBg: 'bg-indigo-50', desc: 'Facebook & Instagram Paid Ads (fbclid)' },
+  { id: 'INSTAGRAM', label: 'Instagram', icon: Camera, iconColor: 'text-pink-600', iconBg: 'bg-pink-50', desc: 'Instagram App, Bio & DM' },
   { id: 'WHATSAPP', label: 'WhatsApp', icon: MessageCircle, iconColor: 'text-emerald-600', iconBg: 'bg-emerald-50', desc: 'Direct chat & group links' },
+  { id: 'SEARCH', label: 'Google Search (Organic)', icon: Search, iconColor: 'text-blue-600', iconBg: 'bg-blue-50', desc: 'Organic Google search' },
   { id: 'DIRECT', label: 'Direct / Chrome', icon: Compass, iconColor: 'text-neutral-700', iconBg: 'bg-neutral-100', desc: 'Direct URL or Bookmark' },
-  { id: 'SEARCH', label: 'Google Search', icon: Search, iconColor: 'text-blue-600', iconBg: 'bg-blue-50', desc: 'Organic Google search' },
-  { id: 'SOCIAL', label: 'Social Media', icon: Smartphone, iconColor: 'text-purple-600', iconBg: 'bg-purple-50', desc: 'Instagram, FB, YouTube' },
-  { id: 'ADS', label: 'Paid Ads', icon: Target, iconColor: 'text-amber-600', iconBg: 'bg-amber-50', desc: 'Google Ads & Meta Campaigns' }
+  { id: 'SOCIAL', label: 'Other Social Media', icon: Smartphone, iconColor: 'text-purple-600', iconBg: 'bg-purple-50', desc: 'Facebook, YouTube, X / Twitter' },
+  { id: 'ADS', label: 'All Paid Ads', icon: Target, iconColor: 'text-orange-600', iconBg: 'bg-orange-50', desc: 'All combined ad traffic' }
 ];
 
 const PERIOD_OPTIONS = [
@@ -431,6 +500,28 @@ export default function VisitorAnalyticsPage() {
                   /whatsapp/i.test(v.utmCampaign || '')
               );
             }
+          } else if (sourceFilter === 'GOOGLE_ADS') {
+            loadedVisitors = loadedVisitors.filter(
+              (v) =>
+                /google ads/i.test(v.trafficSource || '') ||
+                (/google/i.test(v.trafficSource || '') && ['cpc', 'paid', 'ad', 'ads', 'ppc'].includes(v.trafficMedium?.toLowerCase()))
+            );
+          } else if (sourceFilter === 'META_ADS') {
+            loadedVisitors = loadedVisitors.filter(
+              (v) =>
+                /meta ads|facebook ads|instagram ads/i.test(v.trafficSource || '') ||
+                v.trafficMedium?.toLowerCase() === 'paid_social' ||
+                (['facebook', 'instagram', 'meta', 'fb', 'insta'].some((x) => (v.trafficSource || '').toLowerCase().includes(x)) &&
+                  ['cpc', 'paid', 'ads', 'ppc', 'ad'].includes(v.trafficMedium?.toLowerCase()))
+            );
+          } else if (sourceFilter === 'INSTAGRAM') {
+            loadedVisitors = loadedVisitors.filter(
+              (v) =>
+                /instagram/i.test(v.trafficSource || '') &&
+                !/ads/i.test(v.trafficSource || '') &&
+                v.trafficMedium?.toLowerCase() !== 'paid_social' &&
+                v.trafficMedium?.toLowerCase() !== 'cpc'
+            );
           }
         }
 
@@ -845,6 +936,12 @@ export default function VisitorAnalyticsPage() {
                     className={`w-full sm:w-auto h-10 px-3.5 text-xs font-semibold rounded-xl border transition-all flex items-center justify-between gap-2.5 cursor-pointer shadow-2xs select-none min-w-[170px] ${
                       sourceFilter === 'WHATSAPP'
                         ? 'bg-emerald-50/90 border-emerald-300 text-emerald-900 ring-2 ring-emerald-100 font-bold'
+                        : sourceFilter === 'GOOGLE_ADS'
+                        ? 'bg-amber-50/90 border-amber-300 text-amber-900 ring-2 ring-amber-100 font-bold'
+                        : sourceFilter === 'META_ADS'
+                        ? 'bg-indigo-50/90 border-indigo-300 text-indigo-900 ring-2 ring-indigo-100 font-bold'
+                        : sourceFilter === 'INSTAGRAM'
+                        ? 'bg-pink-50/90 border-pink-300 text-pink-900 ring-2 ring-pink-100 font-bold'
                         : sourceFilter !== 'ALL'
                         ? 'bg-blue-50/90 border-blue-300 text-blue-900 ring-2 ring-blue-100 font-bold'
                         : 'bg-neutral-50 hover:bg-neutral-100/80 border-neutral-300 text-neutral-800'
