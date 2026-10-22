@@ -30,7 +30,11 @@ import {
   TrendingUp,
   Radio,
   Timer,
-  ShieldCheck
+  ShieldCheck,
+  MessageCircle,
+  Compass,
+  Zap,
+  Target
 } from 'lucide-react';
 
 function formatKolkataTime(dateStr, includeSeconds = false) {
@@ -189,6 +193,32 @@ function getTrafficBadge(source, medium, campaign) {
   );
 }
 
+// Custom Dropdown Configuration Options
+const STATUS_OPTIONS = [
+  { id: 'ALL', label: 'All Statuses', dot: 'bg-neutral-400', desc: 'Active, Idle, or Ended' },
+  { id: 'ACTIVE', label: 'Active (Engaged)', dot: 'bg-emerald-500 animate-pulse', desc: 'Currently engaged on site' },
+  { id: 'INACTIVE', label: 'Idle (> 60s)', dot: 'bg-amber-400', desc: 'Inactive tab / screen' },
+  { id: 'ENDED', label: 'Ended (Exited)', dot: 'bg-neutral-300', desc: 'Session completed / closed' }
+];
+
+const SOURCE_OPTIONS = [
+  { id: 'ALL', label: 'All Traffic Sources', icon: Globe, iconColor: 'text-neutral-600', iconBg: 'bg-neutral-100', desc: 'Any source / referrer' },
+  { id: 'WHATSAPP', label: 'WhatsApp', icon: MessageCircle, iconColor: 'text-emerald-600', iconBg: 'bg-emerald-50', desc: 'Direct chat & group links' },
+  { id: 'DIRECT', label: 'Direct / Chrome', icon: Compass, iconColor: 'text-neutral-700', iconBg: 'bg-neutral-100', desc: 'Direct URL or Bookmark' },
+  { id: 'SEARCH', label: 'Google Search', icon: Search, iconColor: 'text-blue-600', iconBg: 'bg-blue-50', desc: 'Organic Google search' },
+  { id: 'SOCIAL', label: 'Social Media', icon: Smartphone, iconColor: 'text-purple-600', iconBg: 'bg-purple-50', desc: 'Instagram, FB, YouTube' },
+  { id: 'ADS', label: 'Paid Ads', icon: Target, iconColor: 'text-amber-600', iconBg: 'bg-amber-50', desc: 'Google Ads & Meta Campaigns' }
+];
+
+const PERIOD_OPTIONS = [
+  { id: 'TODAY', label: 'Today', icon: Zap, iconColor: 'text-amber-500 fill-amber-500', desc: 'Current calendar day (IST)' },
+  { id: 'YESTERDAY', label: 'Yesterday', icon: Clock, iconColor: 'text-neutral-500', desc: 'Previous 24 hours' },
+  { id: '7DAYS', label: 'Last 7 Days', icon: Calendar, iconColor: 'text-blue-600', desc: 'Past week summary' },
+  { id: '30DAYS', label: 'Last 30 Days', icon: Calendar, iconColor: 'text-indigo-600', desc: 'Past month summary' },
+  { id: 'ALL', label: 'All Time', icon: Layers, iconColor: 'text-neutral-500', desc: 'All recorded visitor data' },
+  { id: 'CUSTOM', label: 'Custom Range', icon: Filter, iconColor: 'text-purple-600', desc: 'Specify From & To dates' }
+];
+
 export default function VisitorAnalyticsPage() {
   const router = useRouter();
 
@@ -280,6 +310,29 @@ export default function VisitorAnalyticsPage() {
     setPeriodPreset('CUSTOM');
     setPagination((prev) => ({ ...prev, page: 1 }));
   };
+
+  // Custom Dropdown Open State ('status' | 'source' | 'period' | null)
+  const [openDropdown, setOpenDropdown] = useState(null);
+
+  // Close custom dropdowns on outside click or Escape key
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (!e.target.closest('[data-dropdown]')) {
+        setOpenDropdown(null);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener('click', handleOutsideClick);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('click', handleOutsideClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   // Realtime Socket.IO Connection & Sync State
   const [socketConnected, setSocketConnected] = useState(false);
@@ -514,6 +567,7 @@ export default function VisitorAnalyticsPage() {
     setEndDate(todayStr);
     setPeriodPreset('TODAY');
     setActiveTab('all');
+    setOpenDropdown(null);
     setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
@@ -722,52 +776,196 @@ export default function VisitorAnalyticsPage() {
             </div>
 
             {/* Status Dropdown Filter */}
-            <div className="w-full sm:w-40">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full h-10 px-3 text-xs font-semibold text-neutral-900 bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all cursor-pointer shadow-2xs"
+            <div className="relative w-full sm:w-auto" data-dropdown="status">
+              <button
+                type="button"
+                onClick={() => setOpenDropdown((prev) => (prev === 'status' ? null : 'status'))}
+                className={`w-full sm:w-auto h-10 px-3.5 text-xs font-semibold rounded-xl border transition-all flex items-center justify-between gap-2.5 cursor-pointer shadow-2xs select-none min-w-[145px] ${
+                  statusFilter !== 'ALL'
+                    ? 'bg-emerald-50/90 border-emerald-300 text-emerald-900 ring-2 ring-emerald-100 font-bold'
+                    : 'bg-neutral-50 hover:bg-neutral-100/80 border-neutral-300 text-neutral-800'
+                }`}
+                title="Filter by visitor status"
               >
-                <option value="ALL">All Statuses</option>
-                <option value="ACTIVE">🟢 Active (Engaged)</option>
-                <option value="INACTIVE">🟡 Idle (&gt; 60s)</option>
-                <option value="ENDED">⚪ Ended (Exited)</option>
-              </select>
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${(STATUS_OPTIONS.find((o) => o.id === statusFilter) || STATUS_OPTIONS[0]).dot}`} />
+                  <span className="truncate">{(STATUS_OPTIONS.find((o) => o.id === statusFilter) || STATUS_OPTIONS[0]).label}</span>
+                </div>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${
+                    openDropdown === 'status' ? 'rotate-180 text-neutral-900' : 'text-neutral-400'
+                  }`}
+                />
+              </button>
+
+              {openDropdown === 'status' && (
+                <div className="absolute left-0 top-full mt-1.5 z-40 bg-white border border-neutral-200/90 rounded-2xl shadow-xl py-1.5 min-w-[215px] animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-3.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1">
+                    Visitor Status
+                  </div>
+                  {STATUS_OPTIONS.map((opt) => {
+                    const isSelected = statusFilter === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => {
+                          setStatusFilter(opt.id);
+                          setPagination((p) => ({ ...p, page: 1 }));
+                          setOpenDropdown(null);
+                        }}
+                        className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer text-left ${
+                          isSelected ? 'bg-neutral-100 font-bold text-neutral-900' : 'hover:bg-neutral-50 text-neutral-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className={`w-2 h-2 rounded-full shrink-0 ${opt.dot}`} />
+                          <div>
+                            <div className="truncate font-semibold">{opt.label}</div>
+                            <div className="text-[10px] text-neutral-400 font-normal">{opt.desc}</div>
+                          </div>
+                        </div>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Traffic Source Filter */}
-            <div className="w-full sm:w-48">
-              <select
-                value={sourceFilter}
-                onChange={(e) => {
-                  setSourceFilter(e.target.value);
-                  setPagination((p) => ({ ...p, page: 1 }));
-                }}
-                className="w-full h-10 px-3 text-xs font-semibold text-neutral-900 bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all cursor-pointer shadow-2xs"
-              >
-                <option value="ALL">🌐 All Traffic Sources</option>
-                <option value="WHATSAPP">💬 WhatsApp (Marketing / Share)</option>
-                <option value="DIRECT">🔍 Direct / Chrome Search</option>
-                <option value="SEARCH">🔎 Google Search (Organic)</option>
-                <option value="SOCIAL">📱 Social Media (IG, FB...)</option>
-                <option value="ADS">🎯 Paid Ads (Google/Meta)</option>
-              </select>
+            <div className="relative w-full sm:w-auto" data-dropdown="source">
+              {(() => {
+                const cur = SOURCE_OPTIONS.find((o) => o.id === sourceFilter) || SOURCE_OPTIONS[0];
+                const CurIcon = cur.icon;
+                return (
+                  <button
+                    type="button"
+                    onClick={() => setOpenDropdown((prev) => (prev === 'source' ? null : 'source'))}
+                    className={`w-full sm:w-auto h-10 px-3.5 text-xs font-semibold rounded-xl border transition-all flex items-center justify-between gap-2.5 cursor-pointer shadow-2xs select-none min-w-[170px] ${
+                      sourceFilter === 'WHATSAPP'
+                        ? 'bg-emerald-50/90 border-emerald-300 text-emerald-900 ring-2 ring-emerald-100 font-bold'
+                        : sourceFilter !== 'ALL'
+                        ? 'bg-blue-50/90 border-blue-300 text-blue-900 ring-2 ring-blue-100 font-bold'
+                        : 'bg-neutral-50 hover:bg-neutral-100/80 border-neutral-300 text-neutral-800'
+                    }`}
+                    title="Filter by traffic source"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <CurIcon className={`w-3.5 h-3.5 shrink-0 ${cur.iconColor}`} />
+                      <span className="truncate">{cur.label}</span>
+                    </div>
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${
+                        openDropdown === 'source' ? 'rotate-180 text-neutral-900' : 'text-neutral-400'
+                      }`}
+                    />
+                  </button>
+                );
+              })()}
+
+              {openDropdown === 'source' && (
+                <div className="absolute left-0 top-full mt-1.5 z-40 bg-white border border-neutral-200/90 rounded-2xl shadow-xl py-1.5 min-w-[245px] animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-3.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1">
+                    Traffic Source
+                  </div>
+                  {SOURCE_OPTIONS.map((opt) => {
+                    const Icon = opt.icon;
+                    const isSelected = sourceFilter === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => {
+                          setSourceFilter(opt.id);
+                          setPagination((p) => ({ ...p, page: 1 }));
+                          setOpenDropdown(null);
+                        }}
+                        className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer text-left ${
+                          isSelected ? 'bg-neutral-100 font-bold text-neutral-900' : 'hover:bg-neutral-50 text-neutral-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className={`w-6 h-6 rounded-lg ${opt.iconBg} ${opt.iconColor} flex items-center justify-center shrink-0`}>
+                            <Icon className="w-3.5 h-3.5" />
+                          </div>
+                          <div>
+                            <div className="truncate font-semibold">{opt.label}</div>
+                            <div className="text-[10px] text-neutral-400 font-normal">{opt.desc}</div>
+                          </div>
+                        </div>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
-            {/* Date Presets Dropdown */}
-            <div className="w-full sm:w-36">
-              <select
-                value={periodPreset}
-                onChange={(e) => handlePeriodChange(e.target.value)}
-                className="w-full h-10 px-3 text-xs font-semibold text-neutral-900 bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all cursor-pointer shadow-2xs"
-              >
-                <option value="TODAY">⚡ Today</option>
-                <option value="YESTERDAY">⏮ Yesterday</option>
-                <option value="7DAYS">📊 Last 7 Days</option>
-                <option value="30DAYS">🗓 Last 30 Days</option>
-                <option value="ALL">📅 All Time</option>
-                <option value="CUSTOM">🎯 Custom Range</option>
-              </select>
+            {/* Date Presets Dropdown Filter */}
+            <div className="relative w-full sm:w-auto" data-dropdown="period">
+              {(() => {
+                const cur = PERIOD_OPTIONS.find((o) => o.id === periodPreset) || PERIOD_OPTIONS[0];
+                const CurIcon = cur.icon;
+                return (
+                  <button
+                    type="button"
+                    onClick={() => setOpenDropdown((prev) => (prev === 'period' ? null : 'period'))}
+                    className={`w-full sm:w-auto h-10 px-3.5 text-xs font-semibold rounded-xl border transition-all flex items-center justify-between gap-2.5 cursor-pointer shadow-2xs select-none min-w-[130px] ${
+                      periodPreset === 'CUSTOM'
+                        ? 'bg-purple-50/90 border-purple-300 text-purple-900 ring-2 ring-purple-100 font-bold'
+                        : periodPreset !== 'TODAY'
+                        ? 'bg-neutral-100 border-neutral-400 text-neutral-900 font-bold'
+                        : 'bg-neutral-50 hover:bg-neutral-100/80 border-neutral-300 text-neutral-800'
+                    }`}
+                    title="Filter by date range preset"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <CurIcon className={`w-3.5 h-3.5 shrink-0 ${cur.iconColor}`} />
+                      <span className="truncate">{cur.label}</span>
+                    </div>
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${
+                        openDropdown === 'period' ? 'rotate-180 text-neutral-900' : 'text-neutral-400'
+                      }`}
+                    />
+                  </button>
+                );
+              })()}
+
+              {openDropdown === 'period' && (
+                <div className="absolute left-0 top-full mt-1.5 z-40 bg-white border border-neutral-200/90 rounded-2xl shadow-xl py-1.5 min-w-[220px] animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-3.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1">
+                    Date Range Preset
+                  </div>
+                  {PERIOD_OPTIONS.map((opt) => {
+                    const Icon = opt.icon;
+                    const isSelected = periodPreset === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => {
+                          handlePeriodChange(opt.id);
+                          setOpenDropdown(null);
+                        }}
+                        className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer text-left ${
+                          isSelected ? 'bg-neutral-100 font-bold text-neutral-900' : 'hover:bg-neutral-50 text-neutral-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <Icon className={`w-3.5 h-3.5 shrink-0 ${opt.iconColor}`} />
+                          <div>
+                            <div className="truncate font-semibold">{opt.label}</div>
+                            <div className="text-[10px] text-neutral-400 font-normal">{opt.desc}</div>
+                          </div>
+                        </div>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Custom Date Pickers (Shown ONLY when Custom Range is active) */}
