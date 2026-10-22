@@ -204,14 +204,21 @@ function getTrafficBadge(source, medium, campaign) {
   }
 
   // 6. Google & Organic Search Engines
-  if (s.toLowerCase().includes('google') || s.toLowerCase().includes('search') || m === 'organic') {
+  if (
+    s === 'android-app:' ||
+    s.toLowerCase().includes('android-app') ||
+    s.toLowerCase().includes('google') ||
+    s.toLowerCase().includes('search') ||
+    m === 'organic'
+  ) {
+    const label = (s === 'android-app:' || s.toLowerCase().includes('android-app')) ? 'Google App' : s;
     return (
       <span
         className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200/90 shadow-2xs"
-        title="Organic Search Engine"
+        title="Google Search / App (Organic)"
       >
         <span>🔎</span>
-        <span className="truncate max-w-[130px]">{s}</span>
+        <span className="truncate max-w-[130px]">{label}</span>
       </span>
     );
   }
