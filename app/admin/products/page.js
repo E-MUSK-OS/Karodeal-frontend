@@ -29,6 +29,7 @@ export default function AdminProductsPage() {
   const [storeSearchText, setStoreSearchText] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'sortOrder', direction: 'asc' });
   const [currentRole, setCurrentRole] = useState(null);
+  const [adminPermissions, setAdminPermissions] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
   const [draggedProductId, setDraggedProductId] = useState(null);
   const [dragOverProductId, setDragOverProductId] = useState(null);
@@ -57,9 +58,14 @@ export default function AdminProductsPage() {
       try {
         const adminObj = JSON.parse(adminUserStr);
         if (adminObj?.role) setCurrentRole(adminObj.role);
+        if (adminObj?.permissions) setAdminPermissions(adminObj.permissions);
       } catch (e) {}
     }
   }, []);
+
+  const canAdd = currentRole !== 'SUB_ADMIN' || (adminPermissions?.canAdd ?? true);
+  const canUpdate = currentRole !== 'SUB_ADMIN' || (adminPermissions?.canUpdate ?? true);
+  const canDelete = currentRole !== 'SUB_ADMIN' || (adminPermissions?.canDelete ?? false);
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
@@ -532,51 +538,53 @@ export default function AdminProductsPage() {
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto relative">
-          <Button variant="none" size="none"
-            onClick={(e) => { e.stopPropagation(); setAddMenuOpen(!addMenuOpen); setOpenDropdown(null); }}
-            className="w-full sm:w-auto px-4 py-2.5 bg-black hover:bg-[#f96b02] text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
-          >
-            <Plus className="w-4 h-4" />
-            Add New Product
-            <ChevronDown className="w-4 h-4" />
-          </Button>
+        {canAdd && (
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto relative">
+            <Button variant="none" size="none"
+              onClick={(e) => { e.stopPropagation(); setAddMenuOpen(!addMenuOpen); setOpenDropdown(null); }}
+              className="w-full sm:w-auto px-4 py-2.5 bg-black hover:bg-[#f96b02] text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
+            >
+              <Plus className="w-4 h-4" />
+              Add New Product
+              <ChevronDown className="w-4 h-4" />
+            </Button>
 
-          {addMenuOpen && (
-            <div className="absolute top-full right-0 mt-2 w-56 bg-white border border-neutral-200 rounded-xl shadow-xl overflow-hidden z-50 py-1" onClick={(e) => e.stopPropagation()}>
-              <button 
-                onClick={() => { setAddMenuOpen(false); setIsBuilderModalOpen(true); }}
-                className="w-full text-left px-4 py-3 hover:bg-neutral-50 flex items-center gap-3 transition-colors border-b border-neutral-100 last:border-0"
-              >
-                <span className="text-xl">🎨</span>
-                <div>
-                  <div className="text-sm font-bold text-neutral-800">Card Builder</div>
-                  <div className="text-[10px] text-neutral-500">Create standard deal card</div>
-                </div>
-              </button>
-              <button 
-                onClick={() => { setAddMenuOpen(false); setIsCustomModalOpen(true); }}
-                className="w-full text-left px-4 py-3 hover:bg-neutral-50 flex items-center gap-3 transition-colors border-b border-neutral-100 last:border-0"
-              >
-                <span className="text-xl">🖼️</span>
-                <div>
-                  <div className="text-sm font-bold text-neutral-800">Custom Upload</div>
-                  <div className="text-[10px] text-neutral-500">Upload direct deal image</div>
-                </div>
-              </button>
-              <button 
-                onClick={() => { setAddMenuOpen(false); setIsBulkModalOpen(true); }}
-                className="w-full text-left px-4 py-3 hover:bg-neutral-50 flex items-center gap-3 transition-colors border-b border-neutral-100 last:border-0"
-              >
-                <span className="text-xl">📄</span>
-                <div>
-                  <div className="text-sm font-bold text-neutral-800">Bulk Import</div>
-                  <div className="text-[10px] text-neutral-500">Upload Excel or CSV</div>
-                </div>
-              </button>
-            </div>
-          )}
-        </div>
+            {addMenuOpen && (
+              <div className="absolute top-full right-0 mt-2 w-56 bg-white border border-neutral-200 rounded-xl shadow-xl overflow-hidden z-50 py-1" onClick={(e) => e.stopPropagation()}>
+                <button 
+                  onClick={() => { setAddMenuOpen(false); setIsBuilderModalOpen(true); }}
+                  className="w-full text-left px-4 py-3 hover:bg-neutral-50 flex items-center gap-3 transition-colors border-b border-neutral-100 last:border-0"
+                >
+                  <span className="text-xl">🎨</span>
+                  <div>
+                    <div className="text-sm font-bold text-neutral-800">Card Builder</div>
+                    <div className="text-[10px] text-neutral-500">Create standard deal card</div>
+                  </div>
+                </button>
+                <button 
+                  onClick={() => { setAddMenuOpen(false); setIsCustomModalOpen(true); }}
+                  className="w-full text-left px-4 py-3 hover:bg-neutral-50 flex items-center gap-3 transition-colors border-b border-neutral-100 last:border-0"
+                >
+                  <span className="text-xl">🖼️</span>
+                  <div>
+                    <div className="text-sm font-bold text-neutral-800">Custom Upload</div>
+                    <div className="text-[10px] text-neutral-500">Upload direct deal image</div>
+                  </div>
+                </button>
+                <button 
+                  onClick={() => { setAddMenuOpen(false); setIsBulkModalOpen(true); }}
+                  className="w-full text-left px-4 py-3 hover:bg-neutral-50 flex items-center gap-3 transition-colors border-b border-neutral-100 last:border-0"
+                >
+                  <span className="text-xl">📄</span>
+                  <div>
+                    <div className="text-sm font-bold text-neutral-800">Bulk Import</div>
+                    <div className="text-[10px] text-neutral-500">Upload Excel or CSV</div>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Search & Modern Filter Dropdowns Bar */}
@@ -1074,9 +1082,10 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="p-4 text-center">
                       <button
-                        onClick={() => handleToggleActive(p)}
-                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none transition-colors ${p.isActive ? 'bg-emerald-500' : 'bg-neutral-300'}`}
-                        title={p.isActive ? 'Live on User Site (Click to Deactivate)' : 'Deactivated / Hidden from Users (Click to Activate)'}
+                        onClick={() => canUpdate && handleToggleActive(p)}
+                        disabled={!canUpdate}
+                        className={`relative inline-flex h-5 w-9 shrink-0 ${canUpdate ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'} items-center justify-center rounded-full focus:outline-none transition-colors ${p.isActive ? 'bg-emerald-500' : 'bg-neutral-300'}`}
+                        title={!canUpdate ? 'You do not have permission to modify card status' : p.isActive ? 'Live on User Site (Click to Deactivate)' : 'Deactivated / Hidden from Users (Click to Activate)'}
                       >
                         <span className="sr-only">Toggle active status</span>
                         <span aria-hidden="true" className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${p.isActive ? 'translate-x-2' : '-translate-x-2'}`} />
@@ -1099,7 +1108,7 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="p-4 pr-6">
                       <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
-                        {(!p.isActive || (p.expiresAt && new Date(p.expiresAt) <= new Date())) && (
+                        {canUpdate && (!p.isActive || (p.expiresAt && new Date(p.expiresAt) <= new Date())) && (
                           <button
                             onClick={() => handleRepost(p)}
                             className="px-2.5 py-1 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors flex items-center gap-1 shadow-xs cursor-pointer"
@@ -1109,20 +1118,24 @@ export default function AdminProductsPage() {
                             Re-Post
                           </button>
                         )}
-                        <Button variant="none" size="none"
-                          onClick={() => handleOpenEdit(p)}
-                          className="p-2 text-neutral-600 hover:text-[#f96b02] hover:bg-neutral-100 rounded-lg transition-colors"
-                          title="Edit Product Card"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </Button>
-                        <Button variant="none" size="none"
-                          onClick={() => handleDelete(p.id)}
-                          className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete Product"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        {canUpdate && (
+                          <Button variant="none" size="none"
+                            onClick={() => handleOpenEdit(p)}
+                            className="p-2 text-neutral-600 hover:text-[#f96b02] hover:bg-neutral-100 rounded-lg transition-colors"
+                            title="Edit Product Card"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </Button>
+                        )}
+                        {canDelete && (
+                          <Button variant="none" size="none"
+                            onClick={() => handleDelete(p.id)}
+                            className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete Product"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
                       </div>
                     </td>
                   </tr>

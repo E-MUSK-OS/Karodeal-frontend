@@ -28,27 +28,58 @@ export default function AdminLayout({ children }) {
           if (res.ok) {
             const data = await res.json();
             const currentRole = data.role || adminUser.role || 'ADMIN';
+            let updated = false;
+
             if (data.role && adminUser.role !== data.role) {
               adminUser.role = data.role;
+              updated = true;
+            }
+
+            if (data.permissions !== undefined) {
+              adminUser.permissions = data.permissions;
+              updated = true;
+            }
+
+            if (updated) {
               localStorage.setItem('adminUser', JSON.stringify(adminUser));
             }
 
-            // Protect Main-Admin only pages from Sub-Admins
-            const restrictedForSubAdmin = [
-              '/admin/payouts',
-              '/admin/stores',
-              '/admin/categories',
-              '/admin/users',
-              '/admin/claims',
-              '/admin/subscribers',
-              '/admin/messages',
-              '/admin/missing-cashback',
-              '/admin/visitor-analytics'
-            ];
+            // Protect pages for Sub-Admins based on allowed modules
+            if (currentRole === 'SUB_ADMIN') {
+              // Users management is strictly Main Admin only
+              if (pathname.startsWith('/admin/users')) {
+                router.replace('/admin/dashboard');
+                return;
+              }
 
-            if (currentRole === 'SUB_ADMIN' && restrictedForSubAdmin.some((prefix) => pathname.startsWith(prefix))) {
-              router.replace('/admin/dashboard');
-              return;
+              const defaultModules = ['dashboard', 'products', 'billing', 'review-requests', 'clicks'];
+              const allowedModules = (data.permissions?.allowedModules || adminUser.permissions?.allowedModules || defaultModules);
+
+              const MODULE_PREFIX_MAP = {
+                'dashboard': '/admin/dashboard',
+                'products': '/admin/products',
+                'billing': '/admin/billing',
+                'review-requests': '/admin/review-requests',
+                'clicks': '/admin/clicks',
+                'stores': '/admin/stores',
+                'categories': '/admin/categories',
+                'claims': '/admin/claims',
+                'missing-cashback': '/admin/missing-cashback',
+                'visitor-analytics': '/admin/visitor-analytics',
+                'subscribers': '/admin/subscribers',
+                'seller-requests': '/admin/seller-requests',
+                'messages': '/admin/messages',
+                'payouts': '/admin/payouts',
+              };
+
+              const matchedEntry = Object.entries(MODULE_PREFIX_MAP).find(([, prefix]) => 
+                pathname === prefix || pathname.startsWith(`${prefix}/`)
+              );
+
+              if (matchedEntry && !allowedModules.includes(matchedEntry[0])) {
+                router.replace('/admin/dashboard');
+                return;
+              }
             }
 
             setIsAuthenticated(true);

@@ -14,11 +14,13 @@ import {
   Check, 
   Loader2, 
   ChevronLeft, 
-  ChevronRight 
+  ChevronRight,
+  SlidersHorizontal
 } from 'lucide-react';
 import PageLoader from '@/components/common/PageLoader';
 import Button from '@/components/common/Button';
 import ConfirmModal from '@/components/common/ConfirmModal';
+import SubAdminPermissionsModal from '@/components/admin/users/SubAdminPermissionsModal';
 import { handleAppError, showSuccessToast, showErrorToast } from '@/lib/errorHandler';
 
 const ROLES = [
@@ -64,6 +66,20 @@ export default function AdminUsersPage() {
     onConfirm: () => {}, 
     isDestructive: true 
   });
+  const [permissionsModalUser, setPermissionsModalUser] = useState(null);
+
+  const handlePermissionsUpdated = (userId, updatedData) => {
+    setUsers(prev => prev.map(u => {
+      if (u.id === userId || u._id === userId) {
+        return { 
+          ...u, 
+          role: updatedData.role || u.role, 
+          permissions: updatedData.permissions || u.permissions 
+        };
+      }
+      return u;
+    }));
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -469,15 +485,30 @@ export default function AdminUsersPage() {
                         {renderRoleDropdown(u, true, openUpwards)}
                       </div>
 
-                      <Button 
-                        variant="none" 
-                        size="none"
-                        onClick={() => handleDeleteUser(userId)}
-                        className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-red-100"
-                        title="Delete User"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setPermissionsModalUser(u)}
+                          className={`p-2 rounded-xl transition-all cursor-pointer border ${
+                            u.role === 'SUB_ADMIN'
+                              ? 'bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-300 shadow-2xs'
+                              : 'text-neutral-400 hover:text-neutral-800 hover:bg-neutral-100 border-transparent hover:border-neutral-200'
+                          }`}
+                          title={u.role === 'SUB_ADMIN' ? 'Sub-Admin Permissions & Access' : 'Configure Sub-Admin Permissions'}
+                        >
+                          <SlidersHorizontal className="w-4 h-4" />
+                        </button>
+
+                        <Button 
+                          variant="none" 
+                          size="none"
+                          onClick={() => handleDeleteUser(userId)}
+                          className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-red-100"
+                          title="Delete User"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -540,15 +571,30 @@ export default function AdminUsersPage() {
                           </span>
                         </td>
                         <td className="py-4 px-6 pr-8 text-right">
-                          <Button 
-                            variant="none" 
-                            size="none"
-                            onClick={() => handleDeleteUser(userId)}
-                            className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                            title="Delete User"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => setPermissionsModalUser(u)}
+                              className={`p-2 rounded-xl transition-all cursor-pointer border ${
+                                u.role === 'SUB_ADMIN'
+                                  ? 'bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-300 shadow-2xs'
+                                  : 'text-neutral-400 hover:text-neutral-800 hover:bg-neutral-100 border-transparent hover:border-neutral-200'
+                              }`}
+                              title={u.role === 'SUB_ADMIN' ? 'Sub-Admin Permissions & Access' : 'Configure Sub-Admin Permissions'}
+                            >
+                              <SlidersHorizontal className="w-4 h-4" />
+                            </button>
+
+                            <Button 
+                              variant="none" 
+                              size="none"
+                              onClick={() => handleDeleteUser(userId)}
+                              className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-red-100"
+                              title="Delete User"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -630,6 +676,13 @@ export default function AdminUsersPage() {
       </div>
 
       <ConfirmModal {...confirmModal} onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })} />
+
+      <SubAdminPermissionsModal
+        isOpen={!!permissionsModalUser}
+        onClose={() => setPermissionsModalUser(null)}
+        user={permissionsModalUser}
+        onPermissionsUpdated={handlePermissionsUpdated}
+      />
     </div>
   );
 }

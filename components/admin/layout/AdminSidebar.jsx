@@ -12,6 +12,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
   const pathname = usePathname();
   const router = useRouter();
   const [role, setRole] = useState(null);
+  const [permissions, setPermissions] = useState(null);
   const [pendingStarCount, setPendingStarCount] = useState(0);
 
   useEffect(() => {
@@ -21,9 +22,11 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
         if (adminStr) {
           const user = JSON.parse(adminStr);
           setRole(user.role || 'ADMIN');
+          setPermissions(user.permissions || null);
         }
       } catch (e) {
         setRole(null);
+        setPermissions(null);
       }
     };
 
@@ -75,34 +78,31 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
   };
 
   const allNavItems = [
-    { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-    { name: 'Visitor Analytics', href: '/admin/visitor-analytics', icon: Activity },
-    { name: 'Payout Requests', href: '/admin/payouts', icon: IndianRupee },
-    { name: 'Products & Cards', href: '/admin/products', icon: Package },
-    { name: 'Billing', href: '/admin/billing', icon: Receipt },
-    { name: 'Review Requests', href: '/admin/review-requests', icon: Star },
-    { name: 'Stores', href: '/admin/stores', icon: ShoppingBag },
-    { name: 'Categories', href: '/admin/categories', icon: FolderTree },
-    { name: 'Users', href: '/admin/users', icon: Users },
-    { name: 'Cashback Claims', href: '/admin/claims', icon: Ticket },
-    { name: 'Missing Cashback', href: '/admin/missing-cashback', icon: Ticket },
-    { name: 'Click Tracking', href: '/admin/clicks', icon: MousePointerClick },
-    { name: 'Subscribers', href: '/admin/subscribers', icon: Mail },
-    { name: 'Seller Requests', href: '/admin/seller-requests', icon: Store },
-    { name: 'Messages', href: '/admin/messages', icon: MessageSquare },
+    { key: 'dashboard', name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
+    { key: 'visitor-analytics', name: 'Visitor Analytics', href: '/admin/visitor-analytics', icon: Activity },
+    { key: 'payouts', name: 'Payout Requests', href: '/admin/payouts', icon: IndianRupee },
+    { key: 'products', name: 'Products & Cards', href: '/admin/products', icon: Package },
+    { key: 'billing', name: 'Billing', href: '/admin/billing', icon: Receipt },
+    { key: 'review-requests', name: 'Review Requests', href: '/admin/review-requests', icon: Star },
+    { key: 'stores', name: 'Stores', href: '/admin/stores', icon: ShoppingBag },
+    { key: 'categories', name: 'Categories', href: '/admin/categories', icon: FolderTree },
+    { key: 'users', name: 'Users', href: '/admin/users', icon: Users },
+    { key: 'claims', name: 'Cashback Claims', href: '/admin/claims', icon: Ticket },
+    { key: 'missing-cashback', name: 'Missing Cashback', href: '/admin/missing-cashback', icon: Ticket },
+    { key: 'clicks', name: 'Click Tracking', href: '/admin/clicks', icon: MousePointerClick },
+    { key: 'subscribers', name: 'Subscribers', href: '/admin/subscribers', icon: Mail },
+    { key: 'seller-requests', name: 'Seller Requests', href: '/admin/seller-requests', icon: Store },
+    { key: 'messages', name: 'Messages', href: '/admin/messages', icon: MessageSquare },
   ];
 
-  // Sub-admin can see: Products & Cards, Billing, Review Requests, Click Tracking (plus Dashboard)
-  const subAdminAllowedHrefs = [
-    '/admin/dashboard',
-    '/admin/products',
-    '/admin/billing',
-    '/admin/review-requests',
-    '/admin/clicks'
-  ];
+  // Dynamic module filtering for Sub-Admins
+  const defaultSubAdminModules = ['dashboard', 'products', 'billing', 'review-requests', 'clicks'];
+  const allowedModuleKeys = permissions?.allowedModules && Array.isArray(permissions.allowedModules) && permissions.allowedModules.length > 0
+    ? permissions.allowedModules
+    : defaultSubAdminModules;
 
   const navItems = role === 'SUB_ADMIN'
-    ? allNavItems.filter((item) => subAdminAllowedHrefs.includes(item.href))
+    ? allNavItems.filter((item) => allowedModuleKeys.includes(item.key))
     : allNavItems;
 
   return (
