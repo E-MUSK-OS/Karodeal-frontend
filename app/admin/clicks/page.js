@@ -169,7 +169,7 @@ export default function ProductClicksPage() {
             </h3>
             {userRole === 'SUB_ADMIN' ? (
               <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                Your Cards Only
+                {filteredClicks.length !== clicks.length ? `${filteredClicks.length} / ${clicks.length} Clicks` : `${clicks.length} Clicks`}
               </span>
             ) : (
               <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-neutral-100 text-neutral-700 border border-neutral-200">
@@ -177,7 +177,7 @@ export default function ProductClicksPage() {
               </span>
             )}
           </div>
-          <p className="text-xs sm:text-sm text-neutral-500 mt-1">See which users clicked on your deals</p>
+          <p className="text-xs sm:text-sm text-neutral-500 mt-1">See which users clicked on deals and products</p>
         </div>
 
         {/* Filters Row */}

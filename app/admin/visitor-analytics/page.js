@@ -436,8 +436,9 @@ export default function VisitorAnalyticsPage() {
         const adminUser = JSON.parse(adminStr);
         const role = adminUser.role || 'USER';
 
-        // Strictly Main Admin only ("aa only main admin hoy tane panal ma ja show thavu pade")
-        if (role !== 'ADMIN') {
+        // Allowed for Main Admin OR Sub-Admin with 'visitor-analytics' permission
+        const allowedModules = adminUser.permissions?.allowedModules || ['dashboard', 'products', 'billing', 'review-requests', 'clicks'];
+        if (role !== 'ADMIN' && (role !== 'SUB_ADMIN' || !allowedModules.includes('visitor-analytics'))) {
           router.replace('/admin/dashboard');
           return;
         }
@@ -535,8 +536,9 @@ export default function VisitorAnalyticsPage() {
         setVisitors(loadedVisitors);
         if (data.pagination) setPagination(data.pagination);
         if (data.stats) setStats(data.stats);
-      } else if (res.status === 401 || res.status === 403) {
-        router.push('/admin/dashboard');
+      } else if (res.status === 401) {
+        localStorage.removeItem('adminUser');
+        router.push('/admin/login');
       }
     } catch (error) {
       console.error('Failed to fetch visitor analytics:', error);

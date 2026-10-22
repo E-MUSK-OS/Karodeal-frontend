@@ -63,12 +63,13 @@ export default function AdminSellerRequestsPage() {
       }
       const adminUser = JSON.parse(adminStr);
 
-      if (adminUser.role === 'SUB_ADMIN') {
+      const allowedModules = adminUser.permissions?.allowedModules || ['dashboard', 'products', 'billing', 'review-requests', 'clicks'];
+      if (adminUser.role === 'SUB_ADMIN' && !allowedModules.includes('seller-requests')) {
         router.replace('/admin/dashboard');
         return;
       }
 
-      if (adminUser.role !== 'ADMIN') {
+      if (adminUser.role !== 'ADMIN' && adminUser.role !== 'SUB_ADMIN') {
         router.push('/admin/login');
         return;
       }

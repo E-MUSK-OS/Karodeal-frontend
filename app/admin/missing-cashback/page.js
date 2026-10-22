@@ -77,12 +77,13 @@ function AdminMissingCashbackContent() {
     }
     const user = JSON.parse(userStr);
 
-    if (user.role === 'SUB_ADMIN') {
+    const allowedModules = user.permissions?.allowedModules || ['dashboard', 'products', 'billing', 'review-requests', 'clicks'];
+    if (user.role === 'SUB_ADMIN' && !allowedModules.includes('missing-cashback')) {
       router.replace('/admin/dashboard');
       return;
     }
 
-    if (user.role !== 'ADMIN') {
+    if (user.role !== 'ADMIN' && user.role !== 'SUB_ADMIN') {
       router.push('/admin/login');
       return;
     }
