@@ -82,26 +82,33 @@ function formatDuration(seconds = 0) {
   return `${h}h ${remM}m`;
 }
 
+function formatCampaignLabel(campaign) {
+  if (!campaign) return null;
+  const str = String(campaign).trim();
+  // Format long numeric ad/campaign IDs like Meta 120251108357490001
+  if (/^\d{8,}$/.test(str)) {
+    return `ID: ...${str.slice(-6)}`;
+  }
+  return str.length > 18 ? `${str.slice(0, 16)}...` : str;
+}
+
 function getTrafficBadge(source, medium, campaign) {
   const s = source || 'Direct / Chrome Search';
   const m = (medium || 'direct').toLowerCase();
+  const formattedCampaign = formatCampaignLabel(campaign);
 
   // Paid Ads / Campaigns
   if (m === 'cpc' || m === 'paid_social' || m === 'ads' || m === 'ppc' || s.toLowerCase().includes('ads')) {
     return (
       <span
-        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-200/90 shadow-2xs"
+        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-200/90 shadow-2xs"
         title={`Paid Campaign: ${campaign || s}`}
       >
         <span>🎯</span>
-        <span className="truncate max-w-[140px]">{s}</span>
-        {campaign ? (
-          <span className="text-[9px] bg-amber-200/90 text-amber-900 font-black px-1 rounded">
-            Ad: {campaign}
-          </span>
-        ) : (
-          <span className="text-[9px] bg-amber-200/90 text-amber-900 font-black px-1 rounded">
-            Paid Ad
+        <span className="truncate max-w-[130px]">{s}</span>
+        {formattedCampaign && (
+          <span className="text-[9px] bg-amber-200/90 text-amber-950 font-black px-1.5 py-0.2 rounded" title={campaign}>
+            {formattedCampaign}
           </span>
         )}
       </span>
@@ -112,11 +119,11 @@ function getTrafficBadge(source, medium, campaign) {
   if (s.toLowerCase().includes('google') || s.toLowerCase().includes('search') || m === 'organic') {
     return (
       <span
-        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200/90 shadow-2xs"
+        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200/90 shadow-2xs"
         title="Organic Search Engine"
       >
         <span>🔎</span>
-        <span className="truncate max-w-[140px]">{s}</span>
+        <span className="truncate max-w-[130px]">{s}</span>
       </span>
     );
   }
@@ -125,14 +132,14 @@ function getTrafficBadge(source, medium, campaign) {
   if (/whatsapp/i.test(s) || /whatsapp/i.test(m)) {
     return (
       <span
-        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-900 border border-emerald-300 shadow-2xs"
+        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-900 border border-emerald-300 shadow-2xs"
         title={`WhatsApp: ${campaign || s}`}
       >
         <span>💬</span>
         <span className="truncate max-w-[120px]">WhatsApp</span>
-        {campaign && (
-          <span className="text-[9px] bg-emerald-200/90 text-emerald-950 font-black px-1 rounded truncate max-w-[110px]" title={campaign}>
-            {campaign}
+        {formattedCampaign && (
+          <span className="text-[9px] bg-emerald-200/90 text-emerald-950 font-black px-1.5 py-0.2 rounded truncate max-w-[110px]" title={campaign}>
+            {formattedCampaign}
           </span>
         )}
       </span>
@@ -143,14 +150,14 @@ function getTrafficBadge(source, medium, campaign) {
   if (m === 'social' || /instagram|facebook|youtube|twitter|x\.com|linkedin|pinterest|reddit/i.test(s)) {
     return (
       <span
-        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-800 border border-purple-200/90 shadow-2xs"
-        title="Social Media Referral"
+        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-800 border border-purple-200/90 shadow-2xs"
+        title={`Social Media: ${campaign || s}`}
       >
         <span>📱</span>
-        <span className="truncate max-w-[140px]">{s}</span>
-        {campaign && (
-          <span className="text-[9px] bg-purple-200/90 text-purple-950 font-black px-1 rounded truncate max-w-[100px]">
-            {campaign}
+        <span className="truncate max-w-[130px]">{s}</span>
+        {formattedCampaign && (
+          <span className="text-[9px] bg-purple-200/90 text-purple-950 font-black px-1.5 py-0.2 rounded truncate max-w-[100px]" title={campaign}>
+            {formattedCampaign}
           </span>
         )}
       </span>
@@ -161,11 +168,11 @@ function getTrafficBadge(source, medium, campaign) {
   if (m === 'referral') {
     return (
       <span
-        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-teal-50 text-teal-800 border border-teal-200/90 shadow-2xs"
-        title="External Referral Website"
+        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-teal-50 text-teal-800 border border-teal-200/90 shadow-2xs"
+        title={`External Referral: ${s}`}
       >
         <span>🔗</span>
-        <span className="truncate max-w-[140px]">{s}</span>
+        <span className="truncate max-w-[130px]">{s}</span>
       </span>
     );
   }
@@ -173,11 +180,11 @@ function getTrafficBadge(source, medium, campaign) {
   // Direct / Chrome Search
   return (
     <span
-      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-neutral-100 text-neutral-700 border border-neutral-200 shadow-2xs"
+      className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-neutral-100 text-neutral-700 border border-neutral-200 shadow-2xs"
       title="Direct URL / Chrome Search"
     >
       <span>🌐</span>
-      <span className="truncate max-w-[140px]">{s}</span>
+      <span className="truncate max-w-[130px]">{s}</span>
     </span>
   );
 }
@@ -636,11 +643,11 @@ export default function VisitorAnalyticsPage() {
       </div>
 
       {/* Tabs & Modern Filter Bar */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200 shadow-sm space-y-4">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/90 shadow-sm space-y-4">
         {/* Row 1: Live/All Tabs + Search Box */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-neutral-100">
           {/* Tabs */}
-          <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-xl self-start">
+          <div className="flex items-center gap-1.5 bg-neutral-100 p-1 rounded-xl self-start">
             <button
               type="button"
               onClick={() => { setActiveTab('all'); setPagination((p) => ({ ...p, page: 1 })); }}
@@ -668,19 +675,19 @@ export default function VisitorAnalyticsPage() {
 
           {/* Search Input */}
           <div className="relative w-full md:w-80">
-            <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               placeholder="Search by Visitor ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-9 py-2 text-xs font-medium text-neutral-900 placeholder:text-neutral-500 bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all"
+              className="w-full h-10 pl-10 pr-9 text-xs font-medium text-neutral-900 placeholder:text-neutral-400 bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all shadow-2xs"
             />
             {searchTerm && (
               <button
                 type="button"
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-800 p-0.5 cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-800 p-1 rounded-md cursor-pointer transition-colors"
                 title="Clear search"
               >
                 <X className="w-3.5 h-3.5" />
@@ -689,166 +696,151 @@ export default function VisitorAnalyticsPage() {
           </div>
         </div>
 
-        {/* Row 2: Secondary Filters (Path, Status, Date Range, Reset) */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Page Path Filter */}
-          <div className="relative flex-1 min-w-[200px]">
-            <Globe className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Filter Page (e.g. /deals, /stores)..."
-              value={pagePathFilter}
-              onChange={(e) => setPagePathFilter(e.target.value)}
-              className="w-full pl-10 pr-9 py-2 text-xs font-medium text-neutral-900 placeholder:text-neutral-500 bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all"
-            />
-            {pagePathFilter && (
-              <button
-                type="button"
-                onClick={() => setPagePathFilter('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-800 p-0.5 cursor-pointer"
-                title="Clear filter"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-
-          {/* Status Dropdown Filter */}
-          <div className="w-full sm:w-44">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 text-xs font-semibold text-neutral-900 bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all cursor-pointer"
-            >
-              <option value="ALL">All Statuses</option>
-              <option value="ACTIVE">🟢 Active (Live Engaged)</option>
-              <option value="INACTIVE">🟡 Inactive (Idle &gt; 60s)</option>
-              <option value="ENDED">⚪ Ended (Left Page)</option>
-            </select>
-          </div>
-
-          {/* Traffic Source Filter */}
-          <div className="w-full sm:w-52">
-            <select
-              value={sourceFilter}
-              onChange={(e) => {
-                setSourceFilter(e.target.value);
-                setPagination((p) => ({ ...p, page: 1 }));
-              }}
-              className="w-full px-3 py-2 text-xs font-semibold text-neutral-900 bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all cursor-pointer shadow-2xs"
-            >
-              <option value="ALL">🌐 All Traffic Sources</option>
-              <option value="WHATSAPP">💬 WhatsApp (Marketing / Share)</option>
-              <option value="DIRECT">🔍 Direct / Chrome Search</option>
-              <option value="SEARCH">🔎 Google Search (Organic)</option>
-              <option value="SOCIAL">📱 Social Media (IG, FB...)</option>
-              <option value="ADS">🎯 Paid Ads (Google/Meta)</option>
-            </select>
-          </div>
-
-          {/* Date Presets Dropdown */}
-          <div className="w-full sm:w-36">
-            <select
-              value={periodPreset}
-              onChange={(e) => handlePeriodChange(e.target.value)}
-              className="w-full px-3 py-2 text-xs font-semibold text-neutral-900 bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all cursor-pointer shadow-2xs"
-            >
-              <option value="TODAY">⚡ Today</option>
-              <option value="YESTERDAY">⏮ Yesterday</option>
-              <option value="7DAYS">📊 Last 7 Days</option>
-              <option value="30DAYS">🗓 Last 30 Days</option>
-              <option value="ALL">📅 All Time</option>
-              <option value="CUSTOM">🎯 Custom Range</option>
-            </select>
-          </div>
-
-          {/* From Date Picker Box */}
-          <div
-            onClick={() => {
-              try {
-                startDateInputRef.current?.showPicker();
-              } catch {
-                startDateInputRef.current?.focus();
-              }
-            }}
-            className="flex items-center gap-2 bg-neutral-50 hover:bg-neutral-100/80 border border-neutral-300 hover:border-neutral-400 rounded-xl px-3 py-1.5 shadow-2xs cursor-pointer transition-all"
-            title="Click to select Start Date"
-          >
-            <Calendar className="w-4 h-4 text-neutral-500 shrink-0 pointer-events-none" />
-            <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-neutral-500 font-bold text-[11px] pointer-events-none uppercase">From:</span>
+        {/* Row 2: Secondary Filters (Path, Status, Source, Period Preset, Custom Dates, Reset) */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-[280px]">
+            {/* Page Path Filter */}
+            <div className="relative flex-1 min-w-[180px] sm:min-w-[220px]">
+              <Globe className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
-                ref={startDateInputRef}
-                type="date"
-                value={startDate}
-                style={{ colorScheme: 'light' }}
-                onChange={(e) => handleStartDateChange(e.target.value)}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  try {
-                    e.currentTarget.showPicker();
-                  } catch {}
-                }}
-                className="bg-transparent text-neutral-900 font-semibold text-xs focus:outline-none cursor-pointer"
+                type="text"
+                placeholder="Filter by page (e.g. /deals)..."
+                value={pagePathFilter}
+                onChange={(e) => setPagePathFilter(e.target.value)}
+                className="w-full h-10 pl-10 pr-9 text-xs font-medium text-neutral-900 placeholder:text-neutral-400 bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all shadow-2xs"
               />
+              {pagePathFilter && (
+                <button
+                  type="button"
+                  onClick={() => setPagePathFilter('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-800 p-1 rounded-md cursor-pointer transition-colors"
+                  title="Clear filter"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
-            {startDate && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleStartDateChange('');
-                }}
-                className="text-neutral-400 hover:text-neutral-800 p-0.5 rounded cursor-pointer transition-colors"
-                title="Clear From date"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
 
-          {/* To Date Picker Box */}
-          <div
-            onClick={() => {
-              try {
-                endDateInputRef.current?.showPicker();
-              } catch {
-                endDateInputRef.current?.focus();
-              }
-            }}
-            className="flex items-center gap-2 bg-neutral-50 hover:bg-neutral-100/80 border border-neutral-300 hover:border-neutral-400 rounded-xl px-3 py-1.5 shadow-2xs cursor-pointer transition-all"
-            title="Click to select End Date"
-          >
-            <Calendar className="w-4 h-4 text-neutral-500 shrink-0 pointer-events-none" />
-            <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-neutral-500 font-bold text-[11px] pointer-events-none uppercase">To:</span>
-              <input
-                ref={endDateInputRef}
-                type="date"
-                value={endDate}
-                style={{ colorScheme: 'light' }}
-                onChange={(e) => handleEndDateChange(e.target.value)}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  try {
-                    e.currentTarget.showPicker();
-                  } catch {}
-                }}
-                className="bg-transparent text-neutral-900 font-semibold text-xs focus:outline-none cursor-pointer"
-              />
-            </div>
-            {endDate && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleEndDateChange('');
-                }}
-                className="text-neutral-400 hover:text-neutral-800 p-0.5 rounded cursor-pointer transition-colors"
-                title="Clear To date"
+            {/* Status Dropdown Filter */}
+            <div className="w-full sm:w-40">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full h-10 px-3 text-xs font-semibold text-neutral-900 bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all cursor-pointer shadow-2xs"
               >
-                <X className="w-3.5 h-3.5" />
-              </button>
+                <option value="ALL">All Statuses</option>
+                <option value="ACTIVE">🟢 Active (Engaged)</option>
+                <option value="INACTIVE">🟡 Idle (&gt; 60s)</option>
+                <option value="ENDED">⚪ Ended (Exited)</option>
+              </select>
+            </div>
+
+            {/* Traffic Source Filter */}
+            <div className="w-full sm:w-48">
+              <select
+                value={sourceFilter}
+                onChange={(e) => {
+                  setSourceFilter(e.target.value);
+                  setPagination((p) => ({ ...p, page: 1 }));
+                }}
+                className="w-full h-10 px-3 text-xs font-semibold text-neutral-900 bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all cursor-pointer shadow-2xs"
+              >
+                <option value="ALL">🌐 All Traffic Sources</option>
+                <option value="WHATSAPP">💬 WhatsApp (Marketing / Share)</option>
+                <option value="DIRECT">🔍 Direct / Chrome Search</option>
+                <option value="SEARCH">🔎 Google Search (Organic)</option>
+                <option value="SOCIAL">📱 Social Media (IG, FB...)</option>
+                <option value="ADS">🎯 Paid Ads (Google/Meta)</option>
+              </select>
+            </div>
+
+            {/* Date Presets Dropdown */}
+            <div className="w-full sm:w-36">
+              <select
+                value={periodPreset}
+                onChange={(e) => handlePeriodChange(e.target.value)}
+                className="w-full h-10 px-3 text-xs font-semibold text-neutral-900 bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all cursor-pointer shadow-2xs"
+              >
+                <option value="TODAY">⚡ Today</option>
+                <option value="YESTERDAY">⏮ Yesterday</option>
+                <option value="7DAYS">📊 Last 7 Days</option>
+                <option value="30DAYS">🗓 Last 30 Days</option>
+                <option value="ALL">📅 All Time</option>
+                <option value="CUSTOM">🎯 Custom Range</option>
+              </select>
+            </div>
+
+            {/* Custom Date Pickers (Shown ONLY when Custom Range is active) */}
+            {periodPreset === 'CUSTOM' && (
+              <div className="flex items-center gap-2 flex-wrap animate-in fade-in zoom-in-95 duration-200">
+                {/* From Date Picker Box */}
+                <div
+                  onClick={() => {
+                    try { startDateInputRef.current?.showPicker(); } catch { startDateInputRef.current?.focus(); }
+                  }}
+                  className="flex items-center gap-2 bg-neutral-50 hover:bg-neutral-100 border border-neutral-300 rounded-xl px-3 h-10 shadow-2xs cursor-pointer transition-all"
+                  title="Select Start Date"
+                >
+                  <Calendar className="w-4 h-4 text-neutral-400 shrink-0 pointer-events-none" />
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <span className="text-neutral-500 font-bold text-[10px] uppercase pointer-events-none">From:</span>
+                    <input
+                      ref={startDateInputRef}
+                      type="date"
+                      value={startDate}
+                      style={{ colorScheme: 'light' }}
+                      onChange={(e) => handleStartDateChange(e.target.value)}
+                      onClick={(e) => { e.stopPropagation(); try { e.currentTarget.showPicker(); } catch {} }}
+                      className="bg-transparent text-neutral-900 font-semibold text-xs focus:outline-none cursor-pointer"
+                    />
+                  </div>
+                  {startDate && (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); handleStartDateChange(''); }}
+                      className="text-neutral-400 hover:text-neutral-800 p-0.5 rounded cursor-pointer transition-colors"
+                      title="Clear From date"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                <span className="text-neutral-400 font-bold text-xs pointer-events-none">→</span>
+
+                {/* To Date Picker Box */}
+                <div
+                  onClick={() => {
+                    try { endDateInputRef.current?.showPicker(); } catch { endDateInputRef.current?.focus(); }
+                  }}
+                  className="flex items-center gap-2 bg-neutral-50 hover:bg-neutral-100 border border-neutral-300 rounded-xl px-3 h-10 shadow-2xs cursor-pointer transition-all"
+                  title="Select End Date"
+                >
+                  <Calendar className="w-4 h-4 text-neutral-400 shrink-0 pointer-events-none" />
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <span className="text-neutral-500 font-bold text-[10px] uppercase pointer-events-none">To:</span>
+                    <input
+                      ref={endDateInputRef}
+                      type="date"
+                      value={endDate}
+                      style={{ colorScheme: 'light' }}
+                      onChange={(e) => handleEndDateChange(e.target.value)}
+                      onClick={(e) => { e.stopPropagation(); try { e.currentTarget.showPicker(); } catch {} }}
+                      className="bg-transparent text-neutral-900 font-semibold text-xs focus:outline-none cursor-pointer"
+                    />
+                  </div>
+                  {endDate && (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); handleEndDateChange(''); }}
+                      className="text-neutral-400 hover:text-neutral-800 p-0.5 rounded cursor-pointer transition-colors"
+                      title="Clear To date"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
             )}
           </div>
 
@@ -857,7 +849,8 @@ export default function VisitorAnalyticsPage() {
             <button
               type="button"
               onClick={resetFilters}
-              className="px-3.5 py-2 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs ml-auto sm:ml-0"
+              className="h-10 px-4 text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/90 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs self-end sm:self-auto shrink-0"
+              title="Reset all filters back to Today"
             >
               <X className="w-3.5 h-3.5" />
               <span>Reset Filters</span>
@@ -867,7 +860,7 @@ export default function VisitorAnalyticsPage() {
       </div>
 
       {/* Main Table View */}
-      <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-neutral-200/90 shadow-sm overflow-hidden">
         {isLoading ? (
           <div className="p-16 flex flex-col items-center justify-center gap-3">
             <div className="w-8 h-8 border-4 border-neutral-200 border-t-neutral-900 rounded-full animate-spin" />
@@ -881,15 +874,15 @@ export default function VisitorAnalyticsPage() {
             <h3 className="text-sm font-bold text-neutral-900">No visitor records found</h3>
             <p className="text-xs text-neutral-500 max-w-sm mx-auto">
               {activeTab === 'live'
-                ? 'There are currently no active visitors on the site. Switch to "All Visitors" to view historical visits.'
+                ? 'There are currently no active visitors on the site. Switch to "Today\'s Visitors" to view all visits.'
                 : 'No visits match your filter criteria. Try resetting search filters or opening Karodeal.in in an incognito tab to test tracking.'}
             </p>
-            {(searchTerm || statusFilter !== 'ALL' || sourceFilter !== 'ALL' || pagePathFilter || startDate || endDate) && (
+            {(searchTerm || statusFilter !== 'ALL' || sourceFilter !== 'ALL' || pagePathFilter || periodPreset !== 'TODAY') && (
               <button
                 onClick={resetFilters}
-                className="mt-2 px-4 py-2 bg-neutral-900 text-white rounded-xl text-xs font-semibold hover:bg-neutral-800 transition-all"
+                className="mt-2 px-4 py-2 bg-neutral-900 text-white rounded-xl text-xs font-semibold hover:bg-neutral-800 transition-all cursor-pointer"
               >
-                Clear Filters
+                Reset to Today
               </button>
             )}
           </div>
@@ -897,14 +890,14 @@ export default function VisitorAnalyticsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-neutral-50 border-b border-neutral-200 text-neutral-500 font-bold uppercase tracking-wider text-[11px]">
-                  <th className="py-3 px-3.5">Visitor & Source</th>
-                  <th className="py-3 px-3.5">Current / Last Page</th>
-                  <th className="py-3 px-3.5">Visit Timing</th>
-                  <th className="py-3 px-3.5">Page Duration</th>
-                  <th className="py-3 px-3.5">Active Time (Total Site)</th>
-                  <th className="py-3 px-3.5">Status</th>
-                  <th className="py-3 px-3.5 text-right">Actions</th>
+                <tr className="bg-neutral-50/80 border-b border-neutral-200 text-neutral-500 font-bold uppercase tracking-wider text-[11px]">
+                  <th className="py-3.5 px-4">Visitor & Source</th>
+                  <th className="py-3.5 px-4">Current / Last Page</th>
+                  <th className="py-3.5 px-4">Visit Timing</th>
+                  <th className="py-3.5 px-4 text-center">Duration</th>
+                  <th className="py-3.5 px-4">Active Engagement</th>
+                  <th className="py-3.5 px-4 text-center">Status</th>
+                  <th className="py-3.5 px-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100">
@@ -926,12 +919,12 @@ export default function VisitorAnalyticsPage() {
                   return (
                     <tr
                       key={v.visitorId}
-                      className={`hover:bg-neutral-50/80 transition-colors ${
-                        isLive ? 'bg-emerald-50/20' : ''
+                      className={`hover:bg-neutral-50/70 transition-colors ${
+                        isLive ? 'bg-emerald-50/30' : ''
                       }`}
                     >
                       {/* 1. Visitor & Source */}
-                      <td className="py-3 px-3.5">
+                      <td className="py-3.5 px-4">
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => copyToClipboard(v.visitorId, v.visitorId)}
@@ -940,7 +933,9 @@ export default function VisitorAnalyticsPage() {
                           >
                             <span>{v.visitorId.slice(0, 11)}...</span>
                             {isCopied ? (
-                              <Check className="w-3.5 h-3.5 text-emerald-600" />
+                              <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-0.5 bg-emerald-50 px-1 rounded">
+                                <Check className="w-3 h-3 text-emerald-600" /> Copied
+                              </span>
                             ) : (
                               <Copy className="w-3 h-3 text-neutral-400 hover:text-neutral-700" />
                             )}
@@ -949,26 +944,26 @@ export default function VisitorAnalyticsPage() {
                         <div className="mt-1 flex flex-wrap items-center gap-1">
                           {getTrafficBadge(v.trafficSource, v.trafficMedium, v.utmCampaign)}
                         </div>
-                        <div className="flex items-center gap-1.5 mt-1 text-[10px] text-neutral-500">
-                          <span className="flex items-center gap-1">
-                            <DeviceIcon className="w-3 h-3 text-neutral-400" />
+                        <div className="flex items-center gap-1.5 mt-1 text-[11px] text-neutral-500">
+                          <span className="flex items-center gap-1 font-medium text-neutral-600">
+                            <DeviceIcon className="w-3.5 h-3.5 text-neutral-400" />
                             {v.browser}
                           </span>
                           <span>•</span>
-                          <span className="bg-neutral-100 px-1.5 py-0.2 rounded text-neutral-600 font-semibold">
+                          <span className="bg-neutral-100 px-1.5 py-0.2 rounded text-neutral-600 font-semibold text-[10px]">
                             {v.totalVisits} {v.totalVisits === 1 ? 'visit' : 'visits'}
                           </span>
                         </div>
                       </td>
 
                       {/* 2. Current / Last Page */}
-                      <td className="py-3 px-3.5 max-w-[200px]">
+                      <td className="py-3.5 px-4 max-w-[280px]">
                         {p ? (
-                          <div className="space-y-0.5">
-                            <div className="font-semibold text-neutral-900 truncate" title={p.pageTitle || p.pagePath}>
+                          <div className="space-y-1">
+                            <div className="font-semibold text-neutral-900 truncate text-xs" title={p.pageTitle || p.pagePath}>
                               {p.pageTitle || p.pagePath}
                             </div>
-                            <div className="text-[11px] font-mono text-neutral-500 truncate" title={p.pagePath}>
+                            <div className="text-[11px] font-mono text-neutral-600 bg-neutral-100 hover:bg-neutral-200/80 px-2 py-0.5 rounded-md w-fit max-w-[280px] truncate transition-colors cursor-default" title={p.pagePath}>
                               {p.pagePath}
                             </div>
                           </div>
@@ -977,23 +972,23 @@ export default function VisitorAnalyticsPage() {
                         )}
                       </td>
 
-                      {/* 3. Visit Timing (Entry + Exit + Relative) */}
-                      <td className="py-3 px-3.5">
-                        <div className="font-medium text-neutral-900 text-xs">
+                      {/* 3. Visit Timing */}
+                      <td className="py-3.5 px-4">
+                        <div className="font-semibold text-neutral-900 text-xs">
                           {formatKolkataTime(p?.enteredAt || v.lastVisitAt)}
                         </div>
-                        <div className="flex items-center gap-1.5 text-[10px] text-neutral-500 mt-1 flex-wrap">
-                          <span className="font-semibold text-neutral-700">{formatRelativeTime(v.lastVisitAt)}</span>
+                        <div className="flex items-center gap-1.5 text-[11px] text-neutral-500 mt-1 flex-wrap">
+                          <span className="font-medium text-neutral-600">{formatRelativeTime(v.lastVisitAt)}</span>
                           <span>•</span>
                           {p ? (
                             p.status === 'ENDED' ? (
-                              <span className={`px-1.5 py-0.2 rounded text-[10px] font-semibold ${
-                                p.isExactEndTime ? 'bg-neutral-100 text-neutral-700' : 'bg-amber-50 text-amber-700 border border-amber-200'
+                              <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                                p.isExactEndTime ? 'bg-neutral-100 text-neutral-700' : 'bg-amber-50 text-amber-800 border border-amber-200'
                               }`}>
                                 {p.isExactEndTime ? 'Confirmed Exit' : 'Estimated Exit'}
                               </span>
                             ) : (
-                              <span className="text-emerald-600 font-semibold flex items-center gap-1">
+                              <span className="text-emerald-700 font-semibold flex items-center gap-1 bg-emerald-50 px-1.5 py-0.5 rounded text-[10px] border border-emerald-200">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                 Active Now
                               </span>
@@ -1003,19 +998,18 @@ export default function VisitorAnalyticsPage() {
                       </td>
 
                       {/* 4. Page Duration */}
-                      <td className="py-3 px-3.5 font-mono font-semibold text-neutral-900">
-                        {p ? formatDuration(p.durationSeconds) : '0s'}
+                      <td className="py-3.5 px-4 text-center">
+                        <span className="font-mono font-semibold text-neutral-900 text-xs bg-neutral-100 px-2.5 py-1 rounded-lg">
+                          {p ? formatDuration(p.durationSeconds) : '0s'}
+                        </span>
                       </td>
 
-                      {/* 5. Active Time (Total Time on Website) */}
-                      <td className="py-3 px-3.5">
+                      {/* 5. Active Engagement (Total Time on Website) */}
+                      <td className="py-3.5 px-4">
                         <div>
-                          <div className="font-mono font-bold text-emerald-700 text-[13px] flex items-center gap-1.5">
+                          <div className="font-mono font-bold text-emerald-700 text-xs flex items-center gap-1.5">
                             <Timer className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                             <span>{formatDuration(totalSiteSec)}</span>
-                            <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/70 border border-emerald-200 px-1 py-0.2 rounded">
-                              {totalSiteSec}s
-                            </span>
                           </div>
                           <div className="text-[10px] text-neutral-500 mt-0.5 font-medium">
                             {v.totalVisits > 1 ? (
@@ -1028,30 +1022,30 @@ export default function VisitorAnalyticsPage() {
                       </td>
 
                       {/* 6. Status */}
-                      <td className="py-3 px-3.5">
+                      <td className="py-3.5 px-4 text-center">
                         {v.status === 'ACTIVE' ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-2xs">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
                             ACTIVE
                           </span>
                         ) : v.status === 'INACTIVE' ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 shadow-2xs">
                             <Clock className="w-3 h-3 text-amber-600" />
                             IDLE
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-neutral-100 text-neutral-600">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-neutral-100 text-neutral-600 border border-neutral-200">
                             ENDED
                           </span>
                         )}
                       </td>
 
                       {/* 7. Actions */}
-                      <td className="py-3 px-3.5 text-right">
+                      <td className="py-3.5 px-4 text-right">
                         <button
                           onClick={() => openVisitorDetail(v.visitorId)}
                           title="View complete visitor history & timeline"
-                          className="px-2.5 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-900 hover:text-white text-neutral-700 text-xs font-semibold transition-all inline-flex items-center gap-1 shadow-2xs cursor-pointer"
+                          className="px-3 py-1.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold transition-all inline-flex items-center gap-1.5 shadow-sm cursor-pointer active:scale-95"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>History ({v.totalPageVisits})</span>
