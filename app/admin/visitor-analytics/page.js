@@ -211,36 +211,50 @@ export default function VisitorAnalyticsPage() {
   const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL', 'ACTIVE', 'INACTIVE', 'ENDED'
   const [sourceFilter, setSourceFilter] = useState('ALL'); // 'ALL', 'WHATSAPP', 'DIRECT', 'SEARCH', 'SOCIAL', 'ADS'
   const [pagePathFilter, setPagePathFilter] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [periodPreset, setPeriodPreset] = useState('ALL');
+  // Timezone-aware date helpers for Indian Standard Time (Asia/Kolkata)
+  const getTodayDateStr = () => {
+    try {
+      return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+    } catch {
+      return new Date().toISOString().split('T')[0];
+    }
+  };
+
+  const getPastDateStr = (daysAgo = 0) => {
+    try {
+      const d = new Date();
+      d.setDate(d.getDate() - daysAgo);
+      return d.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+    } catch {
+      const d = new Date();
+      d.setDate(d.getDate() - daysAgo);
+      return d.toISOString().split('T')[0];
+    }
+  };
+
+  const [startDate, setStartDate] = useState(getTodayDateStr);
+  const [endDate, setEndDate] = useState(getTodayDateStr);
+  const [periodPreset, setPeriodPreset] = useState('TODAY');
   const startDateInputRef = useRef(null);
   const endDateInputRef = useRef(null);
 
-  // Quick Period Presets (Today, Yesterday, Last 7 Days, Last 30 Days)
+  // Quick Period Presets (Today, Yesterday, Last 7 Days, Last 30 Days, All Time)
   const handlePeriodChange = (val) => {
     setPeriodPreset(val);
-    const now = new Date();
     if (val === 'TODAY') {
-      const todayStr = now.toISOString().split('T')[0];
+      const todayStr = getTodayDateStr();
       setStartDate(todayStr);
       setEndDate(todayStr);
     } else if (val === 'YESTERDAY') {
-      const y = new Date();
-      y.setDate(y.getDate() - 1);
-      const yStr = y.toISOString().split('T')[0];
+      const yStr = getPastDateStr(1);
       setStartDate(yStr);
       setEndDate(yStr);
     } else if (val === '7DAYS') {
-      const past = new Date();
-      past.setDate(past.getDate() - 7);
-      setStartDate(past.toISOString().split('T')[0]);
-      setEndDate(now.toISOString().split('T')[0]);
+      setStartDate(getPastDateStr(7));
+      setEndDate(getTodayDateStr());
     } else if (val === '30DAYS') {
-      const past = new Date();
-      past.setDate(past.getDate() - 30);
-      setStartDate(past.toISOString().split('T')[0]);
-      setEndDate(now.toISOString().split('T')[0]);
+      setStartDate(getPastDateStr(30));
+      setEndDate(getTodayDateStr());
     } else if (val === 'ALL') {
       setStartDate('');
       setEndDate('');
@@ -326,6 +340,7 @@ export default function VisitorAnalyticsPage() {
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
       if (sourceFilter !== 'ALL') params.append('source', sourceFilter);
+      if (periodPreset) params.append('period', periodPreset);
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
       const res = await fetch(`${apiUrl}/admin/analytics/visitors?${params.toString()}`, {
@@ -483,13 +498,14 @@ export default function VisitorAnalyticsPage() {
   };
 
   const resetFilters = () => {
+    const todayStr = getTodayDateStr();
     setSearchTerm('');
     setStatusFilter('ALL');
     setSourceFilter('ALL');
     setPagePathFilter('');
-    setStartDate('');
-    setEndDate('');
-    setPeriodPreset('ALL');
+    setStartDate(todayStr);
+    setEndDate(todayStr);
+    setPeriodPreset('TODAY');
     setActiveTab('all');
     setPagination((prev) => ({ ...prev, page: 1 }));
   };
@@ -568,13 +584,13 @@ export default function VisitorAnalyticsPage() {
         <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="text-[11px] sm:text-xs font-bold text-neutral-500 uppercase tracking-wider">
-              Total Visitors
+              {periodPreset === 'TODAY' ? "Today's Visitors" : periodPreset === 'YESTERDAY' ? "Yesterday's Visitors" : "Total Visitors"}
             </div>
             <div className="text-2xl sm:text-3xl font-black text-neutral-900 mt-1">
               {stats.totalVisitorsCount}
             </div>
             <div className="text-xs text-neutral-500 font-medium mt-1">
-              Unique browser profiles
+              {periodPreset === 'TODAY' ? "Active today (IST)" : "Unique browser profiles"}
             </div>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-neutral-100 text-neutral-700 flex items-center justify-center shrink-0">
@@ -586,13 +602,13 @@ export default function VisitorAnalyticsPage() {
         <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="text-[11px] sm:text-xs font-bold text-neutral-500 uppercase tracking-wider">
-              Total Page Visits
+              {periodPreset === 'TODAY' ? "Today's Page Visits" : "Total Page Visits"}
             </div>
             <div className="text-2xl sm:text-3xl font-black text-neutral-900 mt-1">
               {stats.totalPageVisitsCount}
             </div>
             <div className="text-xs text-neutral-500 font-medium mt-1">
-              Route transitions tracked
+              {periodPreset === 'TODAY' ? "Route transitions today" : "Route transitions tracked"}
             </div>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
@@ -634,7 +650,7 @@ export default function VisitorAnalyticsPage() {
                   : 'text-neutral-500 hover:text-neutral-900'
               }`}
             >
-              All Visitors ({stats.totalVisitorsCount})
+              {periodPreset === 'TODAY' ? "Today's Visitors" : "All Visitors"} ({stats.totalVisitorsCount})
             </button>
             <button
               type="button"
@@ -737,11 +753,11 @@ export default function VisitorAnalyticsPage() {
               onChange={(e) => handlePeriodChange(e.target.value)}
               className="w-full px-3 py-2 text-xs font-semibold text-neutral-900 bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all cursor-pointer shadow-2xs"
             >
-              <option value="ALL">📅 All Time</option>
               <option value="TODAY">⚡ Today</option>
               <option value="YESTERDAY">⏮ Yesterday</option>
               <option value="7DAYS">📊 Last 7 Days</option>
               <option value="30DAYS">🗓 Last 30 Days</option>
+              <option value="ALL">📅 All Time</option>
               <option value="CUSTOM">🎯 Custom Range</option>
             </select>
           </div>
@@ -837,7 +853,7 @@ export default function VisitorAnalyticsPage() {
           </div>
 
           {/* Reset Filters Button */}
-          {(searchTerm || statusFilter !== 'ALL' || sourceFilter !== 'ALL' || pagePathFilter || startDate || endDate || periodPreset !== 'ALL') && (
+          {(searchTerm || statusFilter !== 'ALL' || sourceFilter !== 'ALL' || pagePathFilter || periodPreset !== 'TODAY' || startDate !== getTodayDateStr() || endDate !== getTodayDateStr()) && (
             <button
               type="button"
               onClick={resetFilters}
