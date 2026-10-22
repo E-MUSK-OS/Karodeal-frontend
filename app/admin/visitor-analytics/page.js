@@ -128,7 +128,7 @@ function getTrafficBadge(source, medium, campaign) {
         className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-900 border border-emerald-300 shadow-2xs"
         title={`WhatsApp: ${campaign || s}`}
       >
-        <span>📱</span>
+        <span>💬</span>
         <span className="truncate max-w-[120px]">WhatsApp</span>
         {campaign && (
           <span className="text-[9px] bg-emerald-200/90 text-emerald-950 font-black px-1 rounded truncate max-w-[110px]" title={campaign}>
@@ -209,7 +209,7 @@ export default function VisitorAnalyticsPage() {
   const [activeTab, setActiveTab] = useState('all'); // 'all' or 'live'
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL', 'ACTIVE', 'INACTIVE', 'ENDED'
-  const [sourceFilter, setSourceFilter] = useState('ALL'); // 'ALL', 'DIRECT', 'SEARCH', 'SOCIAL', 'ADS'
+  const [sourceFilter, setSourceFilter] = useState('ALL'); // 'ALL', 'WHATSAPP', 'DIRECT', 'SEARCH', 'SOCIAL', 'ADS'
   const [pagePathFilter, setPagePathFilter] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -337,7 +337,29 @@ export default function VisitorAnalyticsPage() {
 
       if (res.ok) {
         const data = await res.json();
-        setVisitors(data.visitors || []);
+        let loadedVisitors = data.visitors || [];
+
+        // Safety fallback: if backend returned unfiltered list for sourceFilter (e.g. while Vercel deployment is pending)
+        if (sourceFilter !== 'ALL' && loadedVisitors.length > 0) {
+          if (sourceFilter === 'WHATSAPP') {
+            const hasMismatch = loadedVisitors.some(
+              (v) =>
+                !/whatsapp/i.test(v.trafficSource || '') &&
+                !/whatsapp/i.test(v.trafficMedium || '') &&
+                !/whatsapp/i.test(v.utmCampaign || '')
+            );
+            if (hasMismatch) {
+              loadedVisitors = loadedVisitors.filter(
+                (v) =>
+                  /whatsapp/i.test(v.trafficSource || '') ||
+                  /whatsapp/i.test(v.trafficMedium || '') ||
+                  /whatsapp/i.test(v.utmCampaign || '')
+              );
+            }
+          }
+        }
+
+        setVisitors(loadedVisitors);
         if (data.pagination) setPagination(data.pagination);
         if (data.stats) setStats(data.stats);
       } else if (res.status === 401 || res.status === 403) {
@@ -690,7 +712,7 @@ export default function VisitorAnalyticsPage() {
           </div>
 
           {/* Traffic Source Filter */}
-          <div className="w-full sm:w-48">
+          <div className="w-full sm:w-52">
             <select
               value={sourceFilter}
               onChange={(e) => {
@@ -700,6 +722,7 @@ export default function VisitorAnalyticsPage() {
               className="w-full px-3 py-2 text-xs font-semibold text-neutral-900 bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all cursor-pointer shadow-2xs"
             >
               <option value="ALL">🌐 All Traffic Sources</option>
+              <option value="WHATSAPP">💬 WhatsApp (Marketing / Share)</option>
               <option value="DIRECT">🔍 Direct / Chrome Search</option>
               <option value="SEARCH">🔎 Google Search (Organic)</option>
               <option value="SOCIAL">📱 Social Media (IG, FB...)</option>
@@ -845,7 +868,7 @@ export default function VisitorAnalyticsPage() {
                 ? 'There are currently no active visitors on the site. Switch to "All Visitors" to view historical visits.'
                 : 'No visits match your filter criteria. Try resetting search filters or opening Karodeal.in in an incognito tab to test tracking.'}
             </p>
-            {(searchTerm || statusFilter !== 'ALL' || pagePathFilter || startDate || endDate) && (
+            {(searchTerm || statusFilter !== 'ALL' || sourceFilter !== 'ALL' || pagePathFilter || startDate || endDate) && (
               <button
                 onClick={resetFilters}
                 className="mt-2 px-4 py-2 bg-neutral-900 text-white rounded-xl text-xs font-semibold hover:bg-neutral-800 transition-all"
