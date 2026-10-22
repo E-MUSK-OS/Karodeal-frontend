@@ -711,82 +711,6 @@ export default function VisitorAnalyticsPage() {
         </div>
       </div>
 
-      {/* Summary Stat Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 sm:gap-5">
-        {/* 1. Live Active Visitors */}
-        <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-emerald-600 uppercase tracking-wider">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-              <span>Live Visitors</span>
-            </div>
-            <div className="text-2xl sm:text-3xl font-black text-neutral-900 mt-1">
-              {stats.liveVisitorsCount}
-            </div>
-            <div className="text-xs text-neutral-500 font-medium mt-1">
-              Currently active on site
-            </div>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-            <Radio className="w-6 h-6" />
-          </div>
-        </div>
-
-        {/* 2. Total Unique Visitors */}
-        <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="text-[11px] sm:text-xs font-bold text-neutral-500 uppercase tracking-wider">
-              {periodPreset === 'TODAY' ? "Today's Visitors" : periodPreset === 'YESTERDAY' ? "Yesterday's Visitors" : "Total Visitors"}
-            </div>
-            <div className="text-2xl sm:text-3xl font-black text-neutral-900 mt-1">
-              {stats.totalVisitorsCount}
-            </div>
-            <div className="text-xs text-neutral-500 font-medium mt-1">
-              {periodPreset === 'TODAY' ? "Active today (IST)" : "Unique browser profiles"}
-            </div>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-neutral-100 text-neutral-700 flex items-center justify-center shrink-0">
-            <Globe className="w-6 h-6" />
-          </div>
-        </div>
-
-        {/* 3. Total Page Visits */}
-        <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="text-[11px] sm:text-xs font-bold text-neutral-500 uppercase tracking-wider">
-              {periodPreset === 'TODAY' ? "Today's Page Visits" : "Total Page Visits"}
-            </div>
-            <div className="text-2xl sm:text-3xl font-black text-neutral-900 mt-1">
-              {stats.totalPageVisitsCount}
-            </div>
-            <div className="text-xs text-neutral-500 font-medium mt-1">
-              {periodPreset === 'TODAY' ? "Route transitions today" : "Route transitions tracked"}
-            </div>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-            <Layers className="w-6 h-6" />
-          </div>
-        </div>
-
-        {/* 4. Timezone & Tracking Reference */}
-        <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="text-[11px] sm:text-xs font-bold text-amber-600 uppercase tracking-wider">
-              Timezone (IST)
-            </div>
-            <div className="text-xl sm:text-2xl font-black text-neutral-900 mt-1 truncate">
-              Asia/Kolkata
-            </div>
-            <div className="text-xs text-neutral-500 font-medium mt-1">
-              Indian Standard Time
-            </div>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-            <Clock className="w-6 h-6" />
-          </div>
-        </div>
-      </div>
-
       {/* Tabs & Modern Filter Bar */}
       <div className="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/90 shadow-sm space-y-4">
         {/* Row 1: Live/All Tabs + Search Box */}
@@ -1151,6 +1075,82 @@ export default function VisitorAnalyticsPage() {
               <span>Reset Filters</span>
             </button>
           )}
+        </div>
+      </div>
+
+      {/* Summary Stat Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 sm:gap-5">
+        {/* 1. Live Active Visitors */}
+        <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-emerald-600 uppercase tracking-wider">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+              <span>Live Visitors</span>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-neutral-900 mt-1">
+              {stats.liveVisitorsCount}
+            </div>
+            <div className="text-xs text-neutral-500 font-medium mt-1">
+              Currently active on site
+            </div>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <Radio className="w-6 h-6" />
+          </div>
+        </div>
+
+        {/* 2. Total Unique Visitors */}
+        <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] sm:text-xs font-bold text-neutral-500 uppercase tracking-wider">
+              {periodPreset === 'TODAY' ? "Today's Visitors" : periodPreset === 'YESTERDAY' ? "Yesterday's Visitors" : "Total Visitors"}
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-neutral-900 mt-1">
+              {stats.totalVisitorsCount}
+            </div>
+            <div className="text-xs text-neutral-500 font-medium mt-1">
+              {periodPreset === 'TODAY' ? "Active today (IST)" : "Unique browser profiles"}
+            </div>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-neutral-100 text-neutral-700 flex items-center justify-center shrink-0">
+            <Globe className="w-6 h-6" />
+          </div>
+        </div>
+
+        {/* 3. Total Page Visits */}
+        <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] sm:text-xs font-bold text-neutral-500 uppercase tracking-wider">
+              {periodPreset === 'TODAY' ? "Today's Page Visits" : "Total Page Visits"}
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-neutral-900 mt-1">
+              {stats.totalPageVisitsCount}
+            </div>
+            <div className="text-xs text-neutral-500 font-medium mt-1">
+              {periodPreset === 'TODAY' ? "Route transitions today" : "Route transitions tracked"}
+            </div>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <Layers className="w-6 h-6" />
+          </div>
+        </div>
+
+        {/* 4. Timezone & Tracking Reference */}
+        <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] sm:text-xs font-bold text-amber-600 uppercase tracking-wider">
+              Timezone (IST)
+            </div>
+            <div className="text-xl sm:text-2xl font-black text-neutral-900 mt-1 truncate">
+              Asia/Kolkata
+            </div>
+            <div className="text-xs text-neutral-500 font-medium mt-1">
+              Indian Standard Time
+            </div>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+            <Clock className="w-6 h-6" />
+          </div>
         </div>
       </div>
 
