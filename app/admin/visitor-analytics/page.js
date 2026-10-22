@@ -1245,6 +1245,19 @@ export default function VisitorAnalyticsPage() {
                         </div>
                         <div className="mt-1 flex flex-wrap items-center gap-1">
                           {getTrafficBadge(v.trafficSource, v.trafficMedium, v.utmCampaign)}
+                          {v.whatsappNumber && (
+                            <a
+                              href={`https://wa.me/91${v.whatsappNumber}?text=Hello%20from%20KaroDeal!`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              title="Click to Chat on WhatsApp"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 hover:bg-emerald-200 transition-colors cursor-pointer shadow-2xs"
+                            >
+                              <span>💬</span>
+                              <span>+91 {v.whatsappNumber}</span>
+                            </a>
+                          )}
                         </div>
                         <div className="flex items-center gap-1.5 mt-1 text-[11px] text-neutral-500">
                           <span className="flex items-center gap-1 font-medium text-neutral-600">
@@ -1523,6 +1536,49 @@ export default function VisitorAnalyticsPage() {
                           </span>
                         </div>
                       )}
+
+                      {/* WhatsApp Contact & Direct Chat Card */}
+                      {visitorDetail.visitor?.whatsappNumber ? (
+                        <div className="col-span-1 sm:col-span-2 bg-emerald-50 border border-emerald-300 p-3.5 rounded-xl flex items-center justify-between gap-3 flex-wrap shadow-2xs">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-base shadow-xs shrink-0">
+                              💬
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase font-bold text-emerald-800 tracking-wider block">
+                                WhatsApp Customer Phone
+                              </span>
+                              <span className="text-sm font-black text-neutral-900 font-mono">
+                                +91 {visitorDetail.visitor.whatsappNumber}
+                              </span>
+                            </div>
+                          </div>
+
+                          <a
+                            href={`https://wa.me/91${visitorDetail.visitor.whatsappNumber}?text=Hello%20from%20KaroDeal!`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs inline-flex items-center gap-1.5 cursor-pointer active:scale-95"
+                          >
+                            <span>Chat on WhatsApp</span>
+                            <span>↗</span>
+                          </a>
+                        </div>
+                      ) : (/whatsapp/i.test(visitorDetail.visitor?.firstTrafficSource || '') || /whatsapp/i.test(visitorDetail.visitor?.firstTrafficMedium || '')) ? (
+                        <div className="col-span-1 sm:col-span-2 bg-emerald-50/50 border border-emerald-200/80 p-3 rounded-xl text-xs space-y-1">
+                          <div className="flex items-center justify-between gap-1 flex-wrap">
+                            <span className="font-bold text-emerald-950 text-[11px] flex items-center gap-1.5">
+                              <span>💬</span> WhatsApp Number Detection
+                            </span>
+                            <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+                              Untagged Share Link
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-neutral-600">
+                            Browsers cannot automatically extract private phone numbers from WhatsApp due to mobile privacy restrictions. To track recipient phone numbers automatically in your WhatsApp broadcasts, append <code className="bg-emerald-100/80 text-emerald-900 px-1.5 py-0.5 rounded font-mono text-[10px]">?phone=XXXXXXXXXX</code> to your deal links.
+                          </p>
+                        </div>
+                      ) : null}
 
                       {/* Search Keyword & Landing Search Intent Analysis */}
                       {visitorDetail.visitor?.detectedKeyword ? (

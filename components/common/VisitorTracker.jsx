@@ -57,9 +57,27 @@ export default function VisitorTracker() {
         const ttclid = sp.get('ttclid');
         const wa = sp.get('wa') || sp.get('whatsapp');
 
-        if (utm_source || utm_medium || utm_campaign || utm_term || gclid || fbclid || ttclid || wa) {
+        // Phone / Mobile detection (from URL params or logged-in user)
+        const rawPhoneParam = sp.get('phone') || sp.get('mobile') || sp.get('wa_phone') || sp.get('wa_num') || sp.get('contact');
+        let phone = rawPhoneParam ? String(rawPhoneParam).replace(/[^\d+]/g, '') : null;
+        if (!phone && wa && /^\+?\d{10,15}$/.test(wa.trim())) {
+          phone = wa.trim();
+        }
+        if (!phone) {
+          try {
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+              const u = JSON.parse(userStr);
+              if (u?.mobile || u?.phone) {
+                phone = String(u.mobile || u.phone).replace(/[^\d+]/g, '');
+              }
+            }
+          } catch (e) {}
+        }
+
+        if (utm_source || utm_medium || utm_campaign || utm_term || gclid || fbclid || ttclid || wa || phone) {
           hasIncomingTrafficParam = true;
-          queryParams = { utm_source, utm_medium, utm_campaign, utm_term, gclid, fbclid, ttclid, wa };
+          queryParams = { utm_source, utm_medium, utm_campaign, utm_term, gclid, fbclid, ttclid, wa, phone };
           sessionStorage.setItem('karodeal_traffic_params', JSON.stringify(queryParams));
         } else {
           // Also check hash for quick tags like #whatsapp or #wa
