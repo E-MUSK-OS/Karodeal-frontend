@@ -886,7 +886,7 @@ export default function VisitorAnalyticsPage() {
               })()}
 
               {openDropdown === 'source' && (
-                <div className="absolute right-0 sm:right-0 top-full mt-1.5 z-40 bg-white border border-neutral-200/90 rounded-2xl shadow-xl py-1.5 min-w-[255px] animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute left-0 sm:left-0 top-full mt-1.5 z-40 bg-white border border-neutral-200/90 rounded-2xl shadow-xl py-1.5 min-w-[255px] animate-in fade-in zoom-in-95 duration-150">
                   <div className="px-3.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1">
                     Traffic Source
                   </div>
@@ -1141,11 +1141,11 @@ export default function VisitorAnalyticsPage() {
             <div className="text-[11px] sm:text-xs font-bold text-amber-600 uppercase tracking-wider">
               Timezone (IST)
             </div>
-            <div className="text-xl sm:text-2xl font-black text-neutral-900 mt-1 truncate">
+            <div className="text-lg sm:text-xl lg:text-lg xl:text-xl font-black text-neutral-900 mt-1 whitespace-nowrap">
               Asia/Kolkata
             </div>
-            <div className="text-xs text-neutral-500 font-medium mt-1">
-              Indian Standard Time
+            <div className="text-xs text-neutral-500 font-medium mt-1 whitespace-nowrap">
+              Indian Standard Time (UTC+5:30)
             </div>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
@@ -1252,7 +1252,7 @@ export default function VisitorAnalyticsPage() {
                       </td>
 
                       {/* 2. Current / Last Page */}
-                      <td className="py-3.5 px-4 max-w-[280px]">
+                      <td className="py-3.5 px-4 min-w-[200px] max-w-[280px]">
                         {p ? (
                           <div className="space-y-1">
                             <div className="font-semibold text-neutral-900 truncate text-xs" title={p.pageTitle || p.pagePath}>
@@ -1268,7 +1268,7 @@ export default function VisitorAnalyticsPage() {
                       </td>
 
                       {/* 3. Visit Timing */}
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <div className="font-semibold text-neutral-900 text-xs">
                           {formatKolkataTime(p?.enteredAt || v.lastVisitAt)}
                         </div>
@@ -1293,14 +1293,14 @@ export default function VisitorAnalyticsPage() {
                       </td>
 
                       {/* 4. Page Duration */}
-                      <td className="py-3.5 px-4 text-center">
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
                         <span className="font-mono font-semibold text-neutral-900 text-xs bg-neutral-100 px-2.5 py-1 rounded-lg">
                           {p ? formatDuration(p.durationSeconds) : '0s'}
                         </span>
                       </td>
 
                       {/* 5. Active Engagement (Total Time on Website) */}
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <div>
                           <div className="font-mono font-bold text-emerald-700 text-xs flex items-center gap-1.5">
                             <Timer className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
@@ -1317,7 +1317,7 @@ export default function VisitorAnalyticsPage() {
                       </td>
 
                       {/* 6. Status */}
-                      <td className="py-3.5 px-4 text-center">
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
                         {v.status === 'ACTIVE' ? (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-2xs">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
@@ -1336,11 +1336,11 @@ export default function VisitorAnalyticsPage() {
                       </td>
 
                       {/* 7. Actions */}
-                      <td className="py-3.5 px-4 text-right">
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <button
                           onClick={() => openVisitorDetail(v.visitorId)}
                           title="View complete visitor history & timeline"
-                          className="px-3 py-1.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold transition-all inline-flex items-center gap-1.5 shadow-sm cursor-pointer active:scale-95"
+                          className="px-3 py-1.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold transition-all inline-flex items-center gap-1.5 shadow-sm cursor-pointer active:scale-95 whitespace-nowrap"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>History ({v.totalPageVisits})</span>

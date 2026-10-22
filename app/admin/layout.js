@@ -105,7 +105,7 @@ export default function AdminLayout({ children }) {
       <AdminSidebar isOpen={isMobileMenuOpen} setIsOpen={setIsMobileMenuOpen} />
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         <AdminHeader onMenuClick={() => setIsMobileMenuOpen(true)} />
-        <main className="flex-1 p-3.5 sm:p-5 md:p-6 lg:p-8 overflow-y-auto overflow-x-hidden min-w-0">
+        <main className="flex-1 p-3.5 sm:p-5 md:p-6 lg:p-7 overflow-y-auto min-w-0 [scrollbar-width:thin] [scrollbar-color:#d4d4d4_transparent]">
           {children}
         </main>
       </div>
