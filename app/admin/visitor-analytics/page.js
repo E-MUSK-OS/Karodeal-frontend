@@ -1523,6 +1523,56 @@ export default function VisitorAnalyticsPage() {
                           </span>
                         </div>
                       )}
+
+                      {/* Search Keyword & Landing Search Intent Analysis */}
+                      {visitorDetail.visitor?.detectedKeyword ? (
+                        <div className="col-span-1 sm:col-span-2 bg-blue-50/90 border border-blue-200/90 p-3 rounded-xl flex items-start gap-2.5">
+                          <span className="text-base leading-none mt-0.5">🔍</span>
+                          <div className="min-w-0 flex-1">
+                            <span className="text-[10px] uppercase font-bold text-blue-900 tracking-wider block">
+                              Search Keyword / Query Captured
+                            </span>
+                            <span className="text-xs font-bold text-neutral-900 font-mono">
+                              "{visitorDetail.visitor.detectedKeyword}"
+                            </span>
+                          </div>
+                        </div>
+                      ) : (/google|search/i.test(visitorDetail.visitor?.firstTrafficSource || '') || /google/i.test(visitorDetail.sessions?.[0]?.referrer || '')) ? (
+                        <div className="col-span-1 sm:col-span-2 bg-blue-50/50 border border-blue-200/80 p-3 rounded-xl space-y-1.5">
+                          <div className="flex items-center justify-between gap-1 flex-wrap">
+                            <span className="text-[10px] uppercase font-bold text-blue-900 flex items-center gap-1.5">
+                              <span>🔎</span> Google Search Keyword Status
+                            </span>
+                            <span className="text-[9px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full" title="Google encrypts organic search terms for all websites since 2011 (Not Provided for user privacy)">
+                              🔒 Google Encrypted (Privacy Protected)
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-neutral-600">
+                            Google keeps individual organic search queries private over HTTPS. However, the visitor's landing page indicates their exact search intent:
+                          </p>
+                          {visitorDetail.visitor?.landingPage && (
+                            <div className="bg-white p-2 rounded-lg border border-blue-100">
+                              <span className="text-[10px] uppercase font-bold text-neutral-400 block">Searched Target Page / Product:</span>
+                              <div className="font-semibold text-neutral-900 text-xs">
+                                {visitorDetail.visitor.landingPage.pageTitle}
+                              </div>
+                              <div className="font-mono text-[10px] text-neutral-500">
+                                {visitorDetail.visitor.landingPage.pagePath}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : null}
+
+                      {/* Initial Landing Page */}
+                      {visitorDetail.visitor?.landingPage && (
+                        <div className="col-span-1 sm:col-span-2">
+                          <strong className="text-neutral-900">First Landing Page:</strong>{' '}
+                          <span className="font-mono text-neutral-700 bg-neutral-200/70 px-2 py-0.5 rounded text-[11px]">
+                            {visitorDetail.visitor.landingPage.pagePath}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
 

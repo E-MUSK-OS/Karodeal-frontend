@@ -51,14 +51,15 @@ export default function VisitorTracker() {
         const utm_source = sp.get('utm_source') || sp.get('source') || sp.get('ref') || sp.get('src');
         const utm_medium = sp.get('utm_medium') || sp.get('medium');
         const utm_campaign = sp.get('utm_campaign') || sp.get('campaign');
+        const utm_term = sp.get('utm_term') || sp.get('keyword') || sp.get('term') || sp.get('q') || sp.get('query');
         const gclid = sp.get('gclid');
         const fbclid = sp.get('fbclid');
         const ttclid = sp.get('ttclid');
         const wa = sp.get('wa') || sp.get('whatsapp');
 
-        if (utm_source || utm_medium || utm_campaign || gclid || fbclid || ttclid || wa) {
+        if (utm_source || utm_medium || utm_campaign || utm_term || gclid || fbclid || ttclid || wa) {
           hasIncomingTrafficParam = true;
-          queryParams = { utm_source, utm_medium, utm_campaign, gclid, fbclid, ttclid, wa };
+          queryParams = { utm_source, utm_medium, utm_campaign, utm_term, gclid, fbclid, ttclid, wa };
           sessionStorage.setItem('karodeal_traffic_params', JSON.stringify(queryParams));
         } else {
           // Also check hash for quick tags like #whatsapp or #wa
