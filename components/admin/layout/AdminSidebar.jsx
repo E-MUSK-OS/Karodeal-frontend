@@ -146,7 +146,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
 
         {/* Navigation Links */}
         <nav className="flex-1 px-3.5 py-3.5 space-y-1 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:#262626_transparent]">
-          <div className="text-[11px] font-black text-neutral-400 uppercase tracking-wider px-3.5 py-1 mb-1">
+          <div className="text-xs font-black text-neutral-400 uppercase tracking-wider px-3.5 py-1 mb-1">
             Management
           </div>
           {navItems.map((item) => {
@@ -157,13 +157,13 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
                 key={item.name}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] transition-all ${
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[15px] transition-all ${
                   isActive
                     ? 'bg-white text-neutral-950 shadow-xs font-bold'
                     : 'text-neutral-300 hover:text-white hover:bg-neutral-800/80 font-medium'
                 }`}
               >
-                <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? 'text-neutral-950' : 'text-neutral-400'}`} />
+                <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-neutral-950' : 'text-neutral-400'}`} />
                 <span className="flex-1 truncate">{item.name}</span>
                 {item.href === '/admin/review-requests' && pendingStarCount > 0 && (
                   <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-500 text-white rounded-full shrink-0">
@@ -179,9 +179,9 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
         <div className="p-3.5 border-t border-neutral-800 mt-auto shrink-0">
           <Button variant="none" size="none"
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 transition-all cursor-pointer"
+            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[15px] font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 transition-all cursor-pointer"
           >
-            <LogOut className="w-4.5 h-4.5 text-rose-400 shrink-0" />
+            <LogOut className="w-5 h-5 text-rose-400 shrink-0" />
             <span>Logout Admin</span>
           </Button>
         </div>
