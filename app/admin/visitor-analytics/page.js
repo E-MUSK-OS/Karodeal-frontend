@@ -36,7 +36,12 @@ import {
   Zap,
   Target,
   Camera,
-  Megaphone
+  Megaphone,
+  Sparkles,
+  RotateCcw,
+  Users,
+  UserCheck,
+  UserPlus
 } from 'lucide-react';
 
 function formatKolkataTime(dateStr, includeSeconds = false) {
@@ -295,6 +300,12 @@ const PERIOD_OPTIONS = [
   { id: 'CUSTOM', label: 'Custom Range', icon: Filter, iconColor: 'text-purple-600', desc: 'Specify From & To dates' }
 ];
 
+const VISITOR_TYPE_OPTIONS = [
+  { id: 'ALL', label: 'All Visitors', icon: Users, iconColor: 'text-neutral-600', iconBg: 'bg-neutral-100', desc: 'All new & repeat visitors' },
+  { id: 'NEW', label: 'New Visitors (1st Time)', icon: Sparkles, iconColor: 'text-violet-600', iconBg: 'bg-violet-50', desc: 'Visited for the very first time' },
+  { id: 'RETURNING', label: 'Returning Visitors', icon: RotateCcw, iconColor: 'text-amber-600', iconBg: 'bg-amber-50', desc: 'Repeat returning visitors (2+ visits)' }
+];
+
 export default function VisitorAnalyticsPage() {
   const router = useRouter();
 
@@ -307,6 +318,8 @@ export default function VisitorAnalyticsPage() {
   const [stats, setStats] = useState({
     liveVisitorsCount: 0,
     totalVisitorsCount: 0,
+    newVisitorsCount: 0,
+    returningVisitorsCount: 0,
     totalPageVisitsCount: 0
   });
   const [pagination, setPagination] = useState({
@@ -323,6 +336,7 @@ export default function VisitorAnalyticsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL', 'ACTIVE', 'INACTIVE', 'ENDED'
   const [sourceFilter, setSourceFilter] = useState('ALL'); // 'ALL', 'WHATSAPP', 'DIRECT', 'SEARCH', 'SOCIAL', 'ADS'
+  const [visitorTypeFilter, setVisitorTypeFilter] = useState('ALL'); // 'ALL', 'NEW', 'RETURNING'
   const [pagePathFilter, setPagePathFilter] = useState('');
   // Timezone-aware date helpers for Indian Standard Time (Asia/Kolkata)
   const getTodayDateStr = () => {
@@ -477,6 +491,7 @@ export default function VisitorAnalyticsPage() {
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
       if (sourceFilter !== 'ALL') params.append('source', sourceFilter);
+      if (visitorTypeFilter !== 'ALL') params.append('visitorType', visitorTypeFilter);
       if (periodPreset) params.append('period', periodPreset);
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://karodeal-backend.vercel.app/api';
@@ -533,6 +548,13 @@ export default function VisitorAnalyticsPage() {
           }
         }
 
+        // Safety fallback for visitorTypeFilter in case of older backend instance cache
+        if (visitorTypeFilter === 'NEW') {
+          loadedVisitors = loadedVisitors.filter((v) => v.isNewVisitor || v.totalVisits <= 1);
+        } else if (visitorTypeFilter === 'RETURNING') {
+          loadedVisitors = loadedVisitors.filter((v) => !v.isNewVisitor && v.totalVisits > 1);
+        }
+
         setVisitors(loadedVisitors);
         if (data.pagination) setPagination(data.pagination);
         if (data.stats) setStats(data.stats);
@@ -545,7 +567,7 @@ export default function VisitorAnalyticsPage() {
     } finally {
       setIsRefreshing(false);
     }
-  }, [pagination.page, pagination.limit, activeTab, statusFilter, sourceFilter, searchTerm, pagePathFilter, startDate, endDate, router]);
+  }, [pagination.page, pagination.limit, activeTab, statusFilter, sourceFilter, visitorTypeFilter, searchTerm, pagePathFilter, startDate, endDate, periodPreset, router]);
 
   // Initial and reactive data fetch
   useEffect(() => {
@@ -662,6 +684,7 @@ export default function VisitorAnalyticsPage() {
     setSearchTerm('');
     setStatusFilter('ALL');
     setSourceFilter('ALL');
+    setVisitorTypeFilter('ALL');
     setPagePathFilter('');
     setStartDate(todayStr);
     setEndDate(todayStr);
@@ -694,8 +717,16 @@ export default function VisitorAnalyticsPage() {
           </p>
         </div>
 
-        {/* Realtime Live Status Badge & Manual Refresh */}
-        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+        {/* Realtime Live Status Badge, Timezone Badge & Manual Refresh */}
+        <div className="flex items-center gap-2.5 self-start sm:self-auto flex-wrap">
+          <div
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border border-amber-200/90 bg-amber-50 text-amber-900 shadow-2xs select-none"
+            title="All visitor analytics times are recorded and displayed in Indian Standard Time (UTC+5:30)"
+          >
+            <Clock className="w-3.5 h-3.5 text-amber-600" />
+            <span>IST (Asia/Kolkata)</span>
+          </div>
+
           <div
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all shadow-2xs select-none bg-emerald-50 text-emerald-800 border-emerald-200"
             title={socketConnected ? 'Real-time WebSocket connected via Socket.IO' : 'Live Auto-Sync active (syncs every 10 seconds)'}
@@ -932,6 +963,75 @@ export default function VisitorAnalyticsPage() {
               )}
             </div>
 
+            {/* Visitor Type Filter (All, New, Returning) */}
+            <div className="relative w-full sm:w-auto" data-dropdown="type">
+              {(() => {
+                const cur = VISITOR_TYPE_OPTIONS.find((o) => o.id === visitorTypeFilter) || VISITOR_TYPE_OPTIONS[0];
+                const CurIcon = cur.icon;
+                return (
+                  <button
+                    type="button"
+                    onClick={() => setOpenDropdown((prev) => (prev === 'type' ? null : 'type'))}
+                    className={`w-full sm:w-auto h-10 px-3.5 text-xs font-semibold rounded-xl border transition-all flex items-center justify-between gap-2.5 cursor-pointer shadow-2xs select-none min-w-[155px] ${
+                      visitorTypeFilter === 'NEW'
+                        ? 'bg-violet-50/90 border-violet-300 text-violet-900 ring-2 ring-violet-100 font-bold'
+                        : visitorTypeFilter === 'RETURNING'
+                        ? 'bg-amber-50/90 border-amber-300 text-amber-900 ring-2 ring-amber-100 font-bold'
+                        : 'bg-neutral-50 hover:bg-neutral-100/80 border-neutral-300 text-neutral-800'
+                    }`}
+                    title="Filter by visitor type (New vs Returning)"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <CurIcon className={`w-3.5 h-3.5 shrink-0 ${cur.iconColor}`} />
+                      <span className="truncate">{cur.label}</span>
+                    </div>
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${
+                        openDropdown === 'type' ? 'rotate-180 text-neutral-900' : 'text-neutral-400'
+                      }`}
+                    />
+                  </button>
+                );
+              })()}
+
+              {openDropdown === 'type' && (
+                <div className="absolute left-0 top-full mt-1.5 z-40 bg-white border border-neutral-200/90 rounded-2xl shadow-xl py-1.5 min-w-[235px] animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-3.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-400 border-b border-neutral-100 mb-1">
+                    Visitor Type
+                  </div>
+                  {VISITOR_TYPE_OPTIONS.map((opt) => {
+                    const Icon = opt.icon;
+                    const isSelected = visitorTypeFilter === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => {
+                          setVisitorTypeFilter(opt.id);
+                          setPagination((p) => ({ ...p, page: 1 }));
+                          setOpenDropdown(null);
+                        }}
+                        className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-3 transition-colors cursor-pointer text-left ${
+                          isSelected ? 'bg-neutral-100 font-bold text-neutral-900' : 'hover:bg-neutral-50 text-neutral-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className={`w-6 h-6 rounded-lg ${opt.iconBg} ${opt.iconColor} flex items-center justify-center shrink-0`}>
+                            <Icon className="w-3.5 h-3.5" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="truncate font-semibold text-neutral-900">{opt.label}</div>
+                            <div className="text-[10px] text-neutral-400 font-normal whitespace-nowrap">{opt.desc}</div>
+                          </div>
+                        </div>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0 ml-1" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
             {/* Date Presets Dropdown Filter */}
             <div className="relative w-full sm:w-auto" data-dropdown="period">
               {(() => {
@@ -1073,7 +1173,7 @@ export default function VisitorAnalyticsPage() {
           </div>
 
           {/* Reset Filters Button */}
-          {(searchTerm || statusFilter !== 'ALL' || sourceFilter !== 'ALL' || pagePathFilter || periodPreset !== 'TODAY' || startDate !== getTodayDateStr() || endDate !== getTodayDateStr()) && (
+          {(searchTerm || statusFilter !== 'ALL' || sourceFilter !== 'ALL' || visitorTypeFilter !== 'ALL' || pagePathFilter || periodPreset !== 'TODAY' || startDate !== getTodayDateStr() || endDate !== getTodayDateStr()) && (
             <button
               type="button"
               onClick={resetFilters}
@@ -1088,9 +1188,20 @@ export default function VisitorAnalyticsPage() {
       </div>
 
       {/* Summary Stat Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 sm:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5 sm:gap-4">
         {/* 1. Live Active Visitors */}
-        <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3">
+        <div
+          onClick={() => {
+            setActiveTab('live');
+            setPagination((p) => ({ ...p, page: 1 }));
+          }}
+          className={`p-4 sm:p-5 rounded-2xl border shadow-sm flex items-center justify-between gap-3 cursor-pointer transition-all hover:shadow-md ${
+            activeTab === 'live'
+              ? 'bg-emerald-50/70 border-emerald-300 ring-2 ring-emerald-200'
+              : 'bg-white border-neutral-200 hover:border-emerald-200'
+          }`}
+          title="Click to view Live Active Visitors"
+        >
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-emerald-600 uppercase tracking-wider">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
@@ -1099,7 +1210,7 @@ export default function VisitorAnalyticsPage() {
             <div className="text-2xl sm:text-3xl font-black text-neutral-900 mt-1">
               {stats.liveVisitorsCount}
             </div>
-            <div className="text-xs text-neutral-500 font-medium mt-1">
+            <div className="text-xs text-neutral-500 font-medium mt-1 truncate">
               Currently active on site
             </div>
           </div>
@@ -1109,7 +1220,19 @@ export default function VisitorAnalyticsPage() {
         </div>
 
         {/* 2. Total Unique Visitors */}
-        <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3">
+        <div
+          onClick={() => {
+            setActiveTab('all');
+            setVisitorTypeFilter('ALL');
+            setPagination((p) => ({ ...p, page: 1 }));
+          }}
+          className={`p-4 sm:p-5 rounded-2xl border shadow-sm flex items-center justify-between gap-3 cursor-pointer transition-all hover:shadow-md ${
+            activeTab === 'all' && visitorTypeFilter === 'ALL'
+              ? 'bg-neutral-50 border-neutral-300 ring-2 ring-neutral-200'
+              : 'bg-white border-neutral-200 hover:border-neutral-300'
+          }`}
+          title="Click to view All Visitors"
+        >
           <div className="min-w-0 flex-1">
             <div className="text-[11px] sm:text-xs font-bold text-neutral-500 uppercase tracking-wider">
               {periodPreset === 'TODAY' ? "Today's Visitors" : periodPreset === 'YESTERDAY' ? "Yesterday's Visitors" : "Total Visitors"}
@@ -1117,7 +1240,7 @@ export default function VisitorAnalyticsPage() {
             <div className="text-2xl sm:text-3xl font-black text-neutral-900 mt-1">
               {stats.totalVisitorsCount}
             </div>
-            <div className="text-xs text-neutral-500 font-medium mt-1">
+            <div className="text-xs text-neutral-500 font-medium mt-1 truncate">
               {periodPreset === 'TODAY' ? "Active today (IST)" : "Unique browser profiles"}
             </div>
           </div>
@@ -1126,8 +1249,80 @@ export default function VisitorAnalyticsPage() {
           </div>
         </div>
 
-        {/* 3. Total Page Visits */}
-        <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3">
+        {/* 3. New Visitors (First Time) */}
+        <div
+          onClick={() => {
+            setVisitorTypeFilter((prev) => (prev === 'NEW' ? 'ALL' : 'NEW'));
+            setActiveTab('all');
+            setPagination((p) => ({ ...p, page: 1 }));
+          }}
+          className={`p-4 sm:p-5 rounded-2xl border shadow-sm flex items-center justify-between gap-3 cursor-pointer transition-all hover:shadow-md ${
+            visitorTypeFilter === 'NEW'
+              ? 'bg-violet-50/80 border-violet-300 ring-2 ring-violet-200'
+              : 'bg-white border-neutral-200 hover:border-violet-200'
+          }`}
+          title="Click to view First-time New Visitors"
+        >
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-violet-700 uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5 text-violet-500" />
+              <span>{periodPreset === 'TODAY' ? "Today's New" : "New Visitors"}</span>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-neutral-900 mt-1 flex items-baseline gap-1.5">
+              <span>{stats.newVisitorsCount || 0}</span>
+              {stats.totalVisitorsCount > 0 && (
+                <span className="text-[11px] font-bold text-violet-700 bg-violet-100 px-1.5 py-0.5 rounded-md">
+                  {Math.round(((stats.newVisitorsCount || 0) / stats.totalVisitorsCount) * 100)}%
+                </span>
+              )}
+            </div>
+            <div className="text-xs text-neutral-500 font-medium mt-1 truncate">
+              First-time on KaroDeal
+            </div>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
+            <UserPlus className="w-6 h-6" />
+          </div>
+        </div>
+
+        {/* 4. Returning Visitors */}
+        <div
+          onClick={() => {
+            setVisitorTypeFilter((prev) => (prev === 'RETURNING' ? 'ALL' : 'RETURNING'));
+            setActiveTab('all');
+            setPagination((p) => ({ ...p, page: 1 }));
+          }}
+          className={`p-4 sm:p-5 rounded-2xl border shadow-sm flex items-center justify-between gap-3 cursor-pointer transition-all hover:shadow-md ${
+            visitorTypeFilter === 'RETURNING'
+              ? 'bg-amber-50/80 border-amber-300 ring-2 ring-amber-200'
+              : 'bg-white border-neutral-200 hover:border-amber-200'
+          }`}
+          title="Click to view Returning Visitors"
+        >
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-amber-700 uppercase tracking-wider">
+              <RotateCcw className="w-3.5 h-3.5 text-amber-500" />
+              <span>Returning</span>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-neutral-900 mt-1 flex items-baseline gap-1.5">
+              <span>{stats.returningVisitorsCount || 0}</span>
+              {stats.totalVisitorsCount > 0 && (
+                <span className="text-[11px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded-md">
+                  {Math.round(((stats.returningVisitorsCount || 0) / stats.totalVisitorsCount) * 100)}%
+                </span>
+              )}
+            </div>
+            <div className="text-xs text-neutral-500 font-medium mt-1 truncate">
+              Repeat / 2+ visits
+            </div>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+            <RotateCcw className="w-6 h-6" />
+          </div>
+        </div>
+
+        {/* 5. Total Page Visits */}
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="text-[11px] sm:text-xs font-bold text-neutral-500 uppercase tracking-wider">
               {periodPreset === 'TODAY' ? "Today's Page Visits" : "Total Page Visits"}
@@ -1135,30 +1330,12 @@ export default function VisitorAnalyticsPage() {
             <div className="text-2xl sm:text-3xl font-black text-neutral-900 mt-1">
               {stats.totalPageVisitsCount}
             </div>
-            <div className="text-xs text-neutral-500 font-medium mt-1">
-              {periodPreset === 'TODAY' ? "Route transitions today" : "Route transitions tracked"}
+            <div className="text-xs text-neutral-500 font-medium mt-1 truncate">
+              {periodPreset === 'TODAY' ? "Route transitions today" : "Transitions tracked"}
             </div>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
             <Layers className="w-6 h-6" />
-          </div>
-        </div>
-
-        {/* 4. Timezone & Tracking Reference */}
-        <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="text-[11px] sm:text-xs font-bold text-amber-600 uppercase tracking-wider">
-              Timezone (IST)
-            </div>
-            <div className="text-lg sm:text-xl lg:text-lg xl:text-xl font-black text-neutral-900 mt-1 whitespace-nowrap">
-              Asia/Kolkata
-            </div>
-            <div className="text-xs text-neutral-500 font-medium mt-1 whitespace-nowrap">
-              Indian Standard Time (UTC+5:30)
-            </div>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-            <Clock className="w-6 h-6" />
           </div>
         </div>
       </div>
@@ -1181,7 +1358,7 @@ export default function VisitorAnalyticsPage() {
                 ? 'There are currently no active visitors on the site. Switch to "Today\'s Visitors" to view all visits.'
                 : 'No visits match your filter criteria. Try resetting search filters or opening Karodeal.in in an incognito tab to test tracking.'}
             </p>
-            {(searchTerm || statusFilter !== 'ALL' || sourceFilter !== 'ALL' || pagePathFilter || periodPreset !== 'TODAY') && (
+            {(searchTerm || statusFilter !== 'ALL' || sourceFilter !== 'ALL' || visitorTypeFilter !== 'ALL' || pagePathFilter || periodPreset !== 'TODAY') && (
               <button
                 onClick={resetFilters}
                 className="mt-2 px-4 py-2 bg-neutral-900 text-white rounded-xl text-xs font-semibold hover:bg-neutral-800 transition-all cursor-pointer"
@@ -1261,15 +1438,29 @@ export default function VisitorAnalyticsPage() {
                             </a>
                           )}
                         </div>
-                        <div className="flex items-center gap-1.5 mt-1 text-[11px] text-neutral-500">
+                        <div className="flex items-center gap-1.5 mt-1.5 text-[11px] flex-wrap">
                           <span className="flex items-center gap-1 font-medium text-neutral-600">
                             <DeviceIcon className="w-3.5 h-3.5 text-neutral-400" />
                             {v.browser}
                           </span>
                           <span>•</span>
-                          <span className="bg-neutral-100 px-1.5 py-0.2 rounded text-neutral-600 font-semibold text-[10px]">
-                            {v.totalVisits} {v.totalVisits === 1 ? 'visit' : 'visits'}
-                          </span>
+                          {v.isNewVisitor || v.totalVisits <= 1 ? (
+                            <span
+                              className="inline-flex items-center gap-1 bg-violet-50 text-violet-700 border border-violet-200/90 font-bold px-2 py-0.5 rounded-md text-[10px] shadow-2xs"
+                              title="First time visitor (New user on KaroDeal)"
+                            >
+                              <Sparkles className="w-3 h-3 text-violet-500" />
+                              <span>First Visit (New)</span>
+                            </span>
+                          ) : (
+                            <span
+                              className="inline-flex items-center gap-1 bg-amber-50 text-amber-800 border border-amber-200/90 font-bold px-2 py-0.5 rounded-md text-[10px] shadow-2xs"
+                              title={`Returning visitor: ${v.totalVisits} total visits recorded`}
+                            >
+                              <RotateCcw className="w-3 h-3 text-amber-600" />
+                              <span>Returning ({v.totalVisits} visits)</span>
+                            </span>
+                          )}
                         </div>
                       </td>
 
@@ -1419,11 +1610,24 @@ export default function VisitorAnalyticsPage() {
             {/* Drawer Header */}
             <div className="p-5 border-b border-neutral-200 flex items-center justify-between bg-neutral-50">
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="text-base font-black text-neutral-900">Visitor Journey & History</h2>
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-neutral-200 text-neutral-800 font-bold">
                     Chronological
                   </span>
+                  {visitorDetail?.visitor && (
+                    (visitorDetail.visitor.isNewVisitor || visitorDetail.visitor.totalVisits <= 1) ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-violet-100 text-violet-800 border border-violet-200 shadow-2xs">
+                        <Sparkles className="w-3 h-3 text-violet-600" />
+                        First-Time Visitor (New User)
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200 shadow-2xs">
+                        <RotateCcw className="w-3 h-3 text-amber-700" />
+                        Returning ({visitorDetail.visitor.totalVisits} visits)
+                      </span>
+                    )
+                  )}
                 </div>
                 <p className="text-xs font-mono text-neutral-500 mt-1 break-all select-all">
                   ID: {selectedVisitorId}
@@ -1488,6 +1692,18 @@ export default function VisitorAnalyticsPage() {
                       <div><strong className="text-neutral-900">Device:</strong> {visitorDetail.visitor?.deviceType || 'Desktop'}</div>
                       <div><strong className="text-neutral-900">Browser:</strong> {visitorDetail.visitor?.browser || 'Unknown'}</div>
                       <div><strong className="text-neutral-900">OS:</strong> {visitorDetail.visitor?.os || 'Unknown'}</div>
+                      <div className="col-span-2 sm:col-span-3">
+                        <strong className="text-neutral-900">Visitor Type:</strong>{' '}
+                        {visitorDetail.visitor?.isNewVisitor || (visitorDetail.visitor?.totalVisits <= 1) ? (
+                          <span className="text-violet-700 font-bold bg-violet-50 border border-violet-200 px-2 py-0.5 rounded text-[11px] inline-flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-violet-600" /> New Visitor (First-Time User on KaroDeal)
+                          </span>
+                        ) : (
+                          <span className="text-amber-800 font-bold bg-amber-50 border border-amber-200 px-2 py-0.5 rounded text-[11px] inline-flex items-center gap-1">
+                            <RotateCcw className="w-3 h-3 text-amber-600" /> Returning Visitor ({visitorDetail.visitor?.totalVisits} Total Sessions Recorded)
+                          </span>
+                        )}
+                      </div>
                       <div className="col-span-2">
                         <strong className="text-neutral-900">First Arrived:</strong> {formatKolkataTime(visitorDetail.visitor?.firstVisitAt, true)}
                       </div>
