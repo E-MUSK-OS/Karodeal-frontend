@@ -63,6 +63,97 @@ function formatKolkataTime(dateStr, includeSeconds = false) {
   }
 }
 
+function formatVisitTimingRange(enteredAtStr, exitedAtStr, isLive = false) {
+  if (!enteredAtStr && !exitedAtStr) return { dateStr: '—', timeRange: '—', fullLabel: '—' };
+  try {
+    const start = enteredAtStr ? new Date(enteredAtStr) : (exitedAtStr ? new Date(exitedAtStr) : null);
+    const end = exitedAtStr ? new Date(exitedAtStr) : (start ? new Date(start) : null);
+
+    if (!start) return { dateStr: '—', timeRange: '—', fullLabel: '—' };
+
+    const dateStr = start.toLocaleDateString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+
+    const startHourMin = start.toLocaleTimeString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+
+    if (isLive || !exitedAtStr) {
+      return {
+        dateStr,
+        timeRange: `${startHourMin} – Active Now`,
+        fullLabel: `${dateStr}, ${startHourMin} – Active Now`
+      };
+    }
+
+    const endHourMin = end.toLocaleTimeString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+
+    // If start and end are in different minutes (e.g. 10:55 am and 10:58 am)
+    if (startHourMin !== endHourMin) {
+      const startParts = startHourMin.split(' ');
+      const endParts = endHourMin.split(' ');
+      let timeRange = `${startHourMin} – ${endHourMin}`;
+      if (startParts[1]?.toLowerCase() === endParts[1]?.toLowerCase()) {
+        timeRange = `${startParts[0]} – ${endHourMin}`;
+      }
+      return {
+        dateStr,
+        timeRange,
+        fullLabel: `${dateStr}, ${timeRange}`
+      };
+    }
+
+    // Same minute: show exact seconds range (e.g. 10:58:47 – 10:58:52 am for short visits)
+    const diffSec = Math.abs(Math.round((end.getTime() - start.getTime()) / 1000));
+    if (diffSec > 0) {
+      const startSec = start.toLocaleTimeString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      });
+      const endSec = end.toLocaleTimeString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      });
+      const startSecParts = startSec.split(' ');
+      let timeRange = `${startSec} – ${endSec}`;
+      if (startSecParts[1]?.toLowerCase() === endSec.split(' ')[1]?.toLowerCase()) {
+        timeRange = `${startSecParts[0]} – ${endSec}`;
+      }
+      return {
+        dateStr,
+        timeRange,
+        fullLabel: `${dateStr}, ${timeRange}`
+      };
+    }
+
+    return {
+      dateStr,
+      timeRange: startHourMin,
+      fullLabel: `${dateStr}, ${startHourMin}`
+    };
+  } catch (e) {
+    return { dateStr: '—', timeRange: '—', fullLabel: '—' };
+  }
+}
+
 function formatRelativeTime(dateStr) {
   if (!dateStr) return '—';
   try {
@@ -320,7 +411,9 @@ export default function VisitorAnalyticsPage() {
     totalVisitorsCount: 0,
     newVisitorsCount: 0,
     returningVisitorsCount: 0,
-    totalPageVisitsCount: 0
+    totalPageVisitsCount: 0,
+    avgDurationSeconds: 0,
+    avgActiveSeconds: 0
   });
   const [pagination, setPagination] = useState({
     page: 1,
@@ -755,31 +848,43 @@ export default function VisitorAnalyticsPage() {
       <div className="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/90 shadow-sm space-y-4">
         {/* Row 1: Live/All Tabs + Search Box */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-neutral-100">
-          {/* Tabs */}
-          <div className="flex items-center gap-1.5 bg-neutral-100 p-1 rounded-xl self-start">
-            <button
-              type="button"
-              onClick={() => { setActiveTab('all'); setPagination((p) => ({ ...p, page: 1 })); }}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'all'
-                  ? 'bg-white text-neutral-900 shadow-xs'
-                  : 'text-neutral-500 hover:text-neutral-900'
-              }`}
-            >
-              {periodPreset === 'TODAY' ? "Today's Visitors" : "All Visitors"} ({stats.totalVisitorsCount})
-            </button>
-            <button
-              type="button"
-              onClick={() => { setActiveTab('live'); setPagination((p) => ({ ...p, page: 1 })); }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'live'
-                  ? 'bg-white text-emerald-700 shadow-xs'
-                  : 'text-neutral-500 hover:text-neutral-900'
-              }`}
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Live Now ({stats.liveVisitorsCount})</span>
-            </button>
+          {/* Tabs & Avg Stay Pill */}
+          <div className="flex items-center gap-2 flex-wrap self-start">
+            <div className="flex items-center gap-1.5 bg-neutral-100 p-1 rounded-xl">
+              <button
+                type="button"
+                onClick={() => { setActiveTab('all'); setPagination((p) => ({ ...p, page: 1 })); }}
+                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'all'
+                    ? 'bg-white text-neutral-900 shadow-xs'
+                    : 'text-neutral-500 hover:text-neutral-900'
+                }`}
+              >
+                {periodPreset === 'TODAY' ? "Today's Visitors" : "All Visitors"} ({stats.totalVisitorsCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => { setActiveTab('live'); setPagination((p) => ({ ...p, page: 1 })); }}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'live'
+                    ? 'bg-white text-emerald-700 shadow-xs'
+                    : 'text-neutral-500 hover:text-neutral-900'
+                }`}
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Live Now ({stats.liveVisitorsCount})</span>
+              </button>
+            </div>
+
+            {(stats.avgDurationSeconds > 0 || stats.avgActiveSeconds > 0) && (
+              <div
+                className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-teal-50/80 text-teal-800 border border-teal-200/90 shadow-2xs"
+                title={`Average visitor stay: ${formatDuration(stats.avgDurationSeconds || stats.avgActiveSeconds)} (Active engagement: ${formatDuration(stats.avgActiveSeconds)})`}
+              >
+                <Clock className="w-3.5 h-3.5 text-teal-600" />
+                <span>Avg Stay: {formatDuration(stats.avgDurationSeconds || stats.avgActiveSeconds)}</span>
+              </div>
+            )}
           </div>
 
           {/* Search Input */}
@@ -1188,7 +1293,7 @@ export default function VisitorAnalyticsPage() {
       </div>
 
       {/* Summary Stat Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3.5 sm:gap-4">
         {/* 1. Live Active Visitors */}
         <div
           onClick={() => {
@@ -1338,6 +1443,38 @@ export default function VisitorAnalyticsPage() {
             <Layers className="w-6 h-6" />
           </div>
         </div>
+
+        {/* 6. Average Time on Site (Avg Duration / Engagement) */}
+        <div
+          className="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3 transition-all hover:shadow-md hover:border-teal-300"
+          title={`Average time spent on website: ${formatDuration(stats.avgDurationSeconds || stats.avgActiveSeconds || 0)} (Active engagement: ${formatDuration(stats.avgActiveSeconds || 0)})`}
+        >
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-teal-700 uppercase tracking-wider">
+              <Clock className="w-3.5 h-3.5 text-teal-600" />
+              <span>{periodPreset === 'TODAY' ? "Today's Avg Time" : "Avg Time On Site"}</span>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-neutral-900 mt-1 flex items-baseline gap-1.5">
+              <span>{formatDuration(stats.avgDurationSeconds || stats.avgActiveSeconds || 0)}</span>
+              {stats.avgActiveSeconds > 0 && stats.avgDurationSeconds > stats.avgActiveSeconds && (
+                <span
+                  className="text-[10px] font-bold text-teal-800 bg-teal-50 border border-teal-200/80 px-1.5 py-0.5 rounded-md"
+                  title="Average active engagement time"
+                >
+                  Act: {formatDuration(stats.avgActiveSeconds)}
+                </span>
+              )}
+            </div>
+            <div className="text-xs text-neutral-500 font-medium mt-1 truncate">
+              {stats.avgActiveSeconds > 0
+                ? `~${formatDuration(stats.avgActiveSeconds)} active engagement`
+                : (periodPreset === 'TODAY' ? 'Average stay today' : 'Average stay per visitor')}
+            </div>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
+            <Timer className="w-6 h-6" />
+          </div>
+        </div>
       </div>
 
       {/* Main Table View */}
@@ -1396,6 +1533,13 @@ export default function VisitorAnalyticsPage() {
                     Number(p?.activeSeconds) || 0,
                     (v.totalVisits <= 1 && p?.status === 'ENDED') ? (Number(p?.durationSeconds) || 0) : 0
                   );
+
+                  // Visit Timing Range (Enter – Exit)
+                  const enterTime = v.visitEnteredAt || p?.enteredAt || v.firstVisitAt || v.lastVisitAt;
+                  const exitTime = isLive
+                    ? null
+                    : (v.visitLeftAt || p?.leftAt || p?.estimatedEndTime || p?.lastActivityAt || v.lastVisitAt);
+                  const timing = formatVisitTimingRange(enterTime, exitTime, isLive);
 
                   return (
                     <tr
@@ -1480,13 +1624,18 @@ export default function VisitorAnalyticsPage() {
                         )}
                       </td>
 
-                      {/* 3. Visit Timing */}
+                      {/* 3. Visit Timing (Entered – Exited) */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="font-semibold text-neutral-900 text-xs">
-                          {formatKolkataTime(p?.enteredAt || v.lastVisitAt)}
+                        <div
+                          className="font-semibold text-neutral-900 text-xs font-mono"
+                          title={`Entered: ${formatKolkataTime(enterTime, true)}${exitTime ? ` • Exited: ${formatKolkataTime(exitTime, true)}` : ' • Currently Active'}`}
+                        >
+                          {timing.fullLabel}
                         </div>
                         <div className="flex items-center gap-1.5 text-[11px] text-neutral-500 mt-1 flex-wrap">
-                          <span className="font-medium text-neutral-600">{formatRelativeTime(v.lastVisitAt)}</span>
+                          <span className="font-medium text-neutral-600">
+                            {formatRelativeTime(exitTime || v.lastVisitAt)}
+                          </span>
                           <span>•</span>
                           {p ? (
                             p.status === 'ENDED' ? (
