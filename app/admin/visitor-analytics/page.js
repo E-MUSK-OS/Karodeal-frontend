@@ -879,10 +879,10 @@ export default function VisitorAnalyticsPage() {
             {(stats.avgDurationSeconds > 0 || stats.avgActiveSeconds > 0) && (
               <div
                 className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-teal-50/80 text-teal-800 border border-teal-200/90 shadow-2xs"
-                title={`Average visitor stay: ${formatDuration(stats.avgDurationSeconds || stats.avgActiveSeconds)} (Active engagement: ${formatDuration(stats.avgActiveSeconds)})`}
+                title={`Average active engagement: ${formatDuration(stats.avgActiveSeconds || stats.avgDurationSeconds)} (Total elapsed stay: ${formatDuration(stats.avgDurationSeconds)})`}
               >
                 <Clock className="w-3.5 h-3.5 text-teal-600" />
-                <span>Avg Stay: {formatDuration(stats.avgDurationSeconds || stats.avgActiveSeconds)}</span>
+                <span>Avg Active: {formatDuration(stats.avgActiveSeconds || stats.avgDurationSeconds)}</span>
               </div>
             )}
           </div>
@@ -1444,10 +1444,10 @@ export default function VisitorAnalyticsPage() {
           </div>
         </div>
 
-        {/* 6. Average Time on Site (Avg Duration / Engagement) */}
+        {/* 6. Average Time on Site (Active Engagement & Elapsed Stay) */}
         <div
           className="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200 shadow-sm flex items-center justify-between gap-3 transition-all hover:shadow-md hover:border-teal-300"
-          title={`Average time spent on website: ${formatDuration(stats.avgDurationSeconds || stats.avgActiveSeconds || 0)} (Active engagement: ${formatDuration(stats.avgActiveSeconds || 0)})`}
+          title={`Average active engagement: ${formatDuration(stats.avgActiveSeconds || stats.avgDurationSeconds || 0)} (Total elapsed stay: ${formatDuration(stats.avgDurationSeconds || 0)})`}
         >
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-teal-700 uppercase tracking-wider">
@@ -1455,20 +1455,18 @@ export default function VisitorAnalyticsPage() {
               <span>{periodPreset === 'TODAY' ? "Today's Avg Time" : "Avg Time On Site"}</span>
             </div>
             <div className="text-2xl sm:text-3xl font-black text-neutral-900 mt-1 flex items-baseline gap-1.5">
-              <span>{formatDuration(stats.avgDurationSeconds || stats.avgActiveSeconds || 0)}</span>
-              {stats.avgActiveSeconds > 0 && stats.avgDurationSeconds > stats.avgActiveSeconds && (
-                <span
-                  className="text-[10px] font-bold text-teal-800 bg-teal-50 border border-teal-200/80 px-1.5 py-0.5 rounded-md"
-                  title="Average active engagement time"
-                >
-                  Act: {formatDuration(stats.avgActiveSeconds)}
-                </span>
-              )}
+              <span>{formatDuration(stats.avgActiveSeconds || stats.avgDurationSeconds || 0)}</span>
+              <span
+                className="text-[10px] font-bold text-teal-800 bg-teal-50 border border-teal-200/80 px-1.5 py-0.5 rounded-md"
+                title="Average active engagement time on site"
+              >
+                Active
+              </span>
             </div>
-            <div className="text-xs text-neutral-500 font-medium mt-1 truncate">
-              {stats.avgActiveSeconds > 0
-                ? `~${formatDuration(stats.avgActiveSeconds)} active engagement`
-                : (periodPreset === 'TODAY' ? 'Average stay today' : 'Average stay per visitor')}
+            <div className="text-xs text-neutral-500 font-medium mt-1 truncate" title={`Total elapsed stay: ${formatDuration(stats.avgDurationSeconds || 0)}`}>
+              {stats.avgDurationSeconds > 0
+                ? `~${formatDuration(stats.avgDurationSeconds)} total elapsed stay`
+                : (periodPreset === 'TODAY' ? 'Active engagement today' : 'Active engagement per visitor')}
             </div>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
